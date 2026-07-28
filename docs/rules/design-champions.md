@@ -54,7 +54,7 @@ Each turn the Champion may spend its single **Channel** on **one** of:
 - **Leveling:** the Champion gains levels when **conditions** are met across matches (conditions TBD — design task). Not within a single game.
 - **Paths:** each Champion has **multiple branching progression paths** (skill-tree-like). A player commits to a path over time, giving each Champion multiple distinct identities.
 - **Data-driven:** Champions, their abilities, and their path trees are defined in data, like cards.
-- Progression state is **server-authoritative** (anti-cheat), consistent with pillar 6.
+- Progression state is **server-authoritative** (anti-cheat), consistent with pillar 6. Offline solo/hotseat play grants **no progression**; online solo vs AI earns progression via **replay verification** (the server independently replays the match's recorded command log rather than trusting a client-reported result); online 1v1 is live-hosted and inherently secure. See `docs/architecture/decisions-architecture.md` A4 for the full mechanism and why a client-local progression mirror was rejected.
 
 ## Progression fairness — level bands (DECIDED, D2)
 Persistent power progression is the classic route to *veteran-stomps-newbie* and *pay-to-win*, and it is especially corrosive here because hidden-information play (pillar 6) already rewards experience. Resolution:

@@ -53,14 +53,14 @@ You have lots of ideas (rules, card types, resource system, card properties, pro
 
 | Step | Domain | Why here | Output doc |
 |---|---|---|---|
-| 1 | **Glossary / vocabulary** | Consistent terms prevent rework. Nail names first. | `docs/glossary.md` |
-| 2 | **Match structure** | Board, zones, turn/phase order, win conditions — the skeleton everything hangs on. | `docs/rules-structure.md` |
-| 3 | **Resource system** | Economy shapes every card's cost and the whole feel. | `docs/rules-resources.md` |
-| 4 | **Card taxonomy** | The card *types* and what each type does. | `docs/cards-taxonomy.md` |
-| 5 | **Card anatomy (schema)** | The properties *every* card has → becomes the data schema. | `docs/card-schema.md` |
-| 6 | **Keyword / ability library** | Reusable effects cards compose from (the vocabulary of §Part A mechanisms). | `docs/keywords.md` |
+| 1 | **Glossary / vocabulary** | Consistent terms prevent rework. Nail names first. | `docs/rules/glossary.md` |
+| 2 | **Match structure** | Board, zones, turn/phase order, win conditions — the skeleton everything hangs on. | `docs/rules/rules-structure.md` |
+| 3 | **Resource system** | Economy shapes every card's cost and the whole feel. | `docs/rules/rules-resources.md` |
+| 4 | **Card taxonomy** | The card *types* and what each type does. | `docs/rules/cards-taxonomy.md` |
+| 5 | **Card anatomy (schema)** | The properties *every* card has → becomes the data schema. | `docs/rules/card-schema.md` |
+| 6 | **Keyword / ability library** | Reusable effects cards compose from (the vocabulary of §Part A mechanisms). | `docs/rules/keywords.md` |
 | 7 | **Prototype cards** | Fill the schema; stress-test the whole model against reality. | `docs/cards/*.md` |
-| 8 | **Rule-mutation catalog** | Built *continuously* across all steps: the tagged list from Part A. | `docs/rule-mutations.md` |
+| 8 | **Rule-mutation catalog** | Built *continuously* across all steps: the tagged list from Part A. | `docs/rules/rule-mutations.md` |
 
 *(Steps 2–6 are the "rules skeleton." Step 8 is cross-cutting — we add to it every time we capture a rule.)*
 

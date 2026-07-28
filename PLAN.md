@@ -17,9 +17,9 @@ The two halves reinforce each other: your deck defines *what tools you have*, th
 2. **Position is a resource.** High ground, chokepoints, flanking, and zone control matter as much as card advantage.
 3. **Readable depth.** Simple to parse a board state at a glance; deep in the interactions. Complexity lives in card combinations, not in fiddly rules.
 4. **Deterministic at heart.** The rules engine is a pure, deterministic simulation — enabling AI, replays, networked play, and rigorous testing (see §7).
-5. **Cards rewrite the rules.** The game must grow via new cards indefinitely, and cards must be able to *change the rules themselves* — not just numbers. The base rules and card effects share one representation, so "a card changes a rule" is the *only* case, never a bolted-on special case. This is the hardest architectural constraint and is designed in from day one. See `docs/knowledge-capture-plan.md` §Part A.
-6. **Asymmetric information.** Players do not share one view of the board — what each player *perceives* is a manipulable, card-driven property (Mimic, Submerged units, Mist regions). This exploits a digital-only advantage most TCGs leave on the table. Architecturally it is the same modifier/query paradigm as pillar 5, applied to a *perception* axis: one authoritative true state, projected into per-observer views. See `docs/design-asymmetric-information.md`.
-7. **Champions.** *(Secondary pillar.)* Each player is embodied by a single **Champion** — the only entity that can draw mana from the land and *channel* it into magic. It is the resource-network **root** (D8), the **win condition** (kill the enemy Champion to win — no separate Base, D9), and an exposed board piece, all at once. It runs **two economies**: *mana* (many spells/units per turn) and a single **Channel** per turn spent on one of {bond a terrain · act as a creature · activate an ability} — the game's second core decision layer. The in-match Champion is a special card type inside the deterministic core; all persistent progression lives in a **separate meta-layer** that hands the core a resolved loadout. Progression uses **level bands** (D2): horizontal within a band, a discrete step up between bands, matched only within a band. See `docs/design-champions.md`.
+5. **Cards rewrite the rules.** The game must grow via new cards indefinitely, and cards must be able to *change the rules themselves* — not just numbers. The base rules and card effects share one representation, so "a card changes a rule" is the *only* case, never a bolted-on special case. This is the hardest architectural constraint and is designed in from day one. See `docs/rules/knowledge-capture-plan.md` §Part A.
+6. **Asymmetric information.** Players do not share one view of the board — what each player *perceives* is a manipulable, card-driven property (Mimic, Submerged units, Mist regions). This exploits a digital-only advantage most TCGs leave on the table. Architecturally it is the same modifier/query paradigm as pillar 5, applied to a *perception* axis: one authoritative true state, projected into per-observer views. See `docs/rules/design-asymmetric-information.md`.
+7. **Champions.** *(Secondary pillar.)* Each player is embodied by a single **Champion** — the only entity that can draw mana from the land and *channel* it into magic. It is the resource-network **root** (D8), the **win condition** (kill the enemy Champion to win — no separate Base, D9), and an exposed board piece, all at once. It runs **two economies**: *mana* (many spells/units per turn) and a single **Channel** per turn spent on one of {bond a terrain · act as a creature · activate an ability} — the game's second core decision layer. The in-match Champion is a special card type inside the deterministic core; all persistent progression lives in a **separate meta-layer** that hands the core a resolved loadout. Progression uses **level bands** (D2): horizontal within a band, a discrete step up between bands, matched only within a band. See `docs/rules/design-champions.md`.
 
 ---
 
@@ -52,7 +52,7 @@ Players alternate turns. A match is: **build deck → deploy from your realm →
 
 ### 3.2 Cards & deckbuilding (the MTG half)
 - **Card type is a data-driven tag (pillar 5), not a fixed class (D17).** **"Spell"** is the **umbrella** for anything cast through the Aether. Seed types:
-  - **Creature** (Unit) — mobile Play-permanent; **three stats: Attack / Life / AP** (D10). AP is its private per-turn action budget; **mana is a single shared pool** (see `docs/design-economy.md`).
+  - **Creature** (Unit) — mobile Play-permanent; **three stats: Attack / Life / AP** (D10). AP is its private per-turn action budget; **mana is a single shared pool** (see `docs/rules/design-economy.md`).
   - **Structure** — stationary, **non-carryable** Play-permanent; subtypes (e.g. *Building*) fit the hex/location theme. Absorbs non-equippable "artifacts."
   - **Item** — **carryable** Play-permanent (pick up / equip).
   - **Rite** — the one-shot type; resolves to an Aether **trace**, leaves no permanent.
@@ -62,7 +62,7 @@ Players alternate turns. A match is: **build deck → deploy from your realm →
 - **Data-driven:** every card is defined in data (JSON/resource files), not code — so designers can add/balance cards without engineering. This is foundational to the architecture (§7).
 
 ### 3.3 Resource system — terrain connection network (DECIDED, D8)
-A **separate terrain deck** is laid out randomly in each player's home base at start. Up to once per turn a player **connects** one more terrain reachable from their **Champion** through already-connected, unblocked terrain; connected terrain produces mana. This is a spatial, deterministic ramp that **eliminates draw-based mana/color screw** while keeping lands powerful and thought-after. 8 colors (8 unrestricted basics + restricted non-basics). The **Champion is the network root**, so advancing it endangers the economy — fusing resources to board and Champion (pillars 1, 2). Mana **denial is positional and reversible** (occupy a node to put a connection "on hold"), never random. This is the game's signature economy and a deliberately rich core system. Full design + open questions: `docs/design-resources-terrain.md`.
+A **separate terrain deck** is laid out randomly in each player's home base at start. Up to once per turn a player **connects** one more terrain reachable from their **Champion** through already-connected, unblocked terrain; connected terrain produces mana. This is a spatial, deterministic ramp that **eliminates draw-based mana/color screw** while keeping lands powerful and thought-after. 8 colors (8 unrestricted basics + restricted non-basics). The **Champion is the network root**, so advancing it endangers the economy — fusing resources to board and Champion (pillars 1, 2). Mana **denial is positional and reversible** (occupy a node to put a connection "on hold"), never random. This is the game's signature economy and a deliberately rich core system. Full design + open questions: `docs/rules/design-resources-terrain.md`.
 
 ### 3.4 Combat (DECIDED: D3, D4, D13)
 - **Attacks target a hex; the defender declares defenders** (guard mechanic, D4). Every fight is an explicit `Combat` object, resolved **sequentially** now, revertible to phased (D3).
@@ -114,21 +114,20 @@ Multiple modes were requested; recommended build order:
 **Alternative: Unity (C#)** — choose if you want the largest asset/tutorial ecosystem and the most battle-tested mobile pipeline, and don't mind more weight and licensing considerations. Everything in this plan's architecture is engine-agnostic.
 
 ### Architecture: **deterministic rules core, separated from presentation**
-This is the single most important technical decision.
+This is the single most important technical decision. Full component breakdown, the client/server Host boundary, and the mode-by-mode "what runs where" matrix now live in `docs/architecture/design-architecture.md` (engineering decisions logged as A1–A5 in `docs/architecture/decisions-architecture.md`) — the shape below is the short version:
 
 ```
-┌─────────────────────────────────────────────┐
-│  Rules Engine (pure C#, headless, no engine  │
-│  deps): game state, legal moves, resolution. │
-│  Deterministic. Fully unit-testable.         │
-└───────────────┬─────────────────────────────┘
-                │ commands in / events out
-   ┌────────────┼───────────────┬──────────────┐
-   ▼            ▼               ▼               ▼
- Godot UI     AI (search    Netcode        Test suite /
- (rendering,  over legal    (validate,     simulation
-  input)      moves)        sync)          harness
+Rules Core (pure C#, headless, deterministic) → Perception layer (per-observer views, pillar 6)
+                                                            │
+                                                          HOST  (commands in / this seat's view+events out)
+                                              ┌─────────────┴─────────────┐
+                                     Local/Embedded                Remote/Networked
+                                    (in-process, solo/hotseat)     (network → Server process, online 1v1)
+                                              │                             │
+                                   Human/UI seat-controller         AI seat-controller
 ```
+
+Same Rules Core binary, same Host contract, either transport underneath — this is what makes "everything the server does in 1v1 must also run on the client" literally true, not just aspirational. `docs/` itself now splits the same way: `docs/rules/` = what the game is, `docs/architecture/` = how it's built (see `docs/README.md`).
 
 Why it's worth the discipline:
 - **Testable:** rules verified without rendering.
@@ -136,9 +135,9 @@ Why it's worth the discipline:
 - **Net-ready:** deterministic simulation enables server-authoritative or lockstep multiplayer with anti-cheat essentially for free.
 - **Replays & balancing:** record command streams; replay and batch-simulate for balance analysis.
 
-**Per-observer views (asymmetric information — pillar 6).** The core holds one deterministic *true state* but exposes it only through a **perception layer** that projects a separate *view* per player. The engine emits per-observer (redacted/transformed) event streams, never one global stream. Consequences: networking **must** be server-authoritative and view-redacted (clients never receive true state); the UI renders a view, never truth; AI must eventually reason from its own view, not truth. See `docs/design-asymmetric-information.md`.
+**Per-observer views (asymmetric information — pillar 6).** The core holds one deterministic *true state* but exposes it only through a **perception layer** that projects a separate *view* per player. The engine emits per-observer (redacted/transformed) event streams, never one global stream. Consequences: networking **must** be server-authoritative and view-redacted (clients never receive true state); the UI renders a view, never truth; AI must eventually reason from its own view, not truth. See `docs/rules/design-asymmetric-information.md`.
 
-**Priority + stack (interaction).** The core includes a real priority/LIFO-stack capability so players can act on the opponent's turn (instants), enabling combat tricks and traps through one mechanism. Kept tame via defined priority windows and mostly sorcery-speed default cards. This is the largest complexity commitment in the core and touches AI (evaluate responses) and netcode (priority windows). See `docs/design-interaction-stack.md`.
+**Priority + stack (interaction).** The core includes a real priority/LIFO-stack capability so players can act on the opponent's turn (instants), enabling combat tricks and traps through one mechanism. Kept tame via defined priority windows and mostly sorcery-speed default cards. This is the largest complexity commitment in the core and touches AI (evaluate responses) and netcode (priority windows). See `docs/rules/design-interaction-stack.md`.
 
 ### Data-driven content
 - Cards, units, terrain, and factions defined in **data files** (JSON or Godot resources), loaded by the engine.
@@ -164,10 +163,10 @@ Why it's worth the discipline:
 
 ## 8. Immediate next steps (updated — core design locked, D1–D21)
 
-The design is captured across `docs/` (glossary, rules-structure, decisions **D1–D21**, and per-topic design notes). The **structural keystones are done**; what remains is tuning/content/playtest (see open items in `docs/decisions.md`). **The next session starts here** (see memory `session-handoff`), as **two parallel tracks**:
+The design is captured across `docs/` (glossary, rules-structure, decisions **D1–D21**, and per-topic design notes). The **structural keystones are done**; what remains is tuning/content/playtest (see open items in `docs/rules/decisions.md`). **The next session starts here** (see memory `session-handoff`), as **two parallel tracks**:
 
 **Track A — design review (parallel, user-led; does not block implementation):**
-0. **Pessimistic-default audit** — sweep D1–D21 for generous defaults that should become positive keywords (e.g. D8 "creature blocks mana flow" → a **"Blockade"** keyword). Worklist: `docs/pessimistic-default-audit.md`.
+0. **Pessimistic-default audit** — sweep D1–D21 for generous defaults that should become positive keywords (e.g. D8 "creature blocks mana flow" → a **"Blockade"** keyword). Worklist: `docs/rules/pessimistic-default-audit.md`.
 
 **Track B — implementation (start now):**
 1. **Toolchain:** install the **.NET SDK**; decide **Windows-native vs WSL** dev environment (lean Windows-native for the Godot client/UI + Windows export; the headless C# core is platform-agnostic and runs either place).
