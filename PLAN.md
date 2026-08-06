@@ -19,7 +19,7 @@ The two halves reinforce each other: your deck defines *what tools you have*, th
 4. **Deterministic at heart.** The rules engine is a pure, deterministic simulation — enabling AI, replays, networked play, and rigorous testing (see §7).
 5. **Cards rewrite the rules.** The game must grow via new cards indefinitely, and cards must be able to *change the rules themselves* — not just numbers. The base rules and card effects share one representation, so "a card changes a rule" is the *only* case, never a bolted-on special case. This is the hardest architectural constraint and is designed in from day one. See `docs/rules/knowledge-capture-plan.md` §Part A.
 6. **Asymmetric information.** Players do not share one view of the board — what each player *perceives* is a manipulable, card-driven property (Mimic, Submerged units, Mist regions). This exploits a digital-only advantage most TCGs leave on the table. Architecturally it is the same modifier/query paradigm as pillar 5, applied to a *perception* axis: one authoritative true state, projected into per-observer views. See `docs/rules/design-asymmetric-information.md`.
-7. **Champions.** *(Secondary pillar.)* Each player is embodied by a single **Champion** — the only entity that can draw mana from the land and *channel* it into magic. It is the resource-network **root** (D8), the **win condition** (kill the enemy Champion to win — no separate Base, D9), and an exposed board piece, all at once. It runs **two economies**: *mana* (many spells/units per turn) and a single **Channel** per turn spent on one of {bond a terrain · act as a creature · activate an ability} — the game's second core decision layer. The in-match Champion is a special card type inside the deterministic core; all persistent progression lives in a **separate meta-layer** that hands the core a resolved loadout. Progression uses **level bands** (D2): horizontal within a band, a discrete step up between bands, matched only within a band. See `docs/rules/design-champions.md`.
+7. **Champions.** *(Secondary pillar.)* Each player is embodied by a single **Champion** — the only entity that can draw mana from the land and *channel* it into magic. It is the resource-network **root** (D8), the **win condition** (kill the enemy Champion to win — no separate Base, D9), and an exposed board piece, all at once. It runs the **same two-resource shape as a creature** (D9, revised 2026-08-06): *mana* (many spells/units per turn) and its own **Action Points** spent on draw / bond / move / fight / activate an ability — mechanically a special king-like creature, not a third economy. That resource-allocation puzzle is the game's second core decision layer. The in-match Champion is a special card type inside the deterministic core; all persistent progression lives in a **separate meta-layer** that hands the core a resolved loadout. Progression uses **level bands** (D2): horizontal within a band, a discrete step up between bands, matched only within a band. See `docs/rules/design-champions.md`.
 
 ---
 
@@ -30,11 +30,12 @@ A single **turn** for one player (D21), at a glance:
 ```
 Beginning  ─────────────────►  Action  ──────────────────►  End
    │                              │                            │
- refresh mana/AP/Channel,     play spells, spend AP to      end-of-turn
- draw 1 (simultaneous);       move / attack / activate,     triggers
- APNAP begin triggers         any order, until you finish   (APNAP)
-                              (opponent may respond after
-                               EVERY action — priority/stack)
+ refresh mana/AP            play spells, spend AP to      end-of-turn
+ (simultaneous);            move / attack / draw / bond   triggers
+ APNAP begin triggers       / activate, any order,        (APNAP)
+                            until you finish (opponent
+                            may respond after EVERY
+                            action — priority/stack)
 ```
 
 Players alternate turns. A match is: **build deck → deploy from your realm → maneuver → fight → kill the enemy Champion.**
@@ -168,6 +169,11 @@ The design is captured across `docs/` (glossary, rules-structure, decisions **D1
 
 **Track A — design review (parallel, user-led; does not block implementation):**
 0. **Pessimistic-default audit** — sweep D1–D21 for generous defaults that should become positive keywords (e.g. D8 "creature blocks mana flow" → a **"Blockade"** keyword). Worklist: `docs/rules/pessimistic-default-audit.md`.
+1. **Other card types.** Design/confirm rules for the non-Creature card types: current state of **Terrain**, **Map**, and **Rite** is thin; **Structure/Item** (Building subtype) need fleshing out; and there's a **new card type, "Companion,"** not yet introduced into the docs at all.
+2. **The 8 colors.** Define each color's identity and its relationships to the others (allies/enemies, mechanical identity, philosophy) — aiming from the start for Mark-Rosewater-color-wheel quality, not a placeholder pass to redo later.
+3. **Initial deck ideas per color.** Sketch what an early deck in each color wants to do — this should double as a seed for drafting actual starter cards.
+4. **Fill remaining structural gaps:** Zones (`Hand/Library/Play/Aether`, D16), the three board layers (ground/above/below, D12), and **Graves** — currently undecided whether a Grave is a Zone or a board-layer/marker concept; needs to be pinned down.
+5. **Gap sweep.** Once 1–4 land, take stock of what's still missing from the ruleset overall.
 
 **Track B — implementation (M1 COMPLETE as of 2026-08-05):**
 1. **Toolchain:** ✅ .NET SDK 10.0 (LTS) installed; Windows-native, VS Code + C# Dev Kit. Project renamed **Hex → Leyline** (see PLAN.md title).
@@ -181,7 +187,7 @@ The design is captured across `docs/` (glossary, rules-structure, decisions **D1
    - **Slice 6**: `LocalHost` hardening (5 negative-assertion tests in a project that never references RulesCore internals), `DeterminismReplayTests` (same log twice, and direct-vs-Host), a golden-path integration test, and an interactive Host-mediated REPL (`dotnet run --project tools\Leyline.SimHarness -- interactive`) alongside the existing batch V1-vs-V2 sim (`dotnet run --project tools\Leyline.SimHarness`).
    - Two real bugs were caught by tests during implementation (a state-based-check ordering bug that would've missed Champion deaths, and a missing Champion-AP-reset-to-zero) — both fixed, both now regression-tested.
 4. **✅ Done (2026-08-06):** the modifier add/remove mechanism designed in `docs/architecture/design-continuous-effects.md` is now implemented — `IModifier`/`ModifierId`/`ModifierDuration`, `AddModifierEvent`/`RemoveModifierEvent`, `Modifiers/ModifierPipeline.cs`, and `Turns/ExpireModifiersEffect.cs` (End-phase cleanup). `IQueryModifier.Priority` was dropped in favor of append order, as the doc leaned toward. 7 new tests (71 total passing). See the doc's "Resume here next session" section for the updated status — the Rite/Spell casting pipeline is now the next open gap it flags.
-5. **⚠️ First thing next session:** either continue Track B by designing the Rite/Spell casting pipeline (the next dependency `design-continuous-effects.md` flags — no way to actually *cast* anything yet), or start **Build M1.5** (not started): minimal 3-window Godot 4 + C# debug UI over M1's `LegalCommands`/`Apply`/`ViewProjector` surface (see §7 milestone table).
+5. **⚠️ First thing next session:** either continue Track B by designing the Rite/Spell casting pipeline (the next dependency `design-continuous-effects.md` flags — no way to actually *cast* anything yet), or start **Build M1.5** (not started): minimal 3-window Godot 4 + C# debug UI over M1's `LegalCommands`/`Apply`/`ViewProjector` surface (see §7 milestone table). **Note (2026-08-06):** Track A's Champion-economy revision (D9 — Channel folded into AP, pillar 7 above) postdates the M1 code above, which still implements the old `ChannelActCommand`/Channel-flag model (Slice 4). Track B intentionally doesn't block on Track A, but this is now a known doc/code drift to reconcile whenever Champion implementation work resumes.
 
 ---
 
@@ -190,4 +196,3 @@ The design is captured across `docs/` (glossary, rules-structure, decisions **D1
 - **Monetization / business model** — relevant to "serious indie" but not to the prototype.
 - **Art pipeline & style** — after core loop is fun.
 - **Progression / metagame** (unlocks, ranked, collection) — post-M4.
-```
