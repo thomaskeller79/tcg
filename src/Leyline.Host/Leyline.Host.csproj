@@ -1,0 +1,8 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Leyline.RulesCore\Leyline.RulesCore.csproj" />
+    <ProjectReference Include="..\Leyline.Content.Json\Leyline.Content.Json.csproj" />
+  </ItemGroup>
+
+</Project>

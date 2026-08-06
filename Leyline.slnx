@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Leyline.Content.Json/Leyline.Content.Json.csproj" />
+    <Project Path="src/Leyline.Host/Leyline.Host.csproj" />
+    <Project Path="src/Leyline.RulesCore/Leyline.RulesCore.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Leyline.Host.Tests/Leyline.Host.Tests.csproj" />
+    <Project Path="tests/Leyline.RulesCore.Tests/Leyline.RulesCore.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/Leyline.SimHarness/Leyline.SimHarness.csproj" />
+  </Folder>
+</Solution>

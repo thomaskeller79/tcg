@@ -1,0 +1,8 @@
+{
+  "id": "creature.test_grunt",
+  "type": "Creature",
+  "name": "Grunt (test)",
+  "stats": { "attack": 3, "life": 5, "ap": 3 },
+  "abilities": ["core.move", "core.attack"],
+  "keywords": []
+}

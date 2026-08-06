@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Leyline.RulesCore\Leyline.RulesCore.csproj" />
+    <ProjectReference Include="..\..\src\Leyline.Host\Leyline.Host.csproj" />
+    <ProjectReference Include="..\..\src\Leyline.Content.Json\Leyline.Content.Json.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+</Project>

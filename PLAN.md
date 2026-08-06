@@ -1,6 +1,6 @@
-# Project "Hex" — High-Level Plan
+# Project "Leyline" — High-Level Plan
 
-*A digital deckbuilding + tactical hex-combat game. Working title: **Hex**.*
+*A digital deckbuilding + tactical hex-combat game. Working title: **Leyline**.*
 
 **Status:** Initial plan · **Date:** 2026-07-23
 
@@ -150,14 +150,15 @@ Why it's worth the discipline:
 | # | Milestone | Goal | Exit criteria |
 |---|---|---|---|
 | **M0** | Design lock-in | Answer §4 tensions on paper; pick resource model; draft 20–30 starter cards + 1 board | A one-page ruleset you can play by hand |
-| **M1** | Rules engine core | Headless deterministic engine: state, phases, legal moves, combat, win check | Full game playable via unit tests / console; 100% deterministic |
-| **M2** | Playable hotseat (Godot) | Board rendering, hand UI, input, local 1v1 | Two humans finish a real match on one PC |
+| **M1** | Rules engine core | Headless deterministic engine: state, phases, legal moves, combat, win check, terrain/mana network, a *minimal* priority/stack, a *minimal* hidden-info layer — exposed via two first-class queries: legal-command enumeration and per-observer view projection | Full game playable via unit tests / console; 100% deterministic |
+| **M1.5** | Minimal playable prototype (debug UI) | Bare Godot 4 client over M1's query surface: monocolored hex terrain (TileMap), text-labeled creatures, legal-actions-as-buttons, a pending-stack list with respond/pass, three windows (P1 view / P2 view / true state) across screens | A full match is actually playable, and perceived-vs-true state can be eyeballed for consistency |
+| **M2** | Playable hotseat (Godot) | Real board rendering, hand UI, input, local 1v1, polish | Two humans finish a real match on one PC |
 | **M3** | Content + balance pass | Data-driven cards, 2–3 factions, terrain; first balance iteration | ~60–80 cards; matches feel varied and fair |
 | **M4** | Solo vs AI | Legal-move-generating AI (heuristic → search) | AI plays a competent full game |
 | **M5** | Polish + mobile export | UX, animation, touch controls, mobile build | Runs and is playable on a phone |
 | **M6** | Online 1v1 *(stretch)* | Server-authoritative or lockstep netcode, matchmaking | Two players play remotely |
 
-**Critical path:** M0 → M1 → M2 gets you to a game you can actually playtest. Everything valuable about the design gets validated there before heavier investment.
+**Critical path:** M0 → M1 → M1.5 gets you to a game you can actually playtest — sooner than the original M0 → M1 → M2 path, since M1.5 is a stripped debug UI rather than the polished M2 client. Everything valuable about the design gets validated there before heavier investment. M2 comes after, reusing M1.5's query surface but building it out with real presentation.
 
 ---
 
@@ -168,11 +169,19 @@ The design is captured across `docs/` (glossary, rules-structure, decisions **D1
 **Track A — design review (parallel, user-led; does not block implementation):**
 0. **Pessimistic-default audit** — sweep D1–D21 for generous defaults that should become positive keywords (e.g. D8 "creature blocks mana flow" → a **"Blockade"** keyword). Worklist: `docs/rules/pessimistic-default-audit.md`.
 
-**Track B — implementation (start now):**
-1. **Toolchain:** install the **.NET SDK**; decide **Windows-native vs WSL** dev environment (lean Windows-native for the Godot client/UI + Windows export; the headless C# core is platform-agnostic and runs either place).
-2. **Agent / work breakdown:** split the build — headless **rules core** (backend logic, deterministic), **server** (authoritative, view-redaction, netcode), **client** (frontend logic + per-observer view), **UI** (Godot), **test/sim harness**.
-3. **Build the M1 combat sandbox** — the vertical slice to playtest the defend rule **V1 vs V2** (D15): creatures (Attack/Life/AP), a small board, attack + declare-defenders + D13 resolution + persistent damage; defend rule as a config toggle; batch auto-sim + interactive.
-4. **Engine:** Godot 4 + C# per §6 (reconfirm when standing up the client).
+**Track B — implementation (M1 COMPLETE as of 2026-08-05):**
+1. **Toolchain:** ✅ .NET SDK 10.0 (LTS) installed; Windows-native, VS Code + C# Dev Kit. Project renamed **Hex → Leyline** (see PLAN.md title).
+2. **Agent / work breakdown:** solution scaffolded as `Leyline.RulesCore` (headless rules core + Perception, same assembly per architecture decision A1), `Leyline.Host` (Host abstraction, `LocalHost` for M1), `Leyline.Content.Json` (JSON card loading), `Leyline.SimHarness` (batch/interactive test harness), plus xUnit test projects. See `docs/architecture/decisions-architecture.md` A1–A5 for the boundaries this follows.
+3. **Build M1 — ✅ done, all 6 slices, 64 passing xUnit tests:**
+   - **Slice 1** (combat sandbox): board, creatures, Move/Attack incl. `!` AP cost, full event pipeline + query/modifier layer, full D3/D4/D13/D19 combat resolution with the one Combat-declare priority window, D15 defend-rule config toggle, turn/phase machine, JSON content loader.
+   - **Slice 2**: Champion as an attackable win-check target (D9) — Combat needed **zero changes**, confirming the ActorState-sharing design.
+   - **Slice 3**: terrain/mana network (D8) — permanent bonding, conditional/path-blocked mana draw, `RefreshManaEffect` added to Beginning phase as proof "phases are data" holds.
+   - **Slice 4**: Champion-as-actor via `ChannelActCommand`, sharing one Channel-used flag with Bond. Move/Attack needed **zero changes**.
+   - **Slice 5**: hidden Below layer (D12/D19) — concealment, reveal-on-attack, re-conceal-on-move; one `Query.IsVisibleTo` rule shared by Perception and Combat targeting.
+   - **Slice 6**: `LocalHost` hardening (5 negative-assertion tests in a project that never references RulesCore internals), `DeterminismReplayTests` (same log twice, and direct-vs-Host), a golden-path integration test, and an interactive Host-mediated REPL (`dotnet run --project tools\Leyline.SimHarness -- interactive`) alongside the existing batch V1-vs-V2 sim (`dotnet run --project tools\Leyline.SimHarness`).
+   - Two real bugs were caught by tests during implementation (a state-based-check ordering bug that would've missed Champion deaths, and a missing Champion-AP-reset-to-zero) — both fixed, both now regression-tested.
+4. **✅ Done (2026-08-06):** the modifier add/remove mechanism designed in `docs/architecture/design-continuous-effects.md` is now implemented — `IModifier`/`ModifierId`/`ModifierDuration`, `AddModifierEvent`/`RemoveModifierEvent`, `Modifiers/ModifierPipeline.cs`, and `Turns/ExpireModifiersEffect.cs` (End-phase cleanup). `IQueryModifier.Priority` was dropped in favor of append order, as the doc leaned toward. 7 new tests (71 total passing). See the doc's "Resume here next session" section for the updated status — the Rite/Spell casting pipeline is now the next open gap it flags.
+5. **⚠️ First thing next session:** either continue Track B by designing the Rite/Spell casting pipeline (the next dependency `design-continuous-effects.md` flags — no way to actually *cast* anything yet), or start **Build M1.5** (not started): minimal 3-window Godot 4 + C# debug UI over M1's `LegalCommands`/`Apply`/`ViewProjector` surface (see §7 milestone table).
 
 ---
 

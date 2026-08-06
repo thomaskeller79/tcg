@@ -1,0 +1,17 @@
+# .NET build output
+bin/
+obj/
+
+# VS Code / Visual Studio / Rider
+.vs/
+.vscode/*
+!.vscode/extensions.json
+*.user
+*.suo
+
+# Test results
+[Tt]est[Rr]esult*/
+*.trx
+
+# Local tooling state
+.claude/
