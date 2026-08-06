@@ -25,8 +25,8 @@ Legend: 🪝 = the mutation hook this default preserves so cards can bend it.
 
   | Phase | What happens (default) |
   |---|---|
-  | **Beginning** | mana / AP / Channel **refresh** (mana refreshes, no banking — D8 #4) and the active player **draws 1** — all **simultaneously, no state checks**. Then beginning-of-turn triggers go into the Aether **APNAP** (active player's first, then opponent's → opponent's resolve first). **No priority this phase to start** (simple); active-player *choices* like upkeep costs still work — only *opponent-reactive* upkeep needs a window, added later (phases are data). |
-  | **Action** | active player plays spells, spends AP to move/attack/activate, in **any order**, until they choose to finish. **After every active-player action — including a move and a deliberate pass — the inactive player gets a response window** (D5, refined to per-action → enables movement-triggered traps; auto-pass keeps it fast). |
+  | **Beginning** | mana / AP **refresh** (mana refreshes, no banking — D8 #4; AP refresh covers creatures and the Champion alike, D9) — **simultaneous, no state checks**. *(Card draw is no longer an automatic Beginning-phase step — as of the D9 revision it's the Champion's `5*AP: Draw` action, spent in the Action phase below.)* Then beginning-of-turn triggers go into the Aether **APNAP** (active player's first, then opponent's → opponent's resolve first). **No priority this phase to start** (simple); active-player *choices* like upkeep costs still work — only *opponent-reactive* upkeep needs a window, added later (phases are data). |
+  | **Action** | active player plays spells, spends AP to move/attack/draw/bond/activate, in **any order**, until they choose to finish. **After every active-player action — including a move and a deliberate pass — the inactive player gets a response window** (D5, refined to per-action → enables movement-triggered traps; auto-pass keeps it fast). |
   | **End** | end-of-turn triggers, APNAP, same as Beginning. |
 
 - 🪝 The phase list is **data the engine walks**, not hardcoded control flow. → "skip your draw," "extra Action phase," "add a priority window to Beginning" are all card/config effects.
@@ -34,7 +34,7 @@ Legend: 🪝 = the mutation hook this default preserves so cards can bend it.
 
 ## 4. Units: acting, movement, combat
 **A creature is three numbers: Attack / Life / Action Points (AP) (D10).** AP is the creature's **private per-turn action budget** (refills to max each turn, no carryover by default); mana is the **shared** pool (§5, D8). See `design-economy.md` for the full three-resource model.
-- **Summoning (D20):** a creature is summoned onto a **bonded terrain cell in your realm** (the realm is the deployment zone as well as the economy), paying the card's **mana** (no Channel; a plain mana play, repeatable as mana allows). Needs a free slot on the creature's layer (§1, D12). 🪝 **Summoning sickness (pessimistic default, D14):** a summoned creature **can't act the turn it enters**; "acts immediately" is a positive (haste) keyword.
+- **Summoning (D20):** a creature is summoned onto a **bonded terrain cell in your realm** (the realm is the deployment zone as well as the economy), paying the card's **mana** (a plain mana play, unrelated to the Champion's own AP, repeatable as mana allows). Needs a free slot on the creature's layer (§1, D12). 🪝 **Summoning sickness (pessimistic default, D14):** a summoned creature **can't act the turn it enters**; "acts immediately" is a positive (haste) keyword.
 - **Move and attack are default *abilities*, not rules (D10).** Every creature carries two replaceable defaults: **`1AP: Move`** (one hex per AP; a creature may enter a hex only with a free **ground slot**, capacity 3, §1) and **`3!AP: Attack`** (targets a **hex**; **Melee** = adjacent, **Ranged N** keyword = within N). There is no hardcoded move/attack logic — just abilities with AP costs.
   - **The `!` cost:** `xAP` spends exactly x (leftover AP stays usable); **`x!AP`** requires x then **consumes all remaining AP**. So default `3!AP: Attack` = no multi-attack (attacking drains you); a printed `3AP: Attack` would allow it. See `design-economy.md`.
   - **Abilities** may cost a mix of `mana + AP` (and either AP flavor).
@@ -81,10 +81,10 @@ The stable substrate cards rely on. Kept fixed on purpose:
 
 ## 10. Champions (in-match default)
 - **Default:** each player has exactly one **Champion** on the board, placed at start on its **home tile**. It is a special card type (HP, position) simulated by the core; **it is attackable and its death loses the game** (§7, D9).
-- **Two economies (D9):** *mana* (spent on spells/units, many/turn) and a single **Channel** per turn. Each turn the Champion spends its Channel on **one** of: **bond** a terrain (= the D8 once/turn bond), **act as a creature** (move/attack), or **activate a Champion ability** (may cost extra mana). Central tension: bond vs. activate.
-- **Realm-bound movement (D9, D8):** the Champion is the network root; moving off its bonded network **reversibly pauses** the disconnected mana. Moving along the network is safe → the "walking channeler."
+- **Mana + Action Points (D9, revised 2026-08-06):** the Champion runs the **same two-resource shape as a creature** — *mana* (spent on spells/units, many/turn) and its own **AP** (private, refills each turn), spent on **draw a card, bond a terrain, move, fight, activate abilities** — not a bespoke third model. Baseline example (tuning): 7 AP; `5*AP` draw (replaces the automatic per-turn draw), `2*AP` bond (the D8 once/turn limit), `2AP`/`1AP` move, `5AP`/`3AP` attack (network-active/collapsed). No hardcoded "pick one" — see `design-champions.md` for the full breakdown, the tension, and open items (ability list, defend/retaliation).
+- **Realm-bound movement (D9, D8):** the Champion is the network root; the pricier move that steps off its bonded network **reversibly pauses** the disconnected mana. The cheap move along the network is safe → the "walking channeler."
 - The core consumes a **resolved Champion loadout** (level/path/abilities) as input; **no progression logic runs inside a match** (that's the meta-layer). See `design-champions.md`.
-- 🪝 The Channel is a per-turn resource query (default = 1); abilities/stats/channeling are the same effects/queries/modifiers as any card. → extra Channels, free/reactive abilities, paths, level-ups, in-match buffs all hook the same machinery.
+- 🪝 Champion AP is a per-turn resource query (default = 7, tuning); abilities/stats are the same effects/queries/modifiers as any card. → extra AP, free/reactive abilities, paths, level-ups, in-match buffs all hook the same machinery.
 
 ---
 
@@ -95,5 +95,5 @@ The stable substrate cards rely on. Kept fixed on purpose:
 4. **Combat damage rules (partially open):** direction resolved to sequential + declare-defenders (D3, D4). Still OPEN: is damage **mutual** (defenders hit back) or one-way? How does an attacker's damage split across multiple declared defenders?
 5. **Resources:** confirm Model C auto-escalation as default, or do you already have a resource system in mind? (This one shapes everything — happy to capture yours instead.)
 6. ~~**Win condition**~~ — **RESOLVED (D9):** kill the enemy Champion; no separate Base.
-7. ~~**Champion (§10)**~~ — **RESOLVED (D9):** kill it = win; attackable; it *is* the resource/channeling engine (root, D8); one Channel/turn = bond | act | ability. *(Remaining opens in `design-champions.md`: term, reactive abilities, deck identity, down-leveling, level-up conditions.)*
+7. ~~**Champion (§10)**~~ — **RESOLVED (D9, revised 2026-08-06):** kill it = win; attackable; it *is* the resource/channeling engine (root, D8); runs mana + AP like a creature (draw/bond/move/fight/ability), not a separate Channel. *(Remaining opens in `design-champions.md`: term, exact AP costs/ability list, retaliation mechanism, reactive abilities, deck identity, down-leveling, level-up conditions.)*
 8. Anything in your existing notes that **contradicts** a default above — those are the most valuable things to surface now.

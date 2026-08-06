@@ -19,7 +19,7 @@ The two halves reinforce each other: your deck defines *what tools you have*, th
 4. **Deterministic at heart.** The rules engine is a pure, deterministic simulation — enabling AI, replays, networked play, and rigorous testing (see §7).
 5. **Cards rewrite the rules.** The game must grow via new cards indefinitely, and cards must be able to *change the rules themselves* — not just numbers. The base rules and card effects share one representation, so "a card changes a rule" is the *only* case, never a bolted-on special case. This is the hardest architectural constraint and is designed in from day one. See `docs/rules/knowledge-capture-plan.md` §Part A.
 6. **Asymmetric information.** Players do not share one view of the board — what each player *perceives* is a manipulable, card-driven property (Mimic, Submerged units, Mist regions). This exploits a digital-only advantage most TCGs leave on the table. Architecturally it is the same modifier/query paradigm as pillar 5, applied to a *perception* axis: one authoritative true state, projected into per-observer views. See `docs/rules/design-asymmetric-information.md`.
-7. **Champions.** *(Secondary pillar.)* Each player is embodied by a single **Champion** — the only entity that can draw mana from the land and *channel* it into magic. It is the resource-network **root** (D8), the **win condition** (kill the enemy Champion to win — no separate Base, D9), and an exposed board piece, all at once. It runs **two economies**: *mana* (many spells/units per turn) and a single **Channel** per turn spent on one of {bond a terrain · act as a creature · activate an ability} — the game's second core decision layer. The in-match Champion is a special card type inside the deterministic core; all persistent progression lives in a **separate meta-layer** that hands the core a resolved loadout. Progression uses **level bands** (D2): horizontal within a band, a discrete step up between bands, matched only within a band. See `docs/rules/design-champions.md`.
+7. **Champions.** *(Secondary pillar.)* Each player is embodied by a single **Champion** — the only entity that can draw mana from the land and *channel* it into magic. It is the resource-network **root** (D8), the **win condition** (kill the enemy Champion to win — no separate Base, D9), and an exposed board piece, all at once. It runs the **same two-resource shape as a creature** (D9, revised 2026-08-06): *mana* (many spells/units per turn) and its own **Action Points** spent on draw / bond / move / fight / activate an ability — mechanically a special king-like creature, not a third economy. That resource-allocation puzzle is the game's second core decision layer. The in-match Champion is a special card type inside the deterministic core; all persistent progression lives in a **separate meta-layer** that hands the core a resolved loadout. Progression uses **level bands** (D2): horizontal within a band, a discrete step up between bands, matched only within a band. See `docs/rules/design-champions.md`.
 
 ---
 
@@ -30,11 +30,12 @@ A single **turn** for one player (D21), at a glance:
 ```
 Beginning  ─────────────────►  Action  ──────────────────►  End
    │                              │                            │
- refresh mana/AP/Channel,     play spells, spend AP to      end-of-turn
- draw 1 (simultaneous);       move / attack / activate,     triggers
- APNAP begin triggers         any order, until you finish   (APNAP)
-                              (opponent may respond after
-                               EVERY action — priority/stack)
+ refresh mana/AP            play spells, spend AP to      end-of-turn
+ (simultaneous);            move / attack / draw / bond   triggers
+ APNAP begin triggers       / activate, any order,        (APNAP)
+                            until you finish (opponent
+                            may respond after EVERY
+                            action — priority/stack)
 ```
 
 Players alternate turns. A match is: **build deck → deploy from your realm → maneuver → fight → kill the enemy Champion.**
