@@ -47,6 +47,8 @@ The Champion runs the **same two-resource shape as a creature** — there is no 
 
 **The `*` cost notation.** `x*AP` = spend exactly `x`, but this specific action may be used **at most once per turn**, regardless of leftover or later-refilled AP — distinct from the existing `x!AP` ("drain all remaining AP," see `design-economy.md`). `!` was rejected for Draw/Bond because it drains the *whole* pool, which would make it impossible to draw *and* bond in the same turn — a combo this design wants to keep open.
 
+**Corollary: a cleaner Beginning phase.** Since Draw is now a paid Action-phase choice instead of an automatic step, Beginning phase is left with exactly the two jobs a phase machine should have there — refresh resources (invisible to the players; nothing to decide) and fire beginning-of-turn triggers — with no player-facing action of its own baked in. See `rules-structure.md` §3.
+
 **The tension.** There's no hardcoded "pick one of {bond, act, ability}" anymore — it's an open resource-allocation puzzle: `move + fight`, `move ×3`, `move + draw`, `draw + bond`, `bond + move ×2`, `bond + fight`, ability combos, and more, many of which can be the right call depending on the situation.
 - The classic ramp-vs-spend tension **re-emerges on its own**: `Draw (5) + Bond (2)` exactly equals the 7 AP baseline, so "can't do everything" falls out of the numbers rather than being a hardcoded rule.
 - **Watch-point:** with these numbers, `Attack (5, network-active) + Bond (2)` also exactly fits — so a Champion that skips its draw could fight *and* grow its economy in the same turn, something the old Channel model explicitly prevented. Whether that's acceptable or the numbers need adjusting is a playtest question.

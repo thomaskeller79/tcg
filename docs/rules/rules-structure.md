@@ -31,6 +31,7 @@ Legend: 🪝 = the mutation hook this default preserves so cards can bend it.
 
 - 🪝 The phase list is **data the engine walks**, not hardcoded control flow. → "skip your draw," "extra Action phase," "add a priority window to Beginning" are all card/config effects.
 - *Rationale:* one free-order Action phase = simpler to learn, more flexible than separate move/combat phases; forced sequencing can be imposed by cards.
+- *Rationale (Beginning, since the D9 revision):* moving Draw into the Champion's AP economy leaves Beginning with exactly two jobs — refresh resources (invisible to the players, nothing to decide) and fire triggers — no player-facing action special-cased into the phase itself.
 
 ## 4. Units: acting, movement, combat
 **A creature is three numbers: Attack / Life / Action Points (AP) (D10).** AP is the creature's **private per-turn action budget** (refills to max each turn, no carryover by default); mana is the **shared** pool (§5, D8). See `design-economy.md` for the full three-resource model.
