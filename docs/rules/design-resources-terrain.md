@@ -18,6 +18,10 @@
 - **Mana.** A bonded terrain produces mana **only while a path of enemy-free terrain connects it back to the Champion** (see severing rule). Bonding +1/turn ≈ a guaranteed, smooth ramp curve (no flood/screw); *drawing* that mana is conditional on the path staying clear.
 - **8 colors.** Eight basic lands, one per color, each producing 1 mana of that color and nothing else. **Any number of basics** allowed in a deck.
 - **Non-basic terrains.** More powerful "fancy" lands, **restricted via a property on the card** (deckbuilding limits). These are what players reach for.
+- **Visibility (RESOLVED 2026-08-07): terrain is visible by default**, extending D7 — even an unbonded terrain sitting in a player's home zone is public information, not hidden pending connection. A terrain's *true* identity can still be hidden by a card (Mimic, reusing D18's `face` primitive — e.g. a trap terrain disguised as a basic), same mechanism as any other permanent, not a terrain-specific carve-out. Example: `docs/cards/card-ideas.md`.
+- **Bond cost for non-basics (RESOLVED 2026-08-07): same as a basic by default** — bonding any terrain uses the single per-turn Bond action regardless of power level. A non-basic *may* print a surcharge on that specific bond (e.g. `+4!AP`) as a card effect (pillar 5), not a base-rule difference. Example: `docs/cards/card-ideas.md`.
+- **Terrain abilities (RESOLVED 2026-08-07): a terrain card may carry abilities beyond mana production** — static buffs to occupants, movement-cost modifiers, or printed activated abilities — using the same effect/query system as any other card (pillar 5); no new mechanism needed (cell properties are already queryable/mutable data, `rules-structure.md` §1). Activated by the **player** directly (like casting a spell) — terrain has no AP pool of its own.
+- **Terrain control (RESOLVED 2026-08-07):** a player (or Companion, D22) **controls** a terrain iff it's currently **bonded into their leyline network**. An unbonded terrain (nobody has bonded it) is uncontrolled — **no one** may activate its ability. **Funding follows D22's bonder-owns-the-pool split:** a Champion-bonded terrain's activated ability is paid from the **shared** pool; a Companion-bonded terrain's is paid **only** from that **same Companion's private pool** — never the shared pool, never another Companion's. Not a new mechanism — this is D22's "mana never crosses the shared/private boundary" rule applied to terrain abilities. *(Scoped to activated abilities specifically; whether a terrain's static/continuous effects — e.g. a combat buff to defenders — also require control, or apply to any occupant regardless of owner like a natural battlefield feature, is a separate, not-yet-asked question.)* See `docs/cards/card-ideas.md` for examples.
 
 ## Why it avoids screw
 - The Champion starts with ~6 neighbor hexes; the connectable **frontier grows for many turns**, so early color/mana screw is unlikely (though enough spatial variance that running all 8 colors is impractical — a good tension).
@@ -42,15 +46,11 @@ Consequences of the confirmed rule:
 
 **Balance dial:** *how much mana can one blocker pause?* — governed by how branchy (reroutable) vs. thin (greedy) a player builds their network. Redundant paths cost board space and time; a thin reach for fancy colors is exposed. Greed = reach = risk.
 
+*(Resolved questions are cut once closed — the rule lives in the sections above and, for decision-grade calls, in `decisions.md`. Only genuinely open items stay here.)*
+
 ## Open questions
-1. ~~**Severing rule**~~ — **RESOLVED (a) pause.** Mana flows from bonded terrain only along an enemy-free path to the Champion; blocking any path node pauses downstream mana reversibly. See "Severing behavior" above.
-2. **Public vs. hidden terrain** — are unconnected terrains visible to the opponent, or hidden until connected (pillar 6 bluffing)?
-3. ~~**Terrain ↔ hex mapping**~~ — **RESOLVED (D11):** a terrain is a **cell property** (1 terrain = 1 hex); home-zone cell count **= terrain-deck size**; the mana network is a subgraph of the board graph.
-4. ~~**Mana refresh vs. bank**~~ — **RESOLVED: refresh** (mana refills to max each Beginning phase, no banking; D21). Uncertainty about hidden spend resets each turn (D18).
-5. **Do non-basics cost the connection?** Does connecting a powerful terrain use the single per-turn connection, or is it gated differently?
-6. **Color-cost model** — do cards demand specific colored pips (MTG-style), generic + color requirements, or something else? Does the Champion's color identity restrict which colors a deck may run?
-7. **Denial balance** — cost of a blocker vs. mana denied; how reroute-friendly must boards be (links to board-size question)?
-8. ~~**Home base**~~ — **RESOLVED (D11):** defined by the **map card** — a home zone around the start, sized to the terrain deck, randomly filled at game start.
+1. **Color-cost model** — do card costs demand specific colored pips (MTG-style), generic + color requirements, or something else? *(Lean: colored pips — open for a fuller pros/cons discussion before locking in.)*
+2. **Denial balance** *(tuning)* — how much economic damage should one blocker be able to inflict relative to its own cost, and how reroute-friendly do boards need to be by default so a single chokepoint isn't a hard lock (links to the still-open board-size question, `rules-structure.md` §Open questions)? A numeric/playtest question, not a structural one — distinct from the terrain-*ability* design space above (what a terrain card can print), which is separately captured in `docs/cards/card-ideas.md`.
 
 ## Architecture notes
 - Connectivity is a **graph query** over board state (contiguous network rooted at Champion, minus enemy-occupied nodes), re-evaluated as the board changes — deterministic, and **per-observer** if terrains are hidden. Fits the query layer (pillar 5) cleanly; non-trivial but bounded work.

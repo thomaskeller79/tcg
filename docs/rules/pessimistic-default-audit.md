@@ -2,7 +2,7 @@
 
 *A systematic pass over D1–D21 to find rules that **violate the pessimistic-default principle** (D14): a default that **grants** a capability to everything (generous) should usually be flipped so the default is the **weak** case and the capability is a **positive keyword**. Negative card lines ("doesn't X", "can't Y") as the *fix* are the smell we're removing.*
 
-**Status:** Open review · **Owner:** user-led (parallel task) · runs alongside implementation · **Date:** 2026-07-27
+**Status:** Deferred to end of Track A (PLAN.md §8) · **Owner:** user-led (parallel task) · runs alongside implementation · **Date:** 2026-07-27 · **Rescheduled 2026-08-07:** deliberately pushed after Track A steps 0–4 (other card types, colors, starter decks, structural gaps) so those steps' own new defaults get swept in the same pass instead of two separate audits.
 
 > Test for each default: *does it hand a capability to every creature/permanent for free?* If yes, and not every creature should have it, the default is probably generous — flip it and make the capability a positive keyword.
 

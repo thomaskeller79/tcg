@@ -1,22 +1,25 @@
 # Design — The Economy (two resources, one pattern)
 
-*The full resource model in one place. There are **two** resources in **two** topologies — mana (shared) and Action Points (private, per actor) — and the same shape — "shared mana + a private action budget" — repeats for every actor, **including the Champion**. Learn it once, it applies everywhere (pillar 3).*
+*The full resource model in one place. There are **two** resources — mana and Action Points — and the same shape — "mana access + a private action budget" — repeats for every actor, **including the Champion and, as of D22, the Companion**. Learn it once, it applies everywhere (pillar 3).*
 
-**Status:** Design note · **Date:** 2026-07-27 · revised 2026-08-06 · Decisions: D8 (terrain/mana), D9 (Champion economy), D10 (Action Points)
+**Status:** Design note · **Date:** 2026-07-27 · revised 2026-08-06, 2026-08-07 · Decisions: D8 (terrain/mana), D9 (Champion economy), D10 (Action Points), D22 (Companion)
 
 ---
 
 ## The two resources
 
+Still **exactly two** — a Companion does **not** introduce a third. It adds a second **pool instance** of the same resource (mana), not a new resource.
+
 | Resource | Topology | Held by | Refills | Spent on |
 |---|---|---|---|---|
-| **Mana** | **One shared pool per player** | the player (channeled by the Champion, D8/D9) | as terrain is bonded/connected (D8) | casting spells, summoning units, **any** actor's mana-abilities |
-| **Action Points (AP)** | **private, per actor** | each **creature** (D10) and the **Champion** (D9) | to max each turn (no carryover, rec) | move · fight · activate abilities · (Champion only) draw a card · bond a terrain |
+| **Mana** | **one shared pool per player**, plus **one private pool per Companion in play** (D22) | the player (shared pool, channeled by the Champion, D8/D9); each Companion (its own private pool, drawn by its own bonding) | as terrain is bonded/connected (D8), per the bonding root that owns each node | shared pool: casting spells, summoning units, **any** actor's mana-abilities. Private pool: **only that Companion's own printed abilities.** |
+| **Action Points (AP)** | **private, per actor** | each **creature** (D10), the **Champion** (D9), and each **Companion** (D22) | to max each turn (no carryover, rec) | move · fight · activate abilities · bond a terrain (Champion, Companion) · (Champion only) draw a card |
 
 ## The repeating pattern
-Every board actor = **access to the one shared mana pool** + **its own private per-turn AP budget**.
+Every board actor = **mana access** (shared pool, or a private pool if it's a Companion) + **its own private per-turn AP budget**.
 - **Champion:** mana + its own AP pool, priced like a creature's but weighted toward draw/bond/abilities over combat — attacking is deliberately the costliest line, so *channelers channel, they don't fight* (D9) by cost design, not by a separate scarce resource.
-- **Creature:** mana + AP. This is where most board action lives.
+- **Companion:** a **private** mana pool (not the shared one) + its own AP pool, with Bond priced more restrictively than the Champion's relative to its smaller AP total — draws mana like a channeler but can't share it (D22).
+- **Creature:** shared mana + AP. This is where most board action lives.
 
 Abilities **bridge the two economies**: a creature ability can cost `X mana + Y AP`; a Champion ability costs the same shape — `mana + AP`. Same grammar at both scales, no special case for the Champion.
 
@@ -50,7 +53,12 @@ A second cost flavor, distinct from `!`: **`x*AP`** — spend exactly `x`, and t
 
 This is **not** the same thing as `!`: `!` drains the *whole remaining pool* but doesn't itself prevent reuse if AP is later refilled (that's the deliberate "surprise blocker" combo above); `*` doesn't touch the rest of the pool at all, it just locks out repeats of that one action for the turn. Conflating the two would break either behavior, so they're kept as separate flavors.
 
-Introduced for the Champion's `5*AP: Draw` and `2*AP: Bond` actions (see `design-champions.md`) — `Draw`/`Bond` need to stay usable *together* in one turn (their costs sum to a typical Champion's full AP budget) while each staying capped to once/turn, which `!` cannot express without also zeroing the pool. The notation itself is settled; whether it generalizes to creatures, and the exact `5`/`2` numbers, are still open/tuning.
+Introduced for the Champion's `5*AP: Draw` and `2*AP: Bond` actions (see `design-champions.md`) — `Draw`/`Bond` need to stay usable *together* in one turn (their costs sum to a typical Champion's full AP budget) while each staying capped to once/turn, which `!` cannot express without also zeroing the pool. **Now also used for the Companion's own Bond ability (D22, `design-companions.md`)** — same flavor, priced higher relative to the Companion's smaller AP total so it crowds out the rest of the turn. Whether `*` generalizes further, to plain creatures, and the exact numbers, are still open/tuning.
+
+### The `^` marker (instant-speed) — adopted 2026-08-07 (D23)
+A third axis, independent of `!`/`*`: **`^`** prefixed on any AP cost marks that specific *ability* as playable **instant-speed** — usable in any priority window (D5), on either player's turn. **Default (no `^`): sorcery-speed** — usable only during the actor's controller's own Action phase, and only while the stack (the Aether's pending region, D16) is empty. Mirrors MtG's "sorcery speed" exactly, but generalized to the **ability** level rather than the card level: D5's existing instant/sorcery split already covers whole cards; `^` lets individual abilities *on the same card* differ (a Champion might have one sorcery-speed ability and one reactive one).
+
+Composes freely with `!`/`*`: `^2*AP`, `^3!AP`, `^1AP` are all valid — `^` says *when*, `!`/`*` say *how the AP is consumed*. Spending AP reactively still draws from the actor's normal AP budget, never a separate reactive pool — so using an instant-speed ability on the opponent's turn means that AP had to be held in reserve since the actor's own last turn. Introduced to resolve `design-champions.md`'s former "can Champion abilities be reactive?" open question **generally**, for any actor (creature, Champion, Companion), instead of as a Champion-specific rule.
 
 ### Defending — two variants under playtest (D15)
 The defend-cost rule is being resolved **empirically**, not on paper (it collapses the redundant `defended`-flag into AP). Two candidates:
@@ -61,10 +69,19 @@ The defend-cost rule is being resolved **empirically**, not on paper (it collaps
 ## Champion AP — the same model as a creature (D9, revised 2026-08-06)
 The Champion **has an AP value and spends it directly**, exactly like a creature — one movement/combat/action query for every entity, no gating resource and no second combat model. *(The earlier design gated the Champion's AP behind a single per-turn "Channel" action; that's superseded — see `design-champions.md`. Alternative considered and still rejected: Champion has no AP and "act" is a fixed mini-behavior — that would be a second combat model.)* The Champion's specific action costs (draw/bond/move/attack/abilities) differ from a plain creature's defaults and live in `design-champions.md`.
 
+## Open: who funds a non-actor permanent's ability? (surfaced 2026-08-07, unresolved)
+For the three **actors** — Creature, Champion, Companion — "whose AP, whose mana" is always unambiguous: an actor spends only its own AP, and either the shared pool (Creature, Champion) or its own private pool (Companion, D22). That symmetry **breaks** for permanents that have **no AP of their own**: Terrain, Item, Structure. Each needs its own answer for who pays when *its* printed ability activates:
+
+- **Terrain — RESOLVED** (`design-resources-terrain.md`): activated by whoever **controls** it (the root — Champion or Companion — that bonded it); costs **mana only, no AP**; funded from that controller's own pool (shared if Champion-bonded, that Companion's private pool if Companion-bonded). Uncontrolled (unbonded) terrain's ability can't be activated by anyone.
+- **Item — OPEN.** Working hypothesis (unconfirmed): an Item is carried/equipped by a creature, so its ability spends **the carrying creature's own AP** + mana from the **shared pool**. Unaddressed: what happens if a Champion or a Companion is the one carrying it instead of a plain creature — does the cost then shift to *that* actor's AP and mana source (private, if a Companion)?
+- **Structure — OPEN.** Working hypothesis (unconfirmed): a Structure is Champion-controlled (stationary, never carried), so its ability spends **the Champion's own AP** + **the Champion's/shared mana**. Unaddressed: can a Companion ever control a Structure instead, and if so does the cost mirror the Companion's own AP + private mana the way Terrain already does?
+
+Not resolved here — flagged to pick up alongside the Structure/Item design pass (PLAN §8 Track A step 0).
+
 ## Open sub-levers (tuning, not structure)
 1. ~~Move cost~~ → default `1AP: Move` (D10); Champion's own move costs are bespoke, see `design-champions.md`.
 2. ~~Attack cost / multi-attack~~ → default `3!AP: Attack`; multi-attack via a custom non-`!` cost (D10).
-3. ~~Defending cost AP~~ → **free**; `cannot defend` is a keyword (D10). *(Champion-specific candidates under playtest — see D15, `design-champions.md` Open question 3.)*
+3. ~~Defending cost AP~~ → **free**; `cannot defend` is a keyword (D10). *(Champion-specific candidates under playtest — see D15, `design-champions.md` Open question 2.)*
 4. **AP refresh** — rec refill to max each turn, no carryover.
 5. **Champion base AP** — the baseline total (proposed: 7, tuning) that funds all of draw/bond/move/attack/ability each turn. See `design-champions.md`.
 
