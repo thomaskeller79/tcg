@@ -1,4 +1,3 @@
-using Leyline.RulesCore.Champions;
 using Leyline.RulesCore.Combat;
 using Leyline.RulesCore.Commands;
 using Leyline.RulesCore.Queries;
@@ -59,10 +58,6 @@ public static class RulesEngine
 
         commands.AddRange(TerrainPipeline.LegalBonds(state, actor));
 
-        var champion = state.ActorsOwnedBy(actor).OfType<ChampionState>().FirstOrDefault();
-        if (champion is not null && !champion.ChannelUsedThisTurn)
-            commands.Add(new ChannelActCommand(actor));
-
         commands.Add(new EndPhaseCommand(actor));
         return commands;
     }
@@ -86,7 +81,6 @@ public static class RulesEngine
             RespondCommand => CommandResult.Reject("No respondable content exists in M1."),
             EndPhaseCommand e => TurnEngine.EndPhase(state, pipeline, e),
             BondTerrainCommand b => TerrainPipeline.Bond(state, pipeline, b),
-            ChannelActCommand c => ChampionPipeline.ChannelAct(state, pipeline, c),
             _ => CommandResult.Reject($"Unhandled command type {command.GetType().Name}."),
         };
     }

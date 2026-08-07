@@ -18,8 +18,8 @@ public sealed record CombatResolvedIntent(CombatId Combat) : EventIntent;
 public sealed record PhaseChangedIntent(int NewPhaseIndex) : EventIntent;
 public sealed record TurnAdvancedIntent(int NewTurnNumber, PlayerId NewActivePlayer) : EventIntent;
 public sealed record BondTerrainIntent(PlayerId Player, HexCoord Target) : EventIntent;
-public sealed record ChannelUsedIntent(PlayerId Player) : EventIntent;
-public sealed record ChannelResetIntent(ActorId Champion) : EventIntent;
+public sealed record OncePerTurnActionUsedIntent(ActorId Actor, string ActionId) : EventIntent;
+public sealed record OncePerTurnActionsResetIntent(ActorId Actor) : EventIntent;
 public sealed record ManaChangeIntent(PlayerId Player, int NewMana) : EventIntent;
 
 /// <summary>D19 (provisional — flagged "confirm next session" in the source decision):

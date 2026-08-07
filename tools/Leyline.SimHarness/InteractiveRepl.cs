@@ -87,7 +87,6 @@ public static class InteractiveRepl
         PassPriorityCommand => "Pass",
         EndPhaseCommand => "End phase",
         BondTerrainCommand b => $"Bond terrain at {b.Target}",
-        ChannelActCommand => "Channel: act as creature",
         _ => command.GetType().Name,
     };
 }

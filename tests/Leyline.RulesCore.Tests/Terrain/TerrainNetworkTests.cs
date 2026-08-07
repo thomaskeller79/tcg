@@ -1,4 +1,5 @@
 using Leyline.RulesCore;
+using Leyline.RulesCore.Champions;
 using Leyline.RulesCore.Commands;
 using Leyline.RulesCore.Queries;
 using Leyline.RulesCore.State;
@@ -30,17 +31,20 @@ public class TerrainNetworkTests
     }
 
     [Fact]
-    public void Bonding_is_permanent_and_gated_once_per_turn_by_the_Channel()
+    public void Bonding_is_permanent_and_gated_once_per_turn_and_costs_AP()
     {
-        var match = TerrainFixtures.ChampionWithTerrainChain();
+        var match = TerrainFixtures.ChampionWithTerrainChain(); // championMaxAp defaults to 2
+        var champion = match.State.ActorsOwnedBy(Fixtures.P1).OfType<ChampionState>().Single();
+        Assert.Equal(2, champion.CurrentAp);
 
         var first = RulesEngine.Apply(match, new BondTerrainCommand(Fixtures.P1, new HexCoord(1, 0)));
         Assert.True(first.Accepted);
+        Assert.Equal(0, champion.CurrentAp); // 2*AP spent
+        Assert.False(Query.CanUseOncePerTurnAction(champion.Id, ChampionActionIds.Bond, match.State));
 
         var second = RulesEngine.Apply(match, new BondTerrainCommand(Fixtures.P1, new HexCoord(2, 0)));
-        Assert.False(second.Accepted); // Channel already used this turn
+        Assert.False(second.Accepted); // once-per-turn gate, not raw AP (which is also 0 here)
 
-        var champion = match.State.ActorsOwnedBy(Fixtures.P1).OfType<ChampionState>().Single();
         Assert.Contains(new HexCoord(1, 0), champion.Network.Bonded);
     }
 
@@ -63,7 +67,7 @@ public class TerrainNetworkTests
         var match = TerrainFixtures.ChampionWithTerrainChain();
         RulesEngine.Apply(match, new BondTerrainCommand(Fixtures.P1, new HexCoord(1, 0)));
         RulesEngine.Apply(match, new EndPhaseCommand(Fixtures.P1));
-        RulesEngine.Apply(match, new EndPhaseCommand(Fixtures.P2)); // Channel resets on P1's next Beginning
+        RulesEngine.Apply(match, new EndPhaseCommand(Fixtures.P2)); // AP refreshes and the once-per-turn gate resets on P1's next Beginning
         RulesEngine.Apply(match, new BondTerrainCommand(Fixtures.P1, new HexCoord(2, 0)));
 
         Assert.Equal(2, Query.ResolveConnectedProducingTerrain(Fixtures.P1, match.State).Count);

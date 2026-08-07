@@ -125,24 +125,15 @@ public sealed record TerrainBondedEvent(PlayerId Player, HexCoord Target) : IEve
     }
 }
 
-/// <summary>D9: bonding and "act as a creature" share one Channel-used flag.</summary>
-public sealed record ChannelUsedEvent(PlayerId Player) : IEvent
+/// <summary>D9's `*` cost flavor: marks an action id as spent for the actor's current turn.</summary>
+public sealed record OncePerTurnActionUsedEvent(ActorId Actor, string ActionId) : IEvent
 {
-    public void Apply(TrueState state)
-    {
-        var champion = state.AllActors.OfType<ChampionState>().FirstOrDefault(c => c.Owner == Player);
-        if (champion is not null)
-            champion.ChannelUsedThisTurn = true;
-    }
+    public void Apply(TrueState state) => state.FindActor(Actor)?.OncePerTurnActionsUsed.Add(ActionId);
 }
 
-public sealed record ChannelResetEvent(ActorId Champion) : IEvent
+public sealed record OncePerTurnActionsResetEvent(ActorId Actor) : IEvent
 {
-    public void Apply(TrueState state)
-    {
-        if (state.FindActor(Champion) is ChampionState champion)
-            champion.ChannelUsedThisTurn = false;
-    }
+    public void Apply(TrueState state) => state.FindActor(Actor)?.OncePerTurnActionsUsed.Clear();
 }
 
 /// <summary>D21: mana refreshes to a computed value each Beginning phase — no banking.</summary>

@@ -12,7 +12,7 @@ public static class ChampionFixtures
         JsonCardDefinitionRepository.FromDefinitions(
         [
             new CardDefinition(Fixtures.Grunt, "Grunt", Attack: 3, Life: 5, MaxAp: 3, AbilityIds: ["core.move", "core.attack"]),
-            new CardDefinition(Champion, "Champion (test)", Attack: 2, Life: championLife, MaxAp: championMaxAp, AbilityIds: ["core.move", "core.attack"]),
+            new CardDefinition(Champion, "Champion (test)", Attack: 2, Life: championLife, MaxAp: championMaxAp, AbilityIds: ["core.move", "core.attack", "champion.bond"]),
         ]);
 
     /// <summary>One attacking grunt for P1 next to P2's (otherwise undefended) Champion.</summary>
@@ -26,7 +26,7 @@ public static class ChampionFixtures
             seed: 3,
             champions: [new ChampionPlacement(Fixtures.P2, Champion, new HexCoord(1, 0))]);
 
-    /// <summary>P1 has only a Champion (no creatures) — for exercising Channel-act directly.</summary>
+    /// <summary>P1 has only a Champion (no creatures) — for exercising its AP/Move/Attack directly.</summary>
     public static Match ChampionOnlyMatch(int maxAp = 2, int championLife = 15) =>
         MatchFactory.CreateMatch(
             Fixtures.SmallBoard(),

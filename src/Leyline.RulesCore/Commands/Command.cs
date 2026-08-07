@@ -13,4 +13,3 @@ public sealed record RespondCommand(PlayerId Actor, StackItemId Response) : Comm
 public sealed record PassPriorityCommand(PlayerId Actor) : Command(Actor);
 public sealed record EndPhaseCommand(PlayerId Actor) : Command(Actor);
 public sealed record BondTerrainCommand(PlayerId Actor, HexCoord Target) : Command(Actor);
-public sealed record ChannelActCommand(PlayerId Actor) : Command(Actor);

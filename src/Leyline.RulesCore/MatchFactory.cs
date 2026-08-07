@@ -64,7 +64,7 @@ public static class MatchFactory
                 Definition = placement.Definition,
                 Position = placement.Position,
                 Life = def.Life,
-                CurrentAp = 0, // stays 0 until Slice 4's ChannelActCommand grants it AP
+                CurrentAp = 0, // refreshed to MaxAp by the first Beginning phase's RefreshApEffect, like any actor
             };
             state.AddActor(champion);
         }

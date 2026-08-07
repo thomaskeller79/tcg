@@ -15,9 +15,14 @@ public abstract class ActorState
     /// field is inert until then.
     /// </summary>
     public bool Located { get; set; } = true;
+
+    /// <summary>D9's `*` cost flavor: action ids used this turn that may not repeat regardless
+    /// of AP remaining or refilled (e.g. the Champion's Bond). Cleared each Beginning phase by
+    /// ResetOncePerTurnActionsEffect.</summary>
+    public HashSet<string> OncePerTurnActionsUsed { get; } = new();
 }
 
-public sealed class CreatureState : ActorState
+public sealed class CreatureState : ActorState, IHasCardDefinition
 {
     public required CardDefinitionId Definition { get; init; }
 }

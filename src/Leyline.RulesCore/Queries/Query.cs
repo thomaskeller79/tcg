@@ -25,34 +25,21 @@ public static class Query
 
     public static IReadOnlySet<string> ResolveAbilityIds(ActorId actor, TrueState state)
     {
-        var baseline = state.GetActor(actor) switch
-        {
-            CreatureState c => (IReadOnlySet<string>)new HashSet<string>(state.Content.Get(c.Definition).AbilityIds),
-            ChampionState c => new HashSet<string>(state.Content.Get(c.Definition).AbilityIds),
-            _ => new HashSet<string>(),
-        };
+        IReadOnlySet<string> baseline = state.GetActor(actor) is IHasCardDefinition d
+            ? new HashSet<string>(state.Content.Get(d.Definition).AbilityIds)
+            : new HashSet<string>();
         return Fold("AbilityIds", actor, baseline, state);
     }
 
     public static int ResolveMaxAp(ActorId actor, TrueState state)
     {
-        var baseline = state.GetActor(actor) switch
-        {
-            CreatureState c => state.Content.Get(c.Definition).MaxAp,
-            ChampionState c => state.Content.Get(c.Definition).MaxAp,
-            _ => 0,
-        };
+        var baseline = state.GetActor(actor) is IHasCardDefinition d ? state.Content.Get(d.Definition).MaxAp : 0;
         return Fold("MaxAp", actor, baseline, state);
     }
 
     public static int ResolveAttack(ActorId actor, TrueState state)
     {
-        var baseline = state.GetActor(actor) switch
-        {
-            CreatureState c => state.Content.Get(c.Definition).Attack,
-            ChampionState c => state.Content.Get(c.Definition).Attack,
-            _ => 0,
-        };
+        var baseline = state.GetActor(actor) is IHasCardDefinition d ? state.Content.Get(d.Definition).Attack : 0;
         return Fold("Attack", actor, baseline, state);
     }
 
@@ -87,6 +74,20 @@ public static class Query
             _ => throw new ArgumentOutOfRangeException(),
         };
         return Fold("DefendCost", actor, baseline, state);
+    }
+
+    /// <summary>D9's `2*AP` Bond cost — the AP half of the `*` flavor; the once-per-turn half
+    /// is CanUseOncePerTurnAction below (they're independent, see design-economy.md's `*`
+    /// notation).</summary>
+    public static ApCost ResolveBondCost(ActorId actor, TrueState state) =>
+        Fold("BondCost", actor, ApCost.Fixed(2), state);
+
+    /// <summary>The once-per-turn half of the `*` cost flavor: true until this actionId has
+    /// been spent this turn, regardless of AP remaining or refilled since.</summary>
+    public static bool CanUseOncePerTurnAction(ActorId actor, string actionId, TrueState state)
+    {
+        var baseline = !state.GetActor(actor).OncePerTurnActionsUsed.Contains(actionId);
+        return Fold($"OncePerTurn:{actionId}", actor, baseline, state);
     }
 
     public static IReadOnlyList<HexCoord> ResolveLegalMoveTargets(ActorId actor, TrueState state)
