@@ -44,7 +44,6 @@ public static class SpellFixtures
             BoardWithTerrainAt10(),
             [Fixtures.P1, Fixtures.P2],
             creatures: [],
-            new MatchConfig(DefendRuleVariant.Exhaust),
             Content(),
             seed: 9,
             champions:
@@ -62,7 +61,6 @@ public static class SpellFixtures
             BoardWithTerrainAt10(),
             [Fixtures.P1, Fixtures.P2],
             creatures: [],
-            new MatchConfig(DefendRuleVariant.Exhaust),
             Content(),
             seed: 10,
             champions:

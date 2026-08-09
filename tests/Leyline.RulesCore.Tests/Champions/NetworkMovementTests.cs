@@ -32,7 +32,6 @@ public class NetworkMovementTests
             board,
             [Fixtures.P1, Fixtures.P2],
             creatures: [],
-            new MatchConfig(DefendRuleVariant.Exhaust),
             SpellFixtures.Content(),
             seed: 20,
             champions: [new ChampionPlacement(Fixtures.P1, SpellFixtures.Champion, new HexCoord(1, 0))],
@@ -44,7 +43,6 @@ public class NetworkMovementTests
             SmallBoard(),
             [Fixtures.P1, Fixtures.P2],
             creatures: [],
-            new MatchConfig(DefendRuleVariant.Exhaust),
             SpellFixtures.Content(),
             seed: 21,
             champions: [new ChampionPlacement(Fixtures.P1, SpellFixtures.Champion, new HexCoord(1, 0))]);

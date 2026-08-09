@@ -13,7 +13,6 @@ public sealed class TrueState
     public required Board Board { get; init; }
     public required IReadOnlyList<PlayerState> Players { get; init; }
     public required IReadOnlyList<PhaseDefinition> PhaseSequence { get; init; }
-    public required MatchConfig Config { get; init; }
     public required ICardDefinitionRepository Content { get; init; }
 
     public RngState Rng { get; set; }

@@ -10,7 +10,6 @@ public class ScenarioLoaderTests
     {
         const string text = """
         seed 1
-        defendRule Exhaust
         board 3x3
         card test.grunt Creature "Grunt" attack=3 life=5 ap=3 abilities=core.move,core.attack
         creature P1 test.grunt 0,0

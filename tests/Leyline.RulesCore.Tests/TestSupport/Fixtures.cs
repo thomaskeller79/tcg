@@ -26,7 +26,7 @@ public static class Fixtures
     }
 
     /// <summary>One grunt for each player, adjacent at (0,0) and (1,0), on a 4x4 board.</summary>
-    public static Match Adjacent1v1(DefendRuleVariant variant = DefendRuleVariant.Exhaust, int attack = 3, int life = 5, int maxAp = 3) =>
+    public static Match Adjacent1v1(int attack = 3, int life = 5, int maxAp = 3) =>
         MatchFactory.CreateMatch(
             SmallBoard(),
             [P1, P2],
@@ -34,7 +34,6 @@ public static class Fixtures
                 new CreaturePlacement(P1, Grunt, new HexCoord(0, 0)),
                 new CreaturePlacement(P2, Grunt, new HexCoord(1, 0)),
             ],
-            new MatchConfig(variant),
             Content(attack, life, maxAp),
             seed: 1);
 }

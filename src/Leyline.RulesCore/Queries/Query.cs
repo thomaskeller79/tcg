@@ -77,28 +77,22 @@ public static class Query
     public static ApCost ResolveAttackCost(ActorId actor, TrueState state) =>
         Fold("AttackCost", actor, ApCost.Exhaust(3), state);
 
-    public static bool CanDefend(ActorId actor, TrueState state)
-    {
-        var defender = state.GetActor(actor);
-        var baseline = state.Config.DefendRule switch
-        {
-            DefendRuleVariant.Exhaust => defender.CurrentAp >= 1,
-            DefendRuleVariant.DeleteDefendOnce => true,
-            _ => throw new ArgumentOutOfRangeException(),
-        };
-        return Fold("CanDefend", actor, baseline, state);
-    }
+    /// <summary>D15 (resolved 2026-08-09): defending costs `0*AP` — free, but at most once per
+    /// turn per actor (Query.CanUseOncePerTurnAction, same `*` flavor as Bond/Draw), completely
+    /// decoupled from remaining AP. Replaces the earlier Exhaust/DeleteDefendOnce config toggle:
+    /// Exhaust (defending costs `1!AP`) created a real bug — an actor that spent its whole turn
+    /// (e.g. by attacking, itself `!`-costed) was left unable to defend for the *opponent's
+    /// entire following turn* (AP only refreshes on its own controller's Beginning phase),
+    /// punishing whoever attacked first. `0*AP` fixes that (Defend never checks AP at all) while
+    /// keeping a real per-turn limit (unlike a flat "always free, unlimited" rule) — a card can
+    /// still deliberately spend a creature's Defend for the turn as a side effect of a strong
+    /// ability (emit OncePerTurnActionUsedIntent(actor, CoreAbilities.Defend) from that
+    /// ability's own effect), the MTG "tap cost" flavor, without that being a base-rule default.</summary>
+    public static bool CanDefend(ActorId actor, TrueState state) =>
+        Fold("CanDefend", actor, CanUseOncePerTurnAction(actor, CoreAbilities.Defend, state), state);
 
-    public static ApCost ResolveDefendCost(ActorId actor, TrueState state)
-    {
-        var baseline = state.Config.DefendRule switch
-        {
-            DefendRuleVariant.Exhaust => ApCost.Exhaust(1),
-            DefendRuleVariant.DeleteDefendOnce => ApCost.Fixed(0),
-            _ => throw new ArgumentOutOfRangeException(),
-        };
-        return Fold("DefendCost", actor, baseline, state);
-    }
+    public static ApCost ResolveDefendCost(ActorId actor, TrueState state) =>
+        Fold("DefendCost", actor, ApCost.Fixed(0), state);
 
     /// <summary>D9's `2*AP` Bond cost — the AP half of the `*` flavor; the once-per-turn half
     /// is CanUseOncePerTurnAction below (they're independent, see design-economy.md's `*`

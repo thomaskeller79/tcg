@@ -16,7 +16,7 @@ public static class TestMatches
             new CardDefinition(Champion, "Champion (test)", Attack: 2, Life: 15, MaxAp: 2, AbilityIds: ["core.move", "core.attack"]),
         ]);
 
-    public static Match TwoVsTwoGruntsWithChampions(DefendRuleVariant variant, ICardDefinitionRepository content)
+    public static Match TwoVsTwoGruntsWithChampions(ICardDefinitionRepository content)
     {
         var p1 = new PlayerId(1);
         var p2 = new PlayerId(2);
@@ -31,7 +31,6 @@ public static class TestMatches
                 new CreaturePlacement(p2, Grunt, new HexCoord(0, 3)),
                 new CreaturePlacement(p2, Grunt, new HexCoord(1, 3)),
             ],
-            new MatchConfig(variant),
             content,
             seed: 0,
             champions:

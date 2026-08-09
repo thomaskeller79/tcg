@@ -14,7 +14,7 @@ public static class InteractiveRepl
 {
     public static void Run(ICardDefinitionRepository content)
     {
-        var match = TestMatches.TwoVsTwoGruntsWithChampions(DefendRuleVariant.Exhaust, content);
+        var match = TestMatches.TwoVsTwoGruntsWithChampions(content);
         var p1Seat = new SeatId(1);
         var p2Seat = new SeatId(2);
         var seats = new Dictionary<SeatId, PlayerId> { [p1Seat] = new(1), [p2Seat] = new(2) };

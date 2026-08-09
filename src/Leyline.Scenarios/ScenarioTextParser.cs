@@ -8,7 +8,6 @@ namespace Leyline.Scenarios;
 internal sealed class ParsedScenario
 {
     public int Seed { get; set; }
-    public DefendRuleVariant DefendRule { get; set; } = DefendRuleVariant.Exhaust;
     public int BoardWidth { get; set; } = 4;
     public int BoardHeight { get; set; } = 4;
     public List<(HexCoord Coord, string Terrain, int MoveCost)> TerrainOverrides { get; } = [];
@@ -64,10 +63,6 @@ internal static class ScenarioTextParser
         {
             case "seed":
                 scenario.Seed = int.Parse(tokens[1]);
-                break;
-
-            case "defendRule":
-                scenario.DefendRule = Enum.Parse<DefendRuleVariant>(tokens[1], ignoreCase: true);
                 break;
 
             case "board":

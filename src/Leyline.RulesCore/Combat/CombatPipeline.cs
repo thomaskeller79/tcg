@@ -1,3 +1,4 @@
+using Leyline.RulesCore.Abilities;
 using Leyline.RulesCore.Commands;
 using Leyline.RulesCore.Events;
 using Leyline.RulesCore.Queries;
@@ -65,6 +66,7 @@ public static class CombatPipeline
             var defender = state.GetActor(defenderId);
             var cost = Query.ResolveDefendCost(defenderId, state);
             events.AddRange(pipeline.Process(new ApChangeIntent(defenderId, cost.Apply(defender.CurrentAp)), state));
+            events.AddRange(pipeline.Process(new OncePerTurnActionUsedIntent(defenderId, CoreAbilities.Defend), state));
         }
         events.AddRange(pipeline.Process(new DefendersDeclaredIntent(cmd.Combat, cmd.Defenders), state));
 

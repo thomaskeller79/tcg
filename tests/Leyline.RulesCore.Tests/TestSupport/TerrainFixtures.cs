@@ -32,7 +32,6 @@ public static class TerrainFixtures
             BoardWithTerrainChain(),
             [Fixtures.P1, Fixtures.P2],
             creatures: [],
-            new MatchConfig(DefendRuleVariant.Exhaust),
             ChampionFixtures.Content(championMaxAp: championMaxAp),
             seed: 4,
             champions: [new ChampionPlacement(Fixtures.P1, ChampionFixtures.Champion, new HexCoord(0, 0))],

@@ -2,7 +2,6 @@
 # 1 mana from turn 1) — with a small library for each Champion, so Bond and Draw are exercisable
 # here too.
 seed 0
-defendRule Exhaust
 board 4x4
 
 card test.grunt Creature "Grunt" attack=3 life=5 ap=3 mana=2 abilities=core.move,core.attack

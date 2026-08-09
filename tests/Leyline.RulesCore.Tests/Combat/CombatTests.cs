@@ -98,7 +98,6 @@ public class CombatTests
                 new CreaturePlacement(Fixtures.P2, Fixtures.Grunt, new HexCoord(1, 0)),
                 new CreaturePlacement(Fixtures.P2, Fixtures.Grunt, new HexCoord(1, 0)),
             ],
-            new MatchConfig(DefendRuleVariant.Exhaust),
             content,
             seed: 2);
 

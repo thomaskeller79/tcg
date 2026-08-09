@@ -20,11 +20,10 @@ public static class ScenarioLoader
 
         var board = BuildBoard(scenario);
         var content = JsonCardDefinitionRepository.FromDefinitions(scenario.Cards.Values);
-        var config = new MatchConfig(scenario.DefendRule);
         var setups = new[] { p1, p2 }.Select(p => new PlayerSetup(p, scenario.Library[p], scenario.Hand[p])).ToList();
 
         return MatchFactory.CreateMatch(
-            board, [p1, p2], scenario.Creatures, config, content, (ulong)scenario.Seed,
+            board, [p1, p2], scenario.Creatures, content, (ulong)scenario.Seed,
             scenario.Champions, setups, scenario.Bonds);
     }
 

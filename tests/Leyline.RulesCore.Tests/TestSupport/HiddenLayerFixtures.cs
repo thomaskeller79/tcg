@@ -14,7 +14,6 @@ public static class HiddenLayerFixtures
                 new CreaturePlacement(Fixtures.P1, Fixtures.Grunt, new HexCoord(0, 0)),
                 new CreaturePlacement(Fixtures.P2, Fixtures.Grunt, new HexCoord(1, 0), Layer.Below),
             ],
-            new MatchConfig(DefendRuleVariant.Exhaust),
             Fixtures.Content(),
             seed: 7);
 }

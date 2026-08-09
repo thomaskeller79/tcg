@@ -7,14 +7,15 @@ namespace Leyline.SimHarness;
 public sealed record BatchReport(double WinRateP1, double WinRateP2, double DrawRate, double AverageTurns);
 
 /// <summary>
-/// The literal instrument for the user's stated first M1 goal: empirically compare the D15
-/// defend-rule variants. Drives matches with a uniform-random-over-legal-commands policy,
-/// bypassing Host directly (the "sanctioned bypass" for batch throughput — see the M1 plan's
-/// test/harness approach).
+/// Drives matches with a uniform-random-over-legal-commands policy, bypassing Host directly
+/// (the "sanctioned bypass" for batch throughput — see the M1 plan's test/harness approach).
+/// Originally built to empirically compare the D15 defend-rule variants; D15 resolved to a
+/// single rule (0*AP, no variant to compare), but the general batch-runner capability stays
+/// useful for balance analysis going forward.
 /// </summary>
 public static class BatchSim
 {
-    public static BatchReport Run(DefendRuleVariant variant, ICardDefinitionRepository content, int matchCount, int turnCap, ulong seed)
+    public static BatchReport Run(ICardDefinitionRepository content, int matchCount, int turnCap, ulong seed)
     {
         int p1Wins = 0, p2Wins = 0, draws = 0;
         long totalTurns = 0;
@@ -22,7 +23,7 @@ public static class BatchSim
 
         for (var i = 0; i < matchCount; i++)
         {
-            var (winner, turns, nextRng) = RunOneMatch(variant, content, turnCap, policyRng);
+            var (winner, turns, nextRng) = RunOneMatch(content, turnCap, policyRng);
             policyRng = nextRng;
             totalTurns += turns;
             switch (winner)
@@ -41,11 +42,11 @@ public static class BatchSim
     }
 
     private static (int Winner, int Turns, RngState NextRng) RunOneMatch(
-        DefendRuleVariant variant, ICardDefinitionRepository content, int turnCap, RngState policyRng)
+        ICardDefinitionRepository content, int turnCap, RngState policyRng)
     {
         var p1 = new PlayerId(1);
         var p2 = new PlayerId(2);
-        var match = TestMatches.TwoVsTwoGruntsWithChampions(variant, content);
+        var match = TestMatches.TwoVsTwoGruntsWithChampions(content);
 
         const int maxActions = 5000; // safety valve independent of turn count
         for (var actionCount = 0; actionCount < maxActions; actionCount++)

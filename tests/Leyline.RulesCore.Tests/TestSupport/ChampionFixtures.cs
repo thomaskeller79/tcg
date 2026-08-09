@@ -21,7 +21,6 @@ public static class ChampionFixtures
             Fixtures.SmallBoard(),
             [Fixtures.P1, Fixtures.P2],
             [new CreaturePlacement(Fixtures.P1, Fixtures.Grunt, new HexCoord(0, 0))],
-            new MatchConfig(DefendRuleVariant.Exhaust),
             Content(championLife),
             seed: 3,
             champions: [new ChampionPlacement(Fixtures.P2, Champion, new HexCoord(1, 0))]);
@@ -32,7 +31,6 @@ public static class ChampionFixtures
             Fixtures.SmallBoard(),
             [Fixtures.P1, Fixtures.P2],
             creatures: [],
-            new MatchConfig(DefendRuleVariant.Exhaust),
             Content(championLife, maxAp),
             seed: 5,
             champions: [new ChampionPlacement(Fixtures.P1, Champion, new HexCoord(0, 0))]);
@@ -43,7 +41,6 @@ public static class ChampionFixtures
             Fixtures.SmallBoard(),
             [Fixtures.P1, Fixtures.P2],
             creatures: [],
-            new MatchConfig(DefendRuleVariant.Exhaust),
             Content(championLife, maxAp),
             seed: 6,
             champions:

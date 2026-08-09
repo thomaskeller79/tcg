@@ -34,7 +34,6 @@ public static class LocalHostFactory
                 new CreaturePlacement(p1, gruntId, new HexCoord(0, 0)),
                 new CreaturePlacement(p2, gruntId, new HexCoord(1, 0), Layer.Below),
             ],
-            new MatchConfig(DefendRuleVariant.Exhaust),
             content,
             seed: 42);
 

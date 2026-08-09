@@ -70,7 +70,6 @@ public class LegalCommandEnumerationTests
                 new CreaturePlacement(Fixtures.P1, Fixtures.Grunt, new HexCoord(0, 0)),
                 new CreaturePlacement(Fixtures.P1, Fixtures.Grunt, new HexCoord(1, 0)),
             ],
-            new MatchConfig(DefendRuleVariant.Exhaust),
             content,
             seed: 7);
 
@@ -91,7 +90,6 @@ public class LegalCommandEnumerationTests
                 new CreaturePlacement(Fixtures.P2, Fixtures.Grunt, new HexCoord(1, 0)),
                 new CreaturePlacement(Fixtures.P2, Fixtures.Grunt, new HexCoord(1, 0)),
             ],
-            new MatchConfig(DefendRuleVariant.Exhaust),
             content,
             seed: 2);
 
