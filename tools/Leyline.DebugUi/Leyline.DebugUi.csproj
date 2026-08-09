@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Leyline.RulesCore\Leyline.RulesCore.csproj" />
+    <ProjectReference Include="..\..\src\Leyline.Host\Leyline.Host.csproj" />
+    <ProjectReference Include="..\..\src\Leyline.Scenarios\Leyline.Scenarios.csproj" />
+  </ItemGroup>
+
+</Project>

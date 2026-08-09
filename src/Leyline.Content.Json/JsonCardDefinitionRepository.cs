@@ -30,7 +30,9 @@ public sealed class JsonCardDefinitionRepository : ICardDefinitionRepository
                 ?? throw new InvalidDataException($"Could not parse card definition: {file}");
 
             var id = new CardDefinitionId(dto.Id);
-            definitions[id] = new CardDefinition(id, dto.Name, dto.Stats.Attack, dto.Stats.Life, dto.Stats.Ap, dto.Abilities);
+            var type = Enum.Parse<CardType>(dto.Type, ignoreCase: true);
+            definitions[id] = new CardDefinition(id, dto.Name, dto.Stats.Attack, dto.Stats.Life, dto.Stats.Ap, dto.Abilities,
+                type, dto.ManaCost, dto.EffectId, dto.EffectAmount);
         }
         return new JsonCardDefinitionRepository(definitions);
     }

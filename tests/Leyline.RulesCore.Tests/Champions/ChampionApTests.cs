@@ -62,13 +62,18 @@ public class ChampionApTests
     {
         // The old model shared one Channel between Bond and "act as a creature" — mutually
         // exclusive per turn. D9's revision drops that: Bond just costs 2 AP (once per turn),
-        // leaving any remaining AP spendable on Move/Attack like normal.
-        var match = TerrainFixtures.ChampionWithTerrainChain(championMaxAp: 3);
+        // leaving any remaining AP spendable on Move/Attack like normal. Bonding also connects
+        // the Champion to its network, so (per the D9 movement rule, under test) a connected
+        // move now costs 2AP and is confined to the Champion's own bonded territory — maxAp
+        // raised, and the home tile pre-bonded, so there's an actual second tile to move onto.
+        var match = TerrainFixtures.ChampionWithTerrainChain(championMaxAp: 5, homeBonded: true);
 
+        // D8 (revised 2026-08-08): the second bond extends the (already home-rooted) network
+        // onto the adjacent tile — the first-bond-is-home rule only gates the very first bond.
         var bonded = RulesEngine.Apply(match, new BondTerrainCommand(Fixtures.P1, new HexCoord(1, 0)));
         Assert.True(bonded.Accepted);
 
         var legal = RulesEngine.LegalCommands(match, Fixtures.P1);
-        Assert.Contains(legal, c => c is MoveCommand); // 1 AP left of the 3 - 2 spent on Bond
+        Assert.Contains(legal, c => c is MoveCommand); // move within the bonded (0,0)<->(1,0) territory, 3 AP left of 5 - 2 spent on Bond
     }
 }

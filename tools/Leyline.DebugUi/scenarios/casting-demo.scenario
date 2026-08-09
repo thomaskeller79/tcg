@@ -1,0 +1,24 @@
+# Both Champions start with a starter hand and, per D8/D9 (revised 2026-08-08), pre-bonded to
+# their own home tile — 1 mana available from turn 1. Any hex is bondable, but expanding the
+# network further, or moving off it, now costs a deliberate choice: 2AP to reposition within
+# bonded territory, or 0AP to Collapse the network and move freely again.
+seed 11
+defendRule Exhaust
+board 4x4
+
+card test.champion Champion "Champion" attack=2 life=15 ap=7 abilities=core.move,core.attack,champion.bond,champion.draw,champion.collapse
+card test.grunt Creature "Grunt" attack=3 life=5 ap=3 mana=2 abilities=core.move,core.attack
+card test.firebolt Rite "Firebolt" mana=1 effect=damage amount=3
+card test.mend Rite "Mend" mana=1 effect=heal amount=4
+
+champion P1 test.champion 0,0
+champion P2 test.champion 3,3
+
+bond P1 0,0
+bond P2 3,3
+
+library P1 test.grunt,test.mend
+hand P1 test.grunt,test.firebolt
+
+library P2 test.grunt,test.mend
+hand P2 test.grunt,test.firebolt

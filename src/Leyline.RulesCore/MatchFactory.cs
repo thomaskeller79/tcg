@@ -8,12 +8,23 @@ namespace Leyline.RulesCore;
 public sealed record CreaturePlacement(PlayerId Owner, CardDefinitionId Definition, HexCoord Position, Layer Layer = Layer.Ground);
 public sealed record ChampionPlacement(PlayerId Owner, CardDefinitionId Definition, HexCoord Position);
 
+/// <summary>Initial Library/Hand contents for one player — Library[0] is the top (next draw).
+/// Either list may be empty/omitted; a player with no Champion.Draw ability or an empty
+/// Library simply never draws.</summary>
+public sealed record PlayerSetup(PlayerId Player, IReadOnlyList<CardDefinitionId> Library, IReadOnlyList<CardDefinitionId> Hand);
+
+/// <summary>A pre-bonded terrain node at setup — applied before the first Beginning phase
+/// runs, so mana is already live on turn 1 instead of requiring a real Bond + a full turn
+/// cycle first. Same "setup, not gameplay" footing as initial placement (D8's bonding is
+/// otherwise a runtime-only mutation, TerrainPipeline.Bond).</summary>
+public sealed record TerrainBond(PlayerId Player, HexCoord Coord);
+
 /// <summary>
-/// Builds a ready-to-play Match. D20's real Summoning (cast from hand onto bonded terrain)
-/// needs a Hand/Library system not in M1's scope — the test board is pre-populated directly
-/// via this factory instead. Direct field initialization here (not via the event pipeline)
-/// is intentional: this is match *setup*, analogous to the "seed" in the replay formula
-/// (seed + config + command log → deterministic state), not gameplay to be replayed.
+/// Builds a ready-to-play Match. Direct field initialization here (not via the event
+/// pipeline) is intentional: this is match *setup*, analogous to the "seed" in the replay
+/// formula (seed + config + command log → deterministic state), not gameplay to be replayed —
+/// this now includes each player's starting Library/Hand (D20's Draw/Cast pipelines are real,
+/// but *dealing* a deck is still setup, same footing as initial board placement).
 /// </summary>
 public static class MatchFactory
 {
@@ -24,7 +35,9 @@ public static class MatchFactory
         MatchConfig config,
         ICardDefinitionRepository content,
         ulong seed,
-        IReadOnlyList<ChampionPlacement>? champions = null)
+        IReadOnlyList<ChampionPlacement>? champions = null,
+        IReadOnlyList<PlayerSetup>? playerSetups = null,
+        IReadOnlyList<TerrainBond>? bonds = null)
     {
         var state = new TrueState
         {
@@ -36,6 +49,13 @@ public static class MatchFactory
             Rng = RngState.FromSeed(seed),
             ActivePlayer = playerIds[0],
         };
+
+        foreach (var setup in playerSetups ?? [])
+        {
+            var player = state.Players.First(p => p.Id == setup.Player);
+            player.Library.AddRange(setup.Library);
+            player.Hand.AddRange(setup.Hand);
+        }
 
         foreach (var placement in creatures)
         {
@@ -67,6 +87,12 @@ public static class MatchFactory
                 CurrentAp = 0, // refreshed to MaxAp by the first Beginning phase's RefreshApEffect, like any actor
             };
             state.AddActor(champion);
+        }
+
+        foreach (var bond in bonds ?? [])
+        {
+            var champion = state.AllActors.OfType<ChampionState>().First(c => c.Owner == bond.Player);
+            champion.Network.Bond(bond.Coord);
         }
 
         var pipeline = new EventPipeline();

@@ -13,19 +13,20 @@ public class GoldenPathTests
     {
         var match = TerrainFixtures.ChampionWithTerrainChain(championMaxAp: 3); // P1 champion at (0,0), terrain at (1,0)/(2,0)
 
-        // Turn 1 (P1): bond terrain, costing 2 of the Champion's 3 starting AP.
-        var bonded = RulesEngine.Apply(match, new BondTerrainCommand(Fixtures.P1, new HexCoord(1, 0)));
+        // Turn 1 (P1): bond the Champion's own tile — the only legal first bond (D8, revised
+        // 2026-08-08) — costing 2 of the Champion's 3 starting AP.
+        var bonded = RulesEngine.Apply(match, new BondTerrainCommand(Fixtures.P1, new HexCoord(0, 0)));
         Assert.True(bonded.Accepted);
 
         // Bonding again this turn is illegal — the `*` once-per-turn gate, independent of AP remaining.
-        var doubleSpend = RulesEngine.Apply(match, new BondTerrainCommand(Fixtures.P1, new HexCoord(2, 0)));
+        var doubleSpend = RulesEngine.Apply(match, new BondTerrainCommand(Fixtures.P1, new HexCoord(1, 0)));
         Assert.False(doubleSpend.Accepted);
 
         RulesEngine.Apply(match, new EndPhaseCommand(Fixtures.P1)); // -> P2's turn
         RulesEngine.Apply(match, new EndPhaseCommand(Fixtures.P2)); // -> back to P1: mana + AP refresh, once-per-turn gate resets
 
         var p1 = match.State.Players.Single(p => p.Id == Fixtures.P1);
-        Assert.Equal(1, p1.Mana); // the bonded node is now connected and producing
+        Assert.Equal(1, p1.Mana); // the Champion's own bonded tile is connected and producing while it stands there
 
         // Turn 2 (P1): the Champion already has its refreshed AP — no command needed to act —
         // walk it next to P2's champion and kill it. Combat needed zero changes to allow this (Slice 2).

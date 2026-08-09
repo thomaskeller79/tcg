@@ -30,5 +30,11 @@ public sealed record ActorConcealedIntent(ActorId Actor) : EventIntent;
 public sealed record AddModifierIntent(IModifier Modifier) : EventIntent;
 public sealed record RemoveModifierIntent(ModifierId Modifier) : EventIntent;
 
+public sealed record CardDrawnIntent(PlayerId Player, CardDefinitionId Card) : EventIntent;
+public sealed record HandCardRemovedIntent(PlayerId Player, CardDefinitionId Card) : EventIntent;
+public sealed record CreatureSummonedIntent(ActorId NewActor, PlayerId Owner, CardDefinitionId Definition, HexCoord Position) : EventIntent;
+public sealed record HealIntent(ActorId Target, int Amount) : EventIntent;
+public sealed record NetworkCollapsedIntent(ActorId Champion) : EventIntent;
+
 /// <summary>A replacement effect's way of cancelling an intent outright.</summary>
 public sealed record NoOpIntent : EventIntent;

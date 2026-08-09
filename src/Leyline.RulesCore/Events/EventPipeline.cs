@@ -98,6 +98,11 @@ public sealed class EventPipeline
         ActorConcealedIntent c => new ActorConcealedEvent(c.Actor),
         AddModifierIntent a => new AddModifierEvent(a.Modifier),
         RemoveModifierIntent r => new RemoveModifierEvent(r.Modifier),
+        CardDrawnIntent c => new CardDrawnEvent(c.Player, c.Card),
+        HandCardRemovedIntent h => new HandCardRemovedEvent(h.Player, h.Card),
+        CreatureSummonedIntent s => new CreatureSummonedEvent(s.NewActor, s.Owner, s.Definition, s.Position),
+        HealIntent h => new HealEvent(h.Target, h.Amount),
+        NetworkCollapsedIntent n => new NetworkCollapsedEvent(n.Champion),
         _ => throw new NotSupportedException($"No event mapping for intent {intent.GetType().Name}."),
     };
 }

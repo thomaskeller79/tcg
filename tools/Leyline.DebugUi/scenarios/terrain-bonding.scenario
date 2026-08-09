@@ -1,0 +1,15 @@
+# A lone Champion on an open board, deliberately NOT pre-bonded (unlike the other scenarios) —
+# this is the one built to exercise the mandatory first bond (own tile) yourself, then expand
+# the network outward hex by hex (any cell is bondable, D8/D9 revised 2026-08-08). Exercises
+# Bond/AP/the once-per-turn `*` cost flavor without any other distraction. Also carries a small
+# library so Draw is exercisable in the same scenario.
+seed 4
+defendRule Exhaust
+board 4x4
+
+card test.champion Champion "Champion" attack=2 life=15 ap=7 abilities=core.move,core.attack,champion.bond,champion.draw,champion.collapse
+card test.grunt Creature "Grunt" attack=3 life=5 ap=3 mana=2 abilities=core.move,core.attack
+
+champion P1 test.champion 0,0
+
+library P1 test.grunt,test.grunt

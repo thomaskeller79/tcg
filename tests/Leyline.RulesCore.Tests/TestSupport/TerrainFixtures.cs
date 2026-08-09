@@ -23,7 +23,11 @@ public static class TerrainFixtures
         return new Board(cells);
     }
 
-    public static Match ChampionWithTerrainChain(int championMaxAp = 2) =>
+    /// <summary>homeBonded pre-bonds the Champion's own starting tile at match setup (D8's
+    /// mandatory first bond) — off by default so most tests still exercise that first live Bond
+    /// themselves; turn on for tests that need an existing (two-tile-capable) network already
+    /// in place instead.</summary>
+    public static Match ChampionWithTerrainChain(int championMaxAp = 2, bool homeBonded = false) =>
         MatchFactory.CreateMatch(
             BoardWithTerrainChain(),
             [Fixtures.P1, Fixtures.P2],
@@ -31,5 +35,6 @@ public static class TerrainFixtures
             new MatchConfig(DefendRuleVariant.Exhaust),
             ChampionFixtures.Content(championMaxAp: championMaxAp),
             seed: 4,
-            champions: [new ChampionPlacement(Fixtures.P1, ChampionFixtures.Champion, new HexCoord(0, 0))]);
+            champions: [new ChampionPlacement(Fixtures.P1, ChampionFixtures.Champion, new HexCoord(0, 0))],
+            bonds: homeBonded ? [new TerrainBond(Fixtures.P1, new HexCoord(0, 0))] : null);
 }

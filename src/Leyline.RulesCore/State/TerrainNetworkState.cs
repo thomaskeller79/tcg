@@ -12,4 +12,9 @@ public sealed class TerrainNetworkState
     public IReadOnlySet<HexCoord> Bonded => _bonded;
 
     public void Bond(HexCoord coord) => _bonded.Add(coord);
+
+    /// <summary>D9 (under test, 2026-08-08): the Champion's free (0AP) "Collapse the network"
+    /// ability — drops every bond outright. The only way to become mobile again once rooted;
+    /// see ChampionActionIds.CollapseNetwork.</summary>
+    public void Collapse() => _bonded.Clear();
 }

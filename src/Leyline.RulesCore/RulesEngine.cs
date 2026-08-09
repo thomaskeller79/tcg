@@ -1,6 +1,8 @@
+using Leyline.RulesCore.Champions;
 using Leyline.RulesCore.Combat;
 using Leyline.RulesCore.Commands;
 using Leyline.RulesCore.Queries;
+using Leyline.RulesCore.Spells;
 using Leyline.RulesCore.State;
 using Leyline.RulesCore.Terrain;
 using Leyline.RulesCore.Turns;
@@ -57,6 +59,10 @@ public static class RulesEngine
         }
 
         commands.AddRange(TerrainPipeline.LegalBonds(state, actor));
+        commands.AddRange(ChampionPipeline.LegalDraws(state, actor));
+        commands.AddRange(ChampionPipeline.LegalCollapses(state, actor));
+        commands.AddRange(SpellPipeline.LegalCastCreatureCommands(state, actor));
+        commands.AddRange(SpellPipeline.LegalCastRiteCommands(state, actor));
 
         commands.Add(new EndPhaseCommand(actor));
         return commands;
@@ -81,6 +87,10 @@ public static class RulesEngine
             RespondCommand => CommandResult.Reject("No respondable content exists in M1."),
             EndPhaseCommand e => TurnEngine.EndPhase(state, pipeline, e),
             BondTerrainCommand b => TerrainPipeline.Bond(state, pipeline, b),
+            DrawCardCommand d => ChampionPipeline.DrawCard(state, pipeline, d),
+            CastCreatureCommand c => SpellPipeline.CastCreature(state, pipeline, c),
+            CastRiteCommand c => SpellPipeline.CastRite(state, pipeline, c),
+            CollapseNetworkCommand c => ChampionPipeline.CollapseNetwork(state, pipeline, c),
             _ => CommandResult.Reject($"Unhandled command type {command.GetType().Name}."),
         };
     }

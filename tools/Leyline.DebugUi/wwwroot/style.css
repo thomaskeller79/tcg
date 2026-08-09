@@ -1,0 +1,249 @@
+:root {
+  color-scheme: light dark;
+  --bg: #1e1f26;
+  --panel-bg: #262832;
+  --cell-fill: #33364280;
+  --cell-stroke: #4c4f5e;
+  --text: #e6e6ea;
+  --muted: #9a9ca8;
+  --p1: #4da3ff;
+  --p2: #ff6b6b;
+  --accent: #f2c14e;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--cell-stroke);
+}
+
+header h1 {
+  font-size: 16px;
+  margin: 0 16px 0 0;
+}
+
+#status-line {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 13px;
+  max-width: 40ch;
+}
+
+.phase-stepper {
+  display: flex;
+  gap: 4px;
+}
+
+.phase-step {
+  padding: 3px 10px;
+  border: 1px solid var(--cell-stroke);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--muted);
+  background: #14151a;
+}
+
+.phase-step.current {
+  color: #14151a;
+  background: var(--accent);
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+#panels {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  align-items: flex-start;
+}
+
+.panel {
+  flex: 1 1 0;
+  background: var(--panel-bg);
+  border: 1px solid var(--cell-stroke);
+  border-radius: 8px;
+  padding: 10px;
+  min-width: 0;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+/* Whichever seat currently has legal actions — the active player's own turn, or the other
+   seat mid-combat-decision (declare defenders, etc.) — gets an unmissable frame, since the
+   small header text alone is too easy to miss turn-to-turn. */
+.panel.needs-input {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent), 0 0 14px 0 #f2c14e55;
+}
+
+.panel h2 {
+  font-size: 14px;
+  margin: 0 0 8px;
+  color: var(--muted);
+}
+
+.mana {
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.board-wrap {
+  width: 100%;
+  overflow: auto;
+  background: #14151a;
+  border-radius: 6px;
+}
+
+svg.board {
+  display: block;
+  width: 100%;
+  height: 260px;
+  user-select: none;
+}
+
+.hex {
+  fill: var(--cell-fill);
+  stroke: var(--cell-stroke);
+  stroke-width: 1;
+}
+
+/* D8 leyline network overlay: a colored border per owner on bonded cells, dashed + faded
+   when paused (bonded but not currently producing — an enemy is blocking the only path). */
+.hex.network-1 { stroke: var(--p1); stroke-width: 2.5; }
+.hex.network-2 { stroke: var(--p2); stroke-width: 2.5; }
+.hex.network-paused { stroke-dasharray: 4 3; opacity: 0.75; }
+
+.actor {
+  stroke: #0006;
+  stroke-width: 1.5;
+}
+
+.actor.owner-1 { fill: var(--p1); }
+.actor.owner-2 { fill: var(--p2); }
+.actor.owner-unknown { fill: var(--muted); }
+
+.actor.layer-below { stroke-dasharray: 3 2; opacity: 0.75; }
+
+.actor.draggable { cursor: grab; touch-action: none; }
+.actor.draggable.dragging { cursor: grabbing; opacity: 0.55; }
+.actor:not(.draggable) { cursor: pointer; }
+
+.actor.selected { stroke: var(--accent); stroke-width: 3; }
+
+/* Hovering an action button (e.g. "Bond terrain at (1,0)", "Target: Champion (P2)") highlights
+   the hex or actor it resolves to, so the target is visible before you commit to it. Placed
+   after the network/selected rules so it wins the stroke on tied specificity. */
+.hex.hover-target { stroke: #ffffff; stroke-width: 3.5; }
+.actor.hover-target { stroke: #ffffff; stroke-width: 4; }
+
+.actor-label {
+  font-size: 7.5px;
+  fill: #05050a;
+  text-anchor: middle;
+  pointer-events: none;
+  font-weight: 600;
+}
+
+.actions {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.actions button {
+  text-align: left;
+  padding: 5px 8px;
+  background: #33364e;
+  color: var(--text);
+  border: 1px solid var(--cell-stroke);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.actions button:hover {
+  background: var(--accent);
+  color: #14151a;
+}
+
+.actions .empty {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.combat-info {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: pre-wrap;
+}
+
+.hand {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.hand .hand-row {
+  margin-bottom: 4px;
+}
+
+.hand .card {
+  display: inline-block;
+  margin: 2px 4px 2px 0;
+  padding: 2px 6px;
+  background: #33364e;
+  border: 1px solid var(--cell-stroke);
+  border-radius: 4px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.hand .card:hover { border-color: var(--accent); }
+.hand .card.selected { border-color: var(--accent); border-width: 2px; background: #3d3f5c; }
+
+.hand .card.owner-1 { border-color: var(--p1); }
+.hand .card.owner-2 { border-color: var(--p2); }
+
+.hand .library-line {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 2px 0 6px;
+}
+
+.selection {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text);
+  min-height: 1.2em;
+}
+
+.selection .empty {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.selection .abilities {
+  color: var(--muted);
+}
+
+.winner-banner {
+  color: var(--accent);
+  font-weight: 700;
+}

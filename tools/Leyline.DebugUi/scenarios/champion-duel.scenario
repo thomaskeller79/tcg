@@ -1,0 +1,19 @@
+# Two adjacent Champions, each pre-bonded to home (D8/D9 revised 2026-08-08 — 1 mana from turn
+# 1) — combat, plus a small library for each so Bond and Draw are both exercisable here too, not
+# just in casting-demo/terrain-bonding. Already adjacent, so combat needs no movement even though
+# both Champions are now rooted to their own single-tile network.
+seed 6
+defendRule Exhaust
+board 4x4
+
+card test.champion Champion "Champion" attack=2 life=15 ap=7 abilities=core.move,core.attack,champion.bond,champion.draw,champion.collapse
+card test.grunt Creature "Grunt" attack=3 life=5 ap=3 mana=2 abilities=core.move,core.attack
+
+champion P1 test.champion 0,0
+champion P2 test.champion 1,0
+
+bond P1 0,0
+bond P2 1,0
+
+library P1 test.grunt,test.grunt
+library P2 test.grunt,test.grunt

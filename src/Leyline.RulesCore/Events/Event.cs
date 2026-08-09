@@ -175,3 +175,70 @@ public sealed record RemoveModifierEvent(ModifierId Modifier) : IEvent
 {
     public void Apply(TrueState state) => state.ActiveModifiers.RemoveAll(m => m.Id == Modifier);
 }
+
+/// <summary>D9's `5*AP` Draw action: moves the top (index 0) of Library into Hand. The pipeline
+/// peeks Library[0] and passes it explicitly rather than having Apply re-peek, so the intent/
+/// event is self-describing (what was drawn is visible in the replay log, not inferred).</summary>
+public sealed record CardDrawnEvent(PlayerId Player, CardDefinitionId Card) : IEvent
+{
+    public void Apply(TrueState state)
+    {
+        var player = state.Players.First(p => p.Id == Player);
+        player.Library.RemoveAt(0);
+        player.Hand.Add(Card);
+    }
+}
+
+/// <summary>Casting (Creature or Rite) removes the cast card from Hand — shared by both,
+/// since M1 doesn't track a per-instance card identity, just "one fewer of this definition."</summary>
+public sealed record HandCardRemovedEvent(PlayerId Player, CardDefinitionId Card) : IEvent
+{
+    public void Apply(TrueState state) => state.Players.First(p => p.Id == Player).Hand.Remove(Card);
+}
+
+/// <summary>D20: summoning a Creature spell — CurrentAp starts at 0 (summoning sickness, D14's
+/// pessimistic default: it can't act until its own next Beginning-phase refresh), same
+/// zero-until-refresh pattern the Champion itself uses at match start.</summary>
+public sealed record CreatureSummonedEvent(ActorId NewActor, PlayerId Owner, CardDefinitionId Definition, HexCoord Position) : IEvent
+{
+    public void Apply(TrueState state)
+    {
+        var def = state.Content.Get(Definition);
+        state.AddActor(new CreatureState
+        {
+            Id = NewActor,
+            Owner = Owner,
+            Definition = Definition,
+            Position = Position,
+            Layer = Layer.Ground,
+            Located = true,
+            Life = def.Life,
+            CurrentAp = 0,
+        });
+    }
+}
+
+/// <summary>The Rite-effect placeholder's "heal" half (design-continuous-effects.md flagged
+/// this as not existing yet) — mirrors DamageEvent but adds. No overheal cap: nothing in the
+/// docs establishes one, and inventing an uncited rule here would be worse than leaving it open.</summary>
+public sealed record HealEvent(ActorId Target, int Amount) : IEvent
+{
+    public void Apply(TrueState state)
+    {
+        var target = state.FindActor(Target);
+        if (target is not null)
+            target.Life += Amount;
+    }
+}
+
+/// <summary>D9 (under test, 2026-08-08): the Champion's free "Collapse the network" ability —
+/// drops every bond outright, the only way to become mobile again once "rooted" by an active
+/// network (Query.ResolveMoveCost/ResolveLegalMoveTargets).</summary>
+public sealed record NetworkCollapsedEvent(ActorId Champion) : IEvent
+{
+    public void Apply(TrueState state)
+    {
+        if (state.FindActor(Champion) is ChampionState champion)
+            champion.Network.Collapse();
+    }
+}

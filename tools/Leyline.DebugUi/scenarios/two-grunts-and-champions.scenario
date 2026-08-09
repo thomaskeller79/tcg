@@ -1,0 +1,23 @@
+# Two grunts vs two grunts, plus a Champion each, pre-bonded to home (D8/D9 revised 2026-08-08 —
+# 1 mana from turn 1) — with a small library for each Champion, so Bond and Draw are exercisable
+# here too.
+seed 0
+defendRule Exhaust
+board 4x4
+
+card test.grunt Creature "Grunt" attack=3 life=5 ap=3 mana=2 abilities=core.move,core.attack
+card test.champion Champion "Champion" attack=2 life=15 ap=7 abilities=core.move,core.attack,champion.bond,champion.draw,champion.collapse
+
+creature P1 test.grunt 0,0
+creature P1 test.grunt 1,0
+creature P2 test.grunt 0,3
+creature P2 test.grunt 1,3
+
+champion P1 test.champion 2,0
+champion P2 test.champion 2,3
+
+bond P1 2,0
+bond P2 2,3
+
+library P1 test.grunt,test.grunt
+library P2 test.grunt,test.grunt

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Leyline — M1.5 debug UI</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Leyline debug UI</h1>
+    <label>
+      Scenario:
+      <select id="scenario-select"></select>
+    </label>
+    <button id="load-button">Load</button>
+    <div id="phase-stepper" class="phase-stepper"></div>
+    <span id="status-line"></span>
+  </header>
+
+  <main id="panels">
+    <section class="panel" id="panel-p1">
+      <h2>P1 view</h2>
+      <div class="mana"></div>
+      <div class="board-wrap"><svg class="board"></svg></div>
+      <div class="selection"></div>
+      <div class="hand"></div>
+      <div class="actions"></div>
+    </section>
+
+    <section class="panel" id="panel-p2">
+      <h2>P2 view</h2>
+      <div class="mana"></div>
+      <div class="board-wrap"><svg class="board"></svg></div>
+      <div class="selection"></div>
+      <div class="hand"></div>
+      <div class="actions"></div>
+    </section>
+
+    <section class="panel" id="panel-true">
+      <h2>True state</h2>
+      <div class="mana"></div>
+      <div class="board-wrap"><svg class="board"></svg></div>
+      <div class="selection"></div>
+      <div class="hand"></div>
+      <div class="combat-info"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

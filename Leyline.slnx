@@ -3,12 +3,15 @@
     <Project Path="src/Leyline.Content.Json/Leyline.Content.Json.csproj" />
     <Project Path="src/Leyline.Host/Leyline.Host.csproj" />
     <Project Path="src/Leyline.RulesCore/Leyline.RulesCore.csproj" />
+    <Project Path="src/Leyline.Scenarios/Leyline.Scenarios.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Leyline.Host.Tests/Leyline.Host.Tests.csproj" />
     <Project Path="tests/Leyline.RulesCore.Tests/Leyline.RulesCore.Tests.csproj" />
+    <Project Path="tests/Leyline.Scenarios.Tests/Leyline.Scenarios.Tests.csproj" />
   </Folder>
   <Folder Name="/tools/">
     <Project Path="tools/Leyline.SimHarness/Leyline.SimHarness.csproj" />
+    <Project Path="tools/Leyline.DebugUi/Leyline.DebugUi.csproj" />
   </Folder>
 </Solution>

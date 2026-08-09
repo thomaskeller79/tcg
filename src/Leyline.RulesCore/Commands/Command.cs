@@ -13,3 +13,7 @@ public sealed record RespondCommand(PlayerId Actor, StackItemId Response) : Comm
 public sealed record PassPriorityCommand(PlayerId Actor) : Command(Actor);
 public sealed record EndPhaseCommand(PlayerId Actor) : Command(Actor);
 public sealed record BondTerrainCommand(PlayerId Actor, HexCoord Target) : Command(Actor);
+public sealed record DrawCardCommand(PlayerId Actor) : Command(Actor);
+public sealed record CastCreatureCommand(PlayerId Actor, CardDefinitionId Card, HexCoord Target) : Command(Actor);
+public sealed record CastRiteCommand(PlayerId Actor, CardDefinitionId Card, ActorId Target) : Command(Actor);
+public sealed record CollapseNetworkCommand(PlayerId Actor) : Command(Actor);

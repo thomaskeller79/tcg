@@ -1,5 +1,6 @@
 using Leyline.RulesCore;
 using Leyline.RulesCore.Commands;
+using Leyline.RulesCore.Queries;
 using Leyline.RulesCore.State;
 using Leyline.RulesCore.Tests.TestSupport;
 
@@ -39,6 +40,42 @@ public class LegalCommandEnumerationTests
         // Single-defender declare auto-assigns and opens the window; defender has priority first.
         Assert.Equal([new PassPriorityCommand(Fixtures.P2)], RulesEngine.LegalCommands(match, Fixtures.P2));
         Assert.Empty(RulesEngine.LegalCommands(match, Fixtures.P1));
+    }
+
+    [Fact]
+    public void Cannot_move_onto_a_hex_occupied_by_the_enemy()
+    {
+        // D12: capacity-3 room per layer is for guarding allies (gang-up defenders), not for
+        // sharing a contested hex with the opponent — an enemy-occupied layer has no room.
+        var match = Fixtures.Adjacent1v1(); // P1 grunt at (0,0), P2 grunt at (1,0), adjacent
+        var mover = match.State.ActorsOwnedBy(Fixtures.P1).Single();
+
+        var legalMoves = Query.ResolveLegalMoveTargets(mover.Id, match.State);
+
+        Assert.DoesNotContain(new HexCoord(1, 0), legalMoves);
+
+        var rejected = RulesEngine.Apply(match, new MoveCommand(Fixtures.P1, mover.Id, new HexCoord(1, 0)));
+        Assert.False(rejected.Accepted);
+    }
+
+    [Fact]
+    public void Can_still_move_onto_a_hex_shared_with_up_to_two_allies()
+    {
+        var content = Fixtures.Content();
+        var board = Fixtures.SmallBoard();
+        var match = MatchFactory.CreateMatch(
+            board,
+            [Fixtures.P1, Fixtures.P2],
+            [
+                new CreaturePlacement(Fixtures.P1, Fixtures.Grunt, new HexCoord(0, 0)),
+                new CreaturePlacement(Fixtures.P1, Fixtures.Grunt, new HexCoord(1, 0)),
+            ],
+            new MatchConfig(DefendRuleVariant.Exhaust),
+            content,
+            seed: 7);
+
+        var mover = match.State.ActorsOwnedBy(Fixtures.P1).First(a => a.Position == new HexCoord(0, 0));
+        Assert.Contains(new HexCoord(1, 0), Query.ResolveLegalMoveTargets(mover.Id, match.State));
     }
 
     [Fact]
