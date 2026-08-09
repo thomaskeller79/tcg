@@ -2,9 +2,13 @@
 
 *How cards that modify game state over time (buffs, debuffs, "becomes X" effects) fit the M1 engine that's already built — a design discussion stress-testing the architecture against content beyond Move/Attack, not yet a locked decision.*
 
-**Status:** Open discussion — exploratory, continue here · **Date:** 2026-08-05 · **Updated:** 2026-08-06
+**Status:** Open discussion — exploratory, continue here · **Date:** 2026-08-05 · **Updated:** 2026-08-06, 2026-08-09
 
 ---
+
+## What "continuous effects" means (the title, explained)
+
+Card-game design vocabulary (borrowed from MTG) splits effects into two shapes: a **one-shot effect** happens once and is done (*"deal 3 damage"* — apply it, move on), while a **continuous effect** keeps holding true for as long as it's active and has to be *recomputed*, not just applied once (*"+1 Attack until end of turn"* — every time anything asks "what's this creature's Attack?", the answer has to account for it, for as long as it lasts). The doc's title names both halves of the same problem: **continuous effects** is the *design* category (which card effects need this ongoing-recompute shape, worked out via the Rite examples below), and **the Modifier System** is the *engine mechanism* that implements it (`IQueryModifier`, `TrueState.ActiveModifiers`, `Query.Fold` — "don't store the answer, fold every active modifier into the baseline on every ask"). One doc, because the design question ("what counts as continuous?") and the engineering answer ("here's the one mechanism that handles all of them") were worked out together in the same sitting.
 
 ## Resume here next session
 
@@ -13,10 +17,11 @@ This document is the continuation point. What's settled and what's still open:
 - **Settled (leaning, not yet implemented):** continuous effects apply in **append/timestamp order** — the order spells actually resolved in — not an MTG-style layer/priority system. Rationale and implications below.
 - **Settled:** "X becomes Y" is a **query modifier** (a "set" kind, alongside the existing "add" kind), not a replacement effect. Replacement effects are a different axis entirely (they intercept *events*, not *queries*) and weren't needed for anything discussed so far.
 - **✅ Done (2026-08-06):** the mechanism to add/remove a modifier through the event pipeline, and end-of-turn expiration/cleanup. `IModifier`/`ModifierId`/`ModifierDuration` (`Queries/IQueryModifier.cs`), `AddModifierIntent`/`RemoveModifierIntent` + their events (`Events/EventIntent.cs`, `Events/Event.cs`), a minimal `Modifiers/ModifierPipeline.cs` direct entry point, and `Turns/ExpireModifiersEffect.cs` wired into `StandardPhases`'s `"End"` phase. `IQueryModifier.Priority` was dropped in favor of natural list-append order (the leaning below, now implemented and regression-tested — see `Modifiers/ModifierPipelineTests.cs`'s order-dependence test). Two reusable generic modifier kinds (`IntDeltaModifier`, `IntSetModifier`) ship in `Queries/GenericModifiers.cs` covering the "add"/"set" cases from the worked example below without a bespoke type per card.
-- **Open / not yet designed:** everything needed to actually *cast* a Rite — there's no Rite/Spell command or pipeline yet, only `DeclareCombatCommand`. `ModifierPipeline` is the primitive a future `RitePipeline` will call after its own legality validation, not a replacement for it.
-- **Not yet discussed:** the actual card schema shape for a Rite/effect (ties into the pre-existing open gap in `card-data-and-editor.md` — Track A steps 5–6 aren't done).
+- **✅ Done (since this doc's last update):** casting is real. `CastCreatureCommand`/`CastRiteCommand` (`Commands/Command.cs`) and `Spells/SpellPipeline.cs` implement the full pay-mana → apply-effect pipeline for both card shapes (`RulesEngine.LegalCommands`/`Apply` wire them in). A Rite's effect is `RiteEffectIds.Damage` (→ `DamageIntent`, pre-existing) or `RiteEffectIds.Heal` (→ the now-built `HealEvent`, `Events/Event.cs` — mirrors `DamageEvent` with the opposite sign, no overheal cap). This closes gaps #1 and #4 below; **this document's own modifier mechanism was never touched to build it** — Rite effects are one-shot events, not continuous modifiers, so nothing here needed to change.
+- **Still genuinely open:** nothing discussed here is itself a *continuous* effect yet — the two Rites built (Firebolt/damage, Mend/heal) are both one-shot. The worked example below (+1 Attack until end of turn, "attack becomes 0") remains **unbuilt as card content** — the modifier mechanism it would use has existed and been tested since 2026-08-06, but no card actually exercises it yet.
+- **Still not fully specified:** the general card schema for effects beyond damage/heal. `CardDefinition` (`State/CardDefinition.cs`) now carries `EffectId`/`EffectAmount` — but its own doc comment calls this "a small, explicitly-scoped placeholder... standing in for the general card-effect system `design-continuous-effects.md` flags as still undesigned," i.e. it's a two-case placeholder (damage/heal), not the Track A schema this document originally deferred to (`card-data-and-editor.md` steps 5–6, still not done).
 
-Suggested next step: the Rite/Spell casting pipeline is now the biggest remaining gap blocking real card content — everything else in this document (modifiers, duration, ordering) has a concrete implementation to build against.
+Suggested next step unchanged in spirit, updated in specifics: the Rite/Spell *pipeline* is no longer the gap — the next thing that would actually exercise this document's modifier mechanism is a card whose effect is genuinely continuous (a buff/debuff Rite, "until end of turn" or permanent), which the current two Rites don't need.
 
 ---
 
@@ -68,12 +73,12 @@ Also discussed, more briefly:
 
 ## Concrete gaps this exposed
 
-Status as of 2026-08-06:
+Status as of 2026-08-09 (originally written 2026-08-06):
 
-1. **Still open.** No way to *cast* anything yet — no Rite/Spell command, no `Rites/RitePipeline.cs`. Only `DeclareCombatCommand` exists as an "activate an effect" pathway.
+1. **✅ Done.** Casting is real: `CastCreatureCommand`/`CastRiteCommand` (`Commands/Command.cs`), `Spells/SpellPipeline.cs`. `DeclareCombatCommand` is no longer the only "activate an effect" pathway.
 2. **✅ Done.** `AddModifierEvent`/`RemoveModifierEvent` (`Events/Event.cs`) now add/remove from `TrueState.ActiveModifiers` (`List<IModifier>`) through the normal intent → pipeline → event flow.
 3. **✅ Done.** `ExpireModifiersEffect` (`Turns/ExpireModifiersEffect.cs`), wired into `StandardPhases`'s End phase, sweeps `UntilEndOfTurn`-duration modifiers generically.
-4. **Still open.** No `HealEvent`/`SetLifeEvent` — only `DamageEvent` (subtracts) exists.
-5. **Still open.** No card schema shape for a Rite/effect at all — `CardDefinition` (`State/CardDefinition.cs`) is Creature/Champion-shaped (Attack/Life/MaxAp/AbilityIds). This is the same open Track A dependency already flagged in `card-data-and-editor.md` (schema + keyword/ability library, steps 5–6, not done).
+4. **✅ Done (Heal), still open (Set).** `HealEvent` (`Events/Event.cs`) now exists — mirrors `DamageEvent`, opposite sign, no overheal cap. `SetLifeEvent` (an assign-rather-than-add variant) still doesn't exist; nothing has needed it yet.
+5. **Partially done.** `CardDefinition` (`State/CardDefinition.cs`) gained `EffectId`/`EffectAmount` — enough to express the two Rites built (`RiteEffectIds.Damage`/`Heal`). Its own doc comment is explicit that this is "a small, explicitly-scoped placeholder... standing in for the general card-effect system this document flags as still undesigned" — the real Track A schema (`card-data-and-editor.md` steps 5–6) is still not done.
 
-None of these required changing `EventPipeline`, `TrueState`'s shape, `Query`, or `Combat` — the modifier mechanism was additive, following patterns already established (per-subsystem pipeline folders, per-phase effect lists, intent → event mapping), confirming the prediction below.
+Gaps #1–#3 required no changes to `EventPipeline`, `TrueState`'s shape, `Query`, or `Combat` — additive, following patterns already established (per-subsystem pipeline folders, per-phase effect lists, intent → event mapping), confirming the prediction below. #4/#5 are genuinely new surface area (a new event type, two new `CardDefinition` fields) but still additive in the same sense — nothing existing had to change shape to accommodate them.

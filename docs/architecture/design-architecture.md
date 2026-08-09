@@ -80,6 +80,8 @@ Renders the Human seat-controller's current View, captures input, runs no shadow
 ### 2.9 Test/Simulation harness
 The one sanctioned bypass of Host, for unit tests, batch simulation/fuzzing, replay-and-verify, balance analysis. The only place licensed to read True State freely. Must never ship in player-facing binaries. Should also gain a mode that drives Rules Core through a real Local Host + Perception, since Perception is otherwise the least-tested path in the whole design.
 
+**Second sanctioned exception, added M1.5 (2026-08-09): the debug UI's `/api/truestate` endpoint** (`tools/Leyline.DebugUi`). Deliberately reads `TrueState` directly, bypassing Perception, so perceived-vs-true state can be eyeballed side-by-side during development — the tool's own stated exit criterion. Same rule as the Test/Simulation harness applies, stated explicitly because a *web endpoint* is a much easier thing to accidentally leave reachable than a CLI tool: **`Leyline.DebugUi` in general, and `/api/truestate` specifically, must never ship or be reachable in any player-facing build.** See risk §5.9.
+
 ### 2.10 Card Data & Content Pipeline
 See `card-data-and-editor.md` for the full writeup. Summary: a schema + plain JSON data files + a Content Repository Rules Core queries at startup, plus a separate Card Editor authoring tool. Kept engine-agnostic on purpose (ties to portability, §6/A5) and kept distinct from Meta-progression (this component answers "which cards exist"; Meta-progression answers "which cards this player may currently use").
 
@@ -113,6 +115,7 @@ Rules Core, Perception, Host (both implementations), Netcode, the AI seat-contro
 6. **Keep Commands/Views/Events as plain, serializable-shaped data even in the Local Host**, so a "works locally" mistake doesn't surface only once Remote Host/Netcode is finally built.
 7. **The Test/Sim harness's normal True-State-reading mode never exercises Perception** — give it a second mode that goes through a real Local Host + Perception, since Perception is the most novel, least-tested part of the whole design.
 8. **Card schema is not yet specified.** `docs/rules/knowledge-capture-plan.md` steps 5 (card anatomy/schema) and 6 (keyword/ability library) are still open — the Content Repository's concrete shape depends on finishing that Track A work.
+9. **`Leyline.DebugUi` (§2.9) is a second True-State-reading exception that MUST NOT survive to a shipping build.** It's a local, unauthenticated web server that hands out unredacted `TrueState` — including both players' hidden hands and (until this session) live mana balances — over plain HTTP, by design, for development eyeballing. That's the right call for a dev tool and the wrong call for anything a player's client could reach. Track this explicitly as a **build/ship-gate item**, not just a doc note: whatever CI/release process eventually exists must positively verify `Leyline.DebugUi` (and any endpoint like it added later) is excluded from player-facing builds, the same discipline risk #3 already demands for the AI True-State exception.
 
 ## 6. Meta-progression and offline play
 
