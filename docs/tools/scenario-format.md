@@ -13,7 +13,6 @@ Two players only, always named `P1`/`P2` (a codebase-wide assumption — see `Pl
 
 ```
 seed <int>                                  # default 0
-defendRule <Exhaust|DeleteDefendOnce>       # default Exhaust
 board <width>x<height>                      # default 4x4, a plain rectangle
 terrain <q>,<r> <name> [moveCost=<int>]     # tags one cell; default moveCost=1 (see note below)
 card <id> <Creature|Champion|Rite> "<name>" [attack=N] [life=N] [ap=N] [mana=N]
@@ -50,7 +49,6 @@ which is deliberately left unbonded to exercise that first live Bond directly.
 
 ```
 seed 6
-defendRule Exhaust
 board 4x4
 
 card test.champion Champion "Champion" attack=2 life=15 ap=7 abilities=core.move,core.attack,champion.bond,champion.draw,champion.collapse

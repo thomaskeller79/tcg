@@ -29,6 +29,7 @@
 | **Unit / Creature** | A card summoned onto the Board, defined by **three numbers: Attack / Life / Action Points** (D10), plus abilities/keywords. |
 | **Life (persistent)** | A creature's health. **Damage persists between turns — no automatic healing** (D14); healing is a special ability; 0 Life → destroyed. |
 | **Retaliation** | Damage a declared defender deals **back** to the attacker; combat is **mutual by default** (D13). Ranged creatures take no retaliation (keyword). |
+| **Defend** | Declaring a creature (or Champion) as a defender of an attacked hex (D4). Costs `0*AP` (D15, resolved 2026-08-09) — free, but at most once per turn per actor, regardless of remaining AP. |
 | **Pessimistic default** | Design principle (D14): a rule's default is the weakest still-functional-and-fun case; cards improve it via **positive** lines, not default restrictions. |
 | **Spell** | **Umbrella term** (D17): anything cast through the Aether (creatures, structures, items, rites). |
 | **Rite** | The one-shot spell type (D17): resolves to an Aether **trace**, leaves no permanent. |
@@ -38,7 +39,7 @@
 | **Mana** | The **single shared pool per player**, filled by channeling bonded terrain (D8). Spent on spells, summons, and any actor's mana-abilities. Global. |
 | **Action Points (AP)** | A **private per-turn budget** (D10), held by each **creature** and, as of the 2026-08-06 revision, by the **Champion** too (D9) — same mechanism, not an analog. Creatures spend it by default on `1AP: Move` and `3!AP: Attack`; the Champion's own action costs are bespoke (see `design-champions.md`). Refills each turn, no carryover. Subsumes the old Movement stat. |
 | **`!` cost (`x!AP`)** | A cost flavor: **require x AP, then consume all remaining AP** (vs. plain `xAP` which spends exactly x and leaves the rest). Makes "no multi-attack" emergent — default attack is `3!AP` (D10). |
-| **`*` cost (`x*AP`)** | *(Adopted 2026-08-06 for the Champion; exact numbers still tuning.)* A cost flavor: **spend exactly x AP; the action may be used at most once per turn**, regardless of leftover or later-refilled AP — unlike `!`, it does **not** drain the rest of the pool. Used for the Champion's `5*AP: Draw` / `2*AP: Bond` actions so both stay usable in the same turn while each staying capped once/turn. See `design-economy.md`, `design-champions.md`. |
+| **`*` cost (`x*AP`)** | *(Adopted 2026-08-06 for the Champion; generalized to Defend 2026-08-09, D15.)* A cost flavor: **spend exactly x AP; the action may be used at most once per turn**, regardless of leftover or later-refilled AP — unlike `!`, it does **not** drain the rest of the pool. Used for the Champion's `5*AP: Draw` / `2*AP: Bond` actions so both stay usable in the same turn while each staying capped once/turn, and for **every actor's** `0*AP: Defend` (D15) — free, but once per turn, and (at `x=0`) completely decoupled from remaining AP. See `design-economy.md`, `design-champions.md`. |
 | **Default ability** | An ability every creature has unless replaced (`1AP: Move`, `3!AP: Attack`). Base rules expressed as replaceable abilities (pillar 5), not hardcoded logic. |
 | **Effect** | A discrete, structured change to game state. **Base rules and card text are both expressed as effects** (pillar 5). |
 | **Modifier** | A continuous effect that changes the answer to a query (e.g. "+1 Movement"). |

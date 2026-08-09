@@ -60,11 +60,10 @@ A third axis, independent of `!`/`*`: **`^`** prefixed on any AP cost marks that
 
 Composes freely with `!`/`*`: `^2*AP`, `^3!AP`, `^1AP` are all valid — `^` says *when*, `!`/`*` say *how the AP is consumed*. Spending AP reactively still draws from the actor's normal AP budget, never a separate reactive pool — so using an instant-speed ability on the opponent's turn means that AP had to be held in reserve since the actor's own last turn. Introduced to resolve `design-champions.md`'s former "can Champion abilities be reactive?" open question **generally**, for any actor (creature, Champion, Companion), instead of as a Champion-specific rule.
 
-### Defending — two variants under playtest (D15)
-The defend-cost rule is being resolved **empirically**, not on paper (it collapses the redundant `defended`-flag into AP). Two candidates:
-- **V1 — `1!AP` (exhaust):** defending costs `1!AP` → at most once/turn, and only if AP remains (acting can spend it). Keeps AP in ℕ. Gains the +1-AP ambush-blocker combo above.
-- **V2 — delete it:** defending free + unlimited; **persistent damage (D14)** is the limiter (Life = defensive stamina). No per-turn defend state.
-`cannot defend` remains an occasional negative keyword under either. See D15.
+**A fourth flavor, proposed but not adopted:** `x!!AP` ("double-exhaust") — part of the "recovery pulse" alternative to D15's Defend rule, which would also add a second, smaller AP refresh at the *opponent's* Beginning phase; `!!` would opt an action out of that pulse. Not implemented — parked as a real alternative in `playtest-variants.md`, not a locked cost flavor alongside `!`/`*`/`^` above.
+
+### Defending — RESOLVED to `0*AP` (D15, 2026-08-09)
+Defending costs **`0*AP`** — free, but at most once per turn per actor, via the same `*` once-per-turn flavor as Bond/Draw (collapses the redundant `defended`-flag into the existing once-per-turn mechanism, not a bespoke AP cost). Completely decoupled from remaining AP in both directions — this is the load-bearing part: `1!AP` (the earlier "V1 — exhaust" candidate) created a real bug, not just a feel-bad, because default Attack already exhausts the attacker, so the *first* combat between two creatures left both at 0 AP — and since AP only refreshes on its own controller's turn, the attacker stayed defenseless through the opponent's *entire* following turn while the defender refreshed almost immediately, making attacking first a liability. `0*AP` fixes this while keeping a real per-turn cap (unlike the other earlier candidate, "V2 — free and unlimited," which fixed the same bug but dropped the cap entirely). `cannot defend` remains an occasional negative keyword. A card can still deliberately spend a creature's Defend for the turn as part of a strong ability's own effect (the MTG "tap cost" flavor) — that's explicit card-level data, not a base-rule exception. Full rationale and the superseded candidates: D15.
 
 ## Champion AP — the same model as a creature (D9, revised 2026-08-06)
 The Champion **has an AP value and spends it directly**, exactly like a creature — one movement/combat/action query for every entity, no gating resource and no second combat model. *(The earlier design gated the Champion's AP behind a single per-turn "Channel" action; that's superseded — see `design-champions.md`. Alternative considered and still rejected: Champion has no AP and "act" is a fixed mini-behavior — that would be a second combat model.)* The Champion's specific action costs (draw/bond/move/attack/abilities) differ from a plain creature's defaults and live in `design-champions.md`.
@@ -81,7 +80,7 @@ Not resolved here — flagged to pick up alongside the Structure/Item design pas
 ## Open sub-levers (tuning, not structure)
 1. ~~Move cost~~ → default `1AP: Move` (D10); Champion's own move costs are bespoke, see `design-champions.md`.
 2. ~~Attack cost / multi-attack~~ → default `3!AP: Attack`; multi-attack via a custom non-`!` cost (D10).
-3. ~~Defending cost AP~~ → **free**; `cannot defend` is a keyword (D10). *(Champion-specific candidates under playtest — see D15, `design-champions.md` Open question 2.)*
+3. ~~Defending cost AP~~ → **`0*AP`** — free, once per turn (D15, resolved 2026-08-09); `cannot defend` is a keyword (D10). Applies to the Champion unmodified, no bespoke variant — see `design-champions.md` Open question 2.
 4. **AP refresh** — rec refill to max each turn, no carryover.
 5. **Champion base AP** — the baseline total (proposed: 7, tuning) that funds all of draw/bond/move/attack/ability each turn. See `design-champions.md`.
 
