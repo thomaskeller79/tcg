@@ -56,13 +56,13 @@ You have lots of ideas (rules, card types, resource system, card properties, pro
 | Step | Domain | Why here | Output doc |
 |---|---|---|---|
 | 1 | **Glossary / vocabulary** | Consistent terms prevent rework. Nail names first. | `docs/rules/glossary.md` ✅ |
-| 2 | **Match structure** | Board, zones, turn/phase order, win conditions — the skeleton everything hangs on. | `docs/rules/rules-structure.md` ✅ |
-| 3 | **Resource system** | Economy shapes every card's cost and the whole feel. | Split across three docs, not one: `docs/rules/design-economy.md` (the two-resource mana+AP shape), `docs/rules/design-resources-terrain.md` (the terrain/mana-network specifics), `docs/rules/design-champions.md` (the Champion's own economy) ✅ |
-| 4 | **Card taxonomy** | The card *types* and what each type does. | No dedicated file — captured as `docs/rules/decisions.md` D17, plus `docs/rules/design-companions.md` for the Companion type specifically |
+| 2 | **Match structure** | Board, zones, turn/phase order, win conditions — the skeleton everything hangs on. | `docs/rules/overview.md` ✅ |
+| 3 | **Resource system** | Economy shapes every card's cost and the whole feel. | Split across three docs, not one: `docs/rules/economy.md` (the two-resource mana+AP shape), `docs/rules/resources-terrain.md` (the terrain/mana-network specifics), `docs/rules/champions.md` (the Champion's own economy) ✅ |
+| 4 | **Card taxonomy** | The card *types* and what each type does. | No dedicated file — captured as `docs/rules/history/decisions.md` D17, plus `docs/rules/companions.md` for the Companion type specifically |
 | 5 | **Card anatomy (schema)** | The properties *every* card has → becomes the data schema. | **Not written.** `src/Leyline.RulesCore/State/CardDefinition.cs` is a provisional, M1-only placeholder shape (its own doc comment says so) — not this deliverable |
 | 6 | **Keyword / ability library** | Reusable effects cards compose from (the vocabulary of §Part A mechanisms). | **Not written.** |
 | 7 | **Prototype cards** | Fill the schema; stress-test the whole model against reality. | `docs/cards/card-ideas.md` — a running scratch list so far, not yet promoted to finalized prototypes |
-| 8 | **Rule-mutation catalog** | Built *continuously* across all steps: the tagged list from Part A. | **Not written as a standalone catalog.** `docs/rules/decisions.md`'s per-decision `→ doc` cross-references serve this purpose informally today |
+| 8 | **Rule-mutation catalog** | Built *continuously* across all steps: the tagged list from Part A. | **Not written as a standalone catalog.** `docs/rules/history/decisions.md`'s per-decision `→ doc` cross-references serve this purpose informally today |
 
 *(Steps 2–6 are the "rules skeleton." Step 8 is cross-cutting — we add to it every time we capture a rule.)*
 

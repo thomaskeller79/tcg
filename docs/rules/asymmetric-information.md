@@ -1,8 +1,8 @@
-# Design — Asymmetric Information (Pillar 6)
+# Asymmetric Information (Pillar 6)
 
-*Players do not share one view of the board. What each player perceives is itself a manipulable, card-driven property. This is a headline pillar and a deep architectural commitment — captured here so it shapes everything from day one.*
+*Players do not share one view of the board. What each player perceives is itself a manipulable, card-driven property.*
 
-**Status:** Design note · **Date:** 2026-07-23
+**Decisions:** D7, D12, D18 (`history/decisions.md`)
 
 ---
 
@@ -110,9 +110,9 @@ Because the face is *always* +3 Life, the honest cast and the +2-Attack bluff ar
 - **Mutable (card-driven):** what any observer sees, what any object appears as, what any region reveals/conceals, what knowledge a player holds.
 
 ## Open questions
-1. **Default visibility:** is the board **fully visible by default** (hidden info is opt-in via cards like Mist/Submerged), or is there baseline fog-of-war? *(Recommendation: full visibility by default — simplest default rule; concealment is added by cards. Matches the "simplest default that still exposes the hook" principle.)*
-2. ~~**Reveal triggers**~~ — **largely resolved (D18):** a lie collapses when a **hard fact tests it** (combat outcome divergence, conservation-law violation) → **full truth** revealed. Detection is an explicit visibility-modifier on top. *(Remaining: exact list of hard "test" events.)*
-2b. **Default spell-resolution visibility (open, lean Model 2):** when you cast a **non-mimic** spell, does the opponent see the **true card/resolution** (D7; `Mimic` overrides holistically — *recommended*), or only ever the *effect* (ambient fog, less legible)?
-3. **Bluff economy:** can a player deploy face-down/unknown units generally, or only via specific cards?
-4. **Fairness of information:** do players get told *that* they lack information (e.g., "there is fog here") or can information be hidden so completely they don't know to look?
-5. **Reveal / view-merge (D12, user-flagged unsure):** when a "reveal" effect exposes the hidden **below** layer, how does the owner's hidden sub-view merge into the opponent's view — *scope* (one hex / region / all), *duration* (instant snapshot / lasting), *granularity* (existence only / full identity)? Structurally already supported (reveal = a visibility-modifier on the perception layer); the mechanic shape is the open part.
+1. **Default visibility:** is the board **fully visible by default** (hidden info is opt-in via cards like Mist/Submerged), or is there baseline fog-of-war? *(Recommendation: full visibility by default — simplest default rule; concealment is added by cards.)*
+2. **Exact list of hard "test" events:** D18 settles that a lie collapses when a hard fact tests it; the precise catalog of qualifying events isn't enumerated yet.
+3. **Default spell-resolution visibility (lean Model 2):** when you cast a **non-mimic** spell, does the opponent see the **true card/resolution** (D7; `Mimic` overrides holistically — *recommended*), or only ever the *effect* (ambient fog, less legible)?
+4. **Bluff economy:** can a player deploy face-down/unknown units generally, or only via specific cards?
+5. **Fairness of information:** do players get told *that* they lack information (e.g., "there is fog here") or can information be hidden so completely they don't know to look?
+6. **Reveal / view-merge (D12):** when a "reveal" effect exposes the hidden **below** layer, how does the owner's hidden sub-view merge into the opponent's view — *scope* (one hex / region / all), *duration* (instant snapshot / lasting), *granularity* (existence only / full identity)? Structurally already supported (reveal = a visibility-modifier on the perception layer); the mechanic shape is the open part.

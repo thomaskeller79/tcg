@@ -10,7 +10,6 @@
 | Current default | Concern | Recommendation |
 |---|---|---|
 | **D8 — any creature on a network node blocks/pauses mana** | **Generous.** Every body is a free mana-denier; a fast scout is accidentally oppressive and would need a *negative* line ("doesn't block mana") to fix. | **Flip:** default = does **not** block mana; **"Blockade"** = a **positive keyword** on units meant to deny. Also makes denial-density a per-format **tuning knob** (addresses D8's denial knife-edge). *(Strong change — recommend adopting.)* |
-| **Zone of control / does a creature block enemy passage?** | Currently **undefined**. If we ever add "creatures stop enemy movement," that's a generous default. | If added, make **"blocks passage / ZoC" a positive keyword**, never a universal default. |
 
 ## Considered and intentionally KEPT (not violations)
 | Default | Why it stays |
@@ -19,7 +18,8 @@
 | **D10 — `1AP: Move` / `3!AP: Attack` defaults** | The *functional floor* (a creature that can't act is below "still-functional-and-fun"). "Rooted" / "can't attack" are occasional negative keywords. |
 | **D19 — acting reveals a concealed unit** | Already pessimistic-correct (weak default; "stay hidden after acting" is the positive keyword). |
 | **D4/D15 — defend once** | Already pessimistic-correct (weak default; multi-defend is the positive keyword). |
+| **Zone of control / does a creature block enemy passage?** | **Confirmed 2026-08-09 (D30)**, surfaced while listing every creature's default actions (Move/Attack/Defend/Equip/Un-equip): no creature blocks passage by default. If added, it's a **positive keyword** ("blocks passage / ZoC") on specific creatures — resolved as never a universal default, not left hypothetical. |
 
 ## TODO
 - Sweep the remaining decisions/design notes for more generous defaults (permanents, Structures/Items, Champion abilities, perception).
-- For each adopted flip, update the relevant decision (e.g. D8) + `rules-structure.md` + glossary, and add the new positive keyword to the (future) keyword library.
+- For each adopted flip, update the relevant decision (e.g. D8) + `../overview.md` + glossary, and add the new positive keyword to the (future) keyword library.

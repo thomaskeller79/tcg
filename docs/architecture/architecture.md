@@ -2,19 +2,11 @@
 
 *How the game is built, as opposed to what it is (see `docs/rules/` for that). This doc is the standing reference for the component breakdown and "what runs where" — the answer to the central Track B question: given a client-server architecture for online 1v1, what must also run fully offline for solo/hotseat?*
 
-**Status:** First draft · **Date:** 2026-07-28 · Decisions: A1–A4 (`decisions-architecture.md`)
+**Decisions:** A1–A5 (`history/decisions-architecture.md`)
 
 ---
 
-## 0. Verdict on the original PLAN.md diagram
-
-`PLAN.md` originally sketched:
-```
-Rules Engine → { Godot UI, AI, Netcode, Test suite } (four symmetric siblings)
-```
-This is superseded. Three problems it has: (1) UI and AI are not peers of Netcode — both are *seat-controllers* sitting on one side of a boundary (the Host) the old diagram doesn't have at all; Netcode is wiring **inside** one specific Host implementation, not a fourth sibling consumer. (2) There is no Host, so nothing marks the seam between "same process" and "network process" — without it, offline-capable + online-capable from the same core isn't actually representable. (3) Perception (pillar 6) and Meta-progression (D1) are both load-bearing and both missing.
-
-## 1. Corrected top-level shape
+## 1. Top-level shape
 
 ```
 Test/Sim harness ──(direct calls, dev/CI only, never shipped)──▶ RULES CORE
@@ -72,15 +64,15 @@ Boundary and contract only in this pass; wire protocol deferred to M6. Carries s
 Hosts one live Rules Core + Perception instance per match, fronted by Netcode, forwarding Commands in and each seat's own View+Events out. No seat-controller runs server-side (no server-hosted AI, decision A3). "Server" really names two different-lifecycle services worth keeping logically separate even if co-deployed early: an *ephemeral per-match* Rules-Core host, and a *persistent* account/meta-progression store.
 
 ### 2.7 Meta-progression layer
-Server-authoritative store (canonical XP/unlocks/level-bands/paths). No client-side mirror or offline claims exist (see §6 for why). Touches Rules Core only one-way, via a resolved Loadout at match start — D1's firewall is unchanged. See decision A4 (`decisions-architecture.md`) for the replay-verification mechanism that lets solo play earn progression without a live connection.
+Server-authoritative store (canonical XP/unlocks/level-bands/paths). No client-side mirror or offline claims exist (see §6 for why). Touches Rules Core only one-way, via a resolved Loadout at match start — D1's firewall is unchanged. See decision A4 (`history/decisions-architecture.md`) for the replay-verification mechanism that lets solo play earn progression without a live connection.
 
 ### 2.8 Presentation/UI
-Renders the Human seat-controller's current View, captures input, runs no shadow simulation of its own (decision A2 — no client-side prediction). Never reads True State; never branches on Local vs Remote Host; never reveals what the View marks hidden. Logically distinct from the Human seat-controller (which talks to Host) so that contract stays testable without a rendering engine in the loop. This is also the only component pinned to a specific engine (Godot or otherwise) — see `decisions-architecture.md` A5 (portability).
+Renders the Human seat-controller's current View, captures input, runs no shadow simulation of its own (decision A2 — no client-side prediction). Never reads True State; never branches on Local vs Remote Host; never reveals what the View marks hidden. Logically distinct from the Human seat-controller (which talks to Host) so that contract stays testable without a rendering engine in the loop. This is also the only component pinned to a specific engine (Godot or otherwise) — see `history/decisions-architecture.md` A5 (portability).
 
 ### 2.9 Test/Simulation harness
 The one sanctioned bypass of Host, for unit tests, batch simulation/fuzzing, replay-and-verify, balance analysis. The only place licensed to read True State freely. Must never ship in player-facing binaries. Should also gain a mode that drives Rules Core through a real Local Host + Perception, since Perception is otherwise the least-tested path in the whole design.
 
-**Second sanctioned exception, added M1.5 (2026-08-09): the debug UI's `/api/truestate` endpoint** (`tools/Leyline.DebugUi`). Deliberately reads `TrueState` directly, bypassing Perception, so perceived-vs-true state can be eyeballed side-by-side during development — the tool's own stated exit criterion. Same rule as the Test/Simulation harness applies, stated explicitly because a *web endpoint* is a much easier thing to accidentally leave reachable than a CLI tool: **`Leyline.DebugUi` in general, and `/api/truestate` specifically, must never ship or be reachable in any player-facing build.** See risk §5.9.
+**Second sanctioned exception: the debug UI's `/api/truestate` endpoint** (`tools/Leyline.DebugUi`). Deliberately reads `TrueState` directly, bypassing Perception, so perceived-vs-true state can be eyeballed side-by-side during development. Same rule as the Test/Simulation harness applies, stated explicitly because a *web endpoint* is a much easier thing to accidentally leave reachable than a CLI tool: **`Leyline.DebugUi` in general, and `/api/truestate` specifically, must never ship or be reachable in any player-facing build.** See risk §5.9.
 
 ### 2.10 Card Data & Content Pipeline
 See `card-data-and-editor.md` for the full writeup. Summary: a schema + plain JSON data files + a Content Repository Rules Core queries at startup, plus a separate Card Editor authoring tool. Kept engine-agnostic on purpose (ties to portability, §6/A5) and kept distinct from Meta-progression (this component answers "which cards exist"; Meta-progression answers "which cards this player may currently use").
@@ -114,12 +106,12 @@ Rules Core, Perception, Host (both implementations), Netcode, the AI seat-contro
 5. **"Server" is really two services wearing one name** (ephemeral per-match host vs. persistent meta/account store) — keep them logically separate from day one even if co-deployed early.
 6. **Keep Commands/Views/Events as plain, serializable-shaped data even in the Local Host**, so a "works locally" mistake doesn't surface only once Remote Host/Netcode is finally built.
 7. **The Test/Sim harness's normal True-State-reading mode never exercises Perception** — give it a second mode that goes through a real Local Host + Perception, since Perception is the most novel, least-tested part of the whole design.
-8. **Card schema is not yet specified.** `docs/rules/knowledge-capture-plan.md` steps 5 (card anatomy/schema) and 6 (keyword/ability library) are still open — the Content Repository's concrete shape depends on finishing that Track A work.
+8. **Card schema is not yet specified.** `docs/rules/history/knowledge-capture-plan.md` steps 5 (card anatomy/schema) and 6 (keyword/ability library) are still open — the Content Repository's concrete shape depends on finishing that Track A work.
 9. **`Leyline.DebugUi` (§2.9) is a second True-State-reading exception that MUST NOT survive to a shipping build.** It's a local, unauthenticated web server that hands out unredacted `TrueState` — including both players' hidden hands and (until this session) live mana balances — over plain HTTP, by design, for development eyeballing. That's the right call for a dev tool and the wrong call for anything a player's client could reach. Track this explicitly as a **build/ship-gate item**, not just a doc note: whatever CI/release process eventually exists must positively verify `Leyline.DebugUi` (and any endpoint like it added later) is excluded from player-facing builds, the same discipline risk #3 already demands for the AI True-State exception.
 
 ## 6. Meta-progression and offline play
 
-See `decisions-architecture.md` A4 for the full decision. Summary: rather than a client-local progression mirror reconciled via trust-but-verify claims (rejected — reopens the exact anti-cheat hole "progression is server-authoritative" exists to close), the game leans on its own determinism (pillar 4) and already-planned replay/command-log capability (`PLAN.md` §6):
+See `history/decisions-architecture.md` A4 for the full decision. Summary: rather than a client-local progression mirror reconciled via trust-but-verify claims (rejected — reopens the exact anti-cheat hole "progression is server-authoritative" exists to close), the game leans on its own determinism (pillar 4) and already-planned replay/command-log capability (`PLAN.md` §6):
 - **Offline solo/hotseat:** no progression, period.
 - **Online solo vs AI:** the match still runs on a Local Host exactly like offline play; at match end the client uploads its recorded command log; the server independently replays it on its own Rules Core instance and only grants progression if the replayed outcome matches the claim. No trust extended to the client at any point.
 - **Online 1v1:** unchanged — live-hosted, inherently secure.
