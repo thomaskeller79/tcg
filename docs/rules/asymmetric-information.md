@@ -2,7 +2,7 @@
 
 *Players do not share one view of the board. What each player perceives is itself a manipulable, card-driven property.*
 
-**Decisions:** D7, D12, D18 (`history/decisions.md`)
+**Decisions:** D7, D12, D18, D41, D42 (`history/decisions.md`)
 
 ---
 
@@ -28,6 +28,10 @@ A digital TCG can do something a physical one fundamentally cannot: **give two p
       └──────────────┘      └──────────────┘
 ```
 
+**A view is not just a masked subset of true state.** The perception layer doesn't only hide/reveal parts of the truth — it can also inject content a card actively *claims*, which may be false (D18's `face`/claim model, below). So true state and each player's view are independently-tracked values that can **all three differ simultaneously**, not one ground truth plus redacted copies of it.
+
+**Worked example:** a creature with 2 power. Player 1 casts a secret effect: `Target creature loses 1 power. Secret.` Player 2 then casts a secret effect: `Target creature gains 2 power. Secret.` True state: 2 − 1 + 2 = **3** power. Player 1, unaware of Player 2's effect, believes the power is **1**. Player 2, unaware of Player 1's effect, believes it's **4**. Three different values, live at once, none of them a subset of either of the others — see the belief model below for how such claims are authored and kept consistent until a hard fact collapses them.
+
 ## Perception is just another query axis
 We already committed (pillar 5) to *never reading raw values — always querying*. Asymmetric info extends the query layer with a **perception dimension**. Three query kinds:
 
@@ -39,8 +43,10 @@ We already committed (pillar 5) to *never reading raw values — always querying
 
 **Cards modify perception with the same modifier system as everything else.** A Mimic effect adds an appearance-modifier to O for the opponent-observer. Mist adds a visibility-modifier to a region for one observer. A Detection ability adds a visibility-modifier that *removes* a Submerged unit's concealment. No special-case subsystem — it's the modifier/query engine applied to perception.
 
-## The below layer is structural hidden space (D12)
-A hex has three vertical layers (ground / above / **below**); the **below (submerged) layer is hidden by default** — its occupancy appears only in its owner's view. This makes concealment a *structural* part of the board, not only a card effect: Submerged movement simply *lives* in the below layer, and Detection/reveal are visibility-modifiers that expose it. It's the clearest worked example of perception-as-query.
+## The Underground level is structural hidden space (D12, renamed D41)
+A hex has three vertical levels (Surface / Air / **Underground**); the **Underground (submerged) level is hidden by default** — its occupancy appears only in its owner's view. This makes concealment a *structural* part of the board, not only a card effect: Submerged movement simply *lives* Underground, and Detection/reveal are visibility-modifiers that expose it. It's the clearest worked example of perception-as-query.
+
+**Second worked example (D42):** the **Subterranean** keyword bundles this same structural concealment together with the ability to be Underground at all — a Unit without Subterranean simply cannot go there by default, so the concealment and the access gate are one package, not two independently-toggleable questions. A card effect can still force a non-Subterranean unit Underground as an explicit exception, at which point the same structural hiding applies to it exactly as it would to a Subterranean unit — concealment is a property of the *level*, not of the keyword.
 
 ## Example mechanics (seed — flesh out later)
 | Mechanic | Truth | What the opponent perceives |

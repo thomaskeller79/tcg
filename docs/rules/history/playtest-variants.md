@@ -158,7 +158,7 @@ via an explicit printed effect (destroy/sacrifice), never by combat or splash da
 
 ### Variant — Item has Life, destroyable by damage · REJECTED
 Give Item a Life total like Structure, so generic damage/AoE effects could destroy a loose item
-lying on a hex (e.g. a Rite that burns everything on a cell).
+lying on a hex (e.g. a Spell that burns everything on a cell).
 
 **Argued for:** more uniform with Structure (which does have Life); opens a design space where
 area-damage effects also threaten loose equipment, not just creatures.

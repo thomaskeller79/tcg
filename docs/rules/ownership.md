@@ -2,7 +2,9 @@
 
 *Every permanent in play (other than a Champion) has **at most one** parent — the entity that produced, bonded, or currently carries it. Not every permanent has one: unbonded terrain and a loose item have none. One mechanism covers "who funds Terrain / Structure / Item" and "who controls it" together.*
 
-**Decisions:** D26–D30 (`history/decisions.md`)
+**Note (D47):** Terrain, Structure, Ruins, and Graves now also carry their own small, self-gating Activation Capacity (default 1) for "has this printed ability already fired this round" — this is **additive** to the parent-chain model below, not a replacement for it. The parent chain still answers *who funds* a cost; Activation Capacity only answers *has this specific ability already been used this round*, independent of who's paying. See `economy.md`, `resources-terrain.md`, `structures-items.md`.
+
+**Decisions:** D26–D30, D47 (`history/decisions.md`)
 
 ---
 
@@ -74,4 +76,4 @@ Losing a controller is well-defined for Terrain and Structure: they're inert, so
 - Can an uncontrolled creature still act at all (move/attack/defend) if nobody has authority to direct it, given it still holds spendable AP?
 - If it can act, who or what decides its actions?
 
-Connects to a larger, deliberately-parked design space: mission/PvE content with NPC-like creatures that follow an AI-driven routine rather than belonging to either player, with an uncontrolled creature as one possible source of such an NPC. See `PLAN.md` §9.
+Connects to a larger, deliberately-parked design space: mission/PvE content with NPC-like creatures that follow an AI-driven routine rather than belonging to either player, with an uncontrolled creature as one possible source of such an NPC. See `PLAN.md` §9. **A full draft proposal for this — Neutral Permanents, control states, per-round Behavior algorithms — exists but has not yet been discussed or adopted; see `history/neutral-permanents-draft.md`, the first topic for the next design session.**

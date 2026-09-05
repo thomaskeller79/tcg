@@ -2,7 +2,7 @@
 
 *A Champion's signature "friend": a card that sits mechanically **between Creature and Champion**. Introduces the game's channeling hierarchy explicitly: **Creature spends mana it can't draw; Companion draws mana it can't share; Champion draws and shares.***
 
-**Decisions:** D22, D26 (`history/decisions.md`)
+**Decisions:** D22, D26, D49 (`history/decisions.md`)
 
 ---
 
@@ -41,7 +41,7 @@ No new resource. Mana + AP are the only two things that keep the world ticking �
 | Action | Cost | Notes |
 |---|---|---|
 | **Move** | `1AP` if its network collapses · `2AP` if it stays connected | Same differential as the Champion (D9) — a Companion is its own root, so its own connection is what's at stake when it moves. |
-| **Attack** | `3!AP` if its network collapses · `5!AP` if it stays connected | Drain-all (`!`) in both cases, same as the Champion's own Attack (D9, fixed 2026-08-07 to match) and a Creature's default. |
+| **Attack** | `3!AP` if its network collapses · `6!AP` if it stays connected | *(D49: unified with the generic Actor default — `3!AP` base doubled to `6!AP` while bonded — replacing the previous `5!AP` figure.)* Drain-all (`!`) in both cases, same as the Champion's own Attack and a Creature's default. |
 | **Bond** | `3*AP` *(tuning example)* | Once/turn (the `*` flavor, D9 / `economy.md`); priced high against a small total AP pool so it crowds out most of the rest of the turn. |
 | **Its own printed abilities** | card-specific `mana + AP` | Typically pricier than an equivalent Champion ability — a Companion is a narrower, less efficient channeler, not a second Champion. |
 
@@ -60,7 +60,7 @@ D8 currently has exactly one network root (the Champion). A Companion in play be
 ## Interactions with other pillars / systems
 
 - **Deckbuilding:** Companion cards name the Champion(s) that may run them — a hard legality restriction, like the Champion gating faction identity. Count-per-deck / count-in-play limits are open (below).
-- **D17 (card taxonomy):** Companion is a new **Play-permanent** seed type, alongside Creature/Structure/Item, cast through the Aether like any Spell — but deckbuilding-gated the way Map/Champion/Terrain are pre-game-constrained (a hybrid: cast like a Spell, gated like the non-Spell components).
+- **D17 (card taxonomy):** Companion is a new **Play-permanent** seed type, alongside Creature/Structure/Item, cast through the Aether via the same generic play-a-card procedure as any card (D39 retired "Spell" as an umbrella term for this) — but deckbuilding-gated the way Map/Champion/Terrain are pre-game-constrained (a hybrid: cast like any other card, gated like the non-card components).
 - **Asymmetric info:** no special treatment proposed — visible by default (D7), like a Creature, unless a future card says otherwise.
 
 ## Invariant vs. mutable

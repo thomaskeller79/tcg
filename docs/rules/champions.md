@@ -2,7 +2,7 @@
 
 *Each player is embodied on the board by a single Champion: an avatar that summons creatures, casts spells, and channels magic — and that **evolves between games** along branching paths. Provisional term "Champion" (candidates: Channeler, Champion; not "Commander").*
 
-**Decisions:** D2, D9 (`history/decisions.md`)
+**Decisions:** D2, D9, D48, D49 (`history/decisions.md`)
 
 ---
 
@@ -24,7 +24,7 @@
 - A special **card type / board entity**, one per player, placed at match start on its **home tile** (usually a landmark terrain, but not a special *objective* — see win condition).
 - Has stats like a unit (HP, Movement). **It is attackable, and its death loses the game** (D9). There is **no separate Base** — the Champion *is* the objective.
 - **Flavor / role.** The world is saturated with mana; only **channelers** can draw it from the land and turn it into magic. A Champion's job is to *channel*, not to fight. It is simultaneously the **economic root** (D8), the **win condition**, and the **most exposed piece** — one entity carrying all three roles is what makes its every decision tense.
-- Has **Champion abilities**: activatable signature powers, gated by AP (below) and possibly extra mana cost. Any ability may be marked **instant-speed** (`^`, D23); default is **sorcery-speed** (own Action phase only, stack empty) — no Champion-specific timing rule, same mechanism as any other actor's abilities.
+- Has **Champion abilities**: activatable signature powers, gated by AP (below) and possibly extra mana cost. Each carries a **Speed** (Slow/Quick/Reactive/Instant, D45); default is **Slow** (own Action phase only, Pending empty) — no Champion-specific timing rule, same mechanism as any other Actor's abilities.
 - 🪝 Abilities, stats, and channeling are the same **effects / queries / modifiers** as everything else (pillars 5). A Champion is not a bespoke subsystem — it's a card type with persistent identity.
 
 ## The Champion action economy — mana + Action Points (D9)
@@ -37,6 +37,8 @@ The Champion runs the **same two-resource shape as a creature** — there is no 
 
 **Mana is "summoning sick."** Mana is a **snapshot taken once per Beginning phase** (the sum of currently-connected/producing bonded terrain at that instant), not a live recomputation — a bond made mid-turn claims the tile permanently, but that extra mana isn't *credited to the pool* until the player's *next* Beginning phase. Same "no retroactive unlock this turn" shape as D14's summoning sickness for a freshly-summoned creature's AP. **Default match setup:** both Champions start **pre-bonded to their own home tile** — 1 mana is already available turn 1. Combined with the realm constraint below, a fresh Champion is *already rooted* from turn 1: its first move costs `2AP` and stays inside its one-tile territory unless it pays `0AP` to Collapse.
 
+**First-player AP asymmetry (D48):** the Champion of the player who goes first enters play with **reduced** starting AP (placeholder: 4) instead of its full Activation Capacity baseline; the second player's Champion enters at full Activation Capacity as normal. A first-move-advantage balancing lever, analogous to other games' "first player doesn't draw" compensation — exact number is a tuning-pass question, not locked.
+
 **Default AP actions** (baseline example: **7 AP**; the exact numbers, and the full signature-ability list, are still open — this fixes the *shape* of the economy, not its content):
 
 | Action | Cost | Notes |
@@ -45,7 +47,7 @@ The Champion runs the **same two-resource shape as a creature** — there is no 
 | **Bond a terrain** | `2*AP` | The D8 "up to once per turn" bonding limit, expressed via the `*` once-per-turn cost flavor (below) instead of a dedicated Channel. |
 | **Move** | `2AP`, only onto a hex that is itself part of the bonded network, while a network exists · `1AP`, unrestricted, once disconnected | A hard lock confined to the Champion's own territory, not a cost differential — see the realm constraint below. |
 | **Collapse Network** | `0AP` | Drops every current bond outright (not a pause — they're gone, re-bond from scratch). The escape valve for the Move lock above. |
-| **Attack** | `5!AP` network-active · `3!AP` if disconnected | Still expensive relative to the 7 AP baseline — keeps "fighting is the rare, costly line." Drain-all (`!`) like a Creature's default attack, so a Champion that attacks ends its turn's other actions. |
+| **Attack** | `6!AP` network-active · `3!AP` if disconnected | *(Unified with the generic Actor default, D49 — `3!AP` base doubled to `6!AP` while bonded, replacing the previous bespoke `5!/3!` figures.)* Still expensive relative to the 7 AP baseline — keeps "fighting is the rare, costly line." Drain-all (`!`) like a Creature's default attack, so a Champion that attacks ends its turn's other actions. |
 | **Defend** (retaliate) | `0*AP` | No Champion-specific rule (D15) — it defends through the exact same mechanism as any creature: free, but at most once per turn, regardless of what else it spent AP on this turn. |
 | **Champion abilities** | typically `2–5AP` | On top of the above; may still carry an additional mana cost. |
 
@@ -55,7 +57,7 @@ The Champion runs the **same two-resource shape as a creature** — there is no 
 
 **The tension.** There's no hardcoded "pick one of {bond, act, ability}" — it's an open resource-allocation puzzle: `move + fight`, `move ×3`, `move + draw`, `draw + bond`, `bond + move ×2`, `bond + fight`, ability combos, and more, many of which can be the right call depending on the situation.
 - The classic ramp-vs-spend tension **re-emerges on its own**: `Draw (5) + Bond (2)` exactly equals the 7 AP baseline, so "can't do everything" falls out of the numbers rather than being a hardcoded rule.
-- **Watch-point:** with these numbers, `Attack (5, network-active) + Bond (2)` also exactly fits — so a Champion that skips its draw could fight *and* grow its economy in the same turn. Whether that's acceptable or the numbers need adjusting is a playtest question.
+- **Watch-point, updated for D49's `6!AP` Attack:** `Attack (6, network-active) + Bond (2)` now totals 8, one over the 7 AP baseline — so a network-bonded Champion that attacks can no longer also Bond the same turn (it could still attack while disconnected at `3!AP`, leaving 4 AP for Bond+something else). Previously, at the old `5!AP` figure, the two exactly fit; D49's unification tightens this specific combo rather than leaving it open. Whether that tightening is desirable or the 7 AP baseline needs adjusting is a playtest question.
 - **Expectation, not a rule:** because fighting risks Life for no guaranteed return while draw/bond are safe value, combat-involving lines are expected to be comparatively rare by default — consistent with "a Champion's job is to channel, not to fight" (Concept, above), not something enforced by an explicit restriction.
 
 **The realm constraint.** The Champion is the **root** of its network; mana flows from a bonded terrain only along an enemy-free path **to the Champion's current tile**. While the network is currently connected (at least one bonded terrain reachable — the same dynamic check D8 uses for producing mana), the Champion is *confined* — legal moves are only onto hexes that are **themselves already bonded**, each costing `2AP`. It may reposition anywhere within its own claimed territory, but may never step onto ground it hasn't bonded while still connected. To go anywhere else, it must first use **Collapse Network** (`0AP`, any time, no cost gate) — which **drops every bond outright**, not a reversible pause — after which it moves freely and cheaply, `1AP`, unrestricted, like an ordinary creature. A Champion that never bonded, or is currently fully blockaded by the enemy (D8's *reversible pause*, unaffected by this rule), already counts as "no network" and so is never confined — the lock only bites a Champion that is *actually* drawing mana right now. This yields the "walking channeler": shuffle within your own realm at `2AP` a hex, or spend `0AP` to cut it loose and move cheaply into open territory — a real, deliberate decision rather than a side effect of an ordinary move. Two earlier, looser drafts of this rule were tried and rejected — see `history/playtest-variants.md`.
