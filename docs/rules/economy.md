@@ -2,7 +2,7 @@
 
 *The full resource model in one place. There are **two** resources — mana and Action Points — and the same shape — "mana access + a private action budget" — repeats for every actor, **including the Champion and the Companion**. Learn it once, it applies everywhere (pillar 3).*
 
-**Decisions:** D8 (terrain/mana), D9 (Champion economy), D10 (Action Points), D15 (Defend cost), D22 (Companion), D45 (Speed, supersedes D23's instant-speed marker), D47 (Activation Capacity), D48 (first-player AP), D49 (Champion/Companion Attack) — `history/decisions.md`
+**Decisions:** D8 (terrain/mana), D9 (Champion economy), D10 (Action Points), D15 (Defend cost), D22 (Companion), D45 (Speed), D47 (Activation Capacity), D48 (first-player AP), D49 (Champion/Companion Attack) — `history/decisions.md`
 
 ---
 
@@ -55,9 +55,9 @@ This is **not** the same thing as `!`: `!` drains the *whole remaining pool* but
 
 Used by the Champion's `5*AP: Draw` and `2*AP: Bond` actions (`champions.md`) — `Draw`/`Bond` need to stay usable *together* in one turn while each staying capped to once/turn, which `!` cannot express without also zeroing the pool. Also used by the Companion's own Bond ability (`companions.md`) — same flavor, priced higher relative to the Companion's smaller AP total so it crowds out the rest of the turn.
 
-### Speed (Slow/Quick/Reactive/Instant, D45 — retires the `^` marker and D23)
-Timing is no longer a per-ability marker layered on top of a card-level instant/sorcery split (the old D5/D23 model). Every card/ability now has one of four **Speeds**, gated by what's currently sitting in the Aether's **Pending** region (D38) rather than a fixed per-phase window list:
-- **Slow** — controller's main phase only, Pending empty (≈ the old sorcery-speed default).
+### Speed (Slow/Quick/Reactive/Instant, D45)
+Every card/ability has one of four **Speeds**, gated by what's currently sitting in the Aether's **Pending** section (D38):
+- **Slow** — controller's main phase only, Pending empty.
 - **Quick** — whenever only **Physical Traces** (the trace left by Move/Attack/Ascend/Descend) are in Pending.
 - **Reactive** — whenever no **Instant Trace** is in Pending.
 - **Instant** — any time; resolves **fully atomically**, zero response window for anyone, not even another Instant — a deliberate simplification that keeps the top speed tier free of unbounded stack/priority-passing complexity.
@@ -70,7 +70,7 @@ The `x!!AP` ("double-exhaust") idea remains a proposed-not-adopted alternative �
 Defending costs **`0*AP`** — free, but at most once per turn per actor, via the same `*` once-per-turn flavor as Bond/Draw. Completely decoupled from remaining AP in both directions. `cannot defend` remains an occasional negative keyword. A card can still deliberately spend a creature's Defend for the turn as part of a strong ability's own effect (the MTG "tap cost" flavor) — explicit card-level data, not a base-rule exception. Rejected alternatives and the bug that ruled them out: `history/decisions.md` D15, `history/playtest-variants.md`.
 
 ## Champion AP — the same model as a creature (D9)
-The Champion **has an AP value and spends it directly**, exactly like a creature — one movement/combat/action query for every entity, no gating resource and no second combat model. The Champion's specific action costs (draw/bond/move/abilities) differ from a plain creature's defaults and live in `champions.md`; its **Attack cost is now unified with the generic Actor default** (`3!AP` doubled to `6!AP` while network-bonded, D49) rather than a bespoke figure — same for Companion. **First-player asymmetry (D48):** the Champion of the player going first enters with reduced starting AP (placeholder 4) instead of full Activation Capacity; the second player's Champion enters at full Activation Capacity.
+The Champion **has an AP value and spends it directly**, exactly like a creature — one movement/combat/action query for every entity, no gating resource and no second combat model. The Champion's specific action costs (draw/bond/move/abilities) differ from a plain creature's defaults and live in `champions.md`; its **Attack cost matches the generic Actor default** (`3!AP` doubled to `6!AP` while network-bonded, D49) — same for Companion. **First-player asymmetry (D48):** the Champion of the player going first enters with reduced starting AP (placeholder 4) instead of full Activation Capacity; the second player's Champion enters at full Activation Capacity.
 
 ## Non-Actor permanent funding (D24–D26); Activation Capacity for Objects (D47)
 For the three **Actors** (D44) — Creature, Champion, Companion — "whose AP, whose mana" is always unambiguous: an Actor spends only its own AP, and either the shared pool (Creature, Champion) or its own private pool (Companion). That symmetry **breaks** for **Objects** that have no *funding* AP of their own: Terrain, Item, Structure. The full resolution — an ownership **tree** where every permanent has exactly one parent, and paying a cost means climbing to the nearest node that actually holds that resource — lives in `ownership.md`; Terrain/Structure/Item specifics are in `resources-terrain.md` and `structures-items.md`.

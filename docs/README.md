@@ -8,7 +8,7 @@ Four folders, split by the kind of question a doc answers:
 - **`cards/`** — concrete card ideas surfaced while designing the systems above, not yet a rules layer of their own.
 
 **Current vs. history, inside `rules/` and `architecture/`:** each of those two folders holds only current-state docs at its top level, plus a `history/` subfolder — `rules/history/` and `architecture/history/` — that's the *only* place revision narrative, rejected alternatives, and the decision log live:
-- `rules/history/decisions.md` — the gameplay decision log (D1–D35, newest first): the call, why, what it touches.
+- `rules/history/decisions.md` — the gameplay decision log (D1–D53, newest first): the call, why, what it touches.
 - `rules/history/playtest-variants.md` — rejected-for-now or not-yet-decided rule alternatives worth an actual playtest later, cross-referenced from the `decisions.md` entry each relates to.
 - `rules/history/pessimistic-default-audit.md`, `rules/history/knowledge-capture-plan.md` — working process trackers, not part of the current ruleset itself.
 - `architecture/history/decisions-architecture.md` — the engineering decision log (A1–A5), same shape as the gameplay one.

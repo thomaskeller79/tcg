@@ -2,7 +2,7 @@
 
 *The signature economy: a separate terrain deck laid out on the board, connected outward from the Champion turn by turn. Goal — keep lands powerful and thought-after (MTG's best quality) while eliminating mana/color screw *except* as a deliberate opponent strategy.*
 
-**Decisions:** D8, D22, D24, D27, D28, D47 (`history/decisions.md`)
+**Decisions:** D8, D11, D22, D24, D27, D28, D47, D51 (`history/decisions.md`)
 
 ---
 
@@ -13,10 +13,10 @@
 
 ## The system
 - **Separate terrain deck.** A legal setup requires a main deck **and** a terrain deck (and a Champion). Terrain-deck **size varies by format** — larger for long PC matches, smaller for quick mobile games.
-- **Start layout (D11).** The **map card** defines each player's **home zone** around their start, sized to **exactly the terrain-deck size**. At game start a player's terrain deck is **distributed randomly** across those home-zone cells — a **terrain is a cell's property** (1 terrain = 1 hex; the terrain network is a subgraph of the board graph). Present from turn 1, not yet *bonded*. Beyond the home zone, the map's **neutral area** carries predefined/generated terrain to bond outward into.
+- **Start layout (D11).** The **map card** defines each player's **home zone** around their start, sized to **exactly the terrain-deck size**; by default, a player's terrain deck is **distributed randomly** across those home-zone cells (a map may specify a different population rule, D53) — a **terrain is a cell's property** (1 terrain = 1 hex; the terrain network is a subgraph of the board graph). Present from turn 1, not yet *bonded*. Beyond the home zone, the map's **neutral area** carries terrain to bond outward into. Each hex also carries a map-authored **Terrain Type**, independent of a card's **Element** — see `map.md`.
 - **Connection / bonding (the ramp).** **Up to once per turn**, a player may **bond one additional terrain** reachable from their Champion through already-bonded terrain. Bonding is **permanent**; bonded terrains form a contiguous network rooted at the Champion.
 - **Mana.** A bonded terrain produces mana **only while a path of enemy-free terrain connects it back to the Champion** (see severing rule). Bonding +1/turn ≈ a guaranteed, smooth ramp curve (no flood/screw); *drawing* that mana is conditional on the path staying clear.
-- **8 colors.** Eight basic lands, one per color, each producing 1 mana of that color and nothing else. **Any number of basics** allowed in a deck.
+- **8 colors, named Elements (D51):** **Light, Fire, Metal, Earth, Darkness, Ice, Water, Air.** Eight basic lands, one per Element, each producing 1 mana of that Element and nothing else. **Any number of basics** allowed in a deck.
 - **Non-basic terrains.** More powerful "fancy" lands, **restricted via a property on the card** (deckbuilding limits). These are what players reach for.
 - **Visibility: terrain is visible by default**, extending D7 — even an unbonded terrain sitting in a player's home zone is public information, not hidden pending connection. A terrain's *true* identity can still be hidden by a card (Mimic, reusing D18's `face` primitive — e.g. a trap terrain disguised as a basic), same mechanism as any other permanent, not a terrain-specific carve-out. Example: `docs/cards/card-ideas.md`.
 - **Bond cost for non-basics: same as a basic by default** — bonding any terrain uses the single per-turn Bond action regardless of power level. A non-basic *may* print a surcharge on that specific bond (e.g. `+4!AP`) as a card effect (pillar 5), not a base-rule difference. Example: `docs/cards/card-ideas.md`.
