@@ -27,17 +27,17 @@
 - Has **Champion abilities**: activatable signature powers, gated by AP (below) and possibly extra mana cost. Each carries a **Speed** (Slow/Quick/Reactive/Instant, D45); default is **Slow** (own Action phase only, Pending empty) — no Champion-specific timing rule, same mechanism as any other Actor's abilities.
 - 🪝 Abilities, stats, and channeling are the same **effects / queries / modifiers** as everything else (pillars 5). A Champion is not a bespoke subsystem — it's a card type with persistent identity.
 
-## The Champion action economy — mana + Action Points (D9)
+## The Champion action economy — mana + Activation Points (D9)
 The Champion runs the **same two-resource shape as a creature** — there is no bespoke "Channel" resource. Mechanically it's a special *kind* of creature (a king-like piece: exactly one per side, and the game ends when it dies), not a third action/combat model, per pillar 5's "no bespoke subsystems":
 
 | Resource | Topology | Spent on |
 |---|---|---|
 | **Mana** | shared pool, however much is bonded & connected (D8) | casting spells, summoning units — **many** actions/turn |
-| **Action Points (AP)** | private, refills each turn (same shape as a creature's AP, D10) | the Champion's own actions — draw, bond, move, fight, activate abilities |
+| **Activation Points (AP)** | private, refills each turn (same shape as a creature's AP, D10) | the Champion's own actions — draw, bond, move, fight, activate abilities |
 
 **Mana is "summoning sick."** Mana is a **snapshot taken once per Beginning phase** (the sum of currently-connected/producing bonded terrain at that instant), not a live recomputation — a bond made mid-turn claims the tile permanently, but that extra mana isn't *credited to the pool* until the player's *next* Beginning phase. Same "no retroactive unlock this turn" shape as D14's summoning sickness for a freshly-summoned creature's AP. **Default match setup:** both Champions start **pre-bonded to their own home tile** — 1 mana is already available turn 1. Combined with the realm constraint below, a fresh Champion is *already rooted* from turn 1: its first move costs `2AP` and stays inside its one-tile territory unless it pays `0AP` to Collapse.
 
-**First-player AP asymmetry (D48):** the Champion of the player who goes first enters play with **reduced** starting AP (placeholder: 4) instead of its full Activation Capacity baseline; the second player's Champion enters at full Activation Capacity as normal. A first-move-advantage balancing lever, analogous to other games' "first player doesn't draw" compensation — exact number is a tuning-pass question, not locked.
+**First-player AP asymmetry (D48):** the Champion of the player who goes first enters play with **reduced** starting AP (placeholder: 4) instead of its full Activation Points baseline; the second player's Champion enters at full Activation Points as normal. A first-move-advantage balancing lever, analogous to other games' "first player doesn't draw" compensation — exact number is a tuning-pass question, not locked.
 
 **Default AP actions** (baseline example: **7 AP**; the exact numbers, and the full signature-ability list, are still open — this fixes the *shape* of the economy, not its content):
 

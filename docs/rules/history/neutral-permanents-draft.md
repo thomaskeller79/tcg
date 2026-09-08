@@ -1,8 +1,8 @@
-# Neutral Permanents — Draft Proposal (NOT YET DISCUSSED)
+# Neutral Permanents — Original Draft Proposal (ADOPTED WITH AMENDMENTS)
 
-**Status: draft, parked.** This is the user's original proposal text, preserved verbatim. It has **not** been discussed or adopted — it was deliberately set aside during the 2026-09-04 rules-merge session so the rest of that session's much larger rules draft could be worked through first. **This is the explicit first topic for the next design session.** See `PLAN.md` §8 (Track A) and `../ownership.md`'s "Open question — what does an uncontrolled creature do?" (D29), which this proposal directly answers if adopted.
+**Status: adopted with amendments, 2026-09-08 (D54–D58).** This is the user's original proposal text, preserved verbatim for the record. It was discussed item by item in the 2026-09-08 session and adopted with several corrections and simplifications the discussion surfaced — see `history/decisions.md` D54–D58 for exactly what changed and why, and `../neutral-permanents.md` for the current-state rules that resulted. Notable departures from the text below: control collapses to **three** states (A/B/Neutral) for every permanent type, not the five implied by treating Terrain's bond states as separate; "Belief State" (§4–§5) is replaced by reusing the standard legal-target query plus narrow, per-keyword-scoped memory, not a generalized observer-projection object; Behavior eligibility is decided by capability (holds Activation Points, has a legal action) rather than by Actor/Object type, so a Structure or Terrain can carry one, not just Creature/Companion; Neutral Phases always run unconditionally every round, never skipped, to avoid an information leak.
 
-Do not treat anything below as a current rule. Terminology in it (e.g. "permanent," layer names) has not been reconciled with decisions made later in the same session (D37–D50) — that reconciliation is part of the work still to do when this gets picked up.
+Do not treat the text below as the current rule on its own — read `../neutral-permanents.md` first. Terminology here (e.g. "permanent," layer names) also predates D37–D50's reconciliation.
 
 ---
 

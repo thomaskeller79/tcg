@@ -1,8 +1,8 @@
 # The Economy (two resources, one pattern)
 
-*The full resource model in one place. There are **two** resources — mana and Action Points — and the same shape — "mana access + a private action budget" — repeats for every actor, **including the Champion and the Companion**. Learn it once, it applies everywhere (pillar 3).*
+*The full resource model in one place. There are **two** resources — mana and Activation Points — and the same shape — "mana access + a private action budget" — repeats for every actor, **including the Champion and the Companion**. Learn it once, it applies everywhere (pillar 3).*
 
-**Decisions:** D8 (terrain/mana), D9 (Champion economy), D10 (Action Points), D15 (Defend cost), D22 (Companion), D45 (Speed), D47 (Activation Capacity), D48 (first-player AP), D49 (Champion/Companion Attack) — `history/decisions.md`
+**Decisions:** D8 (terrain/mana), D9 (Champion economy), D10 (Action Points), D15 (Defend cost), D22 (Companion), D45 (Speed), D47 (Activation Capacity), D48 (first-player AP), D49 (Champion/Companion Attack), D57 (summoning sickness), D58 (Activation Points) — `history/decisions.md`
 
 ---
 
@@ -13,7 +13,7 @@ Still **exactly two** — a Companion does **not** introduce a third. It adds a 
 | Resource | Topology | Held by | Refills | Spent on |
 |---|---|---|---|---|
 | **Mana** | **one shared pool per player**, plus **one private pool per Companion in play** (D22) | the player (shared pool, channeled by the Champion, D8/D9); each Companion (its own private pool, drawn by its own bonding) | as terrain is bonded/connected (D8), per the bonding root that owns each node | shared pool: casting spells, summoning units, **any** actor's mana-abilities. Private pool: **only that Companion's own printed abilities.** |
-| **Action Points (AP)** | **private, per actor** | each **creature** (D10), the **Champion** (D9), and each **Companion** (D22) | to max each turn (no carryover, rec) | move · fight · activate abilities · bond a terrain (Champion, Companion) · (Champion only) draw a card |
+| **Activation Points (AP)** | **private, per permanent** (D58) | each **creature** (D10), the **Champion** (D9), each **Companion** (D22), and every non-Item Object (D58) | to max each eligible refresh (no carryover, rec) | move · fight · activate abilities · bond a terrain (Champion, Companion) · (Champion only) draw a card |
 
 ## The repeating pattern
 Every board actor = **mana access** (shared pool, or a private pool if it's a Companion) + **its own private per-turn AP budget**.
@@ -27,7 +27,7 @@ Abilities **bridge the two economies**: a creature ability can cost `X mana + Y 
 - **Mana = one number per player.** The Champion's spells, its abilities, and *every* creature's mana-abilities all draw from the same pool. Channeling (D8) is what fills it. This is why the Champion is "a channeler": it's the shared tap the whole army drinks from.
 - **AP = private.** Each creature spends only its own AP; the Champion spends only its own AP. These never pool.
 
-## Creatures are three numbers: Attack / Life / Action Points (D10)
+## Creatures are three numbers: Attack / Life / Activation Points (D10)
 AP **subsumes** the old separate stats rather than adding to them:
 - **Movement stat is gone** → moving costs AP; a creature's "speed" *is* its AP.
 - **Range demotes to a keyword** (`Ranged N`); most creatures are melee. The three *defining* numbers stay Attack / Life / AP.
@@ -70,14 +70,19 @@ The `x!!AP` ("double-exhaust") idea remains a proposed-not-adopted alternative �
 Defending costs **`0*AP`** — free, but at most once per turn per actor, via the same `*` once-per-turn flavor as Bond/Draw. Completely decoupled from remaining AP in both directions. `cannot defend` remains an occasional negative keyword. A card can still deliberately spend a creature's Defend for the turn as part of a strong ability's own effect (the MTG "tap cost" flavor) — explicit card-level data, not a base-rule exception. Rejected alternatives and the bug that ruled them out: `history/decisions.md` D15, `history/playtest-variants.md`.
 
 ## Champion AP — the same model as a creature (D9)
-The Champion **has an AP value and spends it directly**, exactly like a creature — one movement/combat/action query for every entity, no gating resource and no second combat model. The Champion's specific action costs (draw/bond/move/abilities) differ from a plain creature's defaults and live in `champions.md`; its **Attack cost matches the generic Actor default** (`3!AP` doubled to `6!AP` while network-bonded, D49) — same for Companion. **First-player asymmetry (D48):** the Champion of the player going first enters with reduced starting AP (placeholder 4) instead of full Activation Capacity; the second player's Champion enters at full Activation Capacity.
+The Champion **has an AP value and spends it directly**, exactly like a creature — one movement/combat/action query for every entity, no gating resource and no second combat model. The Champion's specific action costs (draw/bond/move/abilities) differ from a plain creature's defaults and live in `champions.md`; its **Attack cost matches the generic Actor default** (`3!AP` doubled to `6!AP` while network-bonded, D49) — same for Companion. **First-player asymmetry (D48):** the Champion of the player going first enters with reduced starting AP (placeholder 4) instead of its full Activation Points; the second player's Champion enters at full Activation Points.
 
-## Non-Actor permanent funding (D24–D26); Activation Capacity for Objects (D47)
-For the three **Actors** (D44) — Creature, Champion, Companion — "whose AP, whose mana" is always unambiguous: an Actor spends only its own AP, and either the shared pool (Creature, Champion) or its own private pool (Companion). That symmetry **breaks** for **Objects** that have no *funding* AP of their own: Terrain, Item, Structure. The full resolution — an ownership **tree** where every permanent has exactly one parent, and paying a cost means climbing to the nearest node that actually holds that resource — lives in `ownership.md`; Terrain/Structure/Item specifics are in `resources-terrain.md` and `structures-items.md`.
+## Activation Points: one resource for every permanent but Item (D58)
+**Activation Points** is the one resource every permanent except Item holds — Creature, Champion, Companion, Structure, Terrain, Ruin, Grave alike — each with its own value **explicitly printed on its card data**, refreshing to that max every eligible refresh (D57, below), no carryover by default. There is no default value — a card's printed number has to be large enough to actually afford its own priciest self-funded ability, since holding Activation Points and funding an ability from them are the same thing. Values are kept comparable across types on purpose, so a generic effect ("target permanent gains 2 Activation Points") means the same thing regardless of what it targets.
 
-**Separately (D47), Terrain, Structure, Ruins, and Graves each also carry their own small Activation Capacity** (default 1) — purely to self-gate "has this printed ability already fired this round," reusing the standard AP-refresh mechanism rather than a bespoke once-per-turn clause. This is **additive** to the funding model above, not a replacement: Activation Capacity never pays anything, it only tracks reuse. These Objects get full Activation Capacity immediately on entering play, unlike an Actor (which still enters with 0 AP, D10/D20). Item is the one Object type that does **not** get this — it stays entirely without AP of any kind.
+**Payment is one rule, for every resource, not two separate rules by type:** to pay a cost, climb from the entity itself and stop at the **first** node — inclusive of the entity itself — that holds that resource (full detail: `ownership.md`). Activation Points and Life never climb simply because the paying entity is the very first node checked and already holds them; mana climbs because only a Champion or Companion ever hold it, so the walk keeps going until it reaches one. A card may still explicitly name a different payer than this default walk would reach (e.g. "this creature's controller pays 2 life") — a deliberate override, not something the general rule does on its own.
 
-**Life is not a third resource alongside mana/AP.** A creature already tracks its own Life (D10) the same way it tracks its own AP, so a creature's own "pay N life" ability spends its own Life directly — self-paid, same as AP, no climbing — unless a card explicitly names its controller as the payer instead (`ownership.md`).
+**Consequence:** an Object's own Activation-Points-costed ability (e.g. a Structure's printed activated ability) is funded by the Object itself, not by whoever bonds/controls it — decoupled from the controlling player's own action economy. It's also what lets a Neutral Object act on its own at all: an Activation-Points-only ability is always self-payable once Neutral, with no bonder required; a mana-inclusive ability still needs a live root supplying the mana. See `neutral-permanents.md`.
+
+**Life is not a third resource alongside mana/Activation Points.** Whichever permanents track their own Life (Champion, Companion, Creature, Structure, D10/D24) do so the same way they track Activation Points, so a "pay N life" ability on one of them spends its own Life directly — self-paid, no climbing — unless a card explicitly names the controller as payer instead (`ownership.md`).
+
+## Summoning sickness (and Haste) is about casting, not type (D57)
+A permanent enters with 0 Activation Points — summoning-sick, D14's pessimistic default — **if and only if it entered the Island through the casting/Aether procedure** (D33/D46). **Creature, Companion, and Structure are all cast**, so all three are summoning-sick by default, refreshing at their first eligible refresh; **Haste** (the existing positive keyword) removes this for any of them, not just Creature. **Terrain (placed via a map's home zone/neutral area) and the Champion (placed at match setup) never go through the casting procedure**, so summoning sickness was never a question for them in the first place — not a type-based exception, the rule about casting simply doesn't apply. The Champion's own separate first-player starting-AP reduction (D48) is an unrelated balancing lever, not summoning sickness. A Ruin or Grave, being a transformation of an already-in-play permanent rather than something newly cast, is unaffected either way.
 
 ## Open sub-levers (tuning, not structure)
 1. **AP refresh** — rec refill to max each turn, no carryover.
@@ -89,5 +94,5 @@ For the three **Actors** (D44) — Creature, Champion, Companion — "whose AP, 
 Total systems: **mana + AP + terrain network + Pending/Speed + perception**. Mitigation: every AP cost is a **small integer**, resist per-action special cases, let depth come from combinations (pillar 3, tension #6 in PLAN).
 
 ## Invariant vs. mutable
-- **Invariant:** mana is a single shared pool per player; each creature has a private AP budget; the Champion has a private AP budget too (D9), spent the same way. Every actor reaches mana through the same query.
-- **Mutable (card-driven):** AP totals and per-action AP costs, what refills/carries over, whether defending costs AP, extra AP, mana/AP ability costs — all effects/queries (pillar 5).
+- **Invariant:** mana is a single shared pool per player; every permanent but Item has its own private Activation Points budget, reached through the same payment rule (D58); every actor reaches mana through the same query; summoning sickness applies to whatever is cast, regardless of type (D57).
+- **Mutable (card-driven):** Activation Points totals and per-action costs, what refills/carries over, whether defending costs AP, extra Activation Points, mana/AP ability costs — all effects/queries (pillar 5).

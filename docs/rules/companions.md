@@ -2,7 +2,7 @@
 
 *A Champion's signature "friend": a card that sits mechanically **between Creature and Champion**. Introduces the game's channeling hierarchy explicitly: **Creature spends mana it can't draw; Companion draws mana it can't share; Champion draws and shares.***
 
-**Decisions:** D22, D26, D49 (`history/decisions.md`)
+**Decisions:** D22, D26, D49, D54–D55 (`history/decisions.md`)
 
 ---
 
@@ -30,7 +30,7 @@ No new resource. Mana + AP are the only two things that keep the world ticking �
 | Resource | Topology | Refills | Spent on |
 |---|---|---|---|
 | **Mana (private)** | one pool **per Companion**, separate from the shared pool | as its own bonded terrain produces (same conditional/pause rule as D8) | **only this Companion's own printed abilities** — never shared, never spent by other actors |
-| **Action Points (AP)** | private, same shape as any Creature (D10) | to max each turn | move · fight · Bond · its own abilities |
+| **Activation Points (AP)** | private, same shape as any Creature (D10) | to max each turn | move · fight · Bond · its own abilities |
 
 **Mana never crosses the shared/private boundary, in either direction:** a Companion cannot draw on the shared pool, and the shared pool never receives what a Companion draws. This is already true of the Champion by omission (it's presently the only sharer), but stating it explicitly here is what would keep a future two-sharer format (e.g. a two-headed-giant variant) well-defined.
 
@@ -57,6 +57,10 @@ D8 currently has exactly one network root (the Champion). A Companion in play be
 - **Control follows ownership too.** If a terrain carries its own printed activated ability (`resources-terrain.md`), only the controlling root's owner may activate it, funded **only** from that root's own pool — a Companion-bonded terrain's ability spends from that Companion's private pool alone, never the shared pool.
 - **A Companion's death un-bonds its terrain.** Unlike the Champion's network — where bonding is permanent, and only the *draw* is conditional (D8) — a Companion's bond is only as permanent as the Companion itself. When it dies, the terrain it personally bonded reverts to **unbonded** (same "undo, don't just pause" vocabulary as **un-summon**, D16) rather than sitting paused forever. It can later be bonded again, by any surviving root, under whatever reachability holds at that time. This makes a Companion a real, killable economic target, not just a body on the board.
 
+## A Neutral Companion is a root for ownership too (D55)
+
+The network root above is one graph (terrain/mana); the **ownership** graph (`ownership.md`) is a separate one, where a Companion is normally always an inner node — its parent is the Champion that cast it, for as long as it's controlled. A card can make a controlled Companion **Neutral** (never automatic); when it does, the Companion becomes a root of the ownership graph too, exactly the way it was already a root of the network graph. Nothing in its subtree changes structurally — it keeps its private mana pool, its bonded terrain, and everything it funds — only the controller-walk's answer changes, from "climb past the Companion to its Champion" to "stop at the Companion itself, Neutral." A Neutral Companion needs its own **Behavior** (`neutral-permanents.md`) to decide what to do with its own AP and mana each Neutral Phase — since it already has built-in mana-abilities of its own (above), this is enough on its own to produce a self-sufficient "band of creatures with its own economy," with no further mechanism needed.
+
 ## Interactions with other pillars / systems
 
 - **Deckbuilding:** Companion cards name the Champion(s) that may run them — a hard legality restriction, like the Champion gating faction identity. Count-per-deck / count-in-play limits are open (below).
@@ -66,7 +70,7 @@ D8 currently has exactly one network root (the Champion). A Companion in play be
 ## Invariant vs. mutable
 
 - **Invariant:** exactly the two resources (mana, AP) — a Companion adds a second **pool instance** of mana, not a new resource; a Companion is a **second network root**, using the same bond/pause mechanism as the Champion, not a new one; mana never crosses the shared/private boundary by default.
-- **Mutable (card-driven):** a Companion's stats, AP costs (including its Bond cost), its printed mana-abilities, and how many may be run/fielded.
+- **Mutable (card-driven):** a Companion's stats, AP costs (including its Bond cost), its printed mana-abilities, how many may be run/fielded, and whether a card makes it Neutral (D55).
 
 *(Resolved questions are cut once closed — the rule lives in the sections above and, for decision-grade calls, in `history/decisions.md`. Only genuinely open/deferred items stay here.)*
 

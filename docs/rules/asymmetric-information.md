@@ -79,7 +79,7 @@ The border is a **principle, not a per-resource list**:
 | **Mana spent / live balance** | **Hidden** | the engine of cost-deception; also "do they have mana for a trick?" bluffs (D5) |
 | **Costs with a board footprint** (sacrifice, unbond, discard) | **Self-revealing** | can't be faked → that spell isn't mimickable, and that's fine |
 | **Hand size (count)** | **Public** | legibility; the cast-A-as-B bluff needs only hidden mana-spend. Contents always private. A card may *obscure* the count (opt-in). |
-| **Action Points (max & current)** | **Public** | board readability (pillar 3); AP surprises come from instant-speed **timing** (D5, the +1-AP ambush blocker), not hidden state |
+| **Activation Points (max & current)** | **Public** | board readability (pillar 3); AP surprises come from instant-speed **timing** (D5, the +1-AP ambush blocker), not hidden state |
 | **Hidden-zone contents** (hand cards, submerged units, mimicked trace identities) | **Hidden** | core pillar 6 |
 | **Unit stats/positions, terrain, buildings, graves, life** | **Public** | D7 legibility |
 
