@@ -6,6 +6,19 @@
 
 ---
 
+### D59 — Zone/domain re-leveled to two tiers; "section" retired; board areas renamed "home ground" / "neutral ground"
+Collapses the three-tier **domain → zone → section** vocabulary (an artifact of D37/D38, never a deliberate design) into two tiers:
+- **Zone** is the container an object actually sits in — the seven previously called "sections": **Hand, Library, Discard, Past, Pending, Future, Island**. D16's "every object is in exactly one zone at a time" is now literally true as written, rather than true only of the pre-D37 four-item list (Hand/Library/Play/Aether).
+- **Domain** groups the zones into three families — **Mind, Aether, Matter** (D37's narrative frame, kept). Still never queried by a card or effect, but rules text now uses it for one structural invariant: a **card** exists only in a **Mind** zone, a **trace** only in an **Aether** zone, a **permanent** only in the **Matter** zone. The Idea→Action→Reality / past→present→future story is unchanged.
+
+**"Section" is dropped** as a term. **"Card Zone" is dropped** — the Mind domain's zones are just Hand/Library/Discard, and in practice you name the specific zone or say "card". The D37 phrasing "the Island is simultaneously the Zone and its own single Section" goes away: Matter is a domain with exactly one zone, the Island. "The Aether" survives as informal shorthand for "whichever Aether zone."
+
+Does **not** reopen D16 or D36: Hand, Library, and the three Aether zones stay distinct zones — they are simply no longer bundled under a "Card Zone" / "temporal" wrapper. D36's spatial-vs-temporal doc grouping is subsumed by the domain layer.
+
+Separately, a naming cleanup from the same pass: the map's **"home zone" → "home ground"** and **"neutral area" → "neutral ground"**. "Zone" now formally means an object container, so a board sub-area needed a different word; "area" also collided with **Area** (D43, the targeting primitive). The legacy alias **"home base" (D8) is retired** — no current-rules doc uses it after this pass. **Realm** (the terrain a Champion has actually bonded) is untouched.
+
+Purely terminological — no object moves, no timing changes, no card-interaction changes. No engine impact today: the code has no zone model yet (`PlayerState` holds only `Hand`/`Library`; the full Aether/Discard/Island model is unbuilt) — when it is built it should follow this seven-zone / three-domain shape. → `../overview.md` §1/§5/§7, `../glossary.md`, `../economy.md`, `../interaction-stack.md`, `../map.md`, `../resources-terrain.md`, `PLAN.md`.
+
 ### D58 — Activation Points: one resource, one payment rule, for every permanent but Item
 Unifies "Action Points" (Actor) and "Activation Capacity" (Object, D47) into a single concept, **Activation Points**, held by **every permanent except Item**, each explicitly printed on its own card data — D47's silent "default 1" placeholder is removed; a card's printed value must be large enough to afford its own priciest self-funded ability, since capacity and funding are now the same pool. Values are deliberately kept comparable across types so a generic effect ("target permanent gains 2 Activation Points") reads the same regardless of what it targets.
 

@@ -19,7 +19,7 @@
 
 ## In-match: what a Companion is
 
-- A real card in the maindeck: drawn to Hand, **summoned like a Creature** (D20 — paid in mana from the shared pool, onto a bonded terrain cell in the player's realm, subject to layer-capacity and summoning sickness).
+- A real card in the maindeck: drawn to Hand, **summoned like a Creature** (D20 — paid in mana from the shared pool, onto a bonded terrain cell in the player's realm, subject to level-capacity and summoning sickness).
 - **Stats: Attack / Life / AP**, the same three numbers as a Creature (D10) — it occupies a board slot and is attackable. It moves, fights, and bonds using the network-dependent cost shape below (shared logic with the Champion, D9), not a Creature's flat defaults.
 - Losing a Companion is a real, permanent loss (Life → 0 → destroyed → grave, D14/D16) — it doesn't end the match, but it **un-bonds the terrain it personally bonded** (see Terrain network, below) and its printed abilities go with it.
 
@@ -64,7 +64,7 @@ The network root above is one graph (terrain/mana); the **ownership** graph (`ow
 ## Interactions with other pillars / systems
 
 - **Deckbuilding:** Companion cards name the Champion(s) that may run them — a hard legality restriction, like the Champion gating faction identity. Count-per-deck / count-in-play limits are open (below).
-- **D17/D39 (card taxonomy):** Companion is a new **Play-permanent** seed type, alongside Creature/Structure/Item, cast through the Aether via the same generic play-a-card procedure as any card — but deckbuilding-gated the way Map/Champion/Terrain are pre-game-constrained (a hybrid: cast like any other card, gated like the non-card components).
+- **D17/D39 (card taxonomy):** Companion is a new **permanent** seed type, alongside Creature/Structure/Item, cast through the Aether via the same generic play-a-card procedure as any card — but deckbuilding-gated the way Map/Champion/Terrain are pre-game-constrained (a hybrid: cast like any other card, gated like the non-card components).
 - **Asymmetric info:** no special treatment proposed — visible by default (D7), like a Creature, unless a future card says otherwise.
 
 ## Invariant vs. mutable

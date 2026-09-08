@@ -1,13 +1,13 @@
 # Interaction & Speed
 
-*Players can act on the opponent's turn (MTG-style instants). One primitive covers instants, combat tricks, and traps: a **Speed** tag per card/ability, checked live against what's sitting in the Aether's Pending section.*
+*Players can act on the opponent's turn (MTG-style instants). One primitive covers instants, combat tricks, and traps: a **Speed** tag per card/ability, checked live against what's sitting in **Pending**, the Aether's next-to-resolve zone.*
 
 **Decisions:** D6, D16, D35, D38, D45, D46 (`history/decisions.md`)
 
 ---
 
 ## The primitive
-> **Speed.** Every card/ability has one of four speeds — **Slow, Quick, Reactive, Instant** (D45) — and legality to play it is a live query against the current contents of the Aether's **Pending** section (D38).
+> **Speed.** Every card/ability has one of four speeds — **Slow, Quick, Reactive, Instant** (D45) — and legality to play it is a live query against the current contents of **Pending** (the Aether's next-to-resolve zone, D38).
 
 | Speed | Playable whenever… | What happens after |
 |---|---|---|
@@ -16,7 +16,7 @@
 | **Reactive** | no **Instant Trace** is in Pending. | Same as Slow — a normal Pending entry, respondable by anything whose Speed currently permits it. |
 | **Instant** | any time, no condition. | **Resolves fully atomically**: enters Pending and `Now` is advanced past it as part of the same action — zero duration, **no response window for anyone, not even another Instant.** |
 
-Pending is the section just ahead of `Now` — `Now` itself is **not a section**, just the moving point dividing Pending from Past. **`Now` advances past whatever's next in Pending when both players pass priority in succession** (neither has anything they want to play). The sole exception is an Instant, which advances `Now` past itself immediately and atomically as part of being played, never waiting for both players to pass. As things resolve they cross `Now` and become past **traces**, which then fade (except Physical Traces, which get zero Past residency at all).
+Pending is the zone just ahead of `Now` — `Now` itself is **not a zone**, just the moving point dividing Pending from Past. **`Now` advances past whatever's next in Pending when both players pass priority in succession** (neither has anything they want to play). The sole exception is an Instant, which advances `Now` past itself immediately and atomically as part of being played, never waiting for both players to pass. As things resolve they cross `Now` and become past **traces**, which then fade (except Physical Traces, which get zero Past residency at all).
 
 ## Kept tame
 1. **Instant is fully atomic.** Nothing can ever respond to an Instant, not even another Instant.
@@ -51,7 +51,7 @@ Playing a card or activating an ability pays its complete cost **before** choosi
 - **Timing/UX**: players need clear, fast "respond or pass" prompts; auto-pass when a player has no legal response keeps it snappy.
 
 ## Invariant vs. mutable
-- **Invariant:** the Aether's Pending section and the Speed check always exist; resolution order within Pending is LIFO; deterministic. Instant is always fully atomic.
+- **Invariant:** the Pending zone and the Speed check always exist; resolution order within Pending is LIFO; deterministic. Instant is always fully atomic.
 - **Mutable (card-driven):** what Speed a given card/ability has, what triggers exist, extra priority a card grants.
 
 ## Open questions

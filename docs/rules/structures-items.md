@@ -1,6 +1,6 @@
 # Structures & Items
 
-*Two non-Actor Play-permanent card types (D17): **Structure** (stationary, hex-bound) and **Item** (carryable) — both **Objects** in the D44 terminology. Neither has *mana* access of its own, so — unlike the three **Actors** (Creature/Champion/Companion) — someone else must fund and control the mana portion of their abilities, via the general ownership tree (`ownership.md`). A Structure does hold its own **Activation Points** (D58), self-funding the AP portion directly; an Item holds none at all.*
+*Two non-Actor permanent card types (D17): **Structure** (stationary, hex-bound) and **Item** (carryable) — both **Objects** in the D44 terminology. Neither has *mana* access of its own, so — unlike the three **Actors** (Creature/Champion/Companion) — someone else must fund and control the mana portion of their abilities, via the general ownership tree (`ownership.md`). A Structure does hold its own **Activation Points** (D58), self-funding the AP portion directly; an Item holds none at all.*
 
 **Decisions:** D24, D25, D31–D35, D39, D40, D41, D44, D46, D47, D54, D57, D58 (`history/decisions.md`)
 
@@ -8,7 +8,7 @@
 
 ## Shape & location: Creature vs. Structure vs. Item
 
-The three Play-permanent types are distinguished by which of **Attack / AP / Life** they carry, plus where they sit — this has nothing to do with **color** (mana-cost color pips, a separate, not-yet-designed axis, PLAN §8 Track A item 2). A colorless Creature is still simply a Creature. "Artifact" doesn't reintroduce a fourth type either — it dissolves per D17 (equippable → Item, stationary → Structure); a mechanically-flavored *Creature* (MTG's "Artifact Creature") stays `Type: Creature`, distinguished only by an optional subtype tag (the same mechanism Structure already uses for e.g. *Building*), never by becoming a Structure/Item.
+Creature, Structure and Item are distinguished by which of **Attack / AP / Life** they carry, plus where they sit — this has nothing to do with **color** (mana-cost color pips, a separate, not-yet-designed axis, PLAN §8 Track A item 2). A colorless Creature is still simply a Creature. "Artifact" doesn't reintroduce a fourth type either — it dissolves per D17 (equippable → Item, stationary → Structure); a mechanically-flavored *Creature* (MTG's "Artifact Creature") stays `Type: Creature`, distinguished only by an optional subtype tag (the same mechanism Structure already uses for e.g. *Building*), never by becoming a Structure/Item.
 
 | | Attack | AP | Life | Location |
 |---|---|---|---|---|
@@ -28,7 +28,7 @@ Casting a Creature, Structure, or **Item** all follow the same procedure — no 
 
 ## Structure
 
-**Concept:** a stationary Play-permanent that lives on a terrain cell, on a level, in its own dedicated slot — never in a creature's Surface/Air/Underground room. (Visually: centered on the hex, levels arranged around it.)
+**Concept:** a stationary permanent that lives on a terrain cell, on a level, in its own dedicated slot — never in a creature's Surface/Air/Underground room. (Visually: centered on the hex, levels arranged around it.)
 
 - **Occupancy (D24, D40):** **two** dedicated Structure/Ruin slots per hex — a shared **Surface** slot (Ground+Air combined; Air isn't expected to be structure-dense enough to need its own) and a separate **Underground** slot (concealment kept as its own axis) — not creature-level slots, don't consume Surface/Air/Underground creature capacity. A hex can hold 3 Surface + 3 Air + 3 Underground creatures *and* up to **two** Structures (one Surface, one Underground) simultaneously. An Underground Structure is hidden by default, for free, via the same rule that already hides Underground creatures (D12/pillar 6) — this is how "a structure hidden underground/inside a building" is achieved, without a separate containment mechanism. **A destroyed Structure leaves a Ruin that occupies its slot** (unlike a Grave, which is always free, D40) — building a new Structure directly onto a ruined slot replaces the ruin in one action; an explicit effect can also clear a ruin directly.
 - **Cast like a Creature (D20 pattern):** summoned onto a **bonded** terrain cell within the caster's realm, at whichever level the card legally permits (usually exactly one, D32), that has a free Structure/Ruin slot on that level, paid in mana from the **shared** pool (a Companion's private mana can never fund a cast, D22, only its own abilities). Cost is paid before the target/level choice is instantiated (D46).
@@ -42,7 +42,7 @@ Casting a Creature, Structure, or **Item** all follow the same procedure — no 
 
 ## Item
 
-**Concept:** a carryable Play-permanent — picked up and wielded by an actor (Creature, Champion, or Companion), rather than rooted to a hex like a Structure.
+**Concept:** a carryable permanent — picked up and wielded by an actor (Creature, Champion, or Companion), rather than rooted to a hex like a Structure.
 
 - **Location, while loose:** a (terrain, level) address, same shape as everything else (D32) — and **capacity-exempt**: a loose Item never competes with the 3-creature-per-level cap, and any number of loose Items may share a (terrain, level) address (D34; exact board visualization for a pile of loose items is a UI question, not a rules one).
 - **No Life (D34):** an Item is never a combat participant — no Attack, no AP, never a legal attack/ranged target the way a Structure or creature is — so a Life total would only matter for a hypothetical generic-damage/AoE destruction that nothing currently needs. An Item is removed from play only via an explicit printed effect (e.g. "destroy target Item," a sacrifice cost), never by combat damage.
