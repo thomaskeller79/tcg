@@ -1,6 +1,6 @@
 # Ownership Tree & Cost Resolution
 
-*Every permanent in play (other than a Champion) has **at most one** parent — the entity that produced, bonded, or currently carries it. Not every permanent has one: unbonded terrain and a loose item have none. One mechanism covers "who funds Terrain / Structure / Item" and "who controls it" together.*
+*Every permanent on the Island (other than a Champion) has **at most one** parent — the entity that produced, bonded, or currently carries it. Not every permanent has one: unbonded terrain and a loose item have none. One mechanism covers "who funds Terrain / Structure / Item" and "who controls it" together.*
 
 **Note (D58):** Terrain, Structure, Ruins, and Graves each hold their own printed **Activation Points**, the same resource an Actor holds — self-gating "has this printed ability already fired this round" *and* self-funding that ability's Activation Points cost directly, no climbing. The parent chain below still answers who funds a *mana* cost. See `economy.md`, `resources-terrain.md`, `structures-items.md`.
 

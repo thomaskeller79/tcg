@@ -14,7 +14,7 @@
   - **Champion** — can bond terrain **and** channel what it draws into the **shared** pool everyone spends from (D8/D9).
 - **Deckbuilding-gated.** A Companion is a signature card tied to specific Champion(s) — legal only in the deck of the Champion(s) it names. Not a general card pool.
 - **Shape:** Creature's three numbers (Attack / Life / AP) **plus** its own private mana pool **plus** a Bond ability. **"In between a Champion and a Creature":** it moves, fights, and bonds using the same **network-dependent cost shape** as a Champion (cheaper once its own connection collapses, pricier while it stays connected — see the action economy below) — but it can **never share** what it draws, and its own abilities are typically **priced higher** than a Champion's equivalent. A narrower, weaker channeler, not a second Champion.
-- **Because a Companion has no hand of spells to spend its private mana on** (it's a single card in play, not a pipeline of draws), it is printed with **its own built-in mana-abilities** — e.g. `4 mana, 4!AP: summon a 2/2/6 soldier`. The private pool needs *something* on the card itself to spend on, or it's dead resource.
+- **Because a Companion has no hand of spells to spend its private mana on** (it's a single card on the Island, not a pipeline of draws), it is printed with **its own built-in mana-abilities** — e.g. `4 mana, 4!AP: summon a 2/2/6 soldier`. The private pool needs *something* on the card itself to spend on, or it's dead resource.
 - **Meta-progression:** evolves between games like the Champion, but along a **more linear track** (fewer branch points) rather than the Champion's build-defining branching paths (D2). This is meta-layer scope (PLAN §9, post-M4) — parked here as a forward-note, not designed now.
 
 ## In-match: what a Companion is
@@ -49,7 +49,7 @@ Example total AP: **4–5** *(tuning)*, vs. the Champion's 7 — so `Bond` alone
 
 ## Terrain network — Companion as a second root (extends D8)
 
-D8 currently has exactly one network root (the Champion). A Companion in play becomes **its own root**, using the identical rule:
+D8 currently has exactly one network root (the Champion). A Companion on the Island becomes **its own root**, using the identical rule:
 
 - A Companion may **Bond** (its own AP-costed ability, above) a terrain **reachable from itself** through already-bonded terrain, unblocked by enemies — same reachability/pause mechanics as the Champion's bonding (D8), just evaluated from the Companion's own tile instead of the Champion's.
 - **Ownership follows the bonder.** Whoever *performs* the bond (Champion or a specific Companion) determines which pool that terrain feeds going forward: Champion-bonded → shared pool; Companion-bonded → that Companion's private pool. Direct mechanical expression of the fiction (only the bonder's own channeling capacity determines where the mana goes); reuses D8's existing bond/pause machinery, just tagged per-root.
@@ -63,7 +63,7 @@ The network root above is one graph (terrain/mana); the **ownership** graph (`ow
 
 ## Interactions with other pillars / systems
 
-- **Deckbuilding:** Companion cards name the Champion(s) that may run them — a hard legality restriction, like the Champion gating faction identity. Count-per-deck / count-in-play limits are open (below).
+- **Deckbuilding:** Companion cards name the Champion(s) that may run them — a hard legality restriction, like the Champion gating faction identity. Copy limits — per deck, and on the Island at once — are open (below).
 - **D17/D39 (card taxonomy):** Companion is a new **permanent** seed type, alongside Creature/Structure/Item, cast through the Aether via the same generic play-a-card procedure as any card — but deckbuilding-gated the way Map/Champion/Terrain are pre-game-constrained (a hybrid: cast like any other card, gated like the non-card components).
 - **Asymmetric info:** no special treatment proposed — visible by default (D7), like a Creature, unless a future card says otherwise.
 
@@ -76,5 +76,5 @@ The network root above is one graph (terrain/mana); the **ownership** graph (`ow
 
 ## Open questions
 
-1. **Count limits — deferred to PLAN.md Track A** (step 1, "Uniqueness / copy-limit rule (general)"): Companions are expected to end up singleton (1 in deck / 1 in play), but that should fall out of a **general** uniqueness rule other cards can also use, not a Companion-specific carve-out. Not designed here.
+1. **Count limits — deferred to PLAN.md Track A** (step 1, "Uniqueness / copy-limit rule (general)"): Companions are expected to end up singleton (1 in deck / 1 on the Island), but that should fall out of a **general** uniqueness rule other cards can also use, not a Companion-specific carve-out. Not designed here.
 2. **Meta-progression shape:** "more linear than the Champion" — needs its own pass once the meta-layer is actually being designed (post-M4, PLAN §9). Parked, not blocking the in-match rules above.
