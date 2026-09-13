@@ -17,10 +17,17 @@ public class CastSpellTests
         var result = RulesEngine.Apply(match, new CastSpellCommand(Fixtures.P1, SpellFixtures.Firebolt, enemyChampion.Id));
         Assert.True(result.Accepted);
 
-        Assert.Equal(12, enemyChampion.Life); // 15 - EffectAmount:3
+        Assert.Equal(15, enemyChampion.Life); // not resolved yet — sits in Pending until both pass
         Assert.Empty(match.State.Players.Single(p => p.Id == Fixtures.P1).Hand);
+        Assert.Equal([SpellFixtures.Firebolt], match.State.Players.Single(p => p.Id == Fixtures.P1).Discard);
         Assert.Equal(4, match.State.Players.Single(p => p.Id == Fixtures.P1).Mana); // 5 - ManaCost:1
+
+        RulesEngine.Apply(match, new PassPriorityCommand(Fixtures.P2));
+        RulesEngine.Apply(match, new PassPriorityCommand(Fixtures.P1));
+
+        Assert.Equal(12, enemyChampion.Life); // 15 - EffectAmount:3
         Assert.Equal(actorCountBefore, match.State.AllActors.Count); // no permanent left behind
+        Assert.Single(match.State.Past); // the resolved trace is now a historical record
     }
 
     [Fact]
@@ -31,8 +38,11 @@ public class CastSpellTests
         champion.Life = 10;
 
         var result = RulesEngine.Apply(match, new CastSpellCommand(Fixtures.P1, SpellFixtures.Mend, champion.Id));
-
         Assert.True(result.Accepted);
+
+        RulesEngine.Apply(match, new PassPriorityCommand(Fixtures.P2));
+        RulesEngine.Apply(match, new PassPriorityCommand(Fixtures.P1));
+
         Assert.Equal(14, champion.Life); // 10 + EffectAmount:4
     }
 
@@ -44,6 +54,8 @@ public class CastSpellTests
         enemyChampion.Life = 2; // Firebolt deals 3
 
         RulesEngine.Apply(match, new CastSpellCommand(Fixtures.P1, SpellFixtures.Firebolt, enemyChampion.Id));
+        RulesEngine.Apply(match, new PassPriorityCommand(Fixtures.P2));
+        RulesEngine.Apply(match, new PassPriorityCommand(Fixtures.P1));
 
         Assert.Equal(Fixtures.P1, match.State.Winner);
     }

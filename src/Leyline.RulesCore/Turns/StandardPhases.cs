@@ -13,6 +13,6 @@ public static class StandardPhases
     [
         new PhaseDefinition("Beginning", [new RefreshApEffect(), new ResetOncePerTurnActionsEffect(), new RefreshManaEffect()], OffersPriority: false),
         new PhaseDefinition("Action", [], OffersPriority: true),
-        new PhaseDefinition("End", [new ExpireModifiersEffect()], OffersPriority: false),
+        new PhaseDefinition("End", [new ExpireModifiersEffect(), new ExpireFadedTracesEffect()], OffersPriority: false),
     ];
 }

@@ -1,3 +1,4 @@
+using Leyline.RulesCore.Aether;
 using Leyline.RulesCore.Champions;
 using Leyline.RulesCore.Combat;
 using Leyline.RulesCore.Commands;
@@ -83,7 +84,7 @@ public static class RulesEngine
             DeclareDefendersCommand d => CombatPipeline.DeclareDefenders(state, pipeline, d),
             AssignDamageCommand a => CombatPipeline.AssignDamage(state, pipeline, a),
             ChooseUndefendedTargetCommand c => CombatPipeline.ChooseUndefendedTarget(state, pipeline, c),
-            PassPriorityCommand p => CombatPipeline.Pass(state, pipeline, p),
+            PassPriorityCommand p => AetherPipeline.Pass(state, pipeline, p),
             RespondCommand => CommandResult.Reject("No respondable content exists in M1."),
             EndPhaseCommand e => TurnEngine.EndPhase(state, pipeline, e),
             BondTerrainCommand b => TerrainPipeline.Bond(state, pipeline, b),

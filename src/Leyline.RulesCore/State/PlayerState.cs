@@ -1,10 +1,10 @@
 namespace Leyline.RulesCore.State;
 
 /// <summary>
-/// D16 (partial slice): Hand and Library only — enough to draw and cast. The full Aether
-/// model (unified stack/graveyard, traces, fade windows, un-summon vs kill) is a separate,
-/// much larger design surface that's explicitly not built here; Spells resolve their effect
-/// and simply vanish (no permanent, no tracked trace) rather than leaving an Aether record.
+/// D16/D37: the Mind domain's three zones for one player — Library ("future"), Hand
+/// (present), Discard ("past", D37 — not a graveyard; a card discharges here the instant it's
+/// cast). The Aether domain (Past/Pending/Future traces) lives on TrueState instead, since it
+/// isn't per-player (see TrueState.Pending/Past/Future).
 /// Library order is never shuffled — for a testing/debug tool, "draw exactly this card next"
 /// (i.e. deterministic, author-controlled order) is more useful than realism.
 /// </summary>
@@ -20,4 +20,6 @@ public sealed class PlayerState
     public List<CardDefinitionId> Library { get; } = [];
 
     public List<CardDefinitionId> Hand { get; } = [];
+
+    public List<CardDefinitionId> Discard { get; } = [];
 }

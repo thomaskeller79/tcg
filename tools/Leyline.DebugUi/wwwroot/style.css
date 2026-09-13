@@ -247,3 +247,60 @@ svg.board {
   color: var(--accent);
   font-weight: 700;
 }
+
+.domain-title {
+  margin: 4px 16px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-top: 1px solid var(--cell-stroke);
+  padding-top: 10px;
+}
+
+.domain-panels {
+  display: flex;
+  gap: 12px;
+  padding: 8px 12px 12px;
+  align-items: flex-start;
+}
+
+.domain-subpanel h3 {
+  font-size: 13px;
+  margin: 0 0 8px;
+  color: var(--muted);
+}
+
+.zone-block {
+  font-size: 12px;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.zone-block strong {
+  color: var(--text);
+}
+
+.zone-block .empty {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.aether-zone {
+  margin-bottom: 6px;
+}
+
+.now-marker {
+  text-align: center;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin: 4px 0;
+}
+
+.fade-note {
+  color: var(--muted);
+  font-size: 11px;
+}

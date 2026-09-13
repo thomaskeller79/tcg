@@ -125,49 +125,18 @@ public static class CombatPipeline
         return CommandResult.Accept(events);
     }
 
-    public static CommandResult Pass(TrueState state, EventPipeline pipeline, PassPriorityCommand cmd)
-    {
-        var window = state.ActiveWindow;
-        if (window is null)
-            return CommandResult.Reject("No active priority window.");
-        if (window.CurrentPriority != cmd.Actor)
-            return CommandResult.Reject("Not your priority.");
-
-        window.ConsecutivePasses++;
-        window.CurrentIndex = (window.CurrentIndex + 1) % window.Order.Count;
-
-        if (window.ConsecutivePasses < window.Order.Count)
-            return CommandResult.Accept([]);
-
-        if (!state.Stack.IsEmpty)
-        {
-            // Everyone passed with something on the stack: resolve top-of-stack, then
-            // priority reopens from the top of the order. M1 ships no stack content (no
-            // instant-speed abilities exist yet), so this path is real plumbing that stays
-            // unexercised until such content exists.
-            state.Stack.Pop();
-            window.ConsecutivePasses = 0;
-            window.CurrentIndex = 0;
-            return CommandResult.Accept([]);
-        }
-
-        var combat = state.GetCombat(window.Context);
-        state.ActiveWindow = null;
-        return CommandResult.Accept(Resolve(state, pipeline, combat));
-    }
-
+    /// <summary>Priority resolution itself (Pass, and what happens when everyone's passed) is
+    /// shared across every window kind — see Aether.AetherPipeline.Pass, which RulesEngine
+    /// dispatches PassPriorityCommand to directly.</summary>
     private static void OpenPriorityWindow(TrueState state, CombatState combat, PlayerId attackerOwner)
     {
         var defenderOwner = state.Players.Select(p => p.Id).First(id => id != attackerOwner);
-        state.ActiveWindow = new PriorityWindow
-        {
-            Kind = PriorityWindowKind.CombatDeclare,
-            Context = combat.Id,
-            Order = [defenderOwner, attackerOwner],
-        };
+        Aether.AetherPipeline.OpenPriorityWindow(state, PriorityWindowKind.CombatDeclare, combat.Id, [defenderOwner, attackerOwner]);
     }
 
-    private static IReadOnlyList<IEvent> Resolve(TrueState state, EventPipeline pipeline, CombatState combat)
+    /// <summary>Called by AetherPipeline.Pass once a CombatDeclare window's Pending is empty and
+    /// both sides have passed — internal, not part of the Cast* pipelines' concern.</summary>
+    internal static IReadOnlyList<IEvent> Resolve(TrueState state, EventPipeline pipeline, CombatState combat)
     {
         var intents = new List<EventIntent>();
 

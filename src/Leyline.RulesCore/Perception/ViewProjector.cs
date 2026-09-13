@@ -36,6 +36,14 @@ public static class ViewProjector
         var hands = state.Players
             .Select(p => new HandView(p.Id, p.Hand.Count, p.Id == observer ? p.Hand.ToList() : null))
             .ToList();
+        var libraries = state.Players
+            .Select(p => new LibraryView(p.Id, p.Library.Count, p.Id == observer ? p.Library.ToList() : null))
+            .ToList();
+        var discards = state.Players.Select(p => new DiscardView(p.Id, p.Discard.ToList())).ToList();
+
+        var past = state.Past.Select(t => new PastTraceView(t.Id, t.Controller, t.Description, t.CreatedAtRound, t.FadesAtRound)).ToList();
+        var pending = state.Pending.Items.Select(t => ToTraceView(t, state)).ToList();
+        var future = state.Future.Select(t => ToTraceView(t, state)).ToList();
 
         return new View(
             observer,
@@ -47,12 +55,20 @@ public static class ViewProjector
             actors,
             mana,
             hands,
+            libraries,
+            discards,
+            past,
+            pending,
+            future,
             state.Winner,
             state.ActiveWindow is { } window && window.CurrentPriority == observer);
     }
 
     public static IReadOnlyList<ObservedEvent> ProjectEvents(IReadOnlyList<IEvent> trueEvents, PlayerId observer, TrueState state) =>
         trueEvents.Select(e => new ObservedEvent(e)).ToList();
+
+    private static TraceView ToTraceView(Trace trace, TrueState state) =>
+        new(trace.Id, trace.Controller, trace.Resolution.Describe(state));
 
     private static IReadOnlyList<ActorId> VisibleOccupants(LevelOccupancy level, PlayerId observer, TrueState state) =>
         level.Occupants.Where(id => Query.IsVisibleTo(id, observer, state)).ToList();

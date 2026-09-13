@@ -17,8 +17,14 @@ public class CastCreatureTests
         Assert.True(result.Accepted);
 
         var p1 = match.State.Players.Single(p => p.Id == Fixtures.P1);
-        Assert.Empty(p1.Hand);
+        Assert.Empty(p1.Hand); // Hand/Discard/mana happen at cast time, not deferred
+        Assert.Equal([SpellFixtures.Grunt], p1.Discard);
         Assert.Equal(3, p1.Mana); // 5 - ManaCost:2
+        Assert.Empty(match.State.ActorsOwnedBy(Fixtures.P1).OfType<CreatureState>()); // not summoned yet — sits in Pending
+
+        // D45/D46: the summon itself is deferred into a Trace on Pending until both players pass.
+        RulesEngine.Apply(match, new PassPriorityCommand(Fixtures.P2));
+        RulesEngine.Apply(match, new PassPriorityCommand(Fixtures.P1));
 
         var summoned = match.State.ActorsOwnedBy(Fixtures.P1).OfType<CreatureState>().Single();
         Assert.Equal(target, summoned.Position);

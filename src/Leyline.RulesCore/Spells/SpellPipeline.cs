@@ -1,3 +1,4 @@
+using Leyline.RulesCore.Aether;
 using Leyline.RulesCore.Commands;
 using Leyline.RulesCore.Events;
 using Leyline.RulesCore.Queries;
@@ -8,14 +9,11 @@ namespace Leyline.RulesCore.Spells;
 /// <summary>
 /// D20: casting is a mana-only cost, unrelated to any actor's AP ("payable multiple times/turn
 /// as mana allows") — sorcery-speed (gated by the same active-player/Action-phase check every
-/// other RulesEngine.LegalCommands entry already gets), no priority window (M1's window stays
-/// locked to Combat-declare only, per PriorityWindow's own doc comment). A Creature spell
-/// summons onto a bonded AND connected/producing terrain cell (D20's "realm is the deployment
-/// zone as well as the economy" — reuses Query.ResolveConnectedProducingTerrain, the exact set
-/// mana itself draws from) with room on the Surface level (Query.CanOccupyLevel, the same rule
-/// Move now enforces). A Spell resolves one of two hardcoded effects (SpellEffectIds) and
-/// leaves no permanent — see CardDefinition's doc comment for what's deliberately not built
-/// (the full Aether trace/fade model, D16).
+/// other RulesEngine.LegalCommands entry already gets; every card in M1 is Slow, D45, so "Pending
+/// empty" already follows from that same gate — see PriorityWindow's doc comment). Cost is paid
+/// and the card discharges into Discard immediately (D46, D37); what the cast actually DOES
+/// (summon a Creature, resolve a Spell's effect) is deferred into a Trace on Pending and only
+/// happens once both players pass (AetherPipeline.Pass) — see PendingCreatureCast/PendingSpellCast.
 /// </summary>
 public static class SpellPipeline
 {
@@ -33,11 +31,12 @@ public static class SpellPipeline
         if (!CanSummonTo(cmd.Actor, cmd.Target, state))
             return CommandResult.Reject("Illegal summoning target.");
 
-        var newActorId = state.AllocateActorId();
         var events = new List<IEvent>();
         events.AddRange(pipeline.Process(new HandCardRemovedIntent(cmd.Actor, cmd.Card), state));
+        events.AddRange(pipeline.Process(new CardDischargedIntent(cmd.Actor, cmd.Card), state));
         events.AddRange(pipeline.Process(new ManaChangeIntent(cmd.Actor, player.Mana - def.ManaCost), state));
-        events.AddRange(pipeline.Process(new CreatureSummonedIntent(newActorId, cmd.Actor, cmd.Card, cmd.Target), state));
+
+        EnterPending(state, cmd.Actor, new PendingCreatureCast(cmd.Actor, cmd.Card, cmd.Target));
         return CommandResult.Accept(events);
     }
 
@@ -54,21 +53,27 @@ public static class SpellPipeline
             return CommandResult.Reject("Not enough mana.");
         if (state.FindActor(cmd.Target) is null || !Query.IsVisibleTo(cmd.Target, cmd.Actor, state))
             return CommandResult.Reject("Illegal spell target.");
-
-        var effectIntent = def.EffectId switch
-        {
-            SpellEffectIds.Damage => (EventIntent)new DamageIntent(CasterChampionId(cmd.Actor, state), cmd.Target, def.EffectAmount),
-            SpellEffectIds.Heal => new HealIntent(cmd.Target, def.EffectAmount),
-            _ => null,
-        };
-        if (effectIntent is null)
+        if (def.EffectId is not (SpellEffectIds.Damage or SpellEffectIds.Heal))
             return CommandResult.Reject($"{cmd.Card} has no recognized spell effect.");
 
         var events = new List<IEvent>();
         events.AddRange(pipeline.Process(new HandCardRemovedIntent(cmd.Actor, cmd.Card), state));
+        events.AddRange(pipeline.Process(new CardDischargedIntent(cmd.Actor, cmd.Card), state));
         events.AddRange(pipeline.Process(new ManaChangeIntent(cmd.Actor, player.Mana - def.ManaCost), state));
-        events.AddRange(pipeline.Process(effectIntent, state));
+
+        EnterPending(state, cmd.Actor, new PendingSpellCast(cmd.Actor, cmd.Card, cmd.Target));
         return CommandResult.Accept(events);
+    }
+
+    /// <summary>Pushes a cast's Trace onto Pending and opens the response window for it — the
+    /// opponent gets first priority (same shape as Combat's OpenPriorityWindow), then it comes
+    /// back to the caster before both passing lets it resolve.</summary>
+    private static void EnterPending(TrueState state, PlayerId caster, IPendingResolution resolution)
+    {
+        var opponent = state.Players.Select(p => p.Id).First(id => id != caster);
+        var traceId = state.AllocateTraceId();
+        state.Pending.Push(new Trace(traceId, caster, resolution));
+        AetherPipeline.OpenPriorityWindow(state, PriorityWindowKind.CastResolution, traceId, [opponent, caster]);
     }
 
     public static IReadOnlyList<CastCreatureCommand> LegalCastCreatureCommands(TrueState state, PlayerId player)
@@ -98,10 +103,7 @@ public static class SpellPipeline
             .ToList();
     }
 
-    private static bool CanSummonTo(PlayerId player, HexCoord target, TrueState state) =>
+    internal static bool CanSummonTo(PlayerId player, HexCoord target, TrueState state) =>
         Query.ResolveConnectedProducingTerrain(player, state).Contains(target)
         && Query.CanOccupyLevel(player, target, Level.Surface, state);
-
-    private static ActorId CasterChampionId(PlayerId player, TrueState state) =>
-        state.AllActors.OfType<ChampionState>().First(c => c.Owner == player).Id;
 }

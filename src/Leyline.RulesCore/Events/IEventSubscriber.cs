@@ -6,5 +6,5 @@ namespace Leyline.RulesCore.Events;
 public interface IEventSubscriber
 {
     bool ListensFor(IEvent evt, TrueState state);
-    StackItem CreateResponse(IEvent evt, TrueState state);
+    Trace CreateResponse(IEvent evt, TrueState state);
 }

@@ -195,6 +195,20 @@ public sealed record HandCardRemovedEvent(PlayerId Player, CardDefinitionId Card
     public void Apply(TrueState state) => state.Players.First(p => p.Id == Player).Hand.Remove(Card);
 }
 
+/// <summary>D37: the Mind-domain half of casting — separate from HandCardRemovedEvent (leaving
+/// Hand and entering Discard are two distinct zone transitions, even though every current caller
+/// fires them together at cast time).</summary>
+public sealed record CardDischargedEvent(PlayerId Player, CardDefinitionId Card) : IEvent
+{
+    public void Apply(TrueState state) => state.Players.First(p => p.Id == Player).Discard.Add(Card);
+}
+
+/// <summary>D50: removes a faded trace from Past — see ExpireFadedTracesEffect (End phase).</summary>
+public sealed record TraceFadedEvent(TraceId Trace) : IEvent
+{
+    public void Apply(TrueState state) => state.Past.RemoveAll(t => t.Id == Trace);
+}
+
 /// <summary>D20: summoning a Creature spell — CurrentAp starts at 0 (summoning sickness, D14's
 /// pessimistic default: it can't act until its own next Beginning-phase refresh), same
 /// zero-until-refresh pattern the Champion itself uses at match start.</summary>

@@ -19,7 +19,11 @@ public static class DebugStateMapper
 
         var actors = state.AllActors.Select(a => ToActorDto(a, state)).ToList();
         var mana = state.Players.Select(p => new PlayerManaView(p.Id, p.Mana)).ToList();
-        var zones = state.Players.Select(p => new DebugZonesDto(p.Id, p.Library.ToList(), p.Hand.ToList())).ToList();
+        var zones = state.Players.Select(p => new DebugZonesDto(p.Id, p.Library.ToList(), p.Hand.ToList(), p.Discard.ToList())).ToList();
+
+        var past = state.Past.Select(t => new PastTraceView(t.Id, t.Controller, t.Description, t.CreatedAtRound, t.FadesAtRound)).ToList();
+        var pending = state.Pending.Items.Select(t => new TraceView(t.Id, t.Controller, t.Resolution.Describe(state))).ToList();
+        var future = state.Future.Select(t => new TraceView(t.Id, t.Controller, t.Resolution.Describe(state))).ToList();
 
         var combats = state.ActiveCombats.Select(c => new ActiveCombatDto(
             c.Id,
@@ -34,11 +38,12 @@ public static class DebugStateMapper
             ? new PriorityWindowDto(w.Kind, w.Context, w.Order, w.CurrentPriority)
             : null;
 
-        return new DebugStateDto(state.TurnNumber, state.RoundNumber, state.ActivePlayer, state.CurrentPhase.Id, cells, actors, mana, zones, state.Winner, combats, window, BuildCardCatalog(state));
+        return new DebugStateDto(state.TurnNumber, state.RoundNumber, state.ActivePlayer, state.CurrentPhase.Id, cells, actors, mana, zones, past, pending, future, state.Winner, combats, window, BuildCardCatalog(state));
     }
 
     /// <summary>Every card definition referenced anywhere in the match right now (hand, library,
-    /// or on the board) — enough for the client to show a hand card's mana cost and effect text.</summary>
+    /// discard, or on the board) — enough for the client to show a card's mana cost and effect
+    /// text without a second round trip, including a discarded card that's left every other zone.</summary>
     private static IReadOnlyList<CardCatalogEntryDto> BuildCardCatalog(TrueState state)
     {
         var ids = new SortedSet<string>(StringComparer.Ordinal);
@@ -46,6 +51,7 @@ public static class DebugStateMapper
         {
             foreach (var id in p.Hand) ids.Add(id.Value);
             foreach (var id in p.Library) ids.Add(id.Value);
+            foreach (var id in p.Discard) ids.Add(id.Value);
         }
         foreach (var a in state.AllActors.OfType<IHasCardDefinition>())
             ids.Add(a.Definition.Value);

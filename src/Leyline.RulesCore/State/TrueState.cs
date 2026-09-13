@@ -38,7 +38,22 @@ public sealed class TrueState
 
     public int CurrentPhaseIndex { get; set; }
 
-    public ResolutionStack Stack { get; } = new();
+    /// <summary>D38: the Aether's Pending zone — traces about to resolve, LIFO.</summary>
+    public PendingZone Pending { get; } = new();
+
+    /// <summary>D38: the Aether's "past" zone — resolved traces, fading after
+    /// DefaultTraceDuration rounds (ExpireFadedTracesEffect, End phase).</summary>
+    public List<PastTrace> Past { get; } = [];
+
+    /// <summary>D38: the Aether's "already instantiated but scheduled later than next" zone.
+    /// Structurally real but always empty in M1 — nothing yet pushes a trace further out than
+    /// Pending (delayed effects, a re-cast pushed forward) since no card does that.</summary>
+    public List<Trace> Future { get; } = [];
+
+    /// <summary>D50: Trace Duration placeholder — a Past trace fades this many rounds after it
+    /// resolves. The real number is still tuning-deferred; only the mechanism is locked in.</summary>
+    public const int DefaultTraceDuration = 5;
+
     public PriorityWindow? ActiveWindow { get; set; }
     public List<CombatState> ActiveCombats { get; } = [];
 
@@ -55,12 +70,12 @@ public sealed class TrueState
 
     private int _nextActorId;
     private int _nextCombatId;
-    private int _nextStackItemId;
+    private int _nextTraceId;
     private int _nextModifierId;
 
     public ActorId AllocateActorId() => new(_nextActorId++);
     public CombatId AllocateCombatId() => new(_nextCombatId++);
-    public StackItemId AllocateStackItemId() => new(_nextStackItemId++);
+    public TraceId AllocateTraceId() => new(_nextTraceId++);
     public ModifierId AllocateModifierId() => new(_nextModifierId++);
 
     public PhaseDefinition CurrentPhase => PhaseSequence[CurrentPhaseIndex];

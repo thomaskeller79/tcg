@@ -32,6 +32,13 @@ public sealed record RemoveModifierIntent(ModifierId Modifier) : EventIntent;
 
 public sealed record CardDrawnIntent(PlayerId Player, CardDefinitionId Card) : EventIntent;
 public sealed record HandCardRemovedIntent(PlayerId Player, CardDefinitionId Card) : EventIntent;
+
+/// <summary>D37: a card discharges into Discard — the Mind domain's "past" zone — the instant
+/// it's cast, fully decoupled from whatever happens later to the permanent it produces.</summary>
+public sealed record CardDischargedIntent(PlayerId Player, CardDefinitionId Card) : EventIntent;
+
+/// <summary>D50: a Past trace's Duration has elapsed — it fades out of the Aether entirely.</summary>
+public sealed record TraceFadedIntent(TraceId Trace) : EventIntent;
 public sealed record CreatureSummonedIntent(ActorId NewActor, PlayerId Owner, CardDefinitionId Definition, HexCoord Position) : EventIntent;
 public sealed record HealIntent(ActorId Target, int Amount) : EventIntent;
 public sealed record NetworkCollapsedIntent(ActorId Champion) : EventIntent;

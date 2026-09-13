@@ -484,10 +484,90 @@ function renderPanel(panelKey) {
   }
 }
 
+/// Normalizes View's {libraries,hands,discards} (per-observer, redacted) and DebugStateDto's
+/// {zones:[{player,library,hand,discard}]} (true state, unredacted) into one shape so the Mind
+/// panel renderer doesn't care which source it's looking at.
+function mindZonesFrom(data, isTrue) {
+  if (isTrue) {
+    return data.zones.map(z => ({
+      player: z.player, libraryCount: z.library.length, libraryCards: z.library,
+      handCount: z.hand.length, handCards: z.hand, discard: z.discard,
+    }));
+  }
+  const discardByPlayer = new Map(data.discards.map(d => [d.player.value, d.cards]));
+  return data.libraries.map(lib => ({
+    player: lib.player, libraryCount: lib.count, libraryCards: lib.cards,
+    handCount: data.hands.find(h => h.player.value === lib.player.value)?.count ?? 0,
+    handCards: data.hands.find(h => h.player.value === lib.player.value)?.cards ?? null,
+    discard: discardByPlayer.get(lib.player.value) ?? [],
+  }));
+}
+
+function cardListText(cards) {
+  return cards && cards.length ? cards.map(c => cardChipText(c.value ?? c)).join(', ') : '—';
+}
+
+/// Mind domain (Hand/Library/Discard, D37): one row per player, each zone showing count-and-
+/// contents-if-visible for Library/Hand (redacted per D7/mirrored for Library) and always-visible
+/// contents for Discard (public by design, no redaction rule exists for it).
+function renderMindPanel(panelKey) {
+  const isTrue = panelKey === 'true';
+  const data = isTrue ? cache.trueState : cache.view[panelKey];
+  if (!data) return;
+  const idPrefix = isTrue ? 'mind-true' : `mind-p${panelKey}`;
+  const zones = mindZonesFrom(data, isTrue);
+
+  const libraryEl = document.querySelector(`#${idPrefix} .library`);
+  const handEl = document.querySelector(`#${idPrefix} .hand`);
+  const discardEl = document.querySelector(`#${idPrefix} .discard`);
+  if (!libraryEl || !handEl || !discardEl) return;
+
+  libraryEl.innerHTML = zones.map(z =>
+    `<div><strong>P${z.player.value} Library</strong> (${z.libraryCount}): ${cardListText(z.libraryCards)}</div>`).join('');
+  handEl.innerHTML = zones.map(z =>
+    `<div><strong>P${z.player.value} Hand</strong> (${z.handCount}): ${cardListText(z.handCards)}</div>`).join('');
+  discardEl.innerHTML = zones.map(z =>
+    `<div><strong>P${z.player.value} Discard</strong> (${z.discard.length}): ${cardListText(z.discard)}</div>`).join('');
+}
+
+function traceLine(t) {
+  return `<div>${t.description}</div>`;
+}
+
+function pastTraceLine(t) {
+  return `<div>${t.description} <span class="fade-note">(round ${t.createdAtRound}, fades round ${t.fadesAtRound})</span></div>`;
+}
+
+/// Aether domain (Past/Pending/Future, D38): one shared timeline, not per-player — Now is a
+/// marker between Past and Pending, not a zone of its own. Fully public in M1 (nothing hidden,
+/// e.g. a Trap, exists yet), so all three sub-panels show the same content today; per-observer
+/// redaction is a future concern once hidden trace content exists.
+function renderAetherPanel(panelKey) {
+  const isTrue = panelKey === 'true';
+  const data = isTrue ? cache.trueState : cache.view[panelKey];
+  if (!data) return;
+  const idPrefix = isTrue ? 'aether-true' : `aether-p${panelKey}`;
+  const el = document.querySelector(`#${idPrefix} .aether-timeline`);
+  if (!el) return;
+
+  const past = [...data.past].sort((a, b) => b.createdAtRound - a.createdAtRound);
+  const pending = [...data.pending].reverse(); // top of Pending (next to resolve) first
+
+  el.innerHTML =
+    `<div class="aether-zone"><strong>Past</strong>${past.length ? past.map(pastTraceLine).join('') : '<div class="empty">—</div>'}</div>` +
+    `<div class="now-marker">— Now —</div>` +
+    `<div class="aether-zone"><strong>Pending</strong>${pending.length ? pending.map(traceLine).join('') : '<div class="empty">—</div>'}</div>` +
+    `<div class="aether-zone"><strong>Future</strong>${data.future.length ? data.future.map(traceLine).join('') : '<div class="empty">—</div>'}</div>`;
+}
+
 function renderAllPanels() {
   renderPanel(1);
   renderPanel(2);
   renderPanel('true');
+  for (const key of [1, 2, 'true']) {
+    renderMindPanel(key);
+    renderAetherPanel(key);
+  }
 }
 
 async function refreshAll() {

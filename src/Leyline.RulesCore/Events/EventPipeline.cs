@@ -43,7 +43,7 @@ public sealed class EventPipeline
         foreach (var subscriber in _subscribers)
         {
             if (subscriber.ListensFor(evt, state))
-                state.Stack.Push(subscriber.CreateResponse(evt, state));
+                state.Pending.Push(subscriber.CreateResponse(evt, state));
         }
     }
 
@@ -100,6 +100,8 @@ public sealed class EventPipeline
         RemoveModifierIntent r => new RemoveModifierEvent(r.Modifier),
         CardDrawnIntent c => new CardDrawnEvent(c.Player, c.Card),
         HandCardRemovedIntent h => new HandCardRemovedEvent(h.Player, h.Card),
+        CardDischargedIntent c => new CardDischargedEvent(c.Player, c.Card),
+        TraceFadedIntent t => new TraceFadedEvent(t.Trace),
         CreatureSummonedIntent s => new CreatureSummonedEvent(s.NewActor, s.Owner, s.Definition, s.Position),
         HealIntent h => new HealEvent(h.Target, h.Amount),
         NetworkCollapsedIntent n => new NetworkCollapsedEvent(n.Champion),

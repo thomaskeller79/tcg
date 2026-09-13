@@ -24,6 +24,22 @@ public sealed record PlayerManaView(PlayerId Player, int? Mana);
 /// there; Cards is populated only for the observer's own hand (null for the opponent's).</summary>
 public sealed record HandView(PlayerId Player, int Count, IReadOnlyList<CardDefinitionId>? Cards);
 
+/// <summary>Mirrors HandView's redaction shape — Count public, order/contents only for the
+/// observer's own Library (glossary: the Mind domain's "future" zone).</summary>
+public sealed record LibraryView(PlayerId Player, int Count, IReadOnlyList<CardDefinitionId>? Cards);
+
+/// <summary>D37: Discard — the Mind domain's "past" zone — is fully public (matches the genre
+/// convention for a discard/graveyard-shaped zone; no rule hides it), so unlike Hand/Library
+/// there's no per-observer redaction here.</summary>
+public sealed record DiscardView(PlayerId Player, IReadOnlyList<CardDefinitionId> Cards);
+
+/// <summary>A queued (Pending) or scheduled-later (Future) Aether trace, projected for display.
+/// Fully public in M1 — nothing hidden (a Trap, D6) exists yet to redact.</summary>
+public sealed record TraceView(TraceId Id, PlayerId Controller, string Description);
+
+/// <summary>A resolved trace sitting in Past, with its fade window (D50).</summary>
+public sealed record PastTraceView(TraceId Id, PlayerId Controller, string Description, int CreatedAtRound, int FadesAtRound);
+
 public sealed record View(
     PlayerId Observer,
     int TurnNumber,
@@ -34,6 +50,11 @@ public sealed record View(
     IReadOnlyList<ActorView> Actors,
     IReadOnlyList<PlayerManaView> Mana,
     IReadOnlyList<HandView> Hands,
+    IReadOnlyList<LibraryView> Libraries,
+    IReadOnlyList<DiscardView> Discards,
+    IReadOnlyList<PastTraceView> Past,
+    IReadOnlyList<TraceView> Pending,
+    IReadOnlyList<TraceView> Future,
     PlayerId? Winner,
     bool AwaitingYourPriority);
 

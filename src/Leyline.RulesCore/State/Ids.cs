@@ -18,10 +18,10 @@ public readonly record struct CombatId(int Value) : IComparable<CombatId>
     public override string ToString() => $"C{Value}";
 }
 
-public readonly record struct StackItemId(int Value) : IComparable<StackItemId>
+public readonly record struct TraceId(int Value) : IComparable<TraceId>
 {
-    public int CompareTo(StackItemId other) => Value.CompareTo(other.Value);
-    public override string ToString() => $"S{Value}";
+    public int CompareTo(TraceId other) => Value.CompareTo(other.Value);
+    public override string ToString() => $"T{Value}";
 }
 
 public readonly record struct ModifierId(int Value) : IComparable<ModifierId>

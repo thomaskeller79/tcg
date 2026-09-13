@@ -34,15 +34,19 @@ public sealed record ActiveCombatDto(
     ActorId? UndefendedTarget,
     CombatPhase Phase);
 
-public sealed record PriorityWindowDto(PriorityWindowKind Kind, CombatId Context, IReadOnlyList<PlayerId> Order, PlayerId CurrentPriority);
+public sealed record PriorityWindowDto(PriorityWindowKind Kind, object Context, IReadOnlyList<PlayerId> Order, PlayerId CurrentPriority);
 
-/// <summary>Unlike View's HandView (which redacts the opponent's hand contents, D7), the true
-/// state panel shows everything — Cards is always populated for both players here.</summary>
-public sealed record DebugZonesDto(PlayerId Player, IReadOnlyList<CardDefinitionId> Library, IReadOnlyList<CardDefinitionId> Hand);
+/// <summary>Unlike View's HandView/LibraryView (which redact the opponent's contents, D7), the
+/// true state panel shows everything — Library/Hand are always fully populated for both players
+/// here. Discard is unredacted in every view (D37 — it's public by design, not just here).</summary>
+public sealed record DebugZonesDto(PlayerId Player, IReadOnlyList<CardDefinitionId> Library, IReadOnlyList<CardDefinitionId> Hand, IReadOnlyList<CardDefinitionId> Discard);
 
 /// <summary>The deliberate exception to "never hand out true state" (LocalHost's own doc
 /// comment) — eyeballing perceived-vs-true state is M1.5's stated exit criterion, so this
-/// reads TrueState directly rather than going through a per-observer View.</summary>
+/// reads TrueState directly rather than going through a per-observer View. Past/Pending/Future
+/// reuse Perception's own TraceView/PastTraceView — the Aether domain is fully public in M1
+/// (nothing hidden, e.g. a Trap, exists yet), so the true-state shape and every observer's own
+/// View shape are identical for these three fields.</summary>
 public sealed record DebugStateDto(
     int TurnNumber,
     int RoundNumber,
@@ -52,6 +56,9 @@ public sealed record DebugStateDto(
     IReadOnlyList<DebugActorDto> Actors,
     IReadOnlyList<PlayerManaView> Mana,
     IReadOnlyList<DebugZonesDto> Zones,
+    IReadOnlyList<PastTraceView> Past,
+    IReadOnlyList<TraceView> Pending,
+    IReadOnlyList<TraceView> Future,
     PlayerId? Winner,
     IReadOnlyList<ActiveCombatDto> ActiveCombats,
     PriorityWindowDto? ActiveWindow,
