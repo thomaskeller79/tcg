@@ -2,7 +2,7 @@
 
 *The full resource model in one place. There are **two** resources — mana and Activation Points — and the same shape — "mana access + a private action budget" — repeats for every actor, **including the Champion and the Companion**. Learn it once, it applies everywhere (pillar 3).*
 
-**Decisions:** D8 (terrain/mana), D9 (Champion economy), D10 (Action Points), D15 (Defend cost), D22 (Companion), D45 (Speed), D47 (Activation Capacity), D48 (first-player AP), D49 (Champion/Companion Attack), D57 (summoning sickness), D58 (Activation Points) — `history/decisions.md`
+**Decisions:** D8 (terrain/mana), D9 (Champion economy), D10 (Action Points), D15 (Defend cost), D22 (Companion), D45 (Speed), D47 (Activation Capacity), D48 (first-player AP), D49 (Champion/Companion Attack), D57 (summoning sickness), D58 (Activation Points), D65 (Defend once per round) — `history/decisions.md`
 
 ---
 
@@ -66,8 +66,8 @@ Speed governs *when* a card/ability may be played; `!`/`*` still govern *how its
 
 The `x!!AP` ("double-exhaust") idea remains a proposed-not-adopted alternative — see `history/playtest-variants.md`.
 
-### Defending (D15)
-Defending costs **`0*AP`** — free, but at most once per turn per actor, via the same `*` once-per-turn flavor as Bond/Draw. Completely decoupled from remaining AP in both directions. `cannot defend` remains an occasional negative keyword. A card can still deliberately spend a creature's Defend for the turn as part of a strong ability's own effect (the MTG "tap cost" flavor) — explicit card-level data, not a base-rule exception. Rejected alternatives and the bug that ruled them out: `history/decisions.md` D15, `history/playtest-variants.md`.
+### Defending (D15, D65)
+Defending costs **`0*AP`** — free, but at most **once per round** per actor, completely decoupled from remaining AP in both directions. This is the one exception to the plain `*` flavor's "once per turn": with Neutral turns (D60) putting up to four turns in a round, "once per turn" would let a single creature defend up to four times a round, well beyond what the cap was calibrated for — once per round keeps total defensive capacity stable regardless of how many turns fall in a round. The reset point is still the controller's own turn-start, the same cadence AP already refreshes on — for a player that's their own one turn per round as before; for a Neutral permanent, its assigned neutral turn. `cannot defend` remains an occasional negative keyword. A card can still deliberately spend a creature's Defend for the round as part of a strong ability's own effect (the MTG "tap cost" flavor) — explicit card-level data, not a base-rule exception. Rejected alternatives and the bug that ruled out the original toggle: `history/decisions.md` D15, D65, `history/playtest-variants.md`.
 
 ## Champion AP — the same model as a creature (D9)
 The Champion **has an AP value and spends it directly**, exactly like a creature — one movement/combat/action query for every entity, no gating resource and no second combat model. The Champion's specific action costs (draw/bond/move/abilities) differ from a plain creature's defaults and live in `champions.md`; its **Attack cost matches the generic Actor default** (`3!AP` doubled to `6!AP` while network-bonded, D49) — same for Companion. **First-player asymmetry (D48):** the Champion of the player going first enters with reduced starting AP (placeholder 4) instead of its full Activation Points; the second player's Champion enters at full Activation Points.
