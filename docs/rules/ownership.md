@@ -49,6 +49,10 @@ Removing an inner node breaks the chain for all of its successors:
 
 Champion death isn't an inner-node case — it ends the match outright (D9). Structure and Item never have children under the present design (nothing attaches to a Structure; nothing attaches to an Item).
 
+## Control changes and occupancy (D66)
+
+A hex-level's occupants must all share one controller (`overview.md` §2). Any effect that reassigns a permanent's controller — "gain control of target creature," "target creature becomes Neutral," or any other control-change effect, targeted or not — rechecks this at resolution: if completing it would leave a level with occupants under different controllers, the effect **fails to complete instead (fizzles)**, the same way an illegal target fizzles rather than countering a whole spell (D33). Paid cost is never refunded. A card may still choose to restrict its own targeting as a courtesy (e.g. "target creature that is alone on its hex-level") — this is never required, and can only ever be a hint, not a guarantee, since a hidden creature sharing that level may be invisible to the caster.
+
 ## Paying a cost
 
 A cost is paid by the **nearest node — starting at the entity itself — that directly holds that resource** (the payment walk above, not the controller walk):
@@ -70,7 +74,7 @@ A Companion funds everything in its own subtree (creatures it produces, terrain/
 Every eligible actor gets a generic ability, **`2AP: Equip target Item sharing this location`** (tuning baseline), plus its inverse, **`0AP: Un-equip`** (D30 — free and uncapped, drops the Item back to loose on the actor's current hex). An unequipped Item has no usable ability at all, so there is never a "who funds a loose item" question. Both are removable/re-priceable per creature (pillar 5); stealing an item is a costed action via the same Equip ability; exclusivity (one holder at a time) falls out automatically since an equipped Item has exactly one parent.
 
 ## Invariant vs. mutable
-- **Invariant:** every non-Champion entity has at most one parent; a creature never parents another creature or structure (unless a card reassigns it, D55); a Companion is a root only when Neutral (D55); Activation Points and Life are always self-paid (D58); mana never crosses two different payers' pools; removing an inner node breaks payment *and* controller for its successors; every permanent's controller resolves to exactly Player A, Player B, or Neutral (D54).
+- **Invariant:** every non-Champion entity has at most one parent; a creature never parents another creature or structure (unless a card reassigns it, D55); a Companion is a root only when Neutral (D55); Activation Points and Life are always self-paid (D58); mana never crosses two different payers' pools; removing an inner node breaks payment *and* controller for its successors; every permanent's controller resolves to exactly Player A, Player B, or Neutral (D54); a control-change effect that would leave a hex-level's occupants under different controllers fails to complete instead (D66).
 - **Mutable (card-driven):** which node pays a given cost (a card may name the controller explicitly), whether a creature has the Equip ability at all and at what cost, per-item equip surcharges, cards that add new ways to interrupt/unbond terrain, cards that reassign a Creature/Companion's parent or make a Companion Neutral.
 
 ## What an uncontrolled (Neutral) permanent does
