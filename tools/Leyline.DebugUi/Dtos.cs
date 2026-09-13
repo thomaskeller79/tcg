@@ -3,10 +3,10 @@ using Leyline.RulesCore.State;
 
 namespace Leyline.DebugUi;
 
-/// <summary>Kind is the command's role ("Move"/"Attack"/"Bond"/"Draw"/"CastCreature"/"CastRite"/
+/// <summary>Kind is the command's role ("Move"/"Attack"/"Bond"/"Draw"/"CastCreature"/"CastSpell"/
 /// else the C# type name). ActorId/TargetHex are populated for Move/Attack (and TargetHex also
-/// for CastCreature); Card is populated for CastCreature/CastRite; TargetActorId is populated
-/// for CastRite (the actor it would hit) — see CommandLabeler.ToDto.</summary>
+/// for CastCreature); Card is populated for CastCreature/CastSpell; TargetActorId is populated
+/// for CastSpell (the actor it would hit) — see CommandLabeler.ToDto.</summary>
 public sealed record LegalCommandDto(int Index, string Label, string Kind, int? ActorId, HexCoord? TargetHex, string? Card, int? TargetActorId = null);
 
 /// <summary>Public card-printing info (name/type/cost/stats/effect) for every card definition
@@ -19,9 +19,9 @@ public sealed record SubmitRequest(int Seat, int Index);
 
 public sealed record SubmitResultDto(bool Accepted, string? RejectionReason);
 
-public sealed record DebugCellDto(HexCoord Coord, string? Terrain, IReadOnlyList<ActorId> Ground, IReadOnlyList<ActorId> Below, IReadOnlyList<ActorId> Above, PlayerId? NetworkOwner, bool NetworkProducing);
+public sealed record DebugCellDto(HexCoord Coord, string? Terrain, IReadOnlyList<ActorId> Surface, IReadOnlyList<ActorId> Underground, IReadOnlyList<ActorId> Air, PlayerId? NetworkOwner, bool NetworkProducing);
 
-public sealed record DebugActorDto(ActorId Id, PlayerId Owner, string Name, string Kind, int Attack, int Life, int MaxLife, int CurrentAp, int MaxAp, IReadOnlyList<string> AbilityIds, HexCoord Position, Layer Layer);
+public sealed record DebugActorDto(ActorId Id, PlayerId Owner, string Name, string Kind, int Attack, int Life, int MaxLife, int CurrentAp, int MaxAp, IReadOnlyList<string> AbilityIds, HexCoord Position, Level Level);
 
 public sealed record DamageAssignmentEntryDto(ActorId Defender, int Amount);
 
@@ -45,7 +45,8 @@ public sealed record DebugZonesDto(PlayerId Player, IReadOnlyList<CardDefinition
 /// reads TrueState directly rather than going through a per-observer View.</summary>
 public sealed record DebugStateDto(
     int TurnNumber,
-    PlayerId ActivePlayer,
+    int RoundNumber,
+    PlayerId? ActivePlayer,
     string CurrentPhase,
     IReadOnlyList<DebugCellDto> Cells,
     IReadOnlyList<DebugActorDto> Actors,

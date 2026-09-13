@@ -8,12 +8,16 @@ namespace Leyline.RulesCore.Turns;
 /// uniform across Creature and Champion (both IHasCardDefinition; ResolveMaxAp already
 /// resolves to 0 for anything without a CardDefinition, so this needs no type-check). A
 /// defender's AP outside their own turn carries over from their last refresh — no
-/// special-casing needed, since this only touches the active player's actors.</summary>
+/// special-casing needed, since this only touches the active player's actors. A neutral turn
+/// (D60, ActivePlayer null) is a no-op here until Neutral permanents exist to hold their own
+/// Activation Points.</summary>
 public sealed class RefreshApEffect : IPhaseEffect
 {
     public IEnumerable<EventIntent> Apply(TrueState state)
     {
-        foreach (var actor in state.ActorsOwnedBy(state.ActivePlayer))
+        if (state.ActivePlayer is not PlayerId activePlayer)
+            yield break;
+        foreach (var actor in state.ActorsOwnedBy(activePlayer))
             yield return new ApChangeIntent(actor.Id, Query.ResolveMaxAp(actor.Id, state));
     }
 }

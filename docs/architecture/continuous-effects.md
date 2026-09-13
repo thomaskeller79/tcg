@@ -18,9 +18,9 @@ Card-game design vocabulary (borrowed from MTG) splits effects into two shapes: 
 
 **Replacement effects** — a third axis, for intercepting an *event* before it applies ("if this would take damage, prevent it"). `IReplacementEffect` (`Events/IReplacementEffect.cs`) is wired into `EventPipeline.FoldReplacements`. "X becomes Y" *sounds* like a replacement ("attack becomes 0") but isn't one — it's a continuous answer to a query, not an interception of an event.
 
-## Worked example: two Rites on a 2/2/6 creature
+## Worked example: two Spells on a 2/2/6 creature
 
-Scenario: a 2/2/6 creature (Attack/Life/AP). Ally casts a Rite: *"target creature gains 1 attack until end of turn and 2 life (permanently)."* Opponent then casts a Rite: *"target creature's attack becomes 0 and its life becomes 1."*
+Scenario: a 2/2/6 creature (Attack/Life/AP). Ally casts a Spell: *"target creature gains 1 attack until end of turn and 2 life (permanently)."* Opponent then casts a Spell: *"target creature's attack becomes 0 and its life becomes 1."*
 
 - **+1 Attack until end of turn** → a new `IQueryModifier<int>` instance (`QueryKind="Attack"`, `Resolve(ctx, current, state) => current + 1`), added to `ActiveModifiers`, removed at end of turn.
 - **+2 Life, permanent** → a new `HealEvent` (mirrors `DamageEvent`, opposite sign), applied once, done. No modifier, no expiration.
@@ -46,4 +46,4 @@ No escape hatch for "this effect applies before others regardless of order" exis
 
 ## Item and Structure/Building
 
-The base `ActorState` shape (Slice-2 pattern: reuse Combat, board occupancy, and destruction with no changes) extends to Structure the same way it extended to Champion — see `structures-items.md`/`ownership.md` for the current Structure/Item design; this doc covers only the modifier-system mechanics those types build on. Equipping an Item registers an `IQueryModifier` on the carrier; unequipping removes it — the first real non-Rite consumer of the modifier layer described above.
+The base `ActorState` shape (Slice-2 pattern: reuse Combat, board occupancy, and destruction with no changes) extends to Structure the same way it extended to Champion — see `structures-items.md`/`ownership.md` for the current Structure/Item design; this doc covers only the modifier-system mechanics those types build on. Equipping an Item registers an `IQueryModifier` on the carrier; unequipping removes it — the first real non-Spell consumer of the modifier layer described above.

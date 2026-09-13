@@ -8,11 +8,11 @@ namespace Leyline.RulesCore.Perception;
 /// never auto-heals, D14) and MaxAp (the effective max CurrentAp refills to every Beginning
 /// phase, Query.ResolveMaxAp). Attack has no separate base/current split — it's never stored,
 /// always freshly resolved via Query.ResolveAttack, so this one value already is "current."</summary>
-public sealed record ActorView(ActorId Id, PlayerId Owner, string Name, string Kind, int Attack, int Life, int MaxLife, int CurrentAp, int MaxAp, IReadOnlyList<string> AbilityIds, HexCoord Position, Layer Layer);
+public sealed record ActorView(ActorId Id, PlayerId Owner, string Name, string Kind, int Attack, int Life, int MaxLife, int CurrentAp, int MaxAp, IReadOnlyList<string> AbilityIds, HexCoord Position, Level Level);
 
 /// <summary>NetworkOwner/NetworkProducing: D8's mana network is public info (needed for
 /// positional denial), so this is never redacted per-observer — null means unbonded.</summary>
-public sealed record CellView(HexCoord Coord, string? Terrain, IReadOnlyList<ActorId> Ground, IReadOnlyList<ActorId> Below, IReadOnlyList<ActorId> Above, PlayerId? NetworkOwner, bool NetworkProducing);
+public sealed record CellView(HexCoord Coord, string? Terrain, IReadOnlyList<ActorId> Surface, IReadOnlyList<ActorId> Underground, IReadOnlyList<ActorId> Air, PlayerId? NetworkOwner, bool NetworkProducing);
 
 /// <summary>D18's resource border: the mana *network* (bonded/producing terrain) is public,
 /// but the live mana *balance* is the one deliberately-hidden standing quantity — Mana is only
@@ -27,7 +27,8 @@ public sealed record HandView(PlayerId Player, int Count, IReadOnlyList<CardDefi
 public sealed record View(
     PlayerId Observer,
     int TurnNumber,
-    PlayerId ActivePlayer,
+    int RoundNumber,
+    PlayerId? ActivePlayer,
     string CurrentPhase,
     IReadOnlyList<CellView> Cells,
     IReadOnlyList<ActorView> Actors,

@@ -20,7 +20,7 @@ public static class CommandLabeler
         DrawCardCommand => "Draw a card",
         CollapseNetworkCommand => "Collapse the leyline network",
         CastCreatureCommand c => $"Cast {c.Card} -> {c.Target}",
-        CastRiteCommand c => $"Cast {c.Card} -> target {c.Target}",
+        CastSpellCommand c => $"Cast {c.Card} -> target {c.Target}",
         _ => command.GetType().Name,
     };
 
@@ -29,8 +29,8 @@ public static class CommandLabeler
     /// tests TargetHex directly. Bond/Draw get short Kind tags too (no ActorId — they're
     /// PlayerId-scoped commands, but the UI attributes them to "the selected Champion" since
     /// there's exactly one per player) so selecting a Champion surfaces them as its abilities,
-    /// same as Move/Attack for a selected Creature. CastCreature/CastRite carry Card, so
-    /// selecting a card in hand works the same way; CastRite also carries TargetActorId so the
+    /// same as Move/Attack for a selected Creature. CastCreature/CastSpell carry Card, so
+    /// selecting a card in hand works the same way; CastSpell also carries TargetActorId so the
     /// client can label each option with the actor it would hit. Everything else (EndPhase,
     /// Pass, combat decisions) stays a global, always-shown action — it isn't tied to one
     /// selected thing.</summary>
@@ -42,7 +42,7 @@ public static class CommandLabeler
         DrawCardCommand => new LegalCommandDto(index, Describe(command), "Draw", null, null, null),
         CollapseNetworkCommand => new LegalCommandDto(index, Describe(command), "Collapse", null, null, null),
         CastCreatureCommand c => new LegalCommandDto(index, Describe(c), "CastCreature", null, c.Target, c.Card.Value),
-        CastRiteCommand c => new LegalCommandDto(index, Describe(c), "CastRite", null, null, c.Card.Value, c.Target.Value),
+        CastSpellCommand c => new LegalCommandDto(index, Describe(c), "CastSpell", null, null, c.Card.Value, c.Target.Value),
         _ => new LegalCommandDto(index, Describe(command), command.GetType().Name, null, null, null),
     };
 }

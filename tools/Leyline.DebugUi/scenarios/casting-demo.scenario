@@ -7,8 +7,8 @@ board 4x4
 
 card test.champion Champion "Champion" attack=2 life=15 ap=7 abilities=core.move,core.attack,champion.bond,champion.draw,champion.collapse
 card test.grunt Creature "Grunt" attack=3 life=5 ap=3 mana=2 abilities=core.move,core.attack
-card test.firebolt Rite "Firebolt" mana=1 effect=damage amount=3
-card test.mend Rite "Mend" mana=1 effect=heal amount=4
+card test.firebolt Spell "Firebolt" mana=1 effect=damage amount=3
+card test.mend Spell "Mend" mana=1 effect=heal amount=4
 
 champion P1 test.champion 0,0
 champion P2 test.champion 3,3

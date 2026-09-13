@@ -7,25 +7,25 @@ using Leyline.RulesCore.Tests.TestSupport;
 
 namespace Leyline.RulesCore.Tests.Perception;
 
-public class HiddenLayerTests
+public class HiddenLevelTests
 {
     [Fact]
     public void A_submerged_creature_is_hidden_from_the_opponents_view()
     {
-        var match = HiddenLayerFixtures.GroundVsBelow();
+        var match = HiddenLevelFixtures.SurfaceVsUnderground();
         var hidden = match.State.ActorsOwnedBy(Fixtures.P2).Single();
 
         var opponentView = ViewProjector.Project(match.State, Fixtures.P1);
 
         Assert.DoesNotContain(opponentView.Actors, a => a.Id == hidden.Id);
         var cell = opponentView.Cells.Single(c => c.Coord == hidden.Position);
-        Assert.Empty(cell.Below);
+        Assert.Empty(cell.Underground);
     }
 
     [Fact]
     public void A_submerged_creature_is_visible_in_its_owners_own_view()
     {
-        var match = HiddenLayerFixtures.GroundVsBelow();
+        var match = HiddenLevelFixtures.SurfaceVsUnderground();
         var hidden = match.State.ActorsOwnedBy(Fixtures.P2).Single();
 
         var ownerView = ViewProjector.Project(match.State, Fixtures.P2);
@@ -36,7 +36,7 @@ public class HiddenLayerTests
     [Fact]
     public void The_opponent_cannot_target_a_concealed_submerged_creature()
     {
-        var match = HiddenLayerFixtures.GroundVsBelow();
+        var match = HiddenLevelFixtures.SurfaceVsUnderground();
         var attacker = match.State.ActorsOwnedBy(Fixtures.P1).Single();
 
         var legalAttacks = Query.ResolveLegalAttackTargets(attacker.Id, match.State);
@@ -45,9 +45,9 @@ public class HiddenLayerTests
     }
 
     [Fact]
-    public void Attacking_from_Below_reveals_the_attacker_to_the_opponent()
+    public void Attacking_from_Underground_reveals_the_attacker_to_the_opponent()
     {
-        var match = HiddenLayerFixtures.GroundVsBelow();
+        var match = HiddenLevelFixtures.SurfaceVsUnderground();
         var submerged = match.State.ActorsOwnedBy(Fixtures.P2).Single();
         var groundTarget = match.State.ActorsOwnedBy(Fixtures.P1).Single();
 
@@ -62,7 +62,7 @@ public class HiddenLayerTests
     [Fact]
     public void Moving_away_re_conceals_a_revealed_submerged_creature()
     {
-        var match = HiddenLayerFixtures.GroundVsBelow();
+        var match = HiddenLevelFixtures.SurfaceVsUnderground();
         var submerged = match.State.ActorsOwnedBy(Fixtures.P2).Single();
         var groundTarget = match.State.ActorsOwnedBy(Fixtures.P1).Single();
 

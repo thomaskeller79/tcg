@@ -86,8 +86,8 @@ public class CastCreatureTests
         var p1 = match.State.Players.Single(p => p.Id == Fixtures.P1);
         Assert.Equal(1, p1.Mana);
 
-        p1.Hand.Add(SpellFixtures.Firebolt); // 1 mana Rite — cheap enough to prove the real-mana path end to end
-        var result = RulesEngine.Apply(match, new CastRiteCommand(Fixtures.P1, SpellFixtures.Firebolt, match.State.ActorsOwnedBy(Fixtures.P2).Single().Id));
+        p1.Hand.Add(SpellFixtures.Firebolt); // 1 mana Spell — cheap enough to prove the real-mana path end to end
+        var result = RulesEngine.Apply(match, new CastSpellCommand(Fixtures.P1, SpellFixtures.Firebolt, match.State.ActorsOwnedBy(Fixtures.P2).Single().Id));
 
         Assert.True(result.Accepted);
         Assert.Equal(0, p1.Mana);

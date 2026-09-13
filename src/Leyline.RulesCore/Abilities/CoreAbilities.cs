@@ -6,9 +6,11 @@ public static class CoreAbilities
     public const string Move = "core.move";
     public const string Attack = "core.attack";
 
-    /// <summary>D15 (resolved 2026-08-09): Defend's once-per-turn tracking key — costs `0*AP`
-    /// (Query.CanUseOncePerTurnAction), same `*` flavor as Bond/Draw. Not gated through
-    /// AbilityIds like Move/Attack: every actor can defend by default (D10), so this constant
-    /// only exists as the OncePerTurnActionsUsed key, not a presence check.</summary>
+    /// <summary>D15/D65: Defend's once-per-round tracking key — costs `0*AP`
+    /// (Query.CanUseOncePerTurnAction), same `*` flavor as Bond/Draw, but reset only on the
+    /// controller's own turn (ResetOncePerTurnActionsEffect), which with Neutral turns (D60) in
+    /// the cycle now comes around once per round rather than once per engine turn. Not gated
+    /// through AbilityIds like Move/Attack: every actor can defend by default (D10), so this
+    /// constant only exists as the OncePerTurnActionsUsed key, not a presence check.</summary>
     public const string Defend = "core.defend";
 }

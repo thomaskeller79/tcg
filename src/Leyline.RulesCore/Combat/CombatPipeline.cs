@@ -28,9 +28,9 @@ public static class CombatPipeline
         events.AddRange(pipeline.Process(new ApChangeIntent(cmd.Attacker, cost.Apply(attacker.CurrentAp)), state));
         events.AddRange(pipeline.Process(new CombatDeclaredIntent(combatId, cmd.Attacker, cmd.TargetHex), state));
 
-        // D19 (provisional): declaring an attack from Below surfaces the attacker — it stays
+        // D19 (provisional): declaring an attack from Underground surfaces the attacker — it stays
         // located on this hex until it moves away (RulesEngine.ApplyMove re-conceals it).
-        if (attacker.Layer == Layer.Below)
+        if (attacker.Level == Level.Underground)
             events.AddRange(pipeline.Process(new ActorRevealedIntent(cmd.Attacker), state));
 
         return CommandResult.Accept(events);
@@ -50,7 +50,7 @@ public static class CombatPipeline
 
         // No visibility gate here: a player always knows about their own creatures, hidden or
         // not — concealment (D19) limits what the OPPONENT can target, not the owner's choices.
-        var hexOccupants = state.Board.GetCell(combat.TargetHex).GroundAndBelowOccupants.ToList();
+        var hexOccupants = state.Board.GetCell(combat.TargetHex).SurfaceAndUndergroundOccupants.ToList();
         foreach (var defenderId in cmd.Defenders)
         {
             var defender = state.GetActor(defenderId);
@@ -114,7 +114,7 @@ public static class CombatPipeline
         if (cmd.Actor != attackerOwner)
             return CommandResult.Reject("Only the attacker chooses the undefended target.");
 
-        var hexOccupants = state.Board.GetCell(combat.TargetHex).GroundAndBelowOccupants.ToList();
+        var hexOccupants = state.Board.GetCell(combat.TargetHex).SurfaceAndUndergroundOccupants.ToList();
         if (!hexOccupants.Contains(cmd.Target))
             return CommandResult.Reject("Target must occupy the attacked hex.");
         if (!Query.IsVisibleTo(cmd.Target, attackerOwner, state))
@@ -197,7 +197,7 @@ public static class CombatPipeline
 
     public static IReadOnlyList<DeclareDefendersCommand> LegalDefenderDeclarations(TrueState state, CombatState combat, PlayerId defendingPlayer)
     {
-        var eligible = state.Board.GetCell(combat.TargetHex).GroundAndBelowOccupants
+        var eligible = state.Board.GetCell(combat.TargetHex).SurfaceAndUndergroundOccupants
             .Where(id => state.GetActor(id).Owner == defendingPlayer && Query.CanDefend(id, state))
             .OrderBy(id => id)
             .ToList();
@@ -223,7 +223,7 @@ public static class CombatPipeline
     }
 
     public static IReadOnlyList<ChooseUndefendedTargetCommand> LegalUndefendedChoices(TrueState state, CombatState combat, PlayerId attackingPlayer) =>
-        state.Board.GetCell(combat.TargetHex).GroundAndBelowOccupants
+        state.Board.GetCell(combat.TargetHex).SurfaceAndUndergroundOccupants
             .Where(id => Query.IsVisibleTo(id, attackingPlayer, state))
             .OrderBy(id => id)
             .Select(id => new ChooseUndefendedTargetCommand(attackingPlayer, combat.Id, id))

@@ -9,8 +9,8 @@ public static class SpellFixtures
 {
     public static readonly CardDefinitionId Champion = new("test.champion");
     public static readonly CardDefinitionId Grunt = new("test.grunt");
-    public static readonly CardDefinitionId Firebolt = new("test.firebolt"); // Rite: 3 damage
-    public static readonly CardDefinitionId Mend = new("test.mend"); // Rite: 4 heal
+    public static readonly CardDefinitionId Firebolt = new("test.firebolt"); // Spell: 3 damage
+    public static readonly CardDefinitionId Mend = new("test.mend"); // Spell: 4 heal
 
     public static ICardDefinitionRepository Content() =>
         JsonCardDefinitionRepository.FromDefinitions(
@@ -20,9 +20,9 @@ public static class SpellFixtures
             new CardDefinition(Grunt, "Grunt", Attack: 3, Life: 5, MaxAp: 3,
                 AbilityIds: ["core.move", "core.attack"], Type: CardType.Creature, ManaCost: 2),
             new CardDefinition(Firebolt, "Firebolt", Attack: 0, Life: 0, MaxAp: 0,
-                AbilityIds: [], Type: CardType.Rite, ManaCost: 1, EffectId: RiteEffectIds.Damage, EffectAmount: 3),
+                AbilityIds: [], Type: CardType.Spell, ManaCost: 1, EffectId: SpellEffectIds.Damage, EffectAmount: 3),
             new CardDefinition(Mend, "Mend", Attack: 0, Life: 0, MaxAp: 0,
-                AbilityIds: [], Type: CardType.Rite, ManaCost: 1, EffectId: RiteEffectIds.Heal, EffectAmount: 4),
+                AbilityIds: [], Type: CardType.Spell, ManaCost: 1, EffectId: SpellEffectIds.Heal, EffectAmount: 4),
         ]);
 
     private static Board BoardWithTerrainAt10()

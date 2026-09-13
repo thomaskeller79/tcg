@@ -26,8 +26,8 @@ public sealed record ActorMovedEvent(ActorId Actor, HexCoord From, HexCoord To) 
         var actor = state.FindActor(Actor);
         if (actor is null)
             return;
-        state.Board.GetCell(From).LayerOf(actor.Layer).Remove(Actor);
-        state.Board.GetCell(To).LayerOf(actor.Layer).Add(Actor);
+        state.Board.GetCell(From).LevelOf(actor.Level).Remove(Actor);
+        state.Board.GetCell(To).LevelOf(actor.Level).Add(Actor);
         actor.Position = To;
     }
 }
@@ -99,12 +99,11 @@ public sealed record PhaseChangedEvent(int NewPhaseIndex) : IEvent
     public void Apply(TrueState state) => state.CurrentPhaseIndex = NewPhaseIndex;
 }
 
-public sealed record TurnAdvancedEvent(int NewTurnNumber, PlayerId NewActivePlayer) : IEvent
+public sealed record TurnAdvancedEvent(int NewTurnNumber) : IEvent
 {
     public void Apply(TrueState state)
     {
         state.TurnNumber = NewTurnNumber;
-        state.ActivePlayer = NewActivePlayer;
     }
 }
 
@@ -189,7 +188,7 @@ public sealed record CardDrawnEvent(PlayerId Player, CardDefinitionId Card) : IE
     }
 }
 
-/// <summary>Casting (Creature or Rite) removes the cast card from Hand — shared by both,
+/// <summary>Casting (Creature or Spell) removes the cast card from Hand — shared by both,
 /// since M1 doesn't track a per-instance card identity, just "one fewer of this definition."</summary>
 public sealed record HandCardRemovedEvent(PlayerId Player, CardDefinitionId Card) : IEvent
 {
@@ -210,7 +209,7 @@ public sealed record CreatureSummonedEvent(ActorId NewActor, PlayerId Owner, Car
             Owner = Owner,
             Definition = Definition,
             Position = Position,
-            Layer = Layer.Ground,
+            Level = Level.Surface,
             Located = true,
             Life = def.Life,
             CurrentAp = 0,
@@ -218,7 +217,7 @@ public sealed record CreatureSummonedEvent(ActorId NewActor, PlayerId Owner, Car
     }
 }
 
-/// <summary>The Rite-effect placeholder's "heal" half (design-continuous-effects.md flagged
+/// <summary>The Spell-effect placeholder's "heal" half (design-continuous-effects.md flagged
 /// this as not existing yet) — mirrors DamageEvent but adds. No overheal cap: nothing in the
 /// docs establishes one, and inventing an uncited rule here would be worse than leaving it open.</summary>
 public sealed record HealEvent(ActorId Target, int Amount) : IEvent

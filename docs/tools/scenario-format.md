@@ -15,17 +15,17 @@ Two players only, always named `P1`/`P2` (a codebase-wide assumption — see `Pl
 seed <int>                                  # default 0
 board <width>x<height>                      # default 4x4, a plain rectangle
 terrain <q>,<r> <name> [moveCost=<int>]     # tags one cell; default moveCost=1 (see note below)
-card <id> <Creature|Champion|Rite> "<name>" [attack=N] [life=N] [ap=N] [mana=N]
+card <id> <Creature|Champion|Spell> "<name>" [attack=N] [life=N] [ap=N] [mana=N]
      [abilities=a,b,c] [effect=damage|heal] [amount=N]
 champion <owner> <cardId> <q>,<r>
-creature <owner> <cardId> <q>,<r> [layer=Ground|Below|Above]   # default Ground
+creature <owner> <cardId> <q>,<r> [level=Surface|Air|Underground]   # default Surface
 bond <owner> <q>,<r>                        # terrain already bonded at match start
 library <owner> <cardId>[,<cardId>...]      # repeatable per player; appends
 hand <owner> <cardId>[,<cardId>...]         # repeatable per player; appends
 ```
 
 `attack`/`life`/`ap`/`mana`/`amount` default to 0 when omitted; `abilities` defaults to none.
-A `Rite` card's `attack`/`life`/`ap` are meaningless (it's never a board actor) — leave them
+A `Spell` card's `attack`/`life`/`ap` are meaningless (it's never a board actor) — leave them
 out. `effect`/`amount` are meaningless for `Creature`/`Champion` — leave them out.
 
 `library` order is the draw order (first-listed = top = next card drawn) and is never
@@ -53,7 +53,7 @@ board 4x4
 
 card test.champion Champion "Champion" attack=2 life=15 ap=7 abilities=core.move,core.attack,champion.bond,champion.draw,champion.collapse
 card test.grunt Creature "Grunt" attack=3 life=5 ap=3 mana=2 abilities=core.move,core.attack
-card test.firebolt Rite "Firebolt" mana=1 effect=damage amount=3
+card test.firebolt Spell "Firebolt" mana=1 effect=damage amount=3
 
 champion P1 test.champion 0,0
 champion P2 test.champion 3,3

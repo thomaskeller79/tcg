@@ -129,7 +129,7 @@ public class DeterminismReplayTests
         foreach (var p in state.Players.OrderBy(p => p.Id.Value))
             sb.AppendLine($"Player {p.Id} Mana={p.Mana}");
         foreach (var a in state.AllActors) // AllActors is already in canonical Id order
-            sb.AppendLine($"Actor {a.Id} Owner={a.Owner} Life={a.Life} AP={a.CurrentAp} Pos={a.Position} Layer={a.Layer} Located={a.Located}");
+            sb.AppendLine($"Actor {a.Id} Owner={a.Owner} Life={a.Life} AP={a.CurrentAp} Pos={a.Position} Level={a.Level} Located={a.Located}");
         foreach (var m in state.ActiveModifiers) // record ToString() is deterministic/value-based
             sb.AppendLine($"Modifier {m}");
         return sb.ToString();

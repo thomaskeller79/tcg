@@ -89,7 +89,7 @@ public sealed class EventPipeline
         UndefendedTargetChosenIntent u => new UndefendedTargetChosenEvent(u.Combat, u.Target),
         CombatResolvedIntent c => new CombatResolvedEvent(c.Combat),
         PhaseChangedIntent p => new PhaseChangedEvent(p.NewPhaseIndex),
-        TurnAdvancedIntent t => new TurnAdvancedEvent(t.NewTurnNumber, t.NewActivePlayer),
+        TurnAdvancedIntent t => new TurnAdvancedEvent(t.NewTurnNumber),
         BondTerrainIntent b => new TerrainBondedEvent(b.Player, b.Target),
         OncePerTurnActionUsedIntent o => new OncePerTurnActionUsedEvent(o.Actor, o.ActionId),
         OncePerTurnActionsResetIntent o => new OncePerTurnActionsResetEvent(o.Actor),

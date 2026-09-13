@@ -9,7 +9,7 @@ namespace Leyline.RulesCore.Modifiers;
 /// Minimal direct entry point for adding/removing a query modifier, following the
 /// per-subsystem pipeline pattern (Combat/Champions/Terrain). Not wired into
 /// RulesEngine.Apply — there is no Command type for it yet (that's the not-yet-designed
-/// Rite-casting pipeline's job, which will call these same primitives after its own
+/// Spell-casting pipeline's job, which will call these same primitives after its own
 /// legality/cost/targeting validation). Exists so the add/remove mechanism is independently
 /// usable and testable now.
 /// </summary>

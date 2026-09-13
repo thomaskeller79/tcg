@@ -7,9 +7,9 @@ using Leyline.RulesCore.Tests.TestSupport;
 
 namespace Leyline.RulesCore.Tests.Combat;
 
-/// <summary>D15 (resolved 2026-08-09): defending costs `0*AP` — free, but at most once per turn
-/// per actor. Supersedes the earlier Exhaust/DeleteDefendOnce config toggle; see Query.CanDefend's
-/// doc comment for why (Exhaust punished whoever attacked first with a full-round exposure gap).</summary>
+/// <summary>D15/D65: defending costs `0*AP` — free, but at most once per round per actor.
+/// Supersedes the earlier Exhaust/DeleteDefendOnce config toggle; see Query.CanDefend's doc
+/// comment for why (Exhaust punished whoever attacked first with a full-round exposure gap).</summary>
 public class DefendRuleTests
 {
     /// <summary>Two P1 attackers flanking one P2 defender, so the defender can be attacked
@@ -60,7 +60,7 @@ public class DefendRuleTests
     }
 
     [Fact]
-    public void A_creature_may_only_defend_once_per_turn()
+    public void A_creature_may_only_defend_once_per_round()
     {
         var match = TwoAttackersOneDefender();
         var attackers = match.State.ActorsOwnedBy(Fixtures.P1).ToList();
@@ -101,7 +101,10 @@ public class DefendRuleTests
 
         Assert.False(Query.CanDefend(defender.Id, match.State));
 
-        RulesEngine.Apply(match, new EndPhaseCommand(Fixtures.P1)); // -> P2's turn: Beginning resets the once-per-turn gate
+        // -> the neutral turn between P1 and P2 (auto-advanced, D60) -> P2's own turn: Beginning
+        // resets the once-per-turn gate for P2's actors, which is what makes this "once per
+        // round" (D65) rather than "once per engine turn" — see ResetOncePerTurnActionsEffect.
+        RulesEngine.Apply(match, new EndPhaseCommand(Fixtures.P1));
 
         Assert.True(Query.CanDefend(defender.Id, match.State));
     }

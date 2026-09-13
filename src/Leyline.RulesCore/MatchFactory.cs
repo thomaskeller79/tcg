@@ -5,7 +5,7 @@ using Leyline.RulesCore.Turns;
 
 namespace Leyline.RulesCore;
 
-public sealed record CreaturePlacement(PlayerId Owner, CardDefinitionId Definition, HexCoord Position, Layer Layer = Layer.Ground);
+public sealed record CreaturePlacement(PlayerId Owner, CardDefinitionId Definition, HexCoord Position, Level Level = Level.Surface);
 public sealed record ChampionPlacement(PlayerId Owner, CardDefinitionId Definition, HexCoord Position);
 
 /// <summary>Initial Library/Hand contents for one player — Library[0] is the top (next draw).
@@ -45,7 +45,6 @@ public static class MatchFactory
             PhaseSequence = StandardPhases.Sequence,
             Content = content,
             Rng = RngState.FromSeed(seed),
-            ActivePlayer = playerIds[0],
         };
 
         foreach (var setup in playerSetups ?? [])
@@ -64,8 +63,8 @@ public static class MatchFactory
                 Owner = placement.Owner,
                 Definition = placement.Definition,
                 Position = placement.Position,
-                Layer = placement.Layer,
-                Located = placement.Layer != Layer.Below, // D12: the below layer is hidden by default
+                Level = placement.Level,
+                Located = placement.Level != Level.Underground, // D12: the Underground level is hidden by default
                 Life = def.Life,
                 CurrentAp = def.MaxAp,
             };

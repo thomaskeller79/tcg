@@ -139,7 +139,7 @@ public class TerrainNetworkTests
         Assert.False(status.ContainsKey(new HexCoord(1, 0))); // never bonded — absent, not just false
 
         // Bond a second, adjacent cell and block that one to demonstrate pause — the Champion's
-        // own tile can't be enemy-occupied out from under it (CanOccupyLayer blocks enemy sharing).
+        // own tile can't be enemy-occupied out from under it (CanOccupyLevel blocks enemy sharing).
         RulesEngine.Apply(match, new EndPhaseCommand(Fixtures.P1));
         RulesEngine.Apply(match, new EndPhaseCommand(Fixtures.P2));
         RulesEngine.Apply(match, new BondTerrainCommand(Fixtures.P1, new HexCoord(1, 0)));

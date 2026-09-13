@@ -66,9 +66,10 @@ public static class InteractiveRepl
     private static void PrintView(SeatId seat, View view)
     {
         Console.WriteLine();
-        Console.WriteLine($"--- Seat {seat.Value} | Turn {view.TurnNumber} | Active {view.ActivePlayer} | Phase {view.CurrentPhase} ---");
+        var active = view.ActivePlayer?.ToString() ?? "Neutral";
+        Console.WriteLine($"--- Seat {seat.Value} | Round {view.RoundNumber} | Turn {view.TurnNumber} | Active {active} | Phase {view.CurrentPhase} ---");
         foreach (var actor in view.Actors.OrderBy(a => a.Id.Value))
-            Console.WriteLine($"  {actor.Id} owner={actor.Owner} pos={actor.Position} life={actor.Life} ap={actor.CurrentAp} layer={actor.Layer}");
+            Console.WriteLine($"  {actor.Id} owner={actor.Owner} pos={actor.Position} life={actor.Life} ap={actor.CurrentAp} level={actor.Level}");
     }
 
     private static void PrintCommands(IReadOnlyList<Command> commands)

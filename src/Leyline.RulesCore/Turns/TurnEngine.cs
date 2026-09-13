@@ -27,8 +27,7 @@ public static class TurnEngine
 
         if (nextIndex >= state.PhaseSequence.Count)
         {
-            var nextPlayer = state.Players.Select(p => p.Id).First(id => id != state.ActivePlayer);
-            events.AddRange(pipeline.Process(new TurnAdvancedIntent(state.TurnNumber + 1, nextPlayer), state));
+            events.AddRange(pipeline.Process(new TurnAdvancedIntent(state.TurnNumber + 1), state));
             nextIndex = 0;
         }
 
@@ -46,8 +45,11 @@ public static class TurnEngine
                 events.AddRange(pipeline.Process(intent, state));
         }
 
-        // Phases nobody acts in (Beginning/End in M1) advance themselves immediately.
-        if (!state.CurrentPhase.OffersPriority)
+        // Phases nobody acts in (Beginning/End in M1) advance themselves immediately. A neutral
+        // turn's Action phase (D60) auto-advances the same way today, since no Neutral permanent/
+        // Behavior exists yet to hold it open — once one does, this condition is where that
+        // changes (auto-advance only when the neutral turn truly has nothing to do).
+        if (!state.CurrentPhase.OffersPriority || state.ActivePlayer is null)
             events.AddRange(Advance(state, pipeline));
 
         return events;

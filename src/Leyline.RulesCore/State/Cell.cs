@@ -6,18 +6,18 @@ public sealed class Cell
     public string? Terrain { get; set; }
     public int MoveCost { get; set; } = 1;
 
-    public LayerOccupancy Ground { get; } = new();
-    public LayerOccupancy Below { get; } = new();
-    public LayerOccupancy Above { get; } = new();
+    public LevelOccupancy Surface { get; } = new();
+    public LevelOccupancy Air { get; } = new();
+    public LevelOccupancy Underground { get; } = new();
 
-    public LayerOccupancy LayerOf(Layer layer) => layer switch
+    public LevelOccupancy LevelOf(Level level) => level switch
     {
-        Layer.Ground => Ground,
-        Layer.Below => Below,
-        Layer.Above => Above,
-        _ => throw new ArgumentOutOfRangeException(nameof(layer), layer, null),
+        Level.Surface => Surface,
+        Level.Air => Air,
+        Level.Underground => Underground,
+        _ => throw new ArgumentOutOfRangeException(nameof(level), level, null),
     };
 
-    /// <summary>M1 scope: Ground + Below only — Above/flying is unused (no flyer type exists).</summary>
-    public IEnumerable<ActorId> GroundAndBelowOccupants => Ground.Occupants.Concat(Below.Occupants);
+    /// <summary>M1 scope: Surface + Underground only — Air/flying is unused (no flyer type exists).</summary>
+    public IEnumerable<ActorId> SurfaceAndUndergroundOccupants => Surface.Occupants.Concat(Underground.Occupants);
 }

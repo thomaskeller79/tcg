@@ -74,20 +74,39 @@ public static class Query
     public static ApCost ResolveCollapseCost(ActorId actor, TrueState state) =>
         Fold("CollapseCost", actor, ApCost.Fixed(0), state);
 
-    public static ApCost ResolveAttackCost(ActorId actor, TrueState state) =>
-        Fold("AttackCost", actor, ApCost.Exhaust(3), state);
+    /// <summary>D49: the generic Actor default is `3!AP`, doubled to `6!AP` for a Champion (and,
+    /// once implemented, a Companion) while network-bonded — same "rooted" connectivity check
+    /// ResolveMoveCost already uses, since being tied to the network makes every action costlier,
+    /// not just movement.</summary>
+    public static ApCost ResolveAttackCost(ActorId actor, TrueState state)
+    {
+        ApCost baseline;
+        if (state.GetActor(actor) is ChampionState champion)
+        {
+            var connected = ResolveConnectedProducingTerrain(champion.Owner, state).Count > 0;
+            baseline = ApCost.Exhaust(connected ? 6 : 3);
+        }
+        else
+        {
+            baseline = ApCost.Exhaust(3);
+        }
+        return Fold("AttackCost", actor, baseline, state);
+    }
 
-    /// <summary>D15 (resolved 2026-08-09): defending costs `0*AP` — free, but at most once per
-    /// turn per actor (Query.CanUseOncePerTurnAction, same `*` flavor as Bond/Draw), completely
-    /// decoupled from remaining AP. Replaces the earlier Exhaust/DeleteDefendOnce config toggle:
-    /// Exhaust (defending costs `1!AP`) created a real bug — an actor that spent its whole turn
-    /// (e.g. by attacking, itself `!`-costed) was left unable to defend for the *opponent's
-    /// entire following turn* (AP only refreshes on its own controller's Beginning phase),
-    /// punishing whoever attacked first. `0*AP` fixes that (Defend never checks AP at all) while
-    /// keeping a real per-turn limit (unlike a flat "always free, unlimited" rule) — a card can
-    /// still deliberately spend a creature's Defend for the turn as a side effect of a strong
-    /// ability (emit OncePerTurnActionUsedIntent(actor, CoreAbilities.Defend) from that
-    /// ability's own effect), the MTG "tap cost" flavor, without that being a base-rule default.</summary>
+    /// <summary>D15/D65: defending costs `0*AP` — free, but at most once per round per actor
+    /// (Query.CanUseOncePerTurnAction, same `*` flavor as Bond/Draw — the cap became "per round"
+    /// rather than "per turn" once Neutral turns, D60, put up to four engine turns in a round;
+    /// see ResetOncePerTurnActionsEffect for why the existing per-turn reset already produces
+    /// that cadence with no extra tracking needed), completely decoupled from remaining AP.
+    /// Originally replaced an Exhaust/DeleteDefendOnce config toggle: Exhaust (defending costs
+    /// `1!AP`) created a real bug — an actor that spent its whole turn (e.g. by attacking, itself
+    /// `!`-costed) was left unable to defend for the *opponent's entire following turn* (AP only
+    /// refreshes on its own controller's Beginning phase), punishing whoever attacked first.
+    /// `0*AP` fixes that (Defend never checks AP at all) while keeping a real per-round limit
+    /// (unlike a flat "always free, unlimited" rule) — a card can still deliberately spend a
+    /// creature's Defend for the round as a side effect of a strong ability (emit
+    /// OncePerTurnActionUsedIntent(actor, CoreAbilities.Defend) from that ability's own effect),
+    /// the MTG "tap cost" flavor, without that being a base-rule default.</summary>
     public static bool CanDefend(ActorId actor, TrueState state) =>
         Fold("CanDefend", actor, CanUseOncePerTurnAction(actor, CoreAbilities.Defend, state), state);
 
@@ -128,7 +147,7 @@ public static class Query
         var targets = new List<HexCoord>();
         foreach (var coord in state.Board.AdjacentCoords(actorState.Position))
         {
-            if (!CanOccupyLayer(actorState.Owner, coord, actorState.Layer, state))
+            if (!CanOccupyLevel(actorState.Owner, coord, actorState.Level, state))
                 continue;
             if (mustStayConnected && !WouldStayConnected(actorState.Owner, coord, state))
                 continue;
@@ -150,25 +169,25 @@ public static class Query
     }
 
     /// <summary>
-    /// D12: a layer's capacity-3 room is for guarding allies (D4's "declare defenders"
-    /// gang-up) — it was never meant to let opposing creatures share a contested hex. A layer
+    /// D12: a level's capacity-3 room is for guarding allies (D4's "declare defenders"
+    /// gang-up) — it was never meant to let opposing creatures share a contested hex. A level
     /// with any enemy occupant has no room for you, regardless of raw capacity; used by both
     /// movement and (future) summoning legality, so there's one definition of "can I stand
     /// here" in the engine.
     /// </summary>
-    public static bool CanOccupyLayer(PlayerId player, HexCoord target, Layer layer, TrueState state)
+    public static bool CanOccupyLevel(PlayerId player, HexCoord target, Level level, TrueState state)
     {
         var cell = state.Board.TryGetCell(target);
         if (cell is null)
             return false;
 
-        var occupancy = cell.LayerOf(layer);
+        var occupancy = cell.LevelOf(level);
         return occupancy.HasRoom && occupancy.Occupants.All(id => state.GetActor(id).Owner == player);
     }
 
     /// <summary>
-    /// M1 scope: Ground + Below only, adjacency-range only (Above/flying and Ranged aren't
-    /// implemented). D19's initiation-legality matrix, reduced to the layers that exist here.
+    /// M1 scope: Surface + Underground only, adjacency-range only (Air/flying and Ranged
+    /// aren't implemented). D19's initiation-legality matrix, reduced to the levels that exist here.
     /// </summary>
     public static IReadOnlyList<HexCoord> ResolveLegalAttackTargets(ActorId actor, TrueState state)
     {
@@ -182,10 +201,10 @@ public static class Query
         foreach (var coord in state.Board.AdjacentCoords(actorState.Position))
         {
             var cell = state.Board.GetCell(coord);
-            var hasValidEnemyTarget = cell.GroundAndBelowOccupants
+            var hasValidEnemyTarget = cell.SurfaceAndUndergroundOccupants
                 .Select(state.GetActor)
                 .Any(o => o.Owner != actorState.Owner
-                          && CanInitiateAttack(actorState.Layer, o.Layer)
+                          && CanInitiateAttack(actorState.Level, o.Level)
                           && IsVisibleTo(o.Id, actorState.Owner, state));
             if (hasValidEnemyTarget)
                 targets.Add(coord);
@@ -193,27 +212,27 @@ public static class Query
         return targets.OrderBy(c => c).ToList();
     }
 
-    /// <summary>D19 initiation-legality matrix, reduced to Ground/Below (no Flyer type in M1).
-    /// Sub→Ground is explicitly marked "tentative, balance" in the source decision.</summary>
-    private static bool CanInitiateAttack(Layer attacker, Layer target) => (attacker, target) switch
+    /// <summary>D19 initiation-legality matrix, reduced to Surface/Underground (no Flyer type in M1).
+    /// Underground→Surface is explicitly marked "tentative, balance" in the source decision.</summary>
+    private static bool CanInitiateAttack(Level attacker, Level target) => (attacker, target) switch
     {
-        (Layer.Ground, Layer.Ground) => true,
-        (Layer.Ground, Layer.Below) => true, // gated separately by IsVisibleTo ("only if located")
-        (Layer.Below, Layer.Ground) => true, // D19: tentative, balance
-        (Layer.Below, Layer.Below) => true, // gated separately by IsVisibleTo
-        _ => false, // Above/Flyer not implemented in M1
+        (Level.Surface, Level.Surface) => true,
+        (Level.Surface, Level.Underground) => true, // gated separately by IsVisibleTo ("only if located")
+        (Level.Underground, Level.Surface) => true, // D19: tentative, balance
+        (Level.Underground, Level.Underground) => true, // gated separately by IsVisibleTo
+        _ => false, // Air/Flyer not implemented in M1
     };
 
     /// <summary>
-    /// D12/D19: the below layer is hidden by default. Perception is just another query axis
-    /// (design-asymmetric-information.md) — this is the one rule Perception's ViewProjector
+    /// D12/D19: the Underground level is hidden by default. Perception is just another query
+    /// axis (design-asymmetric-information.md) — this is the one rule Perception's ViewProjector
     /// and Combat's targeting both consult, so there's exactly one definition of "can you see
     /// this" in the engine.
     /// </summary>
     public static bool IsVisibleTo(ActorId subject, PlayerId observer, TrueState state)
     {
         var actor = state.GetActor(subject);
-        var baseline = actor.Layer != Layer.Below || actor.Owner == observer || actor.Located;
+        var baseline = actor.Level != Level.Underground || actor.Owner == observer || actor.Located;
         return Fold("Visibility", subject, baseline, state);
     }
 
@@ -310,7 +329,7 @@ public static class Query
     private static bool IsEnemyOccupied(TrueState state, PlayerId player, HexCoord coord)
     {
         var cell = state.Board.GetCell(coord);
-        return cell.Ground.Occupants.Concat(cell.Below.Occupants).Concat(cell.Above.Occupants)
+        return cell.Surface.Occupants.Concat(cell.Underground.Occupants).Concat(cell.Air.Occupants)
             .Select(state.GetActor)
             .Any(a => a.Owner != player);
     }

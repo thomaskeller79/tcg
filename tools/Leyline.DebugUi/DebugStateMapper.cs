@@ -13,7 +13,7 @@ public static class DebugStateMapper
         {
             network.TryGetValue(c.Coord, out var status);
             return new DebugCellDto(
-                c.Coord, c.Terrain, c.Ground.Occupants.ToList(), c.Below.Occupants.ToList(), c.Above.Occupants.ToList(),
+                c.Coord, c.Terrain, c.Surface.Occupants.ToList(), c.Underground.Occupants.ToList(), c.Air.Occupants.ToList(),
                 network.ContainsKey(c.Coord) ? status.Owner : null, status.Producing);
         }).ToList();
 
@@ -34,7 +34,7 @@ public static class DebugStateMapper
             ? new PriorityWindowDto(w.Kind, w.Context, w.Order, w.CurrentPriority)
             : null;
 
-        return new DebugStateDto(state.TurnNumber, state.ActivePlayer, state.CurrentPhase.Id, cells, actors, mana, zones, state.Winner, combats, window, BuildCardCatalog(state));
+        return new DebugStateDto(state.TurnNumber, state.RoundNumber, state.ActivePlayer, state.CurrentPhase.Id, cells, actors, mana, zones, state.Winner, combats, window, BuildCardCatalog(state));
     }
 
     /// <summary>Every card definition referenced anywhere in the match right now (hand, library,
@@ -66,6 +66,6 @@ public static class DebugStateMapper
             actor.Id, actor.Owner, name, kind,
             Query.ResolveAttack(actor.Id, state), actor.Life, maxLife, actor.CurrentAp, Query.ResolveMaxAp(actor.Id, state),
             Query.ResolveAbilityIds(actor.Id, state).OrderBy(a => a, StringComparer.Ordinal).ToList(),
-            actor.Position, actor.Layer);
+            actor.Position, actor.Level);
     }
 }

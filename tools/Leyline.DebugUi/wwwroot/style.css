@@ -134,7 +134,7 @@ svg.board {
 .actor.owner-2 { fill: var(--p2); }
 .actor.owner-unknown { fill: var(--muted); }
 
-.actor.layer-below { stroke-dasharray: 3 2; opacity: 0.75; }
+.actor.level-underground { stroke-dasharray: 3 2; opacity: 0.75; }
 
 .actor.draggable { cursor: grab; touch-action: none; }
 .actor.draggable.dragging { cursor: grabbing; opacity: 0.55; }

@@ -3,7 +3,7 @@ namespace Leyline.RulesCore.State;
 /// <summary>
 /// D16 (partial slice): Hand and Library only — enough to draw and cast. The full Aether
 /// model (unified stack/graveyard, traces, fade windows, un-summon vs kill) is a separate,
-/// much larger design surface that's explicitly not built here; Rites resolve their effect
+/// much larger design surface that's explicitly not built here; Spells resolve their effect
 /// and simply vanish (no permanent, no tracked trace) rather than leaving an Aether record.
 /// Library order is never shuffled — for a testing/debug tool, "draw exactly this card next"
 /// (i.e. deterministic, author-controlled order) is more useful than realism.

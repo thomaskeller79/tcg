@@ -16,14 +16,14 @@ public sealed record DamageAssignedIntent(CombatId Combat, IReadOnlyDictionary<A
 public sealed record UndefendedTargetChosenIntent(CombatId Combat, ActorId Target) : EventIntent;
 public sealed record CombatResolvedIntent(CombatId Combat) : EventIntent;
 public sealed record PhaseChangedIntent(int NewPhaseIndex) : EventIntent;
-public sealed record TurnAdvancedIntent(int NewTurnNumber, PlayerId NewActivePlayer) : EventIntent;
+public sealed record TurnAdvancedIntent(int NewTurnNumber) : EventIntent;
 public sealed record BondTerrainIntent(PlayerId Player, HexCoord Target) : EventIntent;
 public sealed record OncePerTurnActionUsedIntent(ActorId Actor, string ActionId) : EventIntent;
 public sealed record OncePerTurnActionsResetIntent(ActorId Actor) : EventIntent;
 public sealed record ManaChangeIntent(PlayerId Player, int NewMana) : EventIntent;
 
 /// <summary>D19 (provisional — flagged "confirm next session" in the source decision):
-/// attacking from Below surfaces the attacker; moving away re-conceals it.</summary>
+/// attacking from Underground surfaces the attacker; moving away re-conceals it.</summary>
 public sealed record ActorRevealedIntent(ActorId Actor) : EventIntent;
 public sealed record ActorConcealedIntent(ActorId Actor) : EventIntent;
 

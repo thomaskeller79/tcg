@@ -11,10 +11,10 @@ public class GoldenPathTests
     [Fact]
     public void Bond_then_win_via_combat_all_interoperate_in_one_match()
     {
-        var match = TerrainFixtures.ChampionWithTerrainChain(championMaxAp: 3); // P1 champion at (0,0), terrain at (1,0)/(2,0)
+        var match = TerrainFixtures.ChampionWithTerrainChain(championMaxAp: 6); // P1 champion at (0,0), terrain at (1,0)/(2,0)
 
         // Turn 1 (P1): bond the Champion's own tile — the only legal first bond (D8, revised
-        // 2026-08-08) — costing 2 of the Champion's 3 starting AP.
+        // 2026-08-08) — costing 2 of the Champion's 6 starting AP.
         var bonded = RulesEngine.Apply(match, new BondTerrainCommand(Fixtures.P1, new HexCoord(0, 0)));
         Assert.True(bonded.Accepted);
 

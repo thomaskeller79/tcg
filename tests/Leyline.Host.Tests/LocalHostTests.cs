@@ -22,14 +22,14 @@ public class LocalHostTests
     }
 
     [Fact]
-    public void Opponents_view_never_contains_a_below_layer_occupant_before_it_is_revealed()
+    public void Opponents_view_never_contains_an_underground_level_occupant_before_it_is_revealed()
     {
         var (host, p1Seat, _) = LocalHostFactory.CreateTwoGruntSkirmish();
 
         var view = host.CurrentView(p1Seat);
 
-        Assert.Single(view.Actors); // only P1's own Ground grunt — P2's submerged grunt is hidden
-        Assert.All(view.Cells, c => Assert.Empty(c.Below));
+        Assert.Single(view.Actors); // only P1's own Surface grunt — P2's submerged grunt is hidden
+        Assert.All(view.Cells, c => Assert.Empty(c.Underground));
     }
 
     [Fact]

@@ -32,7 +32,7 @@ public static class LocalHostFactory
             [p1, p2],
             [
                 new CreaturePlacement(p1, gruntId, new HexCoord(0, 0)),
-                new CreaturePlacement(p2, gruntId, new HexCoord(1, 0), Layer.Below),
+                new CreaturePlacement(p2, gruntId, new HexCoord(1, 0), Level.Underground),
             ],
             content,
             seed: 42);

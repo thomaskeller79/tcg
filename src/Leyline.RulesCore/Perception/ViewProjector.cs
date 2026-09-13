@@ -5,8 +5,8 @@ using Leyline.RulesCore.State;
 namespace Leyline.RulesCore.Perception;
 
 /// <summary>
-/// (TrueState, observer) → View. M1's only redaction rule: below-layer occupants not owned
-/// by the observer, and not "located" (D19), are hidden — via Query.IsVisibleTo, the same
+/// (TrueState, observer) → View. M1's only redaction rule: Underground-level occupants not
+/// owned by the observer, and not "located" (D19), are hidden — via Query.IsVisibleTo, the same
 /// visibility rule Combat's targeting consults (perception is just another query axis).
 /// </summary>
 public static class ViewProjector
@@ -20,9 +20,9 @@ public static class ViewProjector
             return new CellView(
                 c.Coord,
                 c.Terrain,
-                c.Ground.Occupants.ToList(),
-                VisibleOccupants(c.Below, observer, state),
-                c.Above.Occupants.ToList(),
+                c.Surface.Occupants.ToList(),
+                VisibleOccupants(c.Underground, observer, state),
+                c.Air.Occupants.ToList(),
                 network.ContainsKey(c.Coord) ? status.Owner : null,
                 status.Producing);
         }).ToList();
@@ -40,6 +40,7 @@ public static class ViewProjector
         return new View(
             observer,
             state.TurnNumber,
+            state.RoundNumber,
             state.ActivePlayer,
             state.CurrentPhase.Id,
             cells,
@@ -53,8 +54,8 @@ public static class ViewProjector
     public static IReadOnlyList<ObservedEvent> ProjectEvents(IReadOnlyList<IEvent> trueEvents, PlayerId observer, TrueState state) =>
         trueEvents.Select(e => new ObservedEvent(e)).ToList();
 
-    private static IReadOnlyList<ActorId> VisibleOccupants(LayerOccupancy layer, PlayerId observer, TrueState state) =>
-        layer.Occupants.Where(id => Query.IsVisibleTo(id, observer, state)).ToList();
+    private static IReadOnlyList<ActorId> VisibleOccupants(LevelOccupancy level, PlayerId observer, TrueState state) =>
+        level.Occupants.Where(id => Query.IsVisibleTo(id, observer, state)).ToList();
 
     private static ActorView ToActorView(ActorState actor, TrueState state)
     {
@@ -65,6 +66,6 @@ public static class ViewProjector
             actor.Id, actor.Owner, name, kind,
             Query.ResolveAttack(actor.Id, state), actor.Life, maxLife, actor.CurrentAp, Query.ResolveMaxAp(actor.Id, state),
             Query.ResolveAbilityIds(actor.Id, state).OrderBy(a => a, StringComparer.Ordinal).ToList(),
-            actor.Position, actor.Layer);
+            actor.Position, actor.Level);
     }
 }

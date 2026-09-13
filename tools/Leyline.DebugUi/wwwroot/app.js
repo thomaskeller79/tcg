@@ -16,15 +16,15 @@ function cardById(id) {
   return cache.cards.find(c => c.id.value === id);
 }
 
-/// Plain-text printed-card summary: creature stats, or the Rite's hardcoded damage/heal effect
-/// (RiteEffectIds — the M1 placeholder for the real card-effect system, see CardDefinition's
+/// Plain-text printed-card summary: creature stats, or the Spell's hardcoded damage/heal effect
+/// (SpellEffectIds — the M1 placeholder for the real card-effect system, see CardDefinition's
 /// doc comment). Champion is never drawn/cast (design-champions.md), so no case needed here.
 function describeCardEffect(def) {
   if (!def) return '';
   if (def.type === 'Creature') return `Creature ${def.attack}/${def.life}/${def.maxAp}`;
-  if (def.type === 'Rite') {
-    if (def.effectId === 'rite.damage') return `Deal ${def.effectAmount} damage`;
-    if (def.effectId === 'rite.heal') return `Heal ${def.effectAmount}`;
+  if (def.type === 'Spell') {
+    if (def.effectId === 'spell.damage') return `Deal ${def.effectAmount} damage`;
+    if (def.effectId === 'spell.heal') return `Heal ${def.effectAmount}`;
     return def.effectId ? `${def.effectId} (${def.effectAmount})` : 'No effect';
   }
   return def.type;
@@ -102,7 +102,7 @@ function renderBoard(svg, cells, actors, draggableSeat, panelKey, sel) {
     hex.addEventListener('pointerdown', () => { dragState = { kind: 'hex', panelKey }; });
     svg.appendChild(hex);
 
-    const occupants = [...cell.ground, ...cell.below, ...cell.above];
+    const occupants = [...cell.surface, ...cell.underground, ...cell.air];
     occupants.forEach((idRef, oi) => {
       const actor = actorsById.get(idRef.value);
       if (!actor) return;
@@ -114,17 +114,17 @@ function renderBoard(svg, cells, actors, draggableSeat, panelKey, sel) {
 
 function drawActor(svg, actor, x, y, draggableSeat, panelKey, isSelected) {
   const ownerClass = actor.owner.value === 1 ? 'owner-1' : actor.owner.value === 2 ? 'owner-2' : 'owner-unknown';
-  const layerClass = actor.layer === 'Below' ? ' layer-below' : '';
+  const levelClass = actor.level === 'Underground' ? ' level-underground' : '';
   const draggable = draggableSeat != null && actor.owner.value === draggableSeat;
   const circle = svgEl('circle', {
     cx: x, cy: y, r: 12,
-    class: `actor ${ownerClass}${layerClass}${draggable ? ' draggable' : ''}${isSelected ? ' selected' : ''}`,
+    class: `actor ${ownerClass}${levelClass}${draggable ? ' draggable' : ''}${isSelected ? ' selected' : ''}`,
     'data-q': actor.position.q,
     'data-r': actor.position.r,
     'data-actor-id': actor.id.value,
   });
   circle.appendChild(svgEl('title', {})).textContent =
-    `${actor.name} (${actor.kind}) P${actor.owner.value} — attack=${actor.attack}, life=${actor.life}/${actor.maxLife}, ap=${actor.currentAp}/${actor.maxAp}, layer=${actor.layer}`;
+    `${actor.name} (${actor.kind}) P${actor.owner.value} — attack=${actor.attack}, life=${actor.life}/${actor.maxLife}, ap=${actor.currentAp}/${actor.maxAp}, level=${actor.level}`;
   circle.addEventListener('pointerdown', evt => startDrag(evt, draggableSeat, actor.id.value, actor.position.q, actor.position.r, circle, panelKey, draggable));
   svg.appendChild(circle);
 
@@ -259,7 +259,7 @@ async function handleDrop(seat, actorId, fromQ, fromR, toQ, toR) {
 /// Collapse are PlayerId-scoped commands with no ActorId to match on, so they're attributed to
 /// "the selected Champion" instead — but only when it's this seat's *own* Champion selected, not
 /// just any Champion (selecting the enemy's to inspect it must not surface your own actions).
-/// Once a card is selected: only CastCreature/CastRite for that exact card. Nothing selected:
+/// Once a card is selected: only CastCreature/CastSpell for that exact card. Nothing selected:
 /// only the global, not-tied-to-one-thing commands (end phase, forced combat decisions).
 function filterForSelection(legal, sel, actors, seat) {
   if (!legal) return [];
@@ -267,7 +267,7 @@ function filterForSelection(legal, sel, actors, seat) {
     return legal.filter(c => GLOBAL_KINDS.has(c.kind));
 
   if (sel.type === 'card') {
-    return legal.filter(c => GLOBAL_KINDS.has(c.kind) || ((c.kind === 'CastCreature' || c.kind === 'CastRite') && c.card === sel.id));
+    return legal.filter(c => GLOBAL_KINDS.has(c.kind) || ((c.kind === 'CastCreature' || c.kind === 'CastSpell') && c.card === sel.id));
   }
 
   const selectedActor = actors?.find(a => a.id.value === sel.id);
@@ -319,11 +319,11 @@ function renderSelectionInfo(container, actors, sel, mana, panelKey) {
 
 /// Step 3 of the cast process (select -> pay -> target -> cast): once a card is selected,
 /// filterForSelection has already narrowed `commands` to just that card's legal CastCreature/
-/// CastRite (card, target) pairs — describeCastTarget relabels each with what it actually hits
+/// CastSpell (card, target) pairs — describeCastTarget relabels each with what it actually hits
 /// instead of the raw command dump, so the button list reads as "pick a target."
 function describeCastTarget(cmd, actors) {
   if (cmd.kind === 'CastCreature') return `Summon at (${cmd.targetHex.q},${cmd.targetHex.r})`;
-  if (cmd.kind === 'CastRite') {
+  if (cmd.kind === 'CastSpell') {
     const target = actors?.find(a => a.id.value === cmd.targetActorId);
     return target ? `Target: ${target.name} (P${target.owner.value})` : cmd.label;
   }
@@ -331,12 +331,12 @@ function describeCastTarget(cmd, actors) {
 }
 
 /// What hovering a given command's button should highlight on the board: the hex it targets
-/// (Move/Attack/Bond/CastCreature all carry targetHex), or the actor it targets (CastRite's
+/// (Move/Attack/Bond/CastCreature all carry targetHex), or the actor it targets (CastSpell's
 /// targetActorId — no hex of its own). Everything else (Draw, Collapse, EndPhase, Pass, combat
 /// decisions) has no single resolved target, so no highlight.
 function resolveHoverTarget(cmd) {
   if (cmd.targetHex) return { type: 'hex', q: cmd.targetHex.q, r: cmd.targetHex.r };
-  if (cmd.kind === 'CastRite' && cmd.targetActorId != null) return { type: 'actor', id: cmd.targetActorId };
+  if (cmd.kind === 'CastSpell' && cmd.targetActorId != null) return { type: 'actor', id: cmd.targetActorId };
   return null;
 }
 
@@ -359,7 +359,7 @@ function renderActions(container, seat, commands, onPick, actors, svg) {
   }
   for (const cmd of commands) {
     const btn = document.createElement('button');
-    btn.textContent = (cmd.kind === 'CastCreature' || cmd.kind === 'CastRite') ? describeCastTarget(cmd, actors) : cmd.label;
+    btn.textContent = (cmd.kind === 'CastCreature' || cmd.kind === 'CastSpell') ? describeCastTarget(cmd, actors) : cmd.label;
     btn.onclick = () => onPick(seat, cmd.index);
     const target = resolveHoverTarget(cmd);
     if (target) {
@@ -446,7 +446,8 @@ function renderPhaseStepper(currentPhase) {
 }
 
 function statusLine(view) {
-  const parts = [`Turn ${view.turnNumber}`, `Active P${view.activePlayer.value}`];
+  const active = view.activePlayer ? `Active P${view.activePlayer.value}` : 'Active Neutral';
+  const parts = [`Round ${view.roundNumber}`, `Turn ${view.turnNumber}`, active];
   if (view.winner) parts.push(`WINNER: P${view.winner.value}`);
   else if (view.awaitingYourPriority) parts.push('awaiting your priority');
   // D18: live mana balance is hidden from every observer but its own — a redacted View reports

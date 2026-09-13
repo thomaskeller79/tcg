@@ -16,8 +16,26 @@ public sealed class TrueState
     public required ICardDefinitionRepository Content { get; init; }
 
     public RngState Rng { get; set; }
+
+    /// <summary>Ever-increasing engine-turn counter, 1-based. ActivePlayer/RoundNumber are both
+    /// derived from it — see their doc comments.</summary>
     public int TurnNumber { get; set; } = 1;
-    public required PlayerId ActivePlayer { get; set; }
+
+    /// <summary>D60: each round is `Player[0], Neutral, Player[1], Neutral, …` (`Player A →
+    /// Neutral A → Player B → Neutral B` for the 2-player case) — an even 0-based seat index is
+    /// that player's own turn; an odd one is the neutral turn following them. Null means it's
+    /// currently a neutral turn: nobody holds it (Neutral A/B are turn-order participants only,
+    /// never a "player," `neutral-permanents.md`), so every player-scoped Beginning-phase effect
+    /// (AP/mana refresh, once-per-turn reset) simply has nothing to act on until Neutral
+    /// permanents/Behavior exist.</summary>
+    public PlayerId? ActivePlayer =>
+        SeatIndex % 2 == 0 ? Players[SeatIndex / 2].Id : null;
+
+    /// <summary>D60: increments every time the seat order wraps back to Player[0].</summary>
+    public int RoundNumber => (TurnNumber - 1) / (2 * Players.Count) + 1;
+
+    private int SeatIndex => (TurnNumber - 1) % (2 * Players.Count);
+
     public int CurrentPhaseIndex { get; set; }
 
     public ResolutionStack Stack { get; } = new();
@@ -50,7 +68,7 @@ public sealed class TrueState
     public void AddActor(ActorState actor)
     {
         _actors.Add(actor.Id, actor);
-        Board.GetCell(actor.Position).LayerOf(actor.Layer).Add(actor.Id);
+        Board.GetCell(actor.Position).LevelOf(actor.Level).Add(actor.Id);
     }
 
     public ActorState? FindActor(ActorId id) => _actors.GetValueOrDefault(id);
@@ -61,7 +79,7 @@ public sealed class TrueState
     public void RemoveActor(ActorId id)
     {
         if (_actors.Remove(id, out var actor))
-            Board.GetCell(actor.Position).LayerOf(actor.Layer).Remove(id);
+            Board.GetCell(actor.Position).LevelOf(actor.Level).Remove(id);
     }
 
     /// <summary>All actors in canonical Id order — never dictionary enumeration order.</summary>

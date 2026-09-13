@@ -69,7 +69,7 @@ public class ScenarioLoaderTests
         seed 4
         board 2x2
         card test.grunt Creature "Grunt" attack=1 life=1 ap=1
-        card test.firebolt Rite "Firebolt" mana=1 effect=damage amount=3
+        card test.firebolt Spell "Firebolt" mana=1 effect=damage amount=3
         champion P1 test.grunt 0,0
         library P1 test.grunt,test.firebolt
         library P1 test.grunt
@@ -104,20 +104,20 @@ public class ScenarioLoaderTests
     }
 
     [Fact]
-    public void Rite_cards_carry_effect_and_mana_cost()
+    public void Spell_cards_carry_effect_and_mana_cost()
     {
         const string text = """
         seed 5
         board 2x2
-        card test.firebolt Rite "Firebolt" mana=2 effect=damage amount=5
+        card test.firebolt Spell "Firebolt" mana=2 effect=damage amount=5
         """;
 
         var match = ScenarioLoader.Load(text);
         var def = match.State.Content.Get(new CardDefinitionId("test.firebolt"));
 
-        Assert.Equal(CardType.Rite, def.Type);
+        Assert.Equal(CardType.Spell, def.Type);
         Assert.Equal(2, def.ManaCost);
-        Assert.Equal("rite.damage", def.EffectId);
+        Assert.Equal("spell.damage", def.EffectId);
         Assert.Equal(5, def.EffectAmount);
     }
 

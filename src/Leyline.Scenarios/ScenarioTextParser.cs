@@ -96,7 +96,7 @@ internal static class ScenarioTextParser
                     AbilityIds: abilities,
                     Type: type,
                     ManaCost: IntOr(kv, "mana", 0),
-                    EffectId: kv.TryGetValue("effect", out var eff) ? "rite." + eff : null,
+                    EffectId: kv.TryGetValue("effect", out var eff) ? "spell." + eff : null,
                     EffectAmount: IntOr(kv, "amount", 0));
                 break;
             }
@@ -115,8 +115,8 @@ internal static class ScenarioTextParser
                 var cardId = new CardDefinitionId(tokens[2]);
                 var coord = ParseCoord(tokens[3]);
                 var kv = ParseKeyValues(tokens, from: 4);
-                var layer = kv.TryGetValue("layer", out var l) ? Enum.Parse<Layer>(l, ignoreCase: true) : Layer.Ground;
-                scenario.Creatures.Add(new CreaturePlacement(owner, cardId, coord, layer));
+                var level = kv.TryGetValue("level", out var l) ? Enum.Parse<Level>(l, ignoreCase: true) : Level.Surface;
+                scenario.Creatures.Add(new CreaturePlacement(owner, cardId, coord, level));
                 break;
             }
 

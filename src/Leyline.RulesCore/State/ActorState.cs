@@ -7,12 +7,12 @@ public abstract class ActorState
     public int Life { get; set; }
     public int CurrentAp { get; set; }
     public HexCoord Position { get; set; }
-    public Layer Layer { get; set; } = Layer.Ground;
+    public Level Level { get; set; } = Level.Surface;
 
     /// <summary>
-    /// D19: whether a submerged actor is currently surfaced/visible regardless of layer.
-    /// Always true for Ground actors. No Below-layer actor exists before Slice 5, so this
-    /// field is inert until then.
+    /// D19: whether a submerged actor is currently surfaced/visible regardless of level.
+    /// Always true for Surface actors. No Underground-level actor exists before Slice 5, so
+    /// this field is inert until then.
     /// </summary>
     public bool Located { get; set; } = true;
 

@@ -1,5 +1,6 @@
 using Leyline.RulesCore;
 using Leyline.RulesCore.Commands;
+using Leyline.RulesCore.State;
 using Leyline.RulesCore.Tests.TestSupport;
 
 namespace Leyline.RulesCore.Tests.Turns;
@@ -14,10 +15,13 @@ public class TurnPhaseTests
         var p2Actor = match.State.ActorsOwnedBy(Fixtures.P2).Single();
         p2Actor.CurrentAp = 0; // simulate P2 having spent AP on a prior turn
 
-        RulesEngine.Apply(match, new EndPhaseCommand(Fixtures.P1)); // Action -> End -> next Beginning -> Action
+        // Action -> End -> the neutral turn between P1 and P2 (D60, auto-advances end to end
+        // since no Neutral permanent/Behavior exists yet) -> P2's Beginning -> Action.
+        RulesEngine.Apply(match, new EndPhaseCommand(Fixtures.P1));
 
-        Assert.Equal(Fixtures.P2, match.State.ActivePlayer);
-        Assert.Equal(2, match.State.TurnNumber);
+        Assert.Equal((PlayerId?)Fixtures.P2, match.State.ActivePlayer);
+        Assert.Equal(1, match.State.RoundNumber); // still round 1 — P2's turn is the 3rd of its 4 turns
+        Assert.Equal(3, match.State.TurnNumber); // turn 1 = P1, turn 2 = the neutral turn, turn 3 = P2
         Assert.Equal("Action", match.State.CurrentPhase.Id);
         Assert.Equal(3, p2Actor.CurrentAp); // refreshed on P2's Beginning
         Assert.Equal(3, p1Actor.CurrentAp); // untouched — P1 never spent any AP this test

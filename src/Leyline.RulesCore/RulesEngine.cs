@@ -62,7 +62,7 @@ public static class RulesEngine
         commands.AddRange(ChampionPipeline.LegalDraws(state, actor));
         commands.AddRange(ChampionPipeline.LegalCollapses(state, actor));
         commands.AddRange(SpellPipeline.LegalCastCreatureCommands(state, actor));
-        commands.AddRange(SpellPipeline.LegalCastRiteCommands(state, actor));
+        commands.AddRange(SpellPipeline.LegalCastSpellCommands(state, actor));
 
         commands.Add(new EndPhaseCommand(actor));
         return commands;
@@ -89,7 +89,7 @@ public static class RulesEngine
             BondTerrainCommand b => TerrainPipeline.Bond(state, pipeline, b),
             DrawCardCommand d => ChampionPipeline.DrawCard(state, pipeline, d),
             CastCreatureCommand c => SpellPipeline.CastCreature(state, pipeline, c),
-            CastRiteCommand c => SpellPipeline.CastRite(state, pipeline, c),
+            CastSpellCommand c => SpellPipeline.CastSpell(state, pipeline, c),
             CollapseNetworkCommand c => ChampionPipeline.CollapseNetwork(state, pipeline, c),
             _ => CommandResult.Reject($"Unhandled command type {command.GetType().Name}."),
         };
@@ -110,7 +110,7 @@ public static class RulesEngine
 
         // D19 (provisional): a submerged actor re-conceals the moment it leaves the hex it
         // was revealed on. A no-op if it was never revealed in the first place.
-        if (mover.Layer == Layer.Below)
+        if (mover.Level == Level.Underground)
             events.AddRange(pipeline.Process(new Events.ActorConcealedIntent(cmd.Mover), state));
 
         return CommandResult.Accept(events);
