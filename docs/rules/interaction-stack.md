@@ -2,7 +2,7 @@
 
 *Players can act on the opponent's turn (MTG-style instants). One primitive covers instants, combat tricks, and traps: a **Speed** tag per card/ability, checked live against what's sitting in **Pending**, the Aether's next-to-resolve zone.*
 
-**Decisions:** D6, D16, D35, D38, D45, D46 (`history/decisions.md`)
+**Decisions:** D6, D16, D35, D38, D45, D46, D68 (`history/decisions.md`)
 
 ---
 
@@ -43,6 +43,15 @@ An Attack is a **Physical Trace** (D45): it enters Pending exactly like any othe
 When a trace resolves (crosses `Now`), any target it committed to is re-checked for legality — the board may have changed while it sat in Pending (opponent responses, contested terrain, a slot filling up). **If a target is no longer legal, only that instruction fails to happen — the rest of the card still resolves.** Paid cost is never refunded either way.
 
 Playing a card or activating an ability pays its complete cost **before** choosing targets/modes. A card/ability is only ever offered as a legal play at all if at least one legal cost-and-target combination exists — no paying into a target-less cast.
+
+## Instantiate is iterative when belief and true state disagree (D68)
+The choice-of-target/destination step above (the "instantiate" half of D46) is checked at declare time against the **acting player's own belief state** — an ordinary targeting rule, no different from any other legal-target query. That check can still turn out wrong for a destination-choosing action (Move, Summon, Relocate/push) whose true legality depends on a concealed level's actual occupants (controller-uniformity or the 3-slot cap, `overview.md` §2) — the only way belief and truth can disagree here, since an unconcealed level's occupancy is always accurately known.
+
+When instantiating the chosen destination discovers it's illegal against true state, the step **repeats** rather than failing outright: the player picks a different destination from the action's remaining legal-per-belief candidates, or explicitly **cancels**. This continues until a destination succeeds (proceeds into Pending normally) or the player stops (cancels, or every candidate is exhausted) — a cancel option is always available, distinct from exhaustion, so a player is never forced into a worse-than-doing-nothing legal choice just because one exists. **Paid cost — mana and the card alike — is never returned in any outcome**, matching D33/D46's existing no-refund rule; card discard stays at the normal cast-commitment point (D37), not deferred to a successful instantiate (deliberately rejected — see D68, it would make narrowly-targeted spells a repeatable, low-cost "probe this hex" tool).
+
+This is a distinct check from the one two paragraphs up (D33): that one covers a *previously legal* target going illegal later, while sitting in Pending, from a visible board change (an opponent's response, a race for the same slot). This one covers the *initial* instantiate attempt discovering it was never legal to begin with, because of something hidden.
+
+**The redirect loop only ever applies to a *location*-typed choice (a hex, or (hex, level) address) — never to a *permanent*-typed choice (a specific named creature/permanent), regardless of what the card's own text calls either one, and regardless of how many candidates that choice had.** "Gain control of target creature" targets a creature, not a location; redirecting to a *different* creature would change what the spell does, not offer a graceful same-intent pivot, so it never gets one — this holds even when several creatures were initially eligible. **Card text can't be used to tell which is which** — a card like "Move target creature to target location" calls both a "target," but only the location half redirects; the creature stays whatever was first chosen even when the location fails and gets redirected, and if the creature-target were what failed instead, that's a clean hard-fail for that instruction, never a fallback to a different creature. Move/Summon/Relocate's destination is always location-shaped, so nothing changes for them. Actions with only one possible location (Descend, when blind — D67) or with a permanent-typed choice instead of a location (a control-change's named creature, D66) have nothing to redirect to and reduce to a single attempt — legal, or a clean hard-fail with cost sunk.
 
 ## Costs
 - **AI** must evaluate responses for Quick/Reactive plays (search over "respond vs. pass"); not for Instant, which never opens a response tree.

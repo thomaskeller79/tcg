@@ -2,7 +2,7 @@
 
 *Players do not share one view of the board. What each player perceives is itself a manipulable, card-driven property.*
 
-**Decisions:** D7, D12, D18, D41, D42 (`history/decisions.md`)
+**Decisions:** D7, D12, D18, D41, D42, D67 (`history/decisions.md`)
 
 ---
 
@@ -47,6 +47,10 @@ We already committed (pillar 5) to *never reading raw values — always querying
 A hex has three vertical levels (Surface / Air / **Underground**); the **Underground (submerged) level is hidden by default** — its occupancy appears only in its owner's view. This makes concealment a *structural* part of the board, not only a card effect: Submerged movement simply *lives* Underground, and Detection/reveal are visibility-modifiers that expose it. It's the clearest worked example of perception-as-query.
 
 **Second worked example (D42):** the **Subterranean** keyword bundles this same structural concealment together with the ability to be Underground at all — a Unit without Subterranean simply cannot go there by default, so the concealment and the access gate are one package, not two independently-toggleable questions. A card effect can still force a non-Subterranean unit Underground as an explicit exception, at which point the same structural hiding applies to it exactly as it would to a Subterranean unit — concealment is a property of the *level*, not of the keyword.
+
+**Proximity exception (D67):** "hidden by default" is narrower than "hidden from everyone but the owner." An observer sees a hex's Underground occupants if **any permanent they control** has Underground presence on that hex or on a neighboring hex — matching-layer presence specifically, not just any presence (a Surface or Air unit standing on a hex gains no Underground vision of that same hex at all), and it's a per-*observer* fact, not a per-*creature* one: it can come from any of the observer's own permanents, not specifically the one about to act. Underground vision is a **live, continuously-recomputed query**, exactly like every other perception query on this page, not a one-time reveal — it can be lost again the moment the qualifying presence leaves or dies. Range is exactly one hex, and it costs a real, killable creature to establish, so it's a bounded, costed way to "bring light into the dark," not a free scouting tool.
+
+**This is why entering any level is blind exactly when the acting player has no qualifying presence already covering the destination** (`overview.md` §4) — not an "Ascend is safe, Descend isn't" rule. A creature Ascending is *usually* safe only because its controller is usually already standing right there; Ascending into a Mist-concealed Surface hex is exactly as blind as any Descend. A creature Descending is *usually* blind only because a controller usually has no independent Underground presence at that hex yet — but if a second Subterranean scout is already stationed there or on a neighboring hex, the Descend is perfectly safe, because the visibility belongs to the player, not to whichever specific creature is moving.
 
 ## Example mechanics (seed — flesh out later)
 | Mechanic | Truth | What the opponent perceives |

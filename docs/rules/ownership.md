@@ -4,7 +4,7 @@
 
 **Note (D58):** Terrain, Structure, Ruins, and Graves each hold their own printed **Activation Points**, the same resource an Actor holds — self-gating "has this printed ability already fired this round" *and* self-funding that ability's Activation Points cost directly, no climbing. The parent chain below still answers who funds a *mana* cost. See `economy.md`, `resources-terrain.md`, `structures-items.md`.
 
-**Decisions:** D26–D30, D47, D54–D55, D57–D58 (`history/decisions.md`)
+**Decisions:** D26–D30, D47, D54–D55, D57–D58, D66, D68 (`history/decisions.md`)
 
 ---
 
@@ -52,6 +52,8 @@ Champion death isn't an inner-node case — it ends the match outright (D9). Str
 ## Control changes and occupancy (D66)
 
 A hex-level's occupants must all share one controller (`overview.md` §2). Any effect that reassigns a permanent's controller — "gain control of target creature," "target creature becomes Neutral," or any other control-change effect, targeted or not — rechecks this at resolution: if completing it would leave a level with occupants under different controllers, the effect **fails to complete instead (fizzles)**, the same way an illegal target fizzles rather than countering a whole spell (D33). Paid cost is never refunded. A card may still choose to restrict its own targeting as a courtesy (e.g. "target creature that is alone on its hex-level") — this is never required, and can only ever be a hint, not a guarantee, since a hidden creature sharing that level may be invisible to the caster.
+
+**The entry-side counterpart (Move, Summon, Relocate/push discovering the same invariant violated) does not fizzle the same way — it redirects (D68).** Those actions choose a *location*, so a hidden-info mismatch there sends the acting player back to choose a different destination, or cancel, rather than failing outright. **Control-change never gets this treatment, by rule rather than by candidate count:** its target is the *creature* named by the effect, not a location, and the redirect mechanism only ever applies to location-typed choices — so even a control-change with several initially-eligible creatures (not just one, as pictured above) still reduces to a single attempt and a clean, one-shot fizzle, same as Descend (which has a location-typed destination but only ever one candidate). See `interaction-stack.md`, `overview.md` §2.
 
 ## Paying a cost
 
