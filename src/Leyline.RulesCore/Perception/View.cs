@@ -24,8 +24,11 @@ public sealed record PlayerManaView(PlayerId Player, int? Mana);
 /// there; Cards is populated only for the observer's own hand (null for the opponent's).</summary>
 public sealed record HandView(PlayerId Player, int Count, IReadOnlyList<CardDefinitionId>? Cards);
 
-/// <summary>Mirrors HandView's redaction shape — Count public, order/contents only for the
-/// observer's own Library (glossary: the Mind domain's "future" zone).</summary>
+/// <summary>The Mind domain's "future" zone (glossary). A player knows which cards are in their
+/// own Library — Cards is populated for the observer's own entry (null for the opponent's, like
+/// HandView) — but never the draw order: even the owner's own Cards is sorted into a canonical
+/// order by ViewProjector, never PlayerState.Library's true (deterministic-for-testing, would
+/// otherwise be shuffled) sequence. Count is public either way.</summary>
 public sealed record LibraryView(PlayerId Player, int Count, IReadOnlyList<CardDefinitionId>? Cards);
 
 /// <summary>D37: Discard — the Mind domain's "past" zone — is fully public (matches the genre

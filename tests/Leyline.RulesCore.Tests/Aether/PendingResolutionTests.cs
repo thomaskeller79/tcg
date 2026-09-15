@@ -86,4 +86,25 @@ public class PendingResolutionTests
         RulesEngine.Apply(match, new EndPhaseCommand(Fixtures.P1)); // -> round 6's own End phase
         Assert.Empty(match.State.Past); // faded
     }
+
+    [Fact]
+    public void The_window_closes_the_moment_Pending_empties_no_extra_all_pass_round_required()
+    {
+        // Real bug, 2026-09-14: after popping the last item off Pending, the window used to
+        // unconditionally reopen for a fresh round of passes even though nothing was left to
+        // wait for — forcing both players to pass a second time before anything else was legal.
+        var match = SpellFixtures.ChampionWithMana(mana: 5, hand: [SpellFixtures.Firebolt]);
+        var enemyChampion = match.State.ActorsOwnedBy(Fixtures.P2).Single();
+
+        RulesEngine.Apply(match, new CastSpellCommand(Fixtures.P1, SpellFixtures.Firebolt, enemyChampion.Id));
+        RulesEngine.Apply(match, new PassPriorityCommand(Fixtures.P2));
+        var result = RulesEngine.Apply(match, new PassPriorityCommand(Fixtures.P1)); // resolves the last item
+
+        Assert.True(result.Accepted);
+        Assert.Null(match.State.ActiveWindow); // closed immediately, not left open for another round
+        Assert.True(match.State.Pending.IsEmpty);
+
+        // Normal actions (a second cast) are legal again right away — no forced extra Pass first.
+        Assert.Contains(RulesEngine.LegalCommands(match, Fixtures.P1), c => c is not PassPriorityCommand);
+    }
 }

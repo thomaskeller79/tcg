@@ -55,7 +55,7 @@ public class TerrainNetworkTests
     }
 
     [Fact]
-    public void Mana_refreshes_next_Beginning_phase_to_the_connected_producing_count()
+    public void Mana_stays_correct_through_the_next_Beginning_phase_refresh_too()
     {
         var match = TerrainFixtures.ChampionWithTerrainChain();
         RulesEngine.Apply(match, new BondTerrainCommand(Fixtures.P1, new HexCoord(0, 0)));
@@ -68,25 +68,23 @@ public class TerrainNetworkTests
     }
 
     [Fact]
-    public void Mana_is_summoning_sick_a_bond_made_this_turn_does_not_add_mana_until_next_Beginning_phase()
+    public void Bonding_credits_mana_immediately_terrain_is_never_summoning_sick()
     {
-        // D21 (under test note, 2026-08-08): mana is a snapshot taken once per Beginning phase
-        // (RefreshManaEffect), not a live recomputation — bonding mid-turn claims the tile
-        // permanently but its mana doesn't count until the *following* Beginning phase, the
-        // same "no retroactive unlock this turn" shape as D14's summoning sickness.
+        // D57 (corrected 2026-09-14): summoning sickness is about *casting*, and Terrain is
+        // placed, never cast — a Bond isn't the terrain "entering the Island" (it's already
+        // there), just connecting it, so an already-producing tile counts the instant it's
+        // bonded. TerrainPipeline.Bond does a full ResolveManaProduction recompute as part of
+        // the same command, not a +1 — RefreshManaEffect's own Beginning-phase snapshot still
+        // runs too (harmless/idempotent), for any other change (e.g. a cleared blockade) that
+        // isn't itself a fresh bond.
         var match = TerrainFixtures.ChampionWithTerrainChain();
         var p1 = match.State.Players.Single(p => p.Id == Fixtures.P1);
         Assert.Equal(0, p1.Mana);
 
         RulesEngine.Apply(match, new BondTerrainCommand(Fixtures.P1, new HexCoord(0, 0)));
 
-        Assert.Equal(0, p1.Mana); // bonded and already producing (self-tile), but not credited yet this turn
-        Assert.Single(Query.ResolveConnectedProducingTerrain(Fixtures.P1, match.State)); // the query itself is live
-
-        RulesEngine.Apply(match, new EndPhaseCommand(Fixtures.P1));
-        RulesEngine.Apply(match, new EndPhaseCommand(Fixtures.P2)); // -> P1's Beginning: mana snapshot taken
-
-        Assert.Equal(1, p1.Mana);
+        Assert.Equal(1, p1.Mana); // credited this same action, not next Beginning phase
+        Assert.Single(Query.ResolveConnectedProducingTerrain(Fixtures.P1, match.State));
     }
 
     [Fact]

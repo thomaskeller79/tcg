@@ -31,18 +31,22 @@ public sealed class GameSession
     /// <summary>
     /// M1 ships zero instant-speed abilities (no stack content), so the only ever-legal
     /// response inside a priority window is Pass — RulesEngine.LegalCommands enforces this
-    /// itself (only PassPriorityCommand is offered while a window is open). "Sorcery speed
-    /// only for now" therefore means the window is real plumbing that always resolves itself;
-    /// auto-passing both sides removes pure clicking friction without changing engine rules.
-    /// The moment real instant-speed content exists, the single-legal-command check below
-    /// stops matching and this loop correctly falls through to a real decision.
+    /// itself (only PassPriorityCommand is offered while a window is open). Auto-passing removes
+    /// pure clicking friction for Combat's window, where M1 has nothing worth watching resolve.
+    /// A CastResolution window (Creature/Spell casting, 2026-09-13) is deliberately excluded —
+    /// the whole point of a visible Pending/Now/Past Aether panel is to actually SEE a cast sit
+    /// in Pending and cross Now, which auto-passing hid end to end. Each seat now clicks its own
+    /// Pass button (RulesEngine.LegalCommands already offers exactly that when it's their
+    /// priority, so no new UI was needed). The moment real instant-speed content exists, the
+    /// single-legal-command check below stops matching on its own and this loop correctly falls
+    /// through to a real decision for Combat too.
     /// </summary>
     public void AutoResolvePriorityWindows()
     {
         if (Match is null || Host is null)
             return;
 
-        while (Match.State.ActiveWindow is { } window)
+        while (Match.State.ActiveWindow is { Kind: PriorityWindowKind.CombatDeclare } window)
         {
             var seat = window.CurrentPriority.Value == 1 ? P1Seat : P2Seat;
             var legal = Host.LegalCommands(seat);

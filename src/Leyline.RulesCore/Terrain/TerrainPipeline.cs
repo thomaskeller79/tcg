@@ -26,6 +26,14 @@ public static class TerrainPipeline
         events.AddRange(pipeline.Process(new BondTerrainIntent(cmd.Actor, cmd.Target), state));
         events.AddRange(pipeline.Process(new ApChangeIntent(champion.Id, cost.Apply(champion.CurrentAp)), state));
         events.AddRange(pipeline.Process(new OncePerTurnActionUsedIntent(champion.Id, ChampionActionIds.Bond), state));
+
+        // D57 (corrected 2026-09-14): Terrain is placed, never cast, so summoning sickness never
+        // applied to it in the first place — a newly-bonded, already-producing tile counts toward
+        // mana the instant it's bonded, not at the controller's next Beginning phase. This is a
+        // full recompute (matching RefreshManaEffect's own formula), not a +1, so it also correctly
+        // picks up any other tile this same bond happens to reconnect.
+        events.AddRange(pipeline.Process(new ManaChangeIntent(cmd.Actor, Query.ResolveManaProduction(cmd.Actor, state)), state));
+
         return CommandResult.Accept(events);
     }
 

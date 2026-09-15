@@ -3,11 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <title>Leyline — M1.5 debug UI</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=5" />
 </head>
 <body>
   <header>
     <h1>Leyline debug UI</h1>
+    <nav class="view-nav">
+      <a href="p1.html" target="_blank">Open P1 view</a>
+      <a href="p2.html" target="_blank">Open P2 view</a>
+      <a href="true.html" target="_blank">Open True state view</a>
+    </nav>
     <label>
       Scenario:
       <select id="scenario-select"></select>
@@ -17,74 +22,8 @@
     <span id="status-line"></span>
   </header>
 
-  <h2 class="domain-title">Matter domain — the Island</h2>
-  <main id="panels">
-    <section class="panel" id="panel-p1">
-      <h2>P1 view</h2>
-      <div class="mana"></div>
-      <div class="board-wrap"><svg class="board"></svg></div>
-      <div class="selection"></div>
-      <div class="hand"></div>
-      <div class="actions"></div>
-    </section>
+  <p class="hub-note">This hub loads scenarios and links to each observer's own tab — the board/hand/actions/Mind/Aether panels themselves live on those tabs now, not here. Each tab polls the same live match, so actions taken in one show up in the others within a couple seconds.</p>
 
-    <section class="panel" id="panel-p2">
-      <h2>P2 view</h2>
-      <div class="mana"></div>
-      <div class="board-wrap"><svg class="board"></svg></div>
-      <div class="selection"></div>
-      <div class="hand"></div>
-      <div class="actions"></div>
-    </section>
-
-    <section class="panel" id="panel-true">
-      <h2>True state</h2>
-      <div class="mana"></div>
-      <div class="board-wrap"><svg class="board"></svg></div>
-      <div class="selection"></div>
-      <div class="hand"></div>
-      <div class="combat-info"></div>
-    </section>
-  </main>
-
-  <h2 class="domain-title">Mind domain — Library / Hand / Discard</h2>
-  <main id="mind-panels" class="domain-panels">
-    <section class="panel domain-subpanel" id="mind-p1">
-      <h3>P1 view</h3>
-      <div class="zone-block library"></div>
-      <div class="zone-block hand"></div>
-      <div class="zone-block discard"></div>
-    </section>
-    <section class="panel domain-subpanel" id="mind-p2">
-      <h3>P2 view</h3>
-      <div class="zone-block library"></div>
-      <div class="zone-block hand"></div>
-      <div class="zone-block discard"></div>
-    </section>
-    <section class="panel domain-subpanel" id="mind-true">
-      <h3>True state</h3>
-      <div class="zone-block library"></div>
-      <div class="zone-block hand"></div>
-      <div class="zone-block discard"></div>
-    </section>
-  </main>
-
-  <h2 class="domain-title">Aether domain — Past / Now / Pending / Future</h2>
-  <main id="aether-panels" class="domain-panels">
-    <section class="panel domain-subpanel" id="aether-p1">
-      <h3>P1 view</h3>
-      <div class="zone-block aether-timeline"></div>
-    </section>
-    <section class="panel domain-subpanel" id="aether-p2">
-      <h3>P2 view</h3>
-      <div class="zone-block aether-timeline"></div>
-    </section>
-    <section class="panel domain-subpanel" id="aether-true">
-      <h3>True state</h3>
-      <div class="zone-block aether-timeline"></div>
-    </section>
-  </main>
-
-  <script src="app.js"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>

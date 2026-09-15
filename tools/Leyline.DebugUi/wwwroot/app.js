@@ -1,3 +1,7 @@
+// Every *.html includes this file (and style.css) with a ?v=N cache-busting query string —
+// browsers were caching a stale copy across dotnet restarts, since restarting the server doesn't
+// touch the browser's own cache. Bump the v=N in every *.html file (index/p1/p2/true) whenever
+// this file or style.css changes, or a browser tab can keep running old code indefinitely.
 const HEX_SIZE = 26;
 const HEX_DIRS = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]];
 const PHASE_SEQUENCE = ['Beginning', 'Action', 'End'];
@@ -11,6 +15,12 @@ const GLOBAL_KINDS = new Set([
 ]);
 
 const cache = { view: { 1: null, 2: null }, trueState: null, legal: { 1: null, 2: null }, cards: [] };
+
+/// Each observer now gets its own tab (p1.html/p2.html/true.html, each `<body data-view="...">`);
+/// the hub (index.html) has no data-view and renders no panels at all, just scenario load +
+/// links. `1`/`2` are read as strings off the DOM but compared/used as the numeric panelKey
+/// elsewhere, so normalize once here.
+const VIEW = document.body.dataset.view === '1' ? 1 : document.body.dataset.view === '2' ? 2 : document.body.dataset.view === 'true' ? 'true' : null;
 
 function cardById(id) {
   return cache.cards.find(c => c.id.value === id);
@@ -68,6 +78,7 @@ function svgEl(tag, attrs) {
 /// attack on that seat's own actors; panelKey (1, 2, or 'true') drives click-to-select
 /// regardless of ownership; sel is that panel's current selection (see `selection`'s doc comment).
 function renderBoard(svg, cells, actors, draggableSeat, panelKey, sel) {
+  if (!svg) return;
   svg.innerHTML = '';
   svg._cells = cells; // stashed for handleDrop's client-side pathfinding
   if (!cells || cells.length === 0) return;
@@ -456,12 +467,24 @@ function statusLine(view) {
   return parts.join(' | ') + (mana ? ' | ' + mana : '');
 }
 
+/// Hub/True-state pages have no single "you" to redact for or ask "awaiting your priority" —
+/// unredacted mana for both players, and priority named by seat instead.
+function trueStatusLine(trueState) {
+  const active = trueState.activePlayer ? `Active P${trueState.activePlayer.value}` : 'Active Neutral';
+  const parts = [`Round ${trueState.roundNumber}`, `Turn ${trueState.turnNumber}`, active];
+  if (trueState.winner) parts.push(`WINNER: P${trueState.winner.value}`);
+  else if (trueState.activeWindow) parts.push(`awaiting P${trueState.activeWindow.currentPriority.value}'s priority`);
+  const mana = trueState.mana.map(m => `P${m.player.value} mana=${m.mana}`).join(', ');
+  return parts.join(' | ') + (mana ? ' | ' + mana : '');
+}
+
 function renderPanel(panelKey) {
   const isTrue = panelKey === 'true';
   const data = isTrue ? cache.trueState : cache.view[panelKey];
   if (!data) return;
 
   const idPrefix = isTrue ? 'panel-true' : `panel-p${panelKey}`;
+  if (!document.getElementById(idPrefix)) return; // this page doesn't have this observer's panel
   const draggableSeat = isTrue ? null : panelKey;
   const sel = selection[panelKey];
   const svg = document.querySelector(`#${idPrefix} svg.board`);
@@ -503,45 +526,165 @@ function mindZonesFrom(data, isTrue) {
   }));
 }
 
-function cardListText(cards) {
-  return cards && cards.length ? cards.map(c => cardChipText(c.value ?? c)).join(', ') : '—';
+/// One face-up card, card-proportioned (~5:7). `cardId` is a plain CardDefinitionId string.
+function cardFaceEl(cardId, { clickable = false, selected = false, ownerSeat = null } = {}) {
+  const def = cardById(cardId);
+  const el = document.createElement('div');
+  el.className = 'card-face' + (clickable ? ' clickable' : '') + (selected ? ' selected' : '') + (ownerSeat ? ` owner-${ownerSeat}` : '');
+  el.title = def ? `${def.name} — ${describeCardEffect(def)}` : cardId;
+  const name = document.createElement('div');
+  name.className = 'card-name';
+  name.textContent = def ? def.name : cardId;
+  const detail = document.createElement('div');
+  detail.className = 'card-detail';
+  detail.textContent = def ? describeCardEffect(def) : '';
+  el.append(name, detail);
+  return el;
 }
 
-/// Mind domain (Hand/Library/Discard, D37): one row per player, each zone showing count-and-
-/// contents-if-visible for Library/Hand (redacted per D7/mirrored for Library) and always-visible
-/// contents for Discard (public by design, no redaction rule exists for it).
+/// A face-down card — the back of the Library's top card (with a count) or an opponent's
+/// unknown-order hand (blank, one per card).
+function cardBackEl(label = '') {
+  const el = document.createElement('div');
+  el.className = 'card-back';
+  if (label !== '') {
+    const num = document.createElement('div');
+    num.className = 'card-back-count';
+    num.textContent = String(label);
+    el.appendChild(num);
+  }
+  return el;
+}
+
+/// Discard: only the top (most recently discarded) card shows face-up; hovering reveals the
+/// whole pile. Library: always a card-back + remaining count (D37/2026-09-14 — the owner knows
+/// which cards are in it, never their order, so even the owner's own Library never shows a
+/// face-up stack) — but if the caller has the (order-less, or true-order on the True panel) card
+/// list at all, hovering still reveals that known set via the same popup mechanism.
+function hoverStackEl(faceEl, allCards, emptyText) {
+  const wrap = document.createElement('div');
+  if (!allCards || allCards.length === 0) {
+    wrap.appendChild(faceEl ?? cardBackEl());
+    if (emptyText) wrap.title = emptyText;
+    return wrap;
+  }
+  wrap.className = 'hover-stack';
+  wrap.appendChild(faceEl);
+  const popup = document.createElement('div');
+  popup.className = 'hover-popup';
+  for (const c of allCards) popup.appendChild(cardFaceEl(c.value ?? c));
+  wrap.appendChild(popup);
+  return wrap;
+}
+
+function discardWidgetEl(discard) {
+  if (!discard || discard.length === 0) return hoverStackEl(null, null, 'empty');
+  const topId = discard[discard.length - 1];
+  return hoverStackEl(cardFaceEl(topId.value ?? topId), discard, null);
+}
+
+function libraryWidgetEl(count, cards) {
+  return hoverStackEl(cardBackEl(count), cards, null);
+}
+
+/// Own hand: clickable face-up cards (casting UX, same `selection` the Island panel's hand
+/// already drives). Opponent's hand: blank face-down backs, one per card, count only — D7.
+function handRowEl(count, cards, seat, sel, clickable) {
+  const row = document.createElement('div');
+  row.className = 'card-row';
+  if (cards) {
+    for (const c of cards) {
+      const id = c.value ?? c;
+      const isSelected = clickable && sel?.type === 'card' && sel.id === id;
+      const el = cardFaceEl(id, { clickable, selected: isSelected, ownerSeat: seat });
+      if (clickable) el.onclick = () => { selection[seat] = { type: 'card', id }; renderAllPanels(); };
+      row.appendChild(el);
+    }
+  } else {
+    for (let i = 0; i < count; i++) row.appendChild(cardBackEl());
+  }
+  return row;
+}
+
+function mindZoneEl(title, count, contentEl) {
+  const zone = document.createElement('div');
+  zone.className = 'mind-zone';
+  const label = document.createElement('div');
+  label.className = 'mind-zone-title';
+  label.textContent = `${title} (${count})`;
+  zone.append(label, contentEl);
+  return zone;
+}
+
+/// Mind domain (Hand/Library/Discard, D37): one row per player, Discard | Hand | Library —
+/// Library never shows a face-up stack, even the owner's own (2026-09-14: known cards, unknown
+/// order); Discard is fully public; Hand follows D7 (own cards face-up and clickable, opponent's
+/// face-down backs, count only).
 function renderMindPanel(panelKey) {
   const isTrue = panelKey === 'true';
   const data = isTrue ? cache.trueState : cache.view[panelKey];
   if (!data) return;
   const idPrefix = isTrue ? 'mind-true' : `mind-p${panelKey}`;
+  const container = document.querySelector(`#${idPrefix} .mind-zones`);
+  if (!container) return;
+
   const zones = mindZonesFrom(data, isTrue);
+  const sel = isTrue ? null : selection[panelKey];
 
-  const libraryEl = document.querySelector(`#${idPrefix} .library`);
-  const handEl = document.querySelector(`#${idPrefix} .hand`);
-  const discardEl = document.querySelector(`#${idPrefix} .discard`);
-  if (!libraryEl || !handEl || !discardEl) return;
+  container.innerHTML = '';
+  for (const z of zones) {
+    const row = document.createElement('div');
+    row.className = 'mind-row';
 
-  libraryEl.innerHTML = zones.map(z =>
-    `<div><strong>P${z.player.value} Library</strong> (${z.libraryCount}): ${cardListText(z.libraryCards)}</div>`).join('');
-  handEl.innerHTML = zones.map(z =>
-    `<div><strong>P${z.player.value} Hand</strong> (${z.handCount}): ${cardListText(z.handCards)}</div>`).join('');
-  discardEl.innerHTML = zones.map(z =>
-    `<div><strong>P${z.player.value} Discard</strong> (${z.discard.length}): ${cardListText(z.discard)}</div>`).join('');
+    const label = document.createElement('div');
+    label.className = 'mind-row-label';
+    label.textContent = `P${z.player.value}`;
+    row.appendChild(label);
+
+    row.appendChild(mindZoneEl('Discard', z.discard.length, discardWidgetEl(z.discard)));
+    row.appendChild(mindZoneEl('Hand', z.handCount, handRowEl(z.handCount, z.handCards, z.player.value, sel, !isTrue)));
+    row.appendChild(mindZoneEl('Library', z.libraryCount, libraryWidgetEl(z.libraryCount, z.libraryCards)));
+
+    container.appendChild(row);
+  }
 }
 
-function traceLine(t) {
-  return `<div>${t.description}</div>`;
+function traceTokenEl(t, fadeNote) {
+  const el = document.createElement('div');
+  el.className = 'trace-token';
+  el.innerHTML =
+    `<div><span class="trace-controller">P${t.controller.value}:</span> ${t.description}` +
+    (fadeNote ? `<span class="trace-fade">${fadeNote}</span>` : '') +
+    `</div>`;
+  return el;
 }
 
-function pastTraceLine(t) {
-  return `<div>${t.description} <span class="fade-note">(round ${t.createdAtRound}, fades round ${t.fadesAtRound})</span></div>`;
+function aetherZoneEl(title, traces, fadeNoteFor) {
+  const zone = document.createElement('div');
+  zone.className = 'aether-zone ' + title.toLowerCase();
+  const label = document.createElement('div');
+  label.className = 'aether-zone-title';
+  label.textContent = title;
+  zone.appendChild(label);
+
+  const tokens = document.createElement('div');
+  tokens.className = 'aether-zone-tokens';
+  if (traces.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.textContent = '—';
+    tokens.appendChild(empty);
+  } else {
+    for (const t of traces) tokens.appendChild(traceTokenEl(t, fadeNoteFor?.(t)));
+  }
+  zone.appendChild(tokens);
+  return zone;
 }
 
-/// Aether domain (Past/Pending/Future, D38): one shared timeline, not per-player — Now is a
-/// marker between Past and Pending, not a zone of its own. Fully public in M1 (nothing hidden,
-/// e.g. a Trap, exists yet), so all three sub-panels show the same content today; per-observer
-/// redaction is a future concern once hidden trace content exists.
+/// Aether domain (Past/Pending/Future, D38): one shared horizontal timeline, not per-player —
+/// Now is a vertical line between Past and Pending, not a zone of its own. Fully public in M1
+/// (nothing hidden, e.g. a Trap, exists yet), so all three sub-panels show the same content
+/// today; per-observer redaction is a future concern once hidden trace content exists.
 function renderAetherPanel(panelKey) {
   const isTrue = panelKey === 'true';
   const data = isTrue ? cache.trueState : cache.view[panelKey];
@@ -550,24 +693,37 @@ function renderAetherPanel(panelKey) {
   const el = document.querySelector(`#${idPrefix} .aether-timeline`);
   if (!el) return;
 
-  const past = [...data.past].sort((a, b) => b.createdAtRound - a.createdAtRound);
-  const pending = [...data.pending].reverse(); // top of Pending (next to resolve) first
+  // No client-side ordering logic at all, by construction rather than by sorting: TrueState.Past
+  // is a plain List<PastTrace> that only ever gets appended to (AetherPipeline.ResolveTopOfPending)
+  // and filtered in place as entries fade (ExpireFadedTracesEffect), never reordered — so the API
+  // already hands it over oldest-first, and rendering it directly (oldest left, newest right,
+  // right = nearest Now) needs nothing further. A previous version sorted by createdAtRound
+  // client-side to get this same order, which added a real bug (round-granularity ties broke
+  // unpredictably) for zero benefit over just trusting the server's own order.
+  const past = data.past;
+  // Top of Pending (next to resolve) is nearest Now, deeper entries extend rightward — Pending
+  // is itself append-only (Push) but its *most*-recent entry is what sits nearest Now here
+  // (opposite of Past), so this one direction genuinely does need reversing, not sorting.
+  const pending = [...data.pending].reverse();
 
-  el.innerHTML =
-    `<div class="aether-zone"><strong>Past</strong>${past.length ? past.map(pastTraceLine).join('') : '<div class="empty">—</div>'}</div>` +
-    `<div class="now-marker">— Now —</div>` +
-    `<div class="aether-zone"><strong>Pending</strong>${pending.length ? pending.map(traceLine).join('') : '<div class="empty">—</div>'}</div>` +
-    `<div class="aether-zone"><strong>Future</strong>${data.future.length ? data.future.map(traceLine).join('') : '<div class="empty">—</div>'}</div>`;
+  const fadeNote = t => ` (r${t.createdAtRound}, fades r${t.fadesAtRound})`;
+
+  el.innerHTML = '';
+  el.appendChild(aetherZoneEl('Past', past, fadeNote));
+  const nowLine = document.createElement('div');
+  nowLine.className = 'now-line';
+  el.appendChild(nowLine);
+  el.appendChild(aetherZoneEl('Pending', pending));
+  el.appendChild(aetherZoneEl('Future', data.future));
 }
 
+/// Each tab only has the DOM for its own observer (VIEW) — the hub tab has none of it and
+/// VIEW is null there, so this is a no-op on that page.
 function renderAllPanels() {
-  renderPanel(1);
-  renderPanel(2);
-  renderPanel('true');
-  for (const key of [1, 2, 'true']) {
-    renderMindPanel(key);
-    renderAetherPanel(key);
-  }
+  if (VIEW == null) return;
+  renderPanel(VIEW);
+  renderMindPanel(VIEW);
+  renderAetherPanel(VIEW);
 }
 
 async function refreshAll() {
@@ -596,7 +752,7 @@ async function refreshAll() {
       if (sel.type === 'actor' && !actors.some(a => a.id.value === sel.id)) selection[key] = null;
       if (sel.type === 'card') {
         const hand = key === 'true' ? null : cache.view[key].hands.find(h => h.player.value === key)?.cards;
-        if (!hand?.includes(sel.id)) selection[key] = null;
+        if (!hand?.some(c => c.value === sel.id)) selection[key] = null;
       }
     }
 
@@ -613,8 +769,10 @@ async function refreshAll() {
     renderAllPanels();
     renderPhaseStepper(trueState.currentPhase);
 
-    status.textContent = statusLine(view1);
-    status.className = view1.winner ? 'winner-banner' : '';
+    // Each tab's status line reflects its own observer — P1/P2's redacted view (their own
+    // mana, "awaiting YOUR priority"), the hub and True-state tab get the unredacted version.
+    status.textContent = VIEW === 1 ? statusLine(view1) : VIEW === 2 ? statusLine(view2) : trueStatusLine(trueState);
+    status.className = trueState.winner ? 'winner-banner' : '';
   } catch (err) {
     status.textContent = String(err);
   }
@@ -672,9 +830,22 @@ async function loadSelectedScenario() {
   await refreshAll();
 }
 
-document.getElementById('load-button').addEventListener('click', loadSelectedScenario);
+document.getElementById('load-button')?.addEventListener('click', loadSelectedScenario);
 
+/// The hub (index.html) owns scenario loading — a view tab (p1/p2/true.html) must never load or
+/// reset a scenario just from being opened or refreshed, since the whole point of splitting into
+/// tabs is that they share one live match. It only ever fetches and renders current state.
 (async function init() {
-  await loadScenarioList();
-  await loadSelectedScenario();
+  const hasScenarioControls = document.getElementById('load-button') != null;
+  if (hasScenarioControls) {
+    await loadScenarioList();
+    await loadSelectedScenario();
+  } else {
+    await refreshAll();
+  }
+
+  // Cross-tab sync: an action taken in one tab (e.g. P1 moving a creature) has to reach the
+  // others somehow, since each tab is now its own page with its own JS state. Skipped mid-drag
+  // so a poll landing between pointerdown and pointerup can't yank the board out from under it.
+  setInterval(() => { if (!dragState) refreshAll(); }, 2000);
 })();

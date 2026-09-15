@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Leyline — True state</title>
+  <link rel="stylesheet" href="style.css?v=5" />
+</head>
+<body data-view="true">
+  <header>
+    <h1>Leyline — True state</h1>
+    <nav class="view-nav">
+      <a href="index.html">Hub</a>
+      <a href="p1.html" target="_blank">P1</a>
+      <a href="p2.html" target="_blank">P2</a>
+    </nav>
+    <div id="phase-stepper" class="phase-stepper"></div>
+    <span id="status-line"></span>
+  </header>
+
+  <h2 class="domain-title">Matter domain — the Island</h2>
+  <main id="panels">
+    <section class="panel" id="panel-true">
+      <h2>True state</h2>
+      <div class="mana"></div>
+      <div class="board-wrap"><svg class="board"></svg></div>
+      <div class="selection"></div>
+      <div class="hand"></div>
+      <div class="combat-info"></div>
+    </section>
+  </main>
+
+  <h2 class="domain-title">Mind domain — Discard / Hand / Library</h2>
+  <main id="mind-panels" class="domain-panels">
+    <section class="panel domain-subpanel" id="mind-true">
+      <h3>True state</h3>
+      <div class="mind-zones"></div>
+    </section>
+  </main>
+
+  <h2 class="domain-title">Aether domain — Past / Now / Pending / Future</h2>
+  <main id="aether-panels" class="domain-panels">
+    <section class="panel domain-subpanel" id="aether-true">
+      <h3>True state</h3>
+      <div class="zone-block aether-timeline"></div>
+    </section>
+  </main>
+
+  <script src="app.js?v=5"></script>
+</body>
+</html>

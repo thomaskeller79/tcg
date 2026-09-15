@@ -19,7 +19,7 @@ public sealed record PendingCreatureCast(PlayerId Owner, CardDefinitionId Card, 
         yield return new CreatureSummonedIntent(state.AllocateActorId(), Owner, Card, Target);
     }
 
-    public string Describe(TrueState state) => $"{Owner} cast {Card} -> summon at {Target}";
+    public string Describe(TrueState state) => $"Summon {state.Content.Get(Card).Name} at {Target}";
 }
 
 /// <summary>A queued Spell's deferred resolution — target legality (and the caster's Champion
@@ -46,5 +46,17 @@ public sealed record PendingSpellCast(PlayerId Caster, CardDefinitionId Card, Ac
             yield return intent;
     }
 
-    public string Describe(TrueState state) => $"{Caster} cast {Card} -> target {Target}";
+    public string Describe(TrueState state)
+    {
+        var def = state.Content.Get(Card);
+        var targetName = state.FindActor(Target) is { } actor
+            ? (actor is IHasCardDefinition d ? state.Content.Get(d.Definition).Name : "?")
+            : "a target that no longer exists";
+        return def.EffectId switch
+        {
+            SpellEffectIds.Damage => $"Deal {def.EffectAmount} damage to {targetName}",
+            SpellEffectIds.Heal => $"Heal {targetName} for {def.EffectAmount}",
+            _ => $"{def.Name} -> {targetName}",
+        };
+    }
 }

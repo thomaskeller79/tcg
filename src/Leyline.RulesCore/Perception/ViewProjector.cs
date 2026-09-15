@@ -36,8 +36,13 @@ public static class ViewProjector
         var hands = state.Players
             .Select(p => new HandView(p.Id, p.Hand.Count, p.Id == observer ? p.Hand.ToList() : null))
             .ToList();
+        // A player knows which cards are in their own Library, but never their draw order (that
+        // stays hidden even from the owner) — so the observer's own entry gets Cards sorted into
+        // a canonical order, never the true (deterministic-for-testing, otherwise-would-be-
+        // shuffled) draw sequence PlayerState.Library actually holds.
         var libraries = state.Players
-            .Select(p => new LibraryView(p.Id, p.Library.Count, p.Id == observer ? p.Library.ToList() : null))
+            .Select(p => new LibraryView(p.Id, p.Library.Count,
+                p.Id == observer ? p.Library.OrderBy(c => c.Value, StringComparer.Ordinal).ToList() : null))
             .ToList();
         var discards = state.Players.Select(p => new DiscardView(p.Id, p.Discard.ToList())).ToList();
 

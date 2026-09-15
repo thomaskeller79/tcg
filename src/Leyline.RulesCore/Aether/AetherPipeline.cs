@@ -33,19 +33,30 @@ public static class AetherPipeline
         if (window.ConsecutivePasses < window.Order.Count)
             return CommandResult.Accept([]);
 
+        var events = new List<IEvent>();
+        if (!state.Pending.IsEmpty)
+            events.AddRange(ResolveTopOfPending(state, pipeline));
+
         if (!state.Pending.IsEmpty)
         {
-            var events = ResolveTopOfPending(state, pipeline);
+            // Something is still queued (another trace, or a real response the resolution above
+            // just triggered) — reopen for a fresh round rather than draining everything in one
+            // pass-cycle. Nothing in M1 can actually add anything here yet (no instant-speed
+            // content), but the loop is correct for when that exists.
             window.ConsecutivePasses = 0;
             window.CurrentIndex = 0;
             return CommandResult.Accept(events);
         }
 
+        // Pending is empty — either it already was, or the resolution above just emptied it.
+        // Close now rather than demanding one more all-pass round to "confirm" nothing's left:
+        // with zero instant-speed content in M1, that round could never produce a different
+        // command anyway (RulesEngine.LegalCommands offers only Pass while any window is open).
         state.ActiveWindow = null;
         return window.Kind switch
         {
-            PriorityWindowKind.CombatDeclare => CommandResult.Accept(CombatPipeline.Resolve(state, pipeline, state.GetCombat((CombatId)window.Context))),
-            PriorityWindowKind.CastResolution => CommandResult.Accept([]),
+            PriorityWindowKind.CombatDeclare => CommandResult.Accept(events.Concat(CombatPipeline.Resolve(state, pipeline, state.GetCombat((CombatId)window.Context))).ToList()),
+            PriorityWindowKind.CastResolution => CommandResult.Accept(events),
             _ => throw new NotSupportedException($"Unhandled priority window kind {window.Kind}."),
         };
     }
