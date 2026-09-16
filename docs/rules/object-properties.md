@@ -1,0 +1,79 @@
+# Properties of Game Objects
+
+*What a game object is made of — Card, Trace, and Permanent as one connected chain — and how properties move (or don't) when one creates another, including backward: Bounce and Flicker.*
+
+**Decisions:** D69 (`history/decisions.md`)
+
+---
+
+## 1. The object graph
+
+Every game object belongs to exactly one domain, and each domain has exactly one kind of object in it (`overview.md` §1, D37/D59):
+
+- **Mind** — **Card**. In Hand, Library, or Discard.
+- **Aether** — **Trace**. In Past, Pending, or Future.
+- **Matter** — **Permanent**. On the Island — an Actor (Champion, Companion, Creature) or an Object (Structure, Item, Terrain, Grave, Ruin).
+
+Two things that look like they might belong on this list don't:
+
+- **Combat** is not a game object in this sense. It's a transient `{attacking units, target hex, declared defenders}` record that's created and resolved in one step — it never occupies a zone, never has properties beyond that one resolution, and isn't part of the Card/Trace/Permanent chain.
+- **Map** is not a Matter-domain object — it never becomes a Permanent and is explicitly excluded from the zone system (`overview.md` §1: "not part of any zone... cannot be referenced by other game objects"). It *is* a card with its own properties (Layout, home-ground/neutral-ground population, per-hex Terrain Type, landmarks, size), but its job is done once, at game setup, producing board data (and, per below, populating some starting permanents) rather than persisting as a queryable object during play.
+
+**Three permanent-type cards skip the Mind domain entirely.** Champion and Terrain exist in a player's collection like any other card, but never occupy Hand/Library/Discard. **The exact mechanism by which they, and Map-populated Neutral Structures/Items/Creatures/Companions, become Permanents at setup is not yet decided** — it is *not* simply a direct Card→Permanent edge, since that would contradict Mind→Matter being forbidden (§2); it plausibly involves the Map itself as a participant in the process, not just the card and the permanent. See Open questions.
+
+## 2. Domain transitions create objects; nothing ever moves
+
+Casting a card doesn't relocate it into the Aether — it **creates** a new, linked Trace, while the card itself discharges into Discard (`glossary.md`'s **Zone** entry, D16). A resolving Trace doesn't relocate into Matter — it **creates** a new, linked Permanent. This is true in both directions: **Bounce** and **Flicker**, the two backward transitions, also create new objects rather than moving an existing one back. A bounced permanent's card can end up sitting in Hand while an entirely different, untouched card object from the same cast still sits in Discard — that's not a violation of "one object, one zone," because they're two separate objects, exactly the same way a cast card and the permanent it produced are two separate objects.
+
+The six ordered cross-domain transitions this doc actually covers:
+
+| Transition | Name | Status |
+|---|---|---|
+| Mind → Aether | **Cast** | Ordinary game progression |
+| Aether → Matter | Trace resolves | Ordinary game progression |
+| Matter → Aether | **Flicker** | Creates a new Trace |
+| Matter → Mind | **Bounce** | Creates a new Card |
+| Mind → Matter | — | **Forbidden, invariant.** Magic always leaves a trace — even an Instant-speed effect passes through the Aether atomically (D45) rather than skipping it. |
+| Aether → Mind | **Remand** | Creates a new Card. For a permanent-producing card, follows the identical rule as Matter→Mind (Trace and Card are close enough in the property chain that no special case is needed). For a **Spell**, only the general cost/choice-lock, target-reset rule (§4) is expected to apply — not yet stress-tested against a concrete spell. |
+
+**This table is incomplete on purpose, not by oversight.** An existing Permanent using one of its own abilities (including the base Move/Attack/Ascend/Descend defaults, or any printed activated ability) *also* creates a Trace — call it **Activate** — and this is the routine, constant case during play, not a rare one. It is not simply "Matter → Aether" in the same sense as Flicker: Flicker **removes** the Permanent as part of creating the linked Trace, while Activate leaves the acting Permanent completely untouched — same object, same zone, unconsumed, free to act again. That makes Activate closer in shape to Cast (the source object isn't destroyed either way) than to Flicker, but not identical to Cast either (Cast at least relocates/spends the card to Discard; Activate doesn't even do that). Activate's exact rules — what it inherits, how it relates to Cast and Flicker — are not worked out; see Open questions.
+
+Bounce/Flicker/Remand never need to locate the permanent's originating card or trace — they read only the object being transformed, in its *current* state. That's what makes them well-defined even when there's no ancestor to find: a Neutral, Map-placed creature with no card in any collection; a permanent whose originating card has since been removed from Discard entirely. Neither case is special — both fall straight out of §3.
+
+**Champion and Terrain can never be bounced, full stop** — a separate restriction, not derived from the property model. There's no known structural reason a Neutral permanent can't be bounced (see §3's model, which doesn't require an ancestor card to exist), but whether the rules should actually permit targeting one this way isn't decided — see Open questions.
+
+## 3. Markovian object creation
+
+**A newly created object's properties are a pure function of its immediate predecessor's *current* state — nothing further back, in either direction.** This is what makes Bounce/Flicker well-defined (§2) and what governs how much of a permanent's history survives leaving the Island.
+
+**Property tiers.** Card and Trace both carry only the **max**-tier of every stat, plus cost and the ability list — this is what "printed on a card" means. Permanent adds the **current**-tier on top: current-Attack, current-Life, current-AP alongside max-Attack, max-Life, max-AP. Abilities (static, triggered, activated) are stats in this same sense — they inherit and extend the same way numeric stats do.
+
+**A Trace's own properties include Duration** — how long it persists in Past before fading (default 5 rounds, card-overridable via `Duration X`, D50). "**Physical trace**" (D45 — the base Move/Attack/Ascend/Descend defaults, zero Past residency) is not a separate kind of Trace or its own transition — it is simply the case where Duration's *value* is 0, an ordinary property value like any other, not a structurally distinct object. Any ability, not just the four defaults, can presumably be printed with a Duration of 0 to get the same treatment.
+
+A backward creation event (Bounce, Flicker) reads the predecessor's current state and keeps only whichever properties the *new* object's own type actually has room for. Current-tier values are dropped every time, because neither Card nor Trace has a current-tier slot at all — not because they're specially excluded, but because that field was never part of their schema in the first place (the same reason a Card has no board position). Concretely: a Permanent whose max-Life was genuinely, permanently raised during play (not merely healed) carries that higher max-Life into a bounced/flickered card; ordinary combat damage, and any effect that only ever modified a *current* value, does not survive. This asymmetry is intentional — it's exactly what makes a truly permanent buff a more expensive, more consequential effect than a temporary one, and letting a temporary buff get "banked" through a bounce is accepted design space, priced accordingly, not something the rules engine needs to prevent.
+
+**Recovery policy is a separate, per-stat property.** The (max, current) shape is uniform across stats, but how current recovers toward max is not: current-Life never recovers on its own (persists until an explicit heal, D14); current-AP fully recovers every Beginning phase (existing rule). A future stat could need a third policy — this is deliberately left per-stat, not hardcoded once for all of them.
+
+**A Bounce/Flicker-created object is not a token.** It still carries the same mandatory Card-Definition reference as any other instance of that card, so it's a real instance of a real, deckbuilt card type — just a *new* physical object. The original (discarded) card, if one exists, is untouched and left exactly where it was; the number of card objects that have ever existed can grow (via Bounce) or shrink (via exile) over the course of a match. This is accepted as fine — deck legality is fixed at construction, and on-Island uniqueness restrictions only ever care about live Permanents, never about how many inert copies are sitting in Discard.
+
+## 4. What locks in vs. what always resets
+
+Once a variable value is resolved — an X-cost, an X/X/X stat line, a modal spell's chosen mode — it becomes a fixed, ordinary property of the object from that point on, exactly like a value that was printed from the start. It flows forward and, per §3, backward: a creature cast for X=3 that gets bounced comes back as a flatly-costed, flatly-statted 3-mana 3/3/3 card, no longer variable. This holds because cost (even printed only as "X") and a chosen mode are properties of the object's *own* nature — the Card's schema always had a slot for them, unresolved or not.
+
+**A cost that consumes specific objects to be paid — sacrifice X creatures, discard N cards, pay N life — only ever locks in the magnitude (X, N), never the identity of what was consumed.** The specific creatures sacrificed are never tracked as a property of anything created afterward.
+
+**Target never locks in.** No counterexample has been found (see Open questions on modal permanent-card choices) to a single flat rule: whatever a card, trace, or triggered ability targets — a location, a creature, a player — resets, requiring a fresh choice at every instantiation, regardless of direction. A card's declared number/type of targets is ordinary Card-level metadata used to check cast legality, but it never holds an assigned target value at the Card level, in any form — that's the actual difference from cost, which does hold a value-shaped slot at the Card level even before it's resolved. A targetless Spell has nothing to reset, so Remand (§2) locks in everything about it (cost, mode) with nothing left over.
+
+**Location is target's Matter-side identity, not a separate property.** For any permanent-producing card, the (single, mandatory, implicit) target *is* the destination — introduced first at the Trace level, inherited into the Permanent as **location**, the same underlying slot under a different name appropriate to a live, freely-mutable, continuously-updated fact (every Move/Ascend/Descend changes it) rather than a frozen, one-time choice. This is why location and target flow in *both* directions between Trace and Permanent specifically — forward at an ordinary cast, backward at Flicker, each time freshly read from whichever of the two objects currently exists — but never reach Card, which never had this field to begin with. A flickered permanent's new Trace gets its target from the permanent's *current* location, not from wherever it originally started — and this is a forced, single-candidate read, not a player choice, unless a specific card states otherwise.
+
+## Open questions
+
+1. **Remand for Spells** — the cost/choice-lock, target-reset rule (§4) is expected to apply the same way it does everywhere else, but hasn't been tested against a concrete spell.
+2. **Modal permanent-card choices** — every attempt so far collapses into an ordinary "as this resolves"/"when this enters" triggered ability, which just becomes a fixed part of the (inherited, lockable) ability list rather than needing target-style reset treatment. If no counterexample is ever found, location becomes the *only* true instantiation-time choice a permanent card can have — a candidate invariant, not yet one.
+3. **Location- vs. permanent-typed targets** — whether "target" needs splitting into sub-kinds for any purpose here (it already is split for the unrelated D68 redirect-on-illegal-destination mechanism) is raised, not settled.
+4. **Are Neutral, Map-placed permanents actually legal to bounce?** Nothing in this model structurally prevents it, but that's not the same as a ruling that it's allowed.
+5. **Card-level continuous effects** (e.g. a hypothetical "target creature card in your hand gains +1/+1/+1") depend on the still-undesigned continuous-effects system (`PLAN.md` §9 item 9) — this doc describes how such a modifier would propagate *if* it existed, not whether/how one gets attached to a Card in the first place.
+6. **The full per-type property inventory (`PLAN.md` §8 item 10) is one item covering every game object, not a per-type one.** Two concrete gaps it already turned up: Champion's own Attack stat is still unprinted anywhere (`champions.md` gives an Attack *ability cost*, `6!AP`/`3!AP`, but never a damage value, unlike Creature/Companion's plain Attack/Life/AP triple); and Grave/Ruin are confirmed as stat-bearing game objects, but their actual property list (which hex/slot, whether either needs a reference back to whatever died) was never derived. Neither is a separate item — both roll into the one inventory pass, which is explicitly not assumed complete even once drafted.
+7. **This doc only covers the six *cross-domain* transitions.** Untouched: transitions *within* a domain (Library→Hand/draw, Hand→Discard/discard, Pending→Past/resolve, Pending↔Future/delay, mill, etc.) — some are ordinary game progression, others (discard, mill) are card-grantable actions in their own right and may need their own version of the "what does the created/moved object keep" question. Also untouched: a transition **to nowhere** — an object destroyed/exiled outright, with no destination zone at all (touched obliquely earlier — a card removed from the Mind domain before ever being cast simply ceases to exist, nothing created, nothing left behind — but never generalized into a rule alongside the other six).
+8. **How do Map, the players' terrain decks, and the players' Champions actually combine to produce the initial board state?** Champion and Terrain plausibly reach the Island through a mechanism that also involves the Map, not a plain Card→Permanent read — genuinely open, not just unstated.
+9. **What exactly is Activate** (an existing Permanent using its own ability, including the base Move/Attack/Ascend/Descend defaults) **— what does the resulting Trace inherit, and how does it relate to Cast and Flicker**, given it doesn't consume/remove the source object the way Flicker does, but isn't identical to Cast either? §2 names the distinction; it doesn't resolve it.
