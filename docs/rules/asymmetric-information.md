@@ -2,7 +2,7 @@
 
 *Players do not share one view of the board. What each player perceives is itself a manipulable, card-driven property.*
 
-**Decisions:** D7, D12, D18, D41, D42, D67 (`history/decisions.md`)
+**Decisions:** D7, D12, D18, D41, D42, D67, D71 (`history/decisions.md`)
 
 ---
 
@@ -83,8 +83,10 @@ The border is a **principle, not a per-resource list**:
 | **Mana spent / live balance** | **Hidden** | the engine of cost-deception; also "do they have mana for a trick?" bluffs (D5) |
 | **Costs with a board footprint** (sacrifice, unbond, discard) | **Self-revealing** | can't be faked → that spell isn't mimickable, and that's fine |
 | **Hand size (count)** | **Public** | legibility; the cast-A-as-B bluff needs only hidden mana-spend. Contents always private. A card may *obscure* the count (opt-in). |
+| **Discard size (count)** | **Public** | same legibility shape as Hand; contents always private (D71 — was fully public in the implementation, corrected) |
+| **Library size (count)** | **Public** | opponent knows how many cards remain; the owner additionally knows *which* cards remain (deducible from decklist + what's been seen), but never the true draw order (D71) |
 | **Activation Points (max & current)** | **Public** | board readability (pillar 3); AP surprises come from instant-speed **timing** (D5, the +1-AP ambush blocker), not hidden state |
-| **Hidden-zone contents** (hand cards, submerged units, mimicked trace identities) | **Hidden** | core pillar 6 |
+| **Hidden-zone contents** (hand cards, discard cards, submerged units, mimicked trace identities, Library draw order) | **Hidden** | core pillar 6; Discard added by D71 |
 | **Unit stats/positions, terrain, buildings, graves, life** | **Public** | D7 legibility |
 
 The **only** standing quantity hidden is the **live mana balance** (because per-spell spends are never shown) — one deliberate, minimal carve-out from D7, justified by deception being a headline pillar. Interacts with D8 open #4 (**bank** vs **refresh**: banking gives more bluff room).

@@ -6,6 +6,20 @@
 
 ---
 
+### D71 — Mind-domain zones (Hand, Library, Discard) are hidden from the opponent by default; each zone is ordered
+Resolves `PLAN.md` §8 item 6 (Track A/Rules), surfaced 2026-09-13 when the M1 implementation was found to have assumed Discard is fully public with no rule ever stating so.
+
+**The rule, one line for all three zones:** nothing in the Mind domain is visible to the opponent by default — flavor ("why would an opponent see into a player's mind?") and mechanically load-bearing, since a domain that's public by default can't carry a genuinely secret cast. Each zone is also **ordered** — order is real, trackable state, not just a multiset, so a future card can reference position (e.g. "the top card of your Discard") without needing new machinery.
+
+Per-zone shape — confirms D18's existing Hand rule, changes Discard, and writes Library's already-implemented behavior down as a real rule for the first time:
+- **Hand** — unchanged (D18): owner sees full contents in true order; opponent sees a count only, never contents.
+- **Discard** — **changed, this decision's actual effect.** Was fully public in the implementation (`ViewProjector.cs`, no observer filtering) with no rule backing it. Now matches Hand's shape exactly: owner sees full contents in true order; opponent sees a count only, contents hidden. A card that wants to see an opponent's Discard (or Hand) needs an explicit granted ability, same as any other hidden-zone peek.
+- **Library** — order hidden even from the owner (draw order is never known, shuffled or not), but the owner *does* know their Library's remaining contents (deducible: own decklist minus what's been drawn/discarded/seen), so the owner's own view shows the multiset in a canonical, non-order-revealing sort. Opponent sees a count only. This was already the implementation's behavior (`ViewProjector.cs`'s existing comment); no code change needed, only documenting it as a deliberate rule rather than an unstated implementation choice. Explicitly deferred, not designed now: whether/how a card could ever grant a player visibility into their *own* draw order — not needed until AI or a UX feature wants it.
+
+**Distinct from D7.** D7 ("default visibility is full") governs the Matter/board domain only — this decision doesn't reopen or narrow it; the two domains have independent, unrelated default-visibility rules.
+
+→ `overview.md` §1, `glossary.md` (Library, Discard), `asymmetric-information.md` (resource-observability table). Implementation follow-up tracked at `PLAN.md` §8 Track B item 19 — `DiscardView`/`ViewProjector.cs`/the DebugUi Mind panel all currently treat Discard as public and need the same observer-gated shape `HandView` already has.
+
 ### D70 — Casting/activating is a three-step procedure (pay → choose → target); cost is CNF-structured and paid semi-automatically; a trace only exists in the Aether once all three steps complete — which is also why modal choices lock in on Remand/Bounce while target never can
 Resolves `PLAN.md` §8 item 12 — the suspected link between D46's cost/instantiate boundary and `object-properties.md` §4's durable-vs-resets boundary. **Confirmed: they're the same boundary**, sharpened from D46's original two-stage split (pay, then everything else) into three. Reached through comparative research against Magic, Hearthstone, and Android: Netrunner, then validated against one fully worked test card end to end, not settled by discussion alone.
 
