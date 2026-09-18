@@ -6,6 +6,40 @@
 
 ---
 
+### D73 — No non-location target ever persists as a Permanent-tier property; the D68 location/permanent split doesn't generalize into the object-creation model
+
+Resolves `PLAN.md` §8 item 9(c) / `object-properties.md`'s open question on location- vs. permanent-typed targets — whether "target" needs splitting into sub-kinds for any purpose in this doc's own model, beyond the unrelated reason D68 already needed the split (its redirect-on-illegal-destination mechanism applies only to location-typed choices, never permanent-typed ones).
+
+Tested via a systematic search for a non-Aura MTG permanent whose own casting (not a subsequent triggered ability) targets another permanent and has that relationship persist as an ongoing property of the resulting permanent — the pattern §4 already grants Location, uniquely, via "Location is target's Matter-side identity, not a separate property."
+
+**Aura is the one real precedent, and Leyline deliberately has no Aura-shaped card type.** Bestow is the creature-flavored version of the same mechanism, not an independent case.
+
+**Every apparent non-Aura candidate collapses under inspection:**
+- "Enters the battlefield, exile target creature" (Fiend Hunter/Banisher Priest-style) resolves via an ETB **triggered ability**, not the card's own casting target — the same category already ruled out earlier in this thread by the Item/equip example ("When this enters the Island, you may equip it to target creature" has a persistent property too, but via a trigger, not a cast-time target).
+- Doppelganger/Mocking Doppelganger-style "enter as a copy of a creature" **is not a target at all** in MTG's technical sense — rule 115.1 defines targeting purely by the literal word "target" appearing in the text, and this templating deliberately avoids it. The choice is a **replacement-effect choice** (CR 707, copying objects) made **as the permanent would enter the battlefield**, re-evaluated against board state at that moment — never locked in at cast, never subject to Hexproof/illegal-target fizzle. Confirmed via Mocking Doppelganger's own ruling ("You may choose only a creature that's already on the battlefield").
+
+**Why the pattern doesn't exist outside Aura, structurally:** an ordinary target on an instant/sorcery has a remaining instruction to apply itself to at resolution (fizzles per-instruction if the target's gone, D33). A permanent spell's resolution *is* "become a permanent" — there's no separate instruction left to receive the target. Aura sidesteps this because the target relationship *is* the permanent's whole mode of existence (continuously rechecked, the Aura falls off if it disappears) rather than a value consumed once by an effect. Doppelganger's actual solution confirms MTG's own designers hit this same wall and routed around targeting entirely rather than target a permanent spell.
+
+**Adopted: no generalization.** Location remains the sole permanent-specific instantiation-time field (§4, unchanged). The D68 location/permanent target split stays scoped to D68's own redirect mechanism only; `object-properties.md`'s target model needs no equivalent split, since "target never locks in" already covers every kind of target uniformly with no observed exception. Closed on a negative result (no counterexample found after a real search), not merely unpursued.
+
+→ `object-properties.md` (open question on location/permanent-typed targets removed, resolved; remaining questions renumbered).
+
+### D72 — A permanent card's modal choice is the same "choose" step machinery a Spell's mode already uses; closes `object-properties.md` Open Question 1
+
+Resolves `PLAN.md` §8 item 9(b) — whether any permanent-card modal choice exists that doesn't collapse into an ordinary triggered ability, the working hypothesis Open Question 1 left unconfirmed.
+
+**Worked example: a split-permanent card** (MTG's split-card tech doesn't exist for permanents there, but nothing structurally prevents it in Leyline) — one card castable as either Creature A or Creature B, each its own full stat/ability bundle. This does *not* reduce to a triggered ability: a triggered ability presupposes a base object already exists and only modifies it ("as this enters, choose one: +1 Attack or Flying"); choosing "Creature A" vs. "Creature B" instead picks which entire max-tier schema (name, Attack/Life/AP, ability list) the trace collapses into in the first place — there's no base object yet for a trigger to modify.
+
+**Resolved anyway with zero new machinery — the same "choose" step (D70 step 2) already covers it.** Nothing in D69/D70 ever restricted a modal menu to varying only effect instructions on one fixed object; a menu selecting among entire stat/ability bundles is the identical mechanism, just a richer option shape — the same move D70 already made once, generalizing a single modal pick to a repeated-pick list. "Which face" is chosen and locked in at step 2 exactly like any other mode, gated as usual by what step 1's cost already permitted.
+
+**Differing-cost split (Creature A: 3 mana / Creature B: 5 mana) initially looked pseudo-modal** — paying the 3-branch narrows step 2's legal menu to one option, so the choice looks absorbed into payment, needing no independent choose step at all. **The sharper test that actually confirms a real, free choice exists: a same-cost split** (both faces 3 mana). Here step 1 can't disambiguate at all — step 2 is a genuine, unconstrained pick between two stat/ability bundles, proving the choice is real and independent of cost, not merely an artifact of the differing-cost case.
+
+**Consequence, confirmed deliberate, not a gap:** per D69 §3/§4, a resolved modal choice locks in permanently — a bounced/flickered split-permanent returns locked to whichever face was chosen, the other face gone for good, exactly like a bounced X-cost creature returns flatly-statted. Explicitly endorsed as a feature, not merely tolerated: this is the same "a bounce-created object only ever exists in the form the bounce produced" behavior that already makes ordinary Bounce/Flicker well-defined for card-less Neutral permanents (D69 §2) — not a special exception carved out for split cards, a natural instance of the same rule.
+
+**Net effect on Open Question 1:** the literal hypothesis ("location is the only true instantiation-time choice a permanent card can have") is falsified by this example — but the actual design question it stood in for closes clean anyway: a permanent card needs no machinery separate from a Spell's modal "choose" step; location remains the only *permanent-specific* instantiation-time field (a Trace's own target/location, §4), everything else a permanent might choose at cast time is ordinary modal choice, already covered. **Deliberately not written into the rules docs as a special case** (the user's explicit call) — `object-properties.md` §4's existing "modal card's chosen mode" language already generalizes past Spells, which is the only current-state rules change; the split-card example itself lives here, in the decision log, as the worked test case, not as card-type content in the rules docs.
+
+→ `object-properties.md` §4 (wording generalized from "modal spell" to "modal card"; Open Question 1 removed, resolved, remaining questions renumbered).
+
 ### D71 — Mind-domain zones (Hand, Library, Discard) are hidden from the opponent by default; each zone is ordered
 Resolves `PLAN.md` §8 item 6 (Track A/Rules), surfaced 2026-09-13 when the M1 implementation was found to have assumed Discard is fully public with no rule ever stating so.
 
