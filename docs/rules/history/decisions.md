@@ -6,6 +6,20 @@
 
 ---
 
+### D75 — What Activate is: the identical pay→choose→target procedure, ordinary per-ability Duration, and a corrected doc bug that makes "at most one Physical Trace in Pending" an actual rule; the `source` property stays deliberately parked
+
+Resolves `PLAN.md` §8 item 9(f) (what "Activate" — an existing Permanent using its own ability — actually is) except for one deliberately deferred piece.
+
+**Trace properties: no new machinery.** An Activate-Trace is created by the identical pay → choose → target procedure D70 already established for Cast — it just reads cost/`X`/modal-shape off the ability currently sitting on the Permanent (already modeled as a stat the Permanent carries, §3) instead of off a Card. Nothing about Activate needed its own rule here; it was already covered by generalizing "casting or activating" together, which `interaction-stack.md` already did.
+
+**Duration: also already covered, no Activate-wide special case.** §3 already states Duration is ordinary per-ability data, not something tied to being an Activate-transition specifically — the four base defaults (Move/Attack/Ascend/Descend) happen to be printed with Duration 0 (D45's "Physical Trace"); any other activated ability defaults to ordinary Trace Duration (5 rounds, card-overridable) exactly like a Cast-Trace, with nothing further to decide.
+
+**A real documentation bug surfaced and got fixed along the way, not merely discussed:** `overview.md` stated Move/Attack "are Quick-speed Physical actions" — contradicted D45's actual intent. Quick describes what *other* cards can play while a Physical Trace already sits in Pending (combat tricks, `interaction-stack.md`), not the physical action's own speed. The base physical actions are **Slow** (playable only when Pending is empty) — this is also what makes "at most one Physical Trace ever sits in Pending" an actual enforced consequence of the Speed system, not merely an informal assumption: a second physical action simply can't be declared (Slow requires Pending empty) until the first one has fully resolved or been responded to. Fixed in `overview.md` §4; noted explicitly in `interaction-stack.md` so it isn't just an emergent fact nobody wrote down.
+
+**Left deliberately parked: the `source` property.** Whether every Trace (not just an Activate-Trace) carries a `source` back-reference to whatever created it — a Card, a Permanent, or something else — is real, useful design space (it's what would let a card "counter the source of target ability" or similar), but it's explicitly deferred to `PLAN.md` §8 item 10, the full per-type property inventory, rather than decided piecemeal here for Activate alone.
+
+→ `object-properties.md` §2 (Activate paragraph resolved, Open Questions updated — Activate question removed, `source` added as a new parked item pointing at item 10), `overview.md` §4 (Slow/Quick bug fixed), `interaction-stack.md` (Physical-Trace-Slow-implies-at-most-one made explicit), `PLAN.md` §8 item 9(f) marked resolved.
+
 ### D74 — Payment generalizes into one "resource walk" covering both costs and effects; Bounce/Remand need no Owner concept, since a card's own destination wording already resolves via the existing Controller walk
 
 Resolves `PLAN.md` §8 item 9(d) (are Neutral, Map-placed permanents legal Bounce targets) — the investigation took a different route than the question implied, and surfaced a second, more general gap along the way.

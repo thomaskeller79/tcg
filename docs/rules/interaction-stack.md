@@ -2,7 +2,7 @@
 
 *Players can act on the opponent's turn (MTG-style instants). One primitive covers instants, combat tricks, and traps: a **Speed** tag per card/ability, checked live against what's sitting in **Pending**, the Aether's next-to-resolve zone.*
 
-**Decisions:** D6, D16, D35, D38, D45, D46, D68, D70 (`history/decisions.md`)
+**Decisions:** D6, D16, D35, D38, D45, D46, D68, D70, D75 (`history/decisions.md`)
 
 ---
 
@@ -15,6 +15,8 @@
 | **Quick** | only **Physical Traces** are in Pending — the trace left by Move, Attack, Ascend, or Descend. | Same as Slow. |
 | **Reactive** | no **Instant Trace** is in Pending. | Same as Slow — a normal Pending entry, respondable by anything whose Speed currently permits it. |
 | **Instant** | any time, no condition. | **Resolves fully atomically**: enters Pending and `Now` is advanced past it as part of the same action — zero duration, **no response window for anyone, not even another Instant.** |
+
+**Move/Attack/Ascend/Descend are Slow (D75), not Quick** — Quick describes what *other* cards can play while a Physical Trace already sits in Pending (combat tricks, below), not the physical action's own speed. Being Slow means a physical action can't be declared while Pending is non-empty, so **at most one Physical Trace ever sits in Pending at a time** — an actual enforced consequence of the Speed system, not merely how things happen to play out.
 
 Pending is the zone just ahead of `Now` — `Now` itself is **not a zone**, just the moving point dividing Pending from Past. **`Now` advances past whatever's next in Pending when both players pass priority in succession** (neither has anything they want to play). The sole exception is an Instant, which advances `Now` past itself immediately and atomically as part of being played, never waiting for both players to pass. As things resolve they cross `Now` and become past **traces**, which then fade (except Physical Traces, which get zero Past residency at all).
 
