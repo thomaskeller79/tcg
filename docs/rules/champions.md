@@ -2,7 +2,7 @@
 
 *Each player is embodied on the board by a single Champion: an avatar that summons creatures, casts spells, and channels magic — and that **evolves between games** along branching paths. Provisional term "Champion" (candidates: Channeler, Champion; not "Commander").*
 
-**Decisions:** D2, D9, D48, D49 (`history/decisions.md`)
+**Decisions:** D2, D9, D48 (superseded in part by D76), D49, D76 (`history/decisions.md`)
 
 ---
 
@@ -21,7 +21,7 @@
 > **The core consumes a fully-resolved Champion *loadout* as input.** It never runs progression logic. This preserves determinism, replays, netcode, and testability (see PLAN §6). Progression is a separate system that produces the loadout the core plays with.
 
 ## In-match: what a Champion is
-- A special **card type / board entity**, one per player, placed at match start on its **home tile** (usually a landmark terrain, but not a special *objective* — see win condition).
+- A special **card type / board entity**, one per player, placed at match start on its **home tile** (usually a landmark terrain, but not a special *objective* — see win condition). Placement is a Setup event, not a Cast — see `setup.md`.
 - Has stats like a unit (HP, Movement). **It is attackable, and its death loses the game** (D9). There is **no separate Base** — the Champion *is* the objective.
 - **Flavor / role.** The world is saturated with mana; only **channelers** can draw it from the land and turn it into magic. A Champion's job is to *channel*, not to fight. It is simultaneously the **economic root** (D8), the **win condition**, and the **most exposed piece** — one entity carrying all three roles is what makes its every decision tense.
 - Has **Champion abilities**: activatable signature powers, gated by AP (below) and possibly extra mana cost. Each carries a **Speed** (Slow/Quick/Reactive/Instant, D45); default is **Slow** (own Action phase only, Pending empty) — no Champion-specific timing rule, same mechanism as any other Actor's abilities.
@@ -35,9 +35,9 @@ The Champion runs the **same two-resource shape as a creature** — there is no 
 | **Mana** | shared pool, however much is bonded & connected (D8) | casting spells, summoning units — **many** actions/turn |
 | **Activation Points (AP)** | private, refills each turn (same shape as a creature's AP, D10) | the Champion's own actions — draw, bond, move, fight, activate abilities |
 
-**Mana is "summoning sick."** Mana is a **snapshot taken once per Beginning phase** (the sum of currently-connected/producing bonded terrain at that instant), not a live recomputation — a bond made mid-turn claims the tile permanently, but that extra mana isn't *credited to the pool* until the player's *next* Beginning phase. Same "no retroactive unlock this turn" shape as D14's summoning sickness for a freshly-summoned creature's AP. **Default match setup:** both Champions start **pre-bonded to their own home tile** — 1 mana is already available turn 1. Combined with the realm constraint below, a fresh Champion is *already rooted* from turn 1: its first move costs `2AP` and stays inside its one-tile territory unless it pays `0AP` to Collapse.
+**Mana is "summoning sick."** Mana is a **snapshot taken once per Beginning phase** (the sum of currently-connected/producing bonded terrain at that instant), not a live recomputation — a bond made mid-turn claims the tile permanently, but that extra mana isn't *credited to the pool* until the player's *next* Beginning phase. Same "no retroactive unlock this turn" shape as D14's summoning sickness for a freshly-summoned creature's AP. **Default match setup:** both Champions start **pre-bonded to their own home tile** — 1 mana is already available turn 1. Combined with the realm constraint below, a fresh Champion is *already rooted* from turn 1: its first move costs `2AP` and stays inside its one-tile territory unless it pays `0AP` to Collapse. **This pre-bond is a current working default, not a settled answer** — `PLAN.md` §8 item 14 is investigating mana-generation timing in general (whether "produces mana starting next Beginning phase" is even the right universal default), and may revise this.
 
-**First-player AP asymmetry (D48):** the Champion of the player who goes first enters the Island with **reduced** starting AP (placeholder: 4) instead of its full Activation Points baseline; the second player's Champion enters at full Activation Points as normal. A first-move-advantage balancing lever, analogous to other games' "first player doesn't draw" compensation — exact number is a tuning-pass question, not locked.
+**First-turn AP asymmetry (D76, supersedes D48):** both Champions now enter the Island identically, at **4 Activation Points** each (placeholder; exact number is a tuning-pass question). The asymmetry between going first and second instead comes from Round 1's own structure: the first player's opening Beginning phase skips Activation-Points refresh specifically (mana-refresh and beginning-of-turn triggers still run normally), while the second player's own first turn, later the same round, refreshes fully as normal — a first-move-advantage balancing lever, same net effect as D48's original asymmetric-starting-AP framing, reached a different way. See `setup.md`.
 
 **Default AP actions** (baseline example: **7 AP**; the exact numbers, and the full signature-ability list, are still open — this fixes the *shape* of the economy, not its content):
 

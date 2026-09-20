@@ -2,7 +2,7 @@
 
 *A map card is a fourth match component, alongside the card deck, terrain deck, and Champion. It resolves once at game start into board data and is not itself part of any zone.*
 
-**Decisions:** D11, D51, D52, D53 (`history/decisions.md`)
+**Decisions:** D11, D51, D52, D53, D76 (`history/decisions.md`)
 
 ---
 
@@ -12,9 +12,9 @@ A map card specifies which hex cells exist and their connections (D11, D52). "Ho
 ## Starting positions, home ground, neutral ground
 A map specifies both players' **starting positions** and, around each, a **home ground** sized to exactly the terrain-deck size — this is where a player's own terrain deck ends up. Beyond both home grounds, **neutral ground** covers the rest of the map.
 
-Populating these areas with actual terrain is itself a map-authored rule, with a default per area (D53):
-- **Home ground (default: random).** At game start, a player's terrain deck is distributed randomly across their home-ground cells. A map may instead specify an alternative rule (e.g. each player first chooses one land to place as desired, then the rest fill uniformly at random).
-- **Neutral ground (default: fixed assignment).** The map specifies exactly which terrain sits on each neutral hex. A map may instead specify a randomized/generated procedure.
+Populating these areas with actual terrain is itself a map-authored rule — see `setup.md` for the full Setup procedure this fits into:
+- **Home ground (default: random, D53).** At game start, a player's terrain deck is distributed randomly across their home-ground cells. A map may instead specify an alternative rule (e.g. each player first chooses one land to place as desired, then the rest fill uniformly at random).
+- **Neutral ground has no default (D76, supersedes D53).** Every map must specify which population algorithm it uses, plus that algorithm's own parameters, chosen from a growing library — fixed assignment (the map lists exactly what sits on each hex) is one such algorithm, not a privileged fallback. Other algorithms are expected (e.g. a gradient/blend rule keying nearby terrain to each player's own home base; a clustered-distribution rule scattering special terrain within a bounded sub-region) — illustrative of the library's shape, not adopted named mechanics.
 
 ## Terrain Type and Element (D52)
 Every hex on the map — home ground or neutral ground alike — carries a **Terrain Type**: a purely worldbuilding classification with **no mechanical effect** (no move-cost, LOS, or capacity changes). It is fixed by the map card itself, independent of whichever Element ends up on that hex. Initial set, open to extending or shortening: **Forest, Open, Wetland, Shore, Elevated, Settlement, Urban, Edge.**
