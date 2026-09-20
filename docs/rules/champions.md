@@ -2,7 +2,7 @@
 
 *Each player is embodied on the board by a single Champion: an avatar that summons creatures, casts spells, and channels magic — and that **evolves between games** along branching paths. Provisional term "Champion" (candidates: Channeler, Champion; not "Commander").*
 
-**Decisions:** D2, D9, D48 (superseded in part by D76), D49, D76 (`history/decisions.md`)
+**Decisions:** D2, D9, D48, D49, D76 (`history/decisions.md`)
 
 ---
 
@@ -37,7 +37,7 @@ The Champion runs the **same two-resource shape as a creature** — there is no 
 
 **Mana is "summoning sick."** Mana is a **snapshot taken once per Beginning phase** (the sum of currently-connected/producing bonded terrain at that instant), not a live recomputation — a bond made mid-turn claims the tile permanently, but that extra mana isn't *credited to the pool* until the player's *next* Beginning phase. Same "no retroactive unlock this turn" shape as D14's summoning sickness for a freshly-summoned creature's AP. **Default match setup:** both Champions start **pre-bonded to their own home tile** — 1 mana is already available turn 1. Combined with the realm constraint below, a fresh Champion is *already rooted* from turn 1: its first move costs `2AP` and stays inside its one-tile territory unless it pays `0AP` to Collapse. **This pre-bond is a current working default, not a settled answer** — `PLAN.md` §8 item 14 is investigating mana-generation timing in general (whether "produces mana starting next Beginning phase" is even the right universal default), and may revise this.
 
-**First-turn AP asymmetry (D76, supersedes D48):** both Champions now enter the Island identically, at **4 Activation Points** each (placeholder; exact number is a tuning-pass question). The asymmetry between going first and second instead comes from Round 1's own structure: the first player's opening Beginning phase skips Activation-Points refresh specifically (mana-refresh and beginning-of-turn triggers still run normally), while the second player's own first turn, later the same round, refreshes fully as normal — a first-move-advantage balancing lever, same net effect as D48's original asymmetric-starting-AP framing, reached a different way. See `setup.md`.
+**First-turn AP asymmetry (D76):** both Champions enter the Island identically, at **4 Activation Points** each (placeholder; exact number is a tuning-pass question). The asymmetry between going first and second comes from Round 1's own structure: the first player's opening Beginning phase skips Activation-Points refresh specifically (mana-refresh and beginning-of-turn triggers still run normally), while the second player's own first turn, later the same round, refreshes fully as normal — a first-move-advantage balancing lever. See `setup.md`.
 
 **Default AP actions** (baseline example: **7 AP**; the exact numbers, and the full signature-ability list, are still open — this fixes the *shape* of the economy, not its content):
 
