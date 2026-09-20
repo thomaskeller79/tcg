@@ -8,7 +8,7 @@
 
 ### D76 — Match Setup is not a domain transition; Champion/Terrain placement, first-turn AP asymmetry, and neutral-ground population all revised
 
-Resolves `PLAN.md` §8 item 9(e), scoped to **Champion and Terrain only** — Neutral-permanent/scenario placement is explicitly split out as a direct follow-up subtask, not addressed here. New `setup.md`.
+Resolves `PLAN.md` §8 item 9(e), scoped to **Champion and Terrain only** — Neutral-permanent/scenario placement is explicitly split out as its own item (§8 item 15), not addressed here. New `setup.md`.
 
 **Why this isn't a Cast, structurally.** Champion and Terrain are printed and collected like any other card, but never occupy Hand/Library/Discard (`object-properties.md` §1) — "card" here does double duty for two different kinds of game object (a real naming collision, tracked separately at `PLAN.md` §8 item 13, deliberately not resolved by this decision). Since they never pass through a Mind-domain zone, their arrival at Setup was never a Mind→Matter transition to begin with — there's no Card object to skip the Aether from, so D69/§2's "Mind→Matter forbidden" invariant isn't in tension with this at all. Setup reads directly from a player's collection and creates Permanents; no Card or Trace is ever created for Champion or Terrain specifically.
 
@@ -22,7 +22,7 @@ Resolves `PLAN.md` §8 item 9(e), scoped to **Champion and Terrain only** — Ne
 
 **Neutral-ground population loses its default, revising D53.** Home ground keeps D53's original default (uniform random from that player's own terrain deck) unchanged. Neutral ground previously defaulted to "fixed assignment" (the map lists exactly what's on each hex) — **now there is no default at all: every map must explicitly specify which population algorithm it uses, plus that algorithm's own parameters, chosen from a growing, open-ended library.** Fixed assignment becomes one option in that library, not a privileged fallback. Illustrative examples of the library's shape (not adopted as named mechanics, just to establish the pattern): a **gradient/blend** algorithm placing terrain similar to each player's own home base near that player, blending toward the middle for a natural feel; a **clustered-distribution** algorithm scattering specific special terrain randomly within a bounded sub-region rather than uniformly across the whole map.
 
-→ `setup.md` (new — full procedure), `map.md` (neutral-ground default removed, D53 revised), `champions.md` (D48 superseded, pre-bond flagged provisional), `overview.md` §3 (mana/AP refresh split into independently-skippable effects), `PLAN.md` §8 item 9(e) marked resolved for Champion/Terrain, item 13 and item 14 cross-referenced as the two threads this surfaced but deliberately didn't resolve.
+→ `setup.md` (new — full procedure), `map.md` (neutral-ground default removed, D53 revised), `champions.md` (D48 superseded, pre-bond flagged provisional), `overview.md` §3 (mana/AP refresh split into independently-skippable effects), `PLAN.md` §8 item 9(e) marked resolved for Champion/Terrain and item 9 overall marked fully resolved, with items 13, 14, and 15 spun out as the threads this surfaced but deliberately didn't resolve here.
 
 ### D75 — What Activate is: the identical pay→choose→target procedure, ordinary per-ability Duration, and a corrected doc bug that makes "at most one Physical Trace in Pending" an actual rule; the `source` property stays deliberately parked
 

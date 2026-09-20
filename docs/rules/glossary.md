@@ -7,6 +7,7 @@
 | Term | Meaning |
 |---|---|
 | **Match** | One complete game between players, ending when a win condition is met. |
+| **Setup** | *(D76.)* The background procedure that turns a Map, terrain decks, and Champions into the starting board state — fully non-observable, no priority or response window exists while it runs. Not a domain transition (Champion/Terrain never occupy a Mind-domain zone to begin with). See `setup.md`. |
 | **Turn** | One player's full sequence of phases. Players alternate turns. |
 | **Phase** | An ordered segment of a turn (e.g. Start, Draw, Action, End). The phase list is **data**, so cards can add/skip phases. |
 | **Board** | The hex grid where the match is played, produced from a **Map** card (D11). A set of hex **cells** keyed by cube/axial coordinate. |
@@ -19,7 +20,7 @@
 | **Area** | *(D43.)* A hex-set defined by an effect, one of three primitives: **distance** (within N of a hex), **line** (along a line through specified hexes), or **listing** (an explicit hex list). Closed set for now. Unless stated otherwise, describes hexes, not their occupants. |
 | **Void / Aether** | The terrain filling a map's "holes" — present as data with special functionality, not a missing cell (D11). |
 | **Home ground** | *(D11, D53, D59.)* The map-defined area around a player's start, sized to the terrain deck. Populated by a map-level rule (D53); by default, randomly filled with the player's own terrain deck at game start. |
-| **Neutral ground** | *(D11, D53, D59.)* Map area outside the two home grounds — the space players bond outward into. Populated by a map-level rule (D53); by default, a fixed terrain assignment per hex. |
+| **Neutral ground** | *(D11, D53, D59, D76.)* Map area outside the two home grounds — the space players bond outward into. Has no default population rule — every map must specify which population algorithm it uses, chosen from a growing library (D76). |
 | **Terrain Type** | *(D52.)* A per-hex worldbuilding classification authored by the map — e.g. Forest, Open, Wetland, Shore, Elevated, Settlement, Urban, Edge (initial set, open to extending/shortening). Purely flavor: no mechanical effect. Every hex has one, independent of whichever **Element** lands there; combined, they give a hex its full name (e.g. Forest + Fire → "Fire-adapted forest"). See `map.md`. |
 | **Element** | *(D51.)* The named identity of a mana color: **Light, Fire, Metal, Earth, Darkness, Ice, Water, Air.** A terrain card carries exactly one Element and no **Terrain Type** of its own — Type always comes from the map hex it lands on. See `map.md`. |
 | **Landmark** | A map hex with special rules (e.g., first creature to enter → its Champion draws) (D11). |

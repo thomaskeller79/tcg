@@ -34,5 +34,5 @@ Setup runs entirely in the background, before either player's first real decisio
 ## Open questions
 
 1. **Whether Champion pre-bonds to its home tile at all is provisional**, pending `PLAN.md` §8 item 14 (how mana is obtained, in general — this may also turn out to affect other mana-generating permanents/abilities, not just this one case).
-2. **Neutral-permanent/scenario placement** (`PLAN.md` §8 item 9(e) follow-up) — not designed here.
+2. **Neutral-permanent/scenario placement** (`PLAN.md` §8 item 15) — not designed here.
 3. **Placement order (Terrain before Champion) is arbitrary**, kept only because Setup is fully non-observable and nothing currently reads D61 timestamp order between them — revisit only if something someday needs to distinguish it.

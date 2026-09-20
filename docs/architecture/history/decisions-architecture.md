@@ -1,6 +1,6 @@
 # Architecture Decision Log
 
-*Resolved engineering decisions, newest first — the technical counterpart to `docs/rules/history/decisions.md` (D1–D21, gameplay/design decisions). Numbered independently (A1, A2, …) so the two logs never collide. Cross-references a rules decision where one exists.*
+*Resolved engineering decisions, newest first — the technical counterpart to `docs/rules/history/decisions.md` (gameplay/design decisions). Numbered independently (A1, A2, …) so the two logs never collide. Cross-references a rules decision where one exists.*
 
 **Status:** Active · **Date:** 2026-07-28
 
