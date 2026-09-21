@@ -2,7 +2,7 @@
 
 *The full resource model in one place. There are **two** resources — mana and Activation Points — and the same shape — "mana access + a private action budget" — repeats for every actor, **including the Champion and the Companion**. Learn it once, it applies everywhere (pillar 3).*
 
-**Decisions:** D8 (terrain/mana), D9 (Champion economy), D10 (Action Points), D15 (Defend cost), D22 (Companion), D45 (Speed), D47 (Activation Capacity), D48, D49 (Champion/Companion Attack), D57 (summoning sickness), D58 (Activation Points), D65 (Defend once per round), D76 (first-turn AP asymmetry) — `history/decisions.md`
+**Decisions:** D8 (terrain/mana), D9 (Champion economy), D10 (Action Points), D15 (Defend cost), D22 (Companion), D45 (Speed), D47 (Activation Capacity), D48, D49 (Champion/Companion Attack), D57 (summoning sickness), D58 (Activation Points), D65 (Defend once per round), D76 (first-turn AP asymmetry), D77 (mana accounting) — `history/decisions.md`
 
 ---
 
@@ -12,7 +12,7 @@ Still **exactly two** — a Companion does **not** introduce a third. It adds a 
 
 | Resource | Topology | Held by | Refills | Spent on |
 |---|---|---|---|---|
-| **Mana** | **one shared pool per player**, plus **one private pool per Companion on the Island** (D22) | the player (shared pool, channeled by the Champion, D8/D9); each Companion (its own private pool, drawn by its own bonding) | as terrain is bonded/connected (D8), per the bonding root that owns each node | shared pool: casting spells, summoning units, **any** actor's mana-abilities. Private pool: **only that Companion's own printed abilities.** |
+| **Mana** | **one shared pool per player**, plus **one private pool per Companion on the Island** (D22) | the player (shared pool, channeled by the Champion, D8/D9); each Companion (its own private pool, drawn by its own bonding) | live, the instant each bonded producer is reachable (D8/D77) | shared pool: casting spells, summoning units, **any** actor's mana-abilities. Private pool: **only that Companion's own printed abilities.** |
 | **Activation Points (AP)** | **private, per permanent** (D58) | each **creature** (D10), the **Champion** (D9), each **Companion** (D22), and every non-Item Object (D58) | to max each eligible refresh (no carryover, rec) | move · fight · activate abilities · bond a terrain (Champion, Companion) · (Champion only) draw a card |
 
 ## The repeating pattern
