@@ -91,7 +91,6 @@ Consequences:
 - **Win condition (D9):** killing the enemy Champion **wins the game** (Duelyst-style). There is **no separate Base** — the home tile is just the Champion's start location (usually a landmark terrain), not a destructible objective. The Champion is objective + economic root + most-exposed piece in one.
 - **Resources (D8):** the Champion **is** the resource engine — the root node of the terrain network; Bond (its `2*AP` action) is how it bonds.
 - **Deckbuilding:** Champion likely gates deck identity (faction/color restriction hook).
-- **Asymmetric info:** by default a Champion's identity is probably **known** to both Champions (it's chosen openly), though its *current abilities/path* could be partially hidden — open question.
 
 ## Invariant vs. mutable
 - **Invariant:** each player has exactly one Champion; the match core consumes a resolved loadout and does not run progression; progression state is server-authoritative.

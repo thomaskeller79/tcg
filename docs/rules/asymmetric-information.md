@@ -89,7 +89,7 @@ The border is a **principle, not a per-resource list**:
 | **Hidden-zone contents** (hand cards, discard cards, submerged units, mimicked trace identities, Library draw order) | **Hidden** | core pillar 6; Discard added by D71 |
 | **Unit stats/positions, terrain, buildings, graves, life** | **Public** | D7 legibility |
 
-The **only** standing quantity hidden is the **live mana balance** (because per-spell spends are never shown) — one deliberate, minimal carve-out from D7, justified by deception being a headline pillar. Interacts with D8 open #4 (**bank** vs **refresh**: banking gives more bluff room).
+The **only** standing quantity hidden is the **live mana balance** (because per-spell spends are never shown) — one deliberate, minimal carve-out from D7, justified by deception being a headline pillar. **Resolved by D77:** mana refreshes each Beginning phase with no banking — a smaller bluff-room than a hypothetical bank model would have given, but already decided, not an open question anymore.
 
 ## Representing deception: claims, Mimic, ChooseOne (D18)
 **The atomic primitive is a `face`:** a per-observer overlay (claimed identity + stat modifiers) that a **permanent** carries. Truth lives in true state; a face is the per-observer lie laid over it. This **unifies** the two "mimic" ideas — a creature *entering with a face* and a spell *applying a face to its target* are the **same operation**; deception cards are just "attach / alter a face." A card's own Aether trace shows the **same** face (board + trace consistent for free — one authored thing). Any face is governed by the belief model above (holds until a hard fact collapses it).

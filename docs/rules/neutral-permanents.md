@@ -23,7 +23,7 @@ Both identifiers are **true-state only** — never exposed as raw numbers to a C
 
 ## Neutral turns
 
-Each round is four turns: `Player A → Neutral A → Player B → Neutral B → …`. **Neutral A** and **Neutral B** are genuine participants in the turn order — not phases inside a player's turn, not a borrowed player identity — each a full turn with its own Beginning (Activation Points refresh for every permanent assigned to that seat, and its own mana-pool refresh for any Neutral Companion assigned to it), Action (Behaviors run), and End (end-of-turn triggers, and expiry of any "until end of turn" effect created during it).
+Each round is four turns: `Champion A → Neutral A → Champion B → Neutral B → …`. **Neutral A** and **Neutral B** are genuine participants in the turn order — not phases inside a player's turn, not a borrowed player identity — each a full turn with its own Beginning (Activation Points refresh for every permanent assigned to that seat, and its own mana-pool refresh for any Neutral Companion assigned to it), Action (Behaviors run), and End (end-of-turn triggers, and expiry of any "until end of turn" effect created during it).
 
 **Both neutral turns always occur, every round, unconditionally** — regardless of whether anything is currently assigned to either — so a neutral turn's mere occurrence or timing never reveals whether a hidden Neutral permanent exists; anything that happens during it is redacted per-observer exactly like everything else hidden in the game (`asymmetric-information.md`).
 

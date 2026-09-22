@@ -46,7 +46,7 @@ Terrain's **controller** is exactly the same three-valued thing as any other per
 What still needs distinguishing is the terrain's **bond record** (its parent link) — a separate, persistent fact from the derived controller value, the same general parent-vs-controller split as above:
 - **A bond record pointing to a live bonder, with the path currently clear:** controller = that bonder's Champion. Produces mana.
 - **A bond record pointing to a live bonder, with the path currently blocked:** controller = Neutral, but the bond record is untouched — the instant the path clears, the controller-walk succeeds again automatically, with no new Bond action needed. This is a live, per-query result, never a stored flag.
-- **No bond record at all:** controller = Neutral, and stays that way until someone performs a fresh Bond. Reachable via: the bonding Companion dying (reverts to unbonded, not inherited by the Champion); the Champion's own voluntary choice to drop one specific bond (a granular sibling to the all-at-once Collapse Network, D9); an additional cost printed on a card ("unbond from target land you control"); or a hostile targeted effect ("target Champion or Companion unbonds from target land").
+- **No bond record at all:** controller = Neutral, and stays that way until someone performs a fresh Bond. Reachable via the bonding Companion dying (reverts to unbonded, not inherited by the Champion).
 
 Either kind of Neutral terrain strips a Structure on that cell of its payer and controller alike — opens area-control fights over contested terrain (block it briefly, or sever the bond outright; either way the Structure is cut loose) — and produces no mana while Neutral, same as any uncontrolled Object.
 

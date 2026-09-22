@@ -16,9 +16,17 @@
 |---|---|
 | **D19 — universal retaliation** | Explicit user choice; core combat symmetry. "No retaliation" is already the **Ranged** keyword (the exception). |
 | **D10 — `1AP: Move` / `3!AP: Attack` defaults** | The *functional floor* (a creature that can't act is below "still-functional-and-fun"). "Rooted" / "can't attack" are occasional negative keywords. |
-| **D19 — acting reveals a concealed unit** | Already pessimistic-correct (weak default; "stay hidden after acting" is the positive keyword). |
+| **D19 — acting reveals a concealed unit** | Already pessimistic-correct for the *initial* reveal (weak default; "stay hidden after acting" is the positive keyword). The separate question of whether that reveal automatically wears off again on moving away was **not** pessimistic-correct — see Flipped/adopted below. |
 | **D4/D15 — defend once** | Already pessimistic-correct (weak default; multi-defend is the positive keyword). |
 | **Zone of control / does a creature block enemy passage?** | **Confirmed 2026-08-09 (D30)**, surfaced while listing every creature's default actions (Move/Attack/Defend/Equip/Un-equip): no creature blocks passage by default. If added, it's a **positive keyword** ("blocks passage / ZoC") on specific creatures — resolved as never a universal default, not left hypothetical. |
+
+## Flipped / adopted (2026-09-22)
+Two generous defaults surfaced outside the formal sweep (as loose hedges in `overview.md`'s combat section, not yet on this worklist) and were flipped on the spot rather than left open:
+
+| Old default | New default | Positive keyword needed | Where |
+|---|---|---|---|
+| A Root-Slice (hidden) creature could initiate an attack on a Ground-Slice creature (flagged "tentative, pending balance") | Illegal by default (D14) | Not designed yet — PLAN.md Track C item 5 | `overview.md` §4 (D19) |
+| A creature surfaced by attacking auto-re-concealed the instant it left that hex (flagged "(confirm)") | Surfacing is permanent by default (D14) — no automatic re-concealment | Not designed yet — PLAN.md Track C item 6 | `overview.md` §4 (D19) |
 
 ## TODO
 - Sweep the remaining decisions/design notes for more generous defaults (permanents, Structures/Items, Champion abilities, perception).

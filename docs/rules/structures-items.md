@@ -8,7 +8,7 @@
 
 ## Shape & location: Creature vs. Structure vs. Item
 
-Creature, Structure and Item are distinguished by which of **Attack / AP / Life** they carry, plus where they sit — this has nothing to do with **color** (mana-cost color pips, a separate, not-yet-designed axis, PLAN §8 Track A item 2). A colorless Creature is still simply a Creature. "Artifact" doesn't reintroduce a fourth type either — it dissolves per D17 (equippable → Item, stationary → Structure); a mechanically-flavored *Creature* (MTG's "Artifact Creature") stays `Type: Creature`, distinguished only by an optional subtype tag (the same mechanism Structure already uses for e.g. *Building*), never by becoming a Structure/Item.
+Creature, Structure and Item are distinguished by which of **Attack / AP / Life** they carry, plus where they sit — this has nothing to do with **color** (mana-cost color pips, a separate, not-yet-designed axis, `resources-terrain.md` Open Question 1). A colorless Creature is still simply a Creature. "Artifact" doesn't reintroduce a fourth type either — it dissolves per D17 (equippable → Item, stationary → Structure); a mechanically-flavored *Creature* (MTG's "Artifact Creature") stays `Type: Creature`, distinguished only by an optional subtype tag (the same mechanism Structure already uses for e.g. *Building*), never by becoming a Structure/Item.
 
 | | Attack | AP | Life | Location |
 |---|---|---|---|---|

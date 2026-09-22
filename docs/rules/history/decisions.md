@@ -6,6 +6,20 @@
 
 ---
 
+### D80 — Two combat defaults tightened to match the pessimistic-default principle (D14): Root cannot attack Ground; surfacing is permanent
+
+Surfaced while scanning `docs/rules/` for loose, unscoped asides — two combat defaults were still generous, each hiding behind its own unresolved hedge instead of an actual decision.
+
+**Root-Slice creatures can no longer initiate an attack on a Ground-Slice creature by default.** Previously allowed, flagged "tentative, pending balance." A hidden creature getting a free ambush attack upward is exactly the kind of generous default D14 exists to catch. Flipped to illegal by default; a specific positive keyword (an "ambush"-style ability) would need to grant it — not designed yet, `PLAN.md` Track C item 5.
+
+**Surfacing (the reveal a Root-Slice creature suffers by attacking) is now permanent by default**, not automatically undone by moving off the hex it attacked from. Previously "re-conceals when it moves away" was stated as the default, flagged `(confirm)` — again a generous default (free re-hiding) sitting behind an unresolved hedge rather than a real decision. A specific ability could still grant conditional re-concealment (e.g. once far enough from every opponent) — not designed yet, `PLAN.md` Track C item 6.
+
+Both logged in `history/pessimistic-default-audit.md`'s new "Flipped/adopted" section, alongside its existing D19 entries.
+
+**Also cleaned up in the same pass, no rule change:** an inline "open question" in `champions.md` asking whether a Champion's identity is known to both sides by default was removed outright rather than answered — it already follows from the existing default-visibility rule (D7) plus `asymmetric-information.md`'s resource-observability table (Champion identity fits neither of the two narrow hidden-by-default categories: the live mana ledger, or hidden-zone contents), so there was nothing to add to the rules text. Three speculative, never-designed terrain-unbonding mechanisms (a granular single-bond Collapse Network variant, a new "unbond as an additional cost" primitive, a new "force-opponent-to-unbond" hostile effect) were also cut from `resources-terrain.md`/`ownership.md`, where they'd been sitting as throwaway card-text examples with no design behind them — moved to `PLAN.md` Track C item 4 for future card prototyping instead. Separately, a batch of stale `PLAN.md` item-number cross-references (broken by a past renumbering) were fixed in `setup.md`, `object-properties.md`, and `structures-items.md`, and `PLAN.md` gained an explicit numbering rule: item numbers are never reused or renumbered going forward, only appended or deleted-with-a-gap.
+
+→ `overview.md` §4, `history/pessimistic-default-audit.md`, `champions.md`, `resources-terrain.md`, `ownership.md`, `setup.md`, `object-properties.md`, `structures-items.md`, `asymmetric-information.md`, `PLAN.md` (Track C items 4–6, numbering rule).
+
 ### D79 — Mana-pool "shared/private" axis replaced by naming pools after their root; "Champion" replaces "player" wherever a concept is engine-tracked
 
 Resolves `PLAN.md` §8's Companion mana-pool terminology bug, plus a broader vocabulary sweep it surfaced.
