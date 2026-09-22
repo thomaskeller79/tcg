@@ -1,6 +1,6 @@
 # Neutral Permanents
 
-*A third control state — **Neutral** — alongside Champion A/Champion B, giving every permanent type a defined answer for "what happens when nobody controls this." For Terrain/Structure/Item with no Behavior, Neutral just means inert (`ownership.md`). For any permanent capable of acting on its own, Neutral means it acts under a **Behavior** — a deterministic policy standing in for a player's own decisions.*
+*A third control state — **Neutral** — alongside Champion A/Champion B, giving every permanent type a defined answer for "what happens when nobody controls this." For Terrain/Structure/Item with no Behavior, Neutral just means inert (`ancestry.md`). For any permanent capable of acting on its own, Neutral means it acts under a **Behavior** — a deterministic policy standing in for a player's own decisions.*
 
 **Decisions:** D54–D58, D60–D65 (`history/decisions.md`)
 
@@ -8,7 +8,7 @@
 
 ## Control: A / B / Neutral, for every permanent type
 
-Fully covered in `ownership.md` — every permanent's controller is derived by climbing its parent chain to the root, resolving to Champion A, Champion B, or Neutral. This doc covers what happens once a permanent is Neutral and capable of acting, and the neutral turns it acts in.
+Fully covered in `ancestry.md` — every permanent's controller is derived by climbing its parent chain to the root, resolving to Champion A, Champion B, or Neutral. This doc covers what happens once a permanent is Neutral and capable of acting, and the neutral turns it acts in.
 
 ## Permanent identity: timestamp and ID
 
@@ -29,7 +29,7 @@ Each round is four turns: `Champion A → Neutral A → Champion B → Neutral B
 
 **Turn order, priority, and simultaneous-trigger ordering are the standard multiplayer rule** — active-first, then each other participant in turn order (`Champion A, Neutral A, Champion B, Neutral B`, wrapping) — applied uniformly to all four seats. A neutral turn's Behavior triggers, and any real Champion's response windows during it, follow this same order; Neutral A/B never hold priority to cast anything of their own, they simply take their place in the order.
 
-**Neutral A and Neutral B are turn-order participants only — never "Champions" for any other purpose.** They have no life, hand, or library; they are never a legal `target player`; they are never counted by "each player." Control is still, and only ever, Champion A / Champion B / Neutral (`ownership.md`) — the two seats name *when* a Neutral permanent acts, never *who* controls it.
+**Neutral A and Neutral B are turn-order participants only — never "Champions" for any other purpose.** They have no life, hand, or library; they are never a legal `target player`; they are never counted by "each player." Control is still, and only ever, Champion A / Champion B / Neutral (`ancestry.md`) — the two seats name *when* a Neutral permanent acts, never *who* controls it.
 
 A permanent's assigned neutral turn is chosen by whatever effect made it Neutral (or spawned it directly as one), persists until reassigned or the permanent becomes controlled, and, for a permanent with no card effect behind it, is assigned by the mission/scenario instead (`PLAN.md` §9).
 
@@ -98,7 +98,7 @@ Defend is not a special case: it is simply another activated ability a mode can 
 
 ## Creating and converting Neutral permanents
 
-An effect may create a new permanent directly as Neutral, or convert an already-controlled one to Neutral (always effect-driven — never an automatic consequence of some other game state). Either way, if the permanent is capable of acting (see Scope, above), the effect must specify its Behavior and which of the two neutral turns it's assigned to. A Structure/Terrain/Item created or converted to Neutral with no stated Behavior simply sits inert — the pre-existing rule that nobody may activate an uncontrolled Object's ability (`ownership.md`) already covers it.
+An effect may create a new permanent directly as Neutral, or convert an already-controlled one to Neutral (always effect-driven — never an automatic consequence of some other game state). Either way, if the permanent is capable of acting (see Scope, above), the effect must specify its Behavior and which of the two neutral turns it's assigned to. A Structure/Terrain/Item created or converted to Neutral with no stated Behavior simply sits inert — the pre-existing rule that nobody may activate an uncontrolled Object's ability (`ancestry.md`) already covers it.
 
 A freshly cast Neutral Creature/Companion/Structure is summoning-sick like any other cast permanent (`economy.md`) and can't act until its first Activation Points refresh.
 

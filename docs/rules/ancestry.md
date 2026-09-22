@@ -1,0 +1,105 @@
+# Ancestry & Cost Resolution
+
+*Every permanent, Trace, or Card has **at most one** parent — the entity that produced, bonded, carries, or (for a Trace) activated the ability that created it, or (for a Card) whose Hand/Library/Discard currently contains it. Not every permanent has one: unbonded terrain, a loose item, and a Map-placed permanent with no creator have none — a Champion, always the root, never has one either. This structure, the **Ancestry**, is the same one mechanism across all three domains — Matter (Board), Aether (Traces), and Mind (Cards) alike (D81) — not three separate rules that happen to agree. Payment and Controller are two different walks over it.*
+
+**Note (D58):** Terrain, Structure, Ruins, and Graves each hold their own printed **Activation Points**, the same resource an Actor holds — self-gating "has this printed ability already fired this round" *and* self-funding that ability's Activation Points cost directly, no climbing. The Ancestry below still answers who funds a *mana* cost. See `economy.md`, `resources-terrain.md`, `structures-items.md`.
+
+**Decisions:** D26–D30, D47, D54–D55, D57–D58, D66, D68, D74, D81 (`history/decisions.md`)
+
+---
+
+## Payment vs. controller — two different walks, not one
+
+- **Payment (who supplies a needed resource — cost or effect alike, D74):** starting at the entity itself, climb parent-links and stop at the **first** node that itself holds the needed resource — one general rule for every resource type, not a special case per type (D58). Activation Points and Life are held directly by whatever permanent carries them (D58 — Activation Points: every permanent but Item; Life: Champion/Companion/Creature/Structure), so those never climb. Mana is held only by a Champion or a **Companion** — the one non-Champion node capable of holding a resource itself. Hand/Library access is held only by a Champion (a Companion has no Hand, `companions.md`). A mana or Hand/Library reference climbs past Terrain/Structure/Item/Creature/Trace (and, for Hand/Library specifically, past a Companion too) and stops at whichever comes first that holds it. This walk can legitimately stop at a Companion for mana — that's the entire point of its own pool. A card may explicitly name a different payer than this default walk would reach (e.g. "this creature's **controller** pays 2 life," skipping past the creature's own Life to reach its Champion) — a deliberate override, not something the general rule does on its own. There is not yet a settled noun for *the node this walk lands on* (a card wanting to target it directly — "deal damage to the entity that pays for target creature" — has no word to use) — open, `PLAN.md` Track A item 17.
+- **Controller (whose side this is on):** climb parent-links **all the way to the top**, regardless of what's held along the way. The root is either a Champion (that Champion controls it) or an explicitly **Neutral** node — a Companion a card has made Neutral (D55), or a permanent, Trace, with no parent at all (never bonded/funded/activated, or created directly as Neutral). **A Companion is a root only when Neutral** (D55) — a Companion still controlled by a Champion is never a root; the climb continues past it to that Champion. This always resolves to exactly one of three values — Champion A, Champion B, or Neutral (D54) — see `neutral-permanents.md` for what a Neutral permanent does next. Applies unchanged to a Trace (D81): if its parent-climb ends in a Champion, that Champion is its controller; otherwise it's Neutral — this is what backs the otherwise-informal "controller's main phase"/"only the controller decides" language already used for Slow-speed traces and triggered-ability resolution costs (`interaction-stack.md`). A Card's controller is trivially the one Champion its zone-derived parent already is (below) — never Neutral, since only a Champion has a Hand/Library/Discard.
+
+A permanent's payer and controller can differ: anything rooted through a controlled Companion is *paid for* by that Companion but *controlled* by the Champion who cast it.
+
+### The same walk resolves a cost and an effect's implicit resource-holder alike (D74)
+
+Card text doesn't only spend resources via a printed cost — it also *reads or produces* a resource as part of an ordinary effect ("add 1 mana to **your** mana pool," "**you** draw a card"). "Your"/"you" here resolves by the identical climb: stop at the nearest node up the chain that actually holds the resource in question, exactly as a cost would. This is the same mechanism serving two roles, not two mechanisms — but the two roles fail differently when the walk finds nothing to stop at:
+
+- **As a cost,** finding no node that holds the resource means the ability/spell **isn't a legal action at all** — the ordinary "no legal cost combination, not offered as a legal play" rule (`interaction-stack.md`, D46) already covers this.
+- **As an effect,** finding no node **fizzles that one instruction** and nothing else — the same per-instruction fizzle already used for an illegal target (D33). This can only happen when the walk runs off the top of the chain without ever reaching a live Champion — i.e. the acting permanent is currently Neutral with no live root at all (a Companion that funded it died; or it's a Map-placed permanent that was never anyone's to begin with).
+
+Worked examples: a creature reading **"add 1 mana to your mana pool"** stops at the nearest Companion in its chain, or the Champion if there's none — and fizzles if the creature is Neutral. A creature reading **"draw a card"** climbs past any Companion (no Hand there) to the Champion — same Neutral-creature fizzle case. Activation Points and Life never climb either way (self-held by everything that carries them, D58); this generalization only matters for a resource the acting permanent might not itself hold.
+
+**This is also why Bounce/Remand need no separate "owner" concept:** a card that returns a permanent to a hand states its own destination in its own text ("to **its controller's** hand," "to **your** hand") and resolves it via the ordinary Controller walk above, not a new mechanism. A Neutral permanent simply has no controller's hand to reach — same fizzle shape as any other instruction with nothing to act on. See `object-properties.md` §2.
+
+## Parent, by type
+
+| Entity | Parent |
+|---|---|
+| **Companion** | the Champion that cast it (only Champions cast spells — see below), **unless a card has made it Neutral (D55)** — a Neutral Companion has no parent and is its own root for Ancestry purposes. This is separate from its terrain-network root status (`companions.md`), which it holds either way. |
+| **Creature** | resolved **directly, once, at creation** to whichever Champion or Companion recursively pays for it (even if the cost is 0) — **never another creature** — unless a card explicitly reassigns it afterward ("Gain control of target creature," D55). A creature is always a leaf for creation/funding purposes, no matter how many hops of creature-triggered creation produced it. |
+| **Trace** | resolved **directly, once, at creation** to whichever Champion or Companion recursively funds/activates the entity holding the ability that produced it (even if the cost is 0) — **never another Trace, Creature, Structure, or Terrain**, no matter how many hops of Trace-on-Trace or permanent-triggered creation produced it (D81). The same leaf pattern as Creature, applied to Aether objects: a chain of activated abilities (a creature's ability creates a Trace; that Trace's own activated ability creates a second Trace) always flattens to the same single Champion-or-Companion root, so a later Trace's ancestry survives the earlier Trace fading from Past, or the originating Creature dying — those were only ever intermediate stops in the one-time resolution, never the recorded parent. A Trace produced with no live root at all (e.g. Map-placed) has no parent, same as any other Neutral-from-birth object. |
+| **Card** *(Mind domain: Hand/Library/Discard)* | **live, re-derived at all times, not stored** — whichever Champion's zone currently contains it (D81). Always resolves to exactly one Champion — never Neutral, never parentless — since only a Champion has a Hand/Library/Discard (a Companion has none). Because this is a live query rather than a persistent field, a card moving zones — including into a *different* Champion's zone via some future "steal a card" effect — updates its parent automatically, with no separate control-change rule needed (contrast Creature/Companion's D55, which explicitly overwrites a fixed link while the object stays put). This is the Mind-domain **game-object** sense of "Card," never the deckbuilding-tier collection card (`PLAN.md` Track A item 6) — a Champion or Terrain card is never a child in this tree. |
+| **Terrain** | the Champion or Companion currently **bonded** to it, if any — see below for how this bond record relates to the terrain's controller. No parent while unbonded. |
+| **Structure** | the terrain cell it occupies — unaffected by *who built it* (even if a creature's ability built it, the structure's own ongoing parent is always its terrain, never the builder). |
+| **Ruin** | the same terrain cell/slot a Structure would have (D81) — a destroyed Structure's marker inherits Structure's exact parent rule, since it occupies the identical Structure/Ruin slot (`glossary.md`). |
+| **Grave** | the terrain cell it sits on (D81) — a dead creature's marker is fixed to the hex it died on, the same terrain-parented shape as Ruin/Structure. |
+| **Item, while equipped** | the actor (Champion, Companion, or Creature) that equipped it — a real parent-link, so the item is orphaned if that actor dies. |
+| **Item, while unequipped (loose)** | no parent at all, and no usable ability either (see Item below) — **deliberately not** parented to the terrain it's lying on, unlike Ruin/Grave/Structure (D81): those occupy a real, capacity-limited slot on their terrain (D24/D40), a structural relationship a loose Item never has. |
+
+A creature can still be a parent of an **Item** it carries — carrying is a distinct relationship from creation/funding, established via the Equip ability (D25), not exempted by the "creature is always a leaf" rule above.
+
+## Terrain's controller vs. its bond record (D54)
+
+Terrain's **controller** is exactly the same three-valued thing as any other permanent's — Champion A, Champion B, or Neutral — derived by the same climb: does a live, enemy-free path currently connect this terrain back to its bonder? If yes, the climb reaches the bonder's Champion. If not, the climb fails and the terrain is **Neutral** — whether that's because the path is merely blocked right now, or because it was never bonded to begin with.
+
+What still needs distinguishing is the terrain's **bond record** (its parent link) — a separate, persistent fact from the derived controller value, the same general parent-vs-controller split as above:
+- **A bond record pointing to a live bonder, with the path currently clear:** controller = that bonder's Champion. Produces mana.
+- **A bond record pointing to a live bonder, with the path currently blocked:** controller = Neutral, but the bond record is untouched — the instant the path clears, the controller-walk succeeds again automatically, with no new Bond action needed. This is a live, per-query result, never a stored flag.
+- **No bond record at all:** controller = Neutral, and stays that way until someone performs a fresh Bond. Reachable via the bonding Companion dying (reverts to unbonded, not inherited by the Champion).
+
+Either kind of Neutral terrain strips a Structure on that cell of its payer and controller alike — opens area-control fights over contested terrain (block it briefly, or sever the bond outright; either way the Structure is cut loose) — and produces no mana while Neutral, same as any uncontrolled Object.
+
+## Removing an inner node
+
+Removing an inner node breaks the chain for all of its successors:
+
+1. **Companion dies.** Its bonded terrain reverts to unbonded. Any Creature or Trace it's the parent of loses both its payer and its controller — the climb to find a controller no longer reaches a live Champion, so there isn't one.
+2. **Creature dies.** Any Item it carried becomes ownerless (parent removed, reverts to loose). There is no creature-parents-creature case, so nothing else cascades from a creature's death.
+3. **Terrain's controller becomes Neutral** (its path is blocked, or it's unbonded outright). Any Structure, Ruin, or Grave on it loses both payer and controller — the basis for area-control play over contested terrain (above).
+
+Champion death isn't an inner-node case — it ends the match outright (D9), so a Card's parent (always exactly one Champion) has nothing to break for the same reason. Structure and Item never have children under the present design (nothing attaches to a Structure; nothing attaches to an Item) — a Trace, unlike a Permanent, *can* have another Trace as a child, but per the table above that link is only ever a one-time resolution stop, never the recorded parent, so it carries no cascade risk of its own.
+
+## Control changes and occupancy (D66)
+
+A hex-Slice's occupants must all share one controller (`overview.md` §2). Any effect that reassigns a permanent's controller — "gain control of target creature," "target creature becomes Neutral," or any other control-change effect, targeted or not — rechecks this at resolution: if completing it would leave a Slice with occupants under different controllers, the effect **fails to complete instead (fizzles)**, the same way an illegal target fizzles rather than countering a whole spell (D33). Paid cost is never refunded. A card may still choose to restrict its own targeting as a courtesy (e.g. "target creature that is alone on its hex-Slice") — this is never required, and can only ever be a hint, not a guarantee, since a hidden creature sharing that Slice may be invisible to the caster.
+
+**The entry-side counterpart (Move, Summon, Relocate/push discovering the same invariant violated) does not fizzle the same way — it redirects (D68).** Those actions choose a *location*, so a hidden-info mismatch there sends the acting player back to choose a different destination, or cancel, rather than failing outright. **Control-change never gets this treatment, by rule rather than by candidate count:** its target is the *creature* named by the effect, not a location, and the redirect mechanism only ever applies to location-typed choices — so even a control-change with several initially-eligible creatures (not just one, as pictured above) still reduces to a single attempt and a clean, one-shot fizzle, same as Descend (which has a location-typed destination but only ever one candidate). See `interaction-stack.md`, `overview.md` §2.
+
+## Paying a cost
+
+A cost is paid by the **nearest node — starting at the entity itself — that directly holds that resource** (the payment walk above, not the controller walk):
+
+- Activation Points and Life are held directly by every permanent that carries them (D58 — Activation Points: every permanent but Item; Life: Champion/Companion/Creature/Structure) — an ability costs its own object's Activation Points or Life, no climbing. Life is not a third resource alongside mana/Activation Points (`economy.md`) — it's the same counter combat damage reduces.
+- Mana, discarding a card, sacrificing a permanent, unbonding a terrain (and any other pooled/hand/board resource) climb the parent chain, live, stopping at the first Champion or Companion found.
+- A card may explicitly name the **controller** as payer instead — e.g. "this creature's controller must pay 2 life" skips the creature's own Life *and* skips past any Companion in its chain, reaching the Champion specifically.
+
+## Only Champions cast spells
+
+Casting (playing a card from Hand) is exclusively a Champion action — a Companion has no Hand (`companions.md`). This is why a Companion's parent is always the Champion, and why a discard cost printed on a Companion's ability climbs past it to the Champion, who actually has cards to discard.
+
+## Companion funding scope
+
+A Companion funds everything in its own subtree (creatures it produces, terrain/structures it bonds, items equipped to those creatures) from its own pool. It cannot fund a **different** controller's own abilities or spells directly. Its pool is scoped to this Companion's own subtree, not to the Companion card itself — same shape as the Champion's own pool funding the whole army (`economy.md`).
+
+## Item funding
+
+Every eligible actor gets a generic ability, **`2AP: Equip target Item sharing this location`** (tuning baseline), plus its inverse, **`0AP: Un-equip`** (D30 — free and uncapped, drops the Item back to loose on the actor's current hex). An unequipped Item has no usable ability at all, so there is never a "who funds a loose item" question. Both are removable/re-priceable per creature (pillar 5); stealing an item is a costed action via the same Equip ability; exclusivity (one holder at a time) falls out automatically since an equipped Item has exactly one parent.
+
+## Invariant vs. mutable
+- **Invariant:** every non-Champion entity has at most one parent; a creature never parents another creature or structure (unless a card reassigns it, D55); a Trace's parent is always a leaf-resolved Champion or Companion, never another Trace/Creature/Structure/Terrain (D81); a Card's parent is always exactly one Champion, live and re-derived, never Neutral (D81); Ruin and Grave inherit Structure's terrain-parent rule (D81); a Companion is a root only when Neutral (D55); Activation Points and Life are always self-paid (D58); mana never crosses two different payers' pools; removing an inner node breaks payment *and* controller for its successors; every permanent's or Trace's controller resolves to exactly Champion A, Champion B, or Neutral (D54, D81); a control-change effect that would leave a hex-Slice's occupants under different controllers fails to complete instead (D66).
+- **Mutable (card-driven):** which node pays a given cost (a card may name the controller explicitly), whether a creature has the Equip ability at all and at what cost, per-item equip surcharges, cards that add new ways to interrupt/unbond terrain, cards that reassign a Creature/Companion's parent or make a Companion Neutral.
+
+## What an uncontrolled (Neutral) permanent does
+
+Terrain, Structure, and Item stay simply inert while Neutral — nobody may activate their ability. A **Creature or Companion** (or a Structure/Terrain with a self-payable ability) still holds and refills its own Activation Points regardless of control, so it follows a **Behavior** instead of sitting inert — a complete, deterministic algorithm standing in for a player's decisions. Full detail, including which permanents are eligible and how Behaviors are scoped and funded: `neutral-permanents.md`. Whether the Ancestry structure described in this doc and the Neutral/Behavior model connect any more deeply than "Neutral is one of the three Controller-walk outcomes" is an open question — `PLAN.md` Track A item 16.
+
+## Open questions
+
+1. **A name for "the entity that pays"** — the Payment walk's terminal node (stops at the first Companion or Champion), distinct from Controller (climbs all the way to the root). Needed for card text that targets it directly (e.g. "deal damage to the entity that pays for target creature"). Concept confirmed useful; no word chosen yet (D81) — `PLAN.md` Track A item 17.
+2. **Per-relationship-type names for "parent."** The table above enumerates every parent-child pattern that actually occurs, but only Terrain's ("bonded") and Item's ("equipped") have their own verb today. Whether Item's parent-relationship deserves its own noun (bearer/holder/carrier, none yet chosen) and whether any other row needs one is unresolved — `PLAN.md` Track A item 17.
+3. **How Neutral permanents relate to the Ancestry more broadly** — deferred on purpose, its own item: `PLAN.md` Track A item 16.

@@ -46,4 +46,4 @@ No escape hatch for "this effect applies before others regardless of order" exis
 
 ## Item and Structure/Building
 
-The base `ActorState` shape (Slice-2 pattern: reuse Combat, board occupancy, and destruction with no changes) extends to Structure the same way it extended to Champion — see `structures-items.md`/`ownership.md` for the current Structure/Item design; this doc covers only the modifier-system mechanics those types build on. Equipping an Item registers an `IQueryModifier` on the carrier; unequipping removes it — the first real non-Spell consumer of the modifier layer described above.
+The base `ActorState` shape (Slice-2 pattern: reuse Combat, board occupancy, and destruction with no changes) extends to Structure the same way it extended to Champion — see `structures-items.md`/`ancestry.md` for the current Structure/Item design; this doc covers only the modifier-system mechanics those types build on. Equipping an Item registers an `IQueryModifier` on the carrier; unequipping removes it — the first real non-Spell consumer of the modifier layer described above.
