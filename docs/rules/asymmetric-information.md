@@ -1,20 +1,20 @@
 # Asymmetric Information (Pillar 6)
 
-*Players do not share one view of the board. What each player perceives is itself a manipulable, card-driven property.*
+*Champions do not share one view of the board. What each Champion perceives is itself a manipulable, card-driven property.*
 
 **Decisions:** D7, D12, D18, D41, D42, D67, D71 (`history/decisions.md`)
 
 ---
 
 ## Why this exists
-A digital TCG can do something a physical one fundamentally cannot: **give two players genuinely different, actively-manipulated views of the same board.** This is largely unexploited. We treat it as a core design axis, not a garnish:
+A digital TCG can do something a physical one fundamentally cannot: **give the two Champions genuinely different, actively-manipulated views of the same board.** This is largely unexploited. We treat it as a core design axis, not a garnish:
 - **Mimic** — a unit appears to the opponent as a different unit (lies about its identity/stats).
 - **Submerged** — units that move "below the surface," invisible to the opponent by default until detected.
-- **Mist** — a summoned region where one player has vision and the other does not.
+- **Mist** — a summoned region where one Champion has vision and the other does not.
 - **Bluffs, decoys, hidden deployment, fog** — all as first-class mechanics.
 
 ## The core model
-> **The engine holds one authoritative *true state*. Each player sees a *view* — a projection of true state through a per-observer perception layer.**
+> **The engine holds one authoritative *true state*. Each Champion sees a *view* — a projection of true state through a per-observer perception layer.**
 
 ```
                  ┌───────────────┐
@@ -23,14 +23,14 @@ A digital TCG can do something a physical one fundamentally cannot: **give two p
               perception layer (per observer)
               ┌──────────┴──────────┐
               ▼                     ▼
-      ┌──────────────┐      ┌──────────────┐
-      │ View: Player A│      │ View: Player B│   (may disagree!)
-      └──────────────┘      └──────────────┘
+      ┌──────────────────┐      ┌──────────────────┐
+      │ View: Champion A │      │ View: Champion B │   (may disagree!)
+      └──────────────────┘      └──────────────────┘
 ```
 
-**A view is not just a masked subset of true state.** The perception layer doesn't only hide/reveal parts of the truth — it can also inject content a card actively *claims*, which may be false (D18's `face`/claim model, below). So true state and each player's view are independently-tracked values that can **all three differ simultaneously**, not one ground truth plus redacted copies of it.
+**A view is not just a masked subset of true state.** The perception layer doesn't only hide/reveal parts of the truth — it can also inject content a card actively *claims*, which may be false (D18's `face`/claim model, below). So true state and each Champion's view are independently-tracked values that can **all three differ simultaneously**, not one ground truth plus redacted copies of it.
 
-**Worked example:** a creature with 2 power. Player 1 casts a secret effect: `Target creature loses 1 power. Secret.` Player 2 then casts a secret effect: `Target creature gains 2 power. Secret.` True state: 2 − 1 + 2 = **3** power. Player 1, unaware of Player 2's effect, believes the power is **1**. Player 2, unaware of Player 1's effect, believes it's **4**. Three different values, live at once, none of them a subset of either of the others — see the belief model below for how such claims are authored and kept consistent until a hard fact collapses them.
+**Worked example:** a creature with 2 power. Champion A casts a secret effect: `Target creature loses 1 power. Secret.` Champion B then casts a secret effect: `Target creature gains 2 power. Secret.` True state: 2 − 1 + 2 = **3** power. Champion A, unaware of Champion B's effect, believes the power is **1**. Champion B, unaware of Champion A's effect, believes it's **4**. Three different values, live at once, none of them a subset of either of the others — see the belief model below for how such claims are authored and kept consistent until a hard fact collapses them.
 
 ## Perception is just another query axis
 We already committed (pillar 5) to *never reading raw values — always querying*. Asymmetric info extends the query layer with a **perception dimension**. Three query kinds:
@@ -43,14 +43,14 @@ We already committed (pillar 5) to *never reading raw values — always querying
 
 **Cards modify perception with the same modifier system as everything else.** A Mimic effect adds an appearance-modifier to O for the opponent-observer. Mist adds a visibility-modifier to a region for one observer. A Detection ability adds a visibility-modifier that *removes* a Submerged unit's concealment. No special-case subsystem — it's the modifier/query engine applied to perception.
 
-## The Underground level is structural hidden space (D12, renamed D41)
-A hex has three vertical levels (Surface / Air / **Underground**); the **Underground (submerged) level is hidden by default** — its occupancy appears only in its owner's view. This makes concealment a *structural* part of the board, not only a card effect: Submerged movement simply *lives* Underground, and Detection/reveal are visibility-modifiers that expose it. It's the clearest worked example of perception-as-query.
+## The Root Slice is structural hidden space (D12, D78)
+A hex has three vertical Slices, bottom to top (Root / Ground / **Sky**); the **Root Slice is hidden by default** — its occupancy appears only in its owner's view. This makes concealment a *structural* part of the board, not only a card effect: Submerged movement simply *lives* in the Root Slice, and Detection/reveal are visibility-modifiers that expose it. It's the clearest worked example of perception-as-query.
 
-**Second worked example (D42):** the **Subterranean** keyword bundles this same structural concealment together with the ability to be Underground at all — a Unit without Subterranean simply cannot go there by default, so the concealment and the access gate are one package, not two independently-toggleable questions. A card effect can still force a non-Subterranean unit Underground as an explicit exception, at which point the same structural hiding applies to it exactly as it would to a Subterranean unit — concealment is a property of the *level*, not of the keyword.
+**Second worked example (D42):** the **Subterranean** keyword bundles this same structural concealment together with the ability to be in the Root Slice at all — a Unit without Subterranean simply cannot go there by default, so the concealment and the access gate are one package, not two independently-toggleable questions. A card effect can still force a non-Subterranean unit into the Root Slice as an explicit exception, at which point the same structural hiding applies to it exactly as it would to a Subterranean unit — concealment is a property of the *Slice*, not of the keyword.
 
-**Proximity exception (D67):** "hidden by default" is narrower than "hidden from everyone but the owner." An observer sees a hex's Underground occupants if **any permanent they control** has Underground presence on that hex or on a neighboring hex — matching-layer presence specifically, not just any presence (a Surface or Air unit standing on a hex gains no Underground vision of that same hex at all), and it's a per-*observer* fact, not a per-*creature* one: it can come from any of the observer's own permanents, not specifically the one about to act. Underground vision is a **live, continuously-recomputed query**, exactly like every other perception query on this page, not a one-time reveal — it can be lost again the moment the qualifying presence leaves or dies. Range is exactly one hex, and it costs a real, killable creature to establish, so it's a bounded, costed way to "bring light into the dark," not a free scouting tool.
+**Proximity exception (D67):** "hidden by default" is narrower than "hidden from everyone but the owner." An observer sees a hex's Root-Slice occupants if **any permanent they control** has Root-Slice presence on that hex or on a neighboring hex — matching-Slice presence specifically, not just any presence (a Ground or Sky unit standing on a hex gains no Root-Slice vision of that same hex at all), and it's a per-*observer* fact, not a per-*creature* one: it can come from any of the observer's own permanents, not specifically the one about to act. Root-Slice vision is a **live, continuously-recomputed query**, exactly like every other perception query on this page, not a one-time reveal — it can be lost again the moment the qualifying presence leaves or dies. Range is exactly one hex, and it costs a real, killable creature to establish, so it's a bounded, costed way to "bring light into the dark," not a free scouting tool.
 
-**This is why entering any level is blind exactly when the acting player has no qualifying presence already covering the destination** (`overview.md` §4) — not an "Ascend is safe, Descend isn't" rule. A creature Ascending is *usually* safe only because its controller is usually already standing right there; Ascending into a Mist-concealed Surface hex is exactly as blind as any Descend. A creature Descending is *usually* blind only because a controller usually has no independent Underground presence at that hex yet — but if a second Subterranean scout is already stationed there or on a neighboring hex, the Descend is perfectly safe, because the visibility belongs to the player, not to whichever specific creature is moving.
+**This is why entering any Slice is blind exactly when the acting Champion has no qualifying presence already covering the destination** (`overview.md` §4) — not an "Ascend is safe, Descend isn't" rule. A creature Ascending is *usually* safe only because its controller is usually already standing right there; Ascending into a Mist-concealed Ground hex is exactly as blind as any Descend. A creature Descending is *usually* blind only because a controller usually has no independent Root-Slice presence at that hex yet — but if a second Subterranean scout is already stationed there or on a neighboring hex, the Descend is perfectly safe, because the visibility belongs to the Champion, not to whichever specific creature is moving.
 
 ## Example mechanics (seed — flesh out later)
 | Mechanic | Truth | What the opponent perceives |
@@ -118,8 +118,8 @@ Because the face is *always* +3 Life, the honest cast and the +2-Attack bluff ar
 5. **Hotseat caveat.** Shared-screen hotseat conflicts with hidden info (both players see everything). Options: a "pass-the-device / hide screen" step, or degrade hidden-info fidelity in hotseat only. Affects mode ordering (see PLAN §5).
 
 ## Invariants vs. mutable
-- **Invariant (never removed):** a true state exists; a per-observer view layer always exists; every player always has *some* view; the server is the sole authority on true state.
-- **Mutable (card-driven):** what any observer sees, what any object appears as, what any region reveals/conceals, what knowledge a player holds.
+- **Invariant (never removed):** a true state exists; a per-observer view layer always exists; every Champion always has *some* view; the server is the sole authority on true state.
+- **Mutable (card-driven):** what any observer sees, what any object appears as, what any region reveals/conceals, what knowledge a Champion holds.
 
 ## Open questions
 1. **Default visibility:** is the board **fully visible by default** (hidden info is opt-in via cards like Mist/Submerged), or is there baseline fog-of-war? *(Recommendation: full visibility by default — simplest default rule; concealment is added by cards.)*

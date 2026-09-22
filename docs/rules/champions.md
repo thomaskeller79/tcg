@@ -32,12 +32,12 @@ The Champion runs the **same two-resource shape as a creature** — there is no 
 
 | Resource | Topology | Spent on |
 |---|---|---|
-| **Mana** | shared pool, however much is bonded & connected (D8) | casting spells, summoning units — **many** actions/turn |
+| **Mana** | its own pool, the whole army's mana access — however much is bonded & connected (D8) | casting spells, summoning units — **many** actions/turn |
 | **Activation Points (AP)** | private, refills each turn (same shape as a creature's AP, D10) | the Champion's own actions — draw, bond, move, fight, activate abilities |
 
-**Mana credits live.** A bond's mana isn't summoning-sick — the instant a bonded terrain is reachable, its production credits directly to the shared pool via its own drawn-this-cycle flag (D77, `resources-terrain.md`), no Beginning-phase delay. **Default match setup:** both Champions start **pre-bonded to their own home tile** — 1 mana is already available turn 1. Combined with the realm constraint below, a fresh Champion is *already rooted* from turn 1: its first move costs `2AP` and stays inside its one-tile territory unless it pays `0AP` to Collapse Network. This pre-bond is kept deliberately (D77) — it speeds up the opening, and it means rushing the Champion out of its own realm always costs a Collapse Network first, from turn 1 on.
+**Mana credits live.** A bond's mana isn't summoning-sick — the instant a bonded terrain is reachable, its production credits directly to the Champion's pool via its own drawn-this-cycle flag (D77, `resources-terrain.md`), no Beginning-phase delay. **Default match setup:** both Champions start **pre-bonded to their own home tile** — 1 mana is already available turn 1. Combined with the realm constraint below, a fresh Champion is *already rooted* from turn 1: its first move costs `2AP` and stays inside its one-tile territory unless it pays `0AP` to Collapse Network. This pre-bond is kept deliberately (D77) — it speeds up the opening, and it means rushing the Champion out of its own realm always costs a Collapse Network first, from turn 1 on.
 
-**First-turn AP asymmetry (D76):** both Champions enter the Island identically, at **4 Activation Points** each (placeholder; exact number is a tuning-pass question). The asymmetry between going first and second comes from Round 1's own structure: the first player's opening Beginning phase skips Activation-Points refresh specifically (mana-refresh and beginning-of-turn triggers still run normally), while the second player's own first turn, later the same round, refreshes fully as normal — a first-move-advantage balancing lever. See `setup.md`.
+**First-turn AP asymmetry (D76):** both Champions enter the Island identically, at **4 Activation Points** each (placeholder; exact number is a tuning-pass question). The asymmetry between going first and second comes from Round 1's own structure: the first Champion's opening Beginning phase skips Activation-Points refresh specifically (mana-refresh and beginning-of-turn triggers still run normally), while the second Champion's own first turn, later the same round, refreshes fully as normal — a first-move-advantage balancing lever. See `setup.md`.
 
 **Default AP actions** (baseline example: **7 AP**; the exact numbers, and the full signature-ability list, are still open — this fixes the *shape* of the economy, not its content):
 
@@ -91,7 +91,7 @@ Consequences:
 - **Win condition (D9):** killing the enemy Champion **wins the game** (Duelyst-style). There is **no separate Base** — the home tile is just the Champion's start location (usually a landmark terrain), not a destructible objective. The Champion is objective + economic root + most-exposed piece in one.
 - **Resources (D8):** the Champion **is** the resource engine — the root node of the terrain network; Bond (its `2*AP` action) is how it bonds.
 - **Deckbuilding:** Champion likely gates deck identity (faction/color restriction hook).
-- **Asymmetric info:** by default a Champion's identity is probably **known** to both players (it's chosen openly), though its *current abilities/path* could be partially hidden — open question.
+- **Asymmetric info:** by default a Champion's identity is probably **known** to both Champions (it's chosen openly), though its *current abilities/path* could be partially hidden — open question.
 
 ## Invariant vs. mutable
 - **Invariant:** each player has exactly one Champion; the match core consumes a resolved loadout and does not run progression; progression state is server-authoritative.

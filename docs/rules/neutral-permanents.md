@@ -1,6 +1,6 @@
 # Neutral Permanents
 
-*A third control state — **Neutral** — alongside Player A/Player B, giving every permanent type a defined answer for "what happens when nobody controls this." For Terrain/Structure/Item with no Behavior, Neutral just means inert (`ownership.md`). For any permanent capable of acting on its own, Neutral means it acts under a **Behavior** — a deterministic policy standing in for a player's own decisions.*
+*A third control state — **Neutral** — alongside Champion A/Champion B, giving every permanent type a defined answer for "what happens when nobody controls this." For Terrain/Structure/Item with no Behavior, Neutral just means inert (`ownership.md`). For any permanent capable of acting on its own, Neutral means it acts under a **Behavior** — a deterministic policy standing in for a player's own decisions.*
 
 **Decisions:** D54–D58, D60–D65 (`history/decisions.md`)
 
@@ -8,7 +8,7 @@
 
 ## Control: A / B / Neutral, for every permanent type
 
-Fully covered in `ownership.md` — every permanent's controller is derived by climbing its parent chain to the root, resolving to Player A, Player B, or Neutral. This doc covers what happens once a permanent is Neutral and capable of acting, and the neutral turns it acts in.
+Fully covered in `ownership.md` — every permanent's controller is derived by climbing its parent chain to the root, resolving to Champion A, Champion B, or Neutral. This doc covers what happens once a permanent is Neutral and capable of acting, and the neutral turns it acts in.
 
 ## Permanent identity: timestamp and ID
 
@@ -19,17 +19,17 @@ Every permanent on the Island carries two identifiers, assigned when it enters:
 
 A permanent that re-enters the Island (recast after dying, replayed after being bounced) gets a new timestamp and a new ID — it's a new permanent, not a continuation. A permanent that only changes control keeps both.
 
-Both identifiers are **true-state only** — never exposed as raw numbers to a player, since a visible, globally-sequential value would leak how many hidden permanents exist between two visible ones. Card text and player-facing views only ever speak in terms of relative order ("entered before," "earliest," "latest") among permanents that observer already knows about.
+Both identifiers are **true-state only** — never exposed as raw numbers to a Champion, since a visible, globally-sequential value would leak how many hidden permanents exist between two visible ones. Card text and Champion-facing views only ever speak in terms of relative order ("entered before," "earliest," "latest") among permanents that observer already knows about.
 
 ## Neutral turns
 
-Each round is four turns: `Player A → Neutral A → Player B → Neutral B → …`. **Neutral A** and **Neutral B** are genuine participants in the turn order — not phases inside a player's turn, not a borrowed player identity — each a full turn with its own Beginning (Activation Points refresh for every permanent assigned to that seat, and a private mana-pool refresh for any Neutral Companion assigned to it), Action (Behaviors run), and End (end-of-turn triggers, and expiry of any "until end of turn" effect created during it).
+Each round is four turns: `Player A → Neutral A → Player B → Neutral B → …`. **Neutral A** and **Neutral B** are genuine participants in the turn order — not phases inside a player's turn, not a borrowed player identity — each a full turn with its own Beginning (Activation Points refresh for every permanent assigned to that seat, and its own mana-pool refresh for any Neutral Companion assigned to it), Action (Behaviors run), and End (end-of-turn triggers, and expiry of any "until end of turn" effect created during it).
 
 **Both neutral turns always occur, every round, unconditionally** — regardless of whether anything is currently assigned to either — so a neutral turn's mere occurrence or timing never reveals whether a hidden Neutral permanent exists; anything that happens during it is redacted per-observer exactly like everything else hidden in the game (`asymmetric-information.md`).
 
-**Turn order, priority, and simultaneous-trigger ordering are the standard multiplayer rule** — active-first, then each other participant in turn order (`A, Neutral A, Player B, Neutral B`, wrapping) — applied uniformly to all four seats. A neutral turn's Behavior triggers, and any real player's response windows during it, follow this same order; Neutral A/B never hold priority to cast anything of their own, they simply take their place in the order.
+**Turn order, priority, and simultaneous-trigger ordering are the standard multiplayer rule** — active-first, then each other participant in turn order (`Champion A, Neutral A, Champion B, Neutral B`, wrapping) — applied uniformly to all four seats. A neutral turn's Behavior triggers, and any real Champion's response windows during it, follow this same order; Neutral A/B never hold priority to cast anything of their own, they simply take their place in the order.
 
-**Neutral A and Neutral B are turn-order participants only — never "players" for any other purpose.** They have no life, hand, or library; they are never a legal `target player`; they are never counted by "each player." Control is still, and only ever, Player A / Player B / Neutral (`ownership.md`) — the two seats name *when* a Neutral permanent acts, never *who* controls it.
+**Neutral A and Neutral B are turn-order participants only — never "Champions" for any other purpose.** They have no life, hand, or library; they are never a legal `target player`; they are never counted by "each player." Control is still, and only ever, Champion A / Champion B / Neutral (`ownership.md`) — the two seats name *when* a Neutral permanent acts, never *who* controls it.
 
 A permanent's assigned neutral turn is chosen by whatever effect made it Neutral (or spawned it directly as one), persists until reassigned or the permanent becomes controlled, and, for a permanent with no card effect behind it, is assigned by the mission/scenario instead (`PLAN.md` §9).
 
@@ -43,9 +43,9 @@ Only **choice-bearing abilities** need a Behavior's involvement:
 
 - **Activated abilities** — including the basic Move/Attack/Defend every eligible permanent already carries, plus any printed activated ability — always need policy coverage, since activating one and choosing its targets is always a decision.
 - **Triggered abilities with a choice** (a target to pick, an optional "you may" clause) need policy coverage for that choice.
-- **Static abilities and mandatory, choiceless triggered abilities never need any Behavior coverage at all** — they simply happen, automatically, exactly as they would for a player's own permanent.
+- **Static abilities and mandatory, choiceless triggered abilities never need any Behavior coverage at all** — they simply happen, automatically, exactly as they would for a Champion's own permanent.
 
-Any permanent holding Activation Points (i.e., anything but Item) is eligible for a Behavior, provided the ability it needs is self-payable — an Activation-Points-only ability is always self-payable by a Neutral permanent; a mana-inclusive one still needs a live root supplying mana (e.g. a Neutral Companion's own private pool).
+Any permanent holding Activation Points (i.e., anything but Item) is eligible for a Behavior, provided the ability it needs is self-payable — an Activation-Points-only ability is always self-payable by a Neutral permanent; a mana-inclusive one still needs a live root supplying mana (e.g. a Neutral Companion's own pool).
 
 ### Modes
 
@@ -72,7 +72,7 @@ There is no "notice a change" step, because nothing about a permanent's own abil
 
 ### Target selection and reconsideration
 
-Target derivation reuses the standard legal-target query (existence, type, any stated condition, visibility/concealment, D19) — the same check any attack or ability already uses. A mode's target is re-validated by this same query at every decision point; if it's no longer legal, the mode's trigger condition (which depends on a live target existing) simply stops holding, and the next decision point re-derives from scratch. This alone produces correct deception for free: if a target's true stats are disguised (Mimic), the policy acts on the claimed value like anyone else would, discovering the truth only when an actual interaction tests the claim (D18) — the same belief-consistency model that already governs players.
+Target derivation reuses the standard legal-target query (existence, type, any stated condition, visibility/concealment, D19) — the same check any attack or ability already uses. A mode's target is re-validated by this same query at every decision point; if it's no longer legal, the mode's trigger condition (which depends on a live target existing) simply stops holding, and the next decision point re-derives from scratch. This alone produces correct deception for free: if a target's true stats are disguised (Mimic), the policy acts on the claimed value like anyone else would, discovering the truth only when an actual interaction tests the claim (D18) — the same belief-consistency model that already governs Champions.
 
 No generalized "perception" or "belief state" system exists. A range restriction is a plain distance check stated directly in a mode's trigger or target derivation. Anything a keyword genuinely needs to remember beyond what's live-derivable (a Patrol's progress along its route, a Flee's remembered destination) is explicit, named, stored data scoped to that keyword — never a generic mirror of the full observer-view system.
 
@@ -82,7 +82,7 @@ A candidate a mode's scoring ranks is not a single action — it's a bounded **s
 
 Each scoring criterion states whether it is **cumulative** (summed across every step of the sequence — e.g. total damage dealt) or **terminal** (evaluated only on the state after the sequence's last step — e.g. resulting distance to the nearest opponent, resulting concealment status).
 
-**Execution is receding-horizon:** only the best sequence's *first* action is actually taken. It resolves exactly as a player's own action would — the same traces, the same priority windows, fully respondable by both real players. Before the next action, the whole search re-runs from scratch against live state. A multi-step plan is never committed to blindly; nothing about it survives past the one action actually taken, which is what keeps the permanent fully reactive to a response, a theft, a death, or any other change mid-plan.
+**Execution is receding-horizon:** only the best sequence's *first* action is actually taken. It resolves exactly as a Champion's own action would — the same traces, the same priority windows, fully respondable by both real Champions. Before the next action, the whole search re-runs from scratch against live state. A multi-step plan is never committed to blindly; nothing about it survives past the one action actually taken, which is what keeps the permanent fully reactive to a response, a theft, a death, or any other change mid-plan.
 
 ### Scoring is a strict priority list
 
@@ -106,7 +106,7 @@ Gaining control of a Neutral permanent ends its Behavior immediately.
 
 ## Invariant vs. mutable
 
-- **Invariant:** every permanent's controller is exactly one of Player A / Player B / Neutral. A permanent capable of acting while Neutral always follows a complete, deterministic Behavior — never a player's ad hoc choice on its behalf. Both neutral turns always occur every round, unconditionally. A Behavior only ever reasons about its own current turn's own remaining Activation Points — never another agent's response, never its own future turns.
+- **Invariant:** every permanent's controller is exactly one of Champion A / Champion B / Neutral. A permanent capable of acting while Neutral always follows a complete, deterministic Behavior — never a player's ad hoc choice on its behalf. Both neutral turns always occur every round, unconditionally. A Behavior only ever reasons about its own current turn's own remaining Activation Points — never another agent's response, never its own future turns.
 - **Mutable (card-driven):** which permanents can become Neutral and how; which Behavior a specific instance runs; which neutral turn it's assigned to.
 
 *(Resolved questions are cut once closed — the rule lives above and, for decision-grade calls, in `history/decisions.md`. Only genuinely open items stay listed above.)*
