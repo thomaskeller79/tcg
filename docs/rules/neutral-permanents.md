@@ -2,7 +2,7 @@
 
 *A third control state — **Neutral** — alongside Champion A/Champion B, giving every permanent type a defined answer for "what happens when nobody controls this." For Terrain/Structure/Item with no Behavior, Neutral just means inert (`ancestry.md`). For any permanent capable of acting on its own, Neutral means it acts under a **Behavior** — a deterministic policy standing in for a player's own decisions.*
 
-**Decisions:** D54–D58, D60–D65 (`history/decisions.md`)
+**Decisions:** D54–D58, D60–D65, D82 (`history/decisions.md`)
 
 ---
 
@@ -96,9 +96,18 @@ Reordering or recomposing the same handful of criteria — "prefer damage, then 
 
 Defend is not a special case: it is simply another activated ability a mode can select, evaluated at the declare-defenders decision point (D4) through the same live-query-and-score machinery as any proactive action. A Neutral creature has no bespoke "always defends" rule — whether it defends, and against what, falls out of whatever mode is currently active and whatever that mode's scoring prefers, exactly as it would for any other permanent whose controller happens to be a deterministic policy rather than a person.
 
-## Creating and converting Neutral permanents
+## Becoming Neutral: Behavior and neutral-turn assignment
 
-An effect may create a new permanent directly as Neutral, or convert an already-controlled one to Neutral (always effect-driven — never an automatic consequence of some other game state). Either way, if the permanent is capable of acting (see Scope, above), the effect must specify its Behavior and which of the two neutral turns it's assigned to. A Structure/Terrain/Item created or converted to Neutral with no stated Behavior simply sits inert — the pre-existing rule that nobody may activate an uncontrolled Object's ability (`ancestry.md`) already covers it.
+A permanent capable of acting (see Scope, above) that becomes Neutral — whether entering the Island directly as Neutral, or converting from an already-controlled permanent — needs both a Behavior and a neutral-turn assignment (A or B) before it can act. Which applies depends on how it happened (D82):
+
+- **Caused by another Neutral permanent's own ability** (activated or a mandatory trigger; creation or conversion alike): defaults to inheriting both the Behavior and the neutral-turn assignment of the causing permanent — the same Behavior instance, the same turn. Overridable by explicit card text, same as any other default below.
+- **Caused by a Champion's card effect:** the effect must state both explicitly. No default.
+- **Caused by a Map or scenario placing a permanent at Setup with no card effect behind it:** the mission/scenario must state both explicitly. No default.
+- **Caused automatically by game rules** — the clearest such case is a still-Champion-controlled Companion dying and orphaning what it funded (`ancestry.md` §Removing an inner node; a Companion already Neutral when it dies changes nothing about its subtree's controller, since it was Neutral already): defaults to the neutral-turn seat already paired with its former controller in turn order (Neutral A if it was Champion A's, Neutral B if Champion B's), and a Behavior of `Aggressive toward` the *other* Champion — not its former controller. A second such pathway — Structure/Ruin/Grave losing payer and controller when its terrain's bond is severed or blocked — is tracked separately, `PLAN.md` Track A item 19, since it may need different treatment.
+
+A Structure/Terrain/Item with no stated Behavior in any of the above simply sits inert — the pre-existing rule that nobody may activate an uncontrolled Object's ability (`ancestry.md`) already covers it.
+
+**Known gap:** the first case above needs to identify *which specific permanent* caused it, but a Trace's Ancestry parent (D81) is deliberately flattened to the nearest live Champion or Companion — exactly nothing when the causing permanent is itself Neutral. Not resolved here — `PLAN.md` Track A item 18.
 
 A freshly cast Neutral Creature/Companion/Structure is summoning-sick like any other cast permanent (`economy.md`) and can't act until its first Activation Points refresh.
 

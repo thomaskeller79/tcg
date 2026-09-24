@@ -58,7 +58,7 @@ Either kind of Neutral terrain strips a Structure on that cell of its payer and 
 
 Removing an inner node breaks the chain for all of its successors:
 
-1. **Companion dies.** Its bonded terrain reverts to unbonded. Any Creature or Trace it's the parent of loses both its payer and its controller — the climb to find a controller no longer reaches a live Champion, so there isn't one.
+1. **Companion dies.** Its bonded terrain reverts to unbonded. If the Companion was still Champion-controlled, any Creature or Trace it's the parent of loses both its payer and its controller — the climb to find a controller no longer reaches a live Champion, so there isn't one. If the Companion was already Neutral, nothing changes for its subtree's controller — it was Neutral already, since a Neutral Companion is itself a root (D55).
 2. **Creature dies.** Any Item it carried becomes ownerless (parent removed, reverts to loose). There is no creature-parents-creature case, so nothing else cascades from a creature's death.
 3. **Terrain's controller becomes Neutral** (its path is blocked, or it's unbonded outright). Any Structure, Ruin, or Grave on it loses both payer and controller — the basis for area-control play over contested terrain (above).
 
@@ -96,10 +96,10 @@ Every eligible actor gets a generic ability, **`2AP: Equip target Item sharing t
 
 ## What an uncontrolled (Neutral) permanent does
 
-Terrain, Structure, and Item stay simply inert while Neutral — nobody may activate their ability. A **Creature or Companion** (or a Structure/Terrain with a self-payable ability) still holds and refills its own Activation Points regardless of control, so it follows a **Behavior** instead of sitting inert — a complete, deterministic algorithm standing in for a player's decisions. Full detail, including which permanents are eligible and how Behaviors are scoped and funded: `neutral-permanents.md`. Whether the Ancestry structure described in this doc and the Neutral/Behavior model connect any more deeply than "Neutral is one of the three Controller-walk outcomes" is an open question — `PLAN.md` Track A item 16.
+Terrain, Structure, and Item stay simply inert while Neutral — nobody may activate their ability. A **Creature or Companion** (or a Structure/Terrain with a self-payable ability) still holds and refills its own Activation Points regardless of control, so it follows a **Behavior** instead of sitting inert — a complete, deterministic algorithm standing in for a player's decisions. Full detail, including which permanents are eligible and how Behaviors are scoped and funded, and how Behavior/neutral-turn assignment is resolved for every way a permanent can become Neutral: `neutral-permanents.md` (D82). Whether Ancestry's own structure needs to change to support that uniformly — rather than the current parent-flattening design, which doesn't retain which specific permanent caused a change — is tracked at `PLAN.md` Track A item 18.
 
 ## Open questions
 
 1. **A name for "the entity that pays"** — the Payment walk's terminal node (stops at the first Companion or Champion), distinct from Controller (climbs all the way to the root). Needed for card text that targets it directly (e.g. "deal damage to the entity that pays for target creature"). Concept confirmed useful; no word chosen yet (D81) — `PLAN.md` Track A item 17.
 2. **Per-relationship-type names for "parent."** The table above enumerates every parent-child pattern that actually occurs, but only Terrain's ("bonded") and Item's ("equipped") have their own verb today. Whether Item's parent-relationship deserves its own noun (bearer/holder/carrier, none yet chosen) and whether any other row needs one is unresolved — `PLAN.md` Track A item 17.
-3. **How Neutral permanents relate to the Ancestry more broadly** — deferred on purpose, its own item: `PLAN.md` Track A item 16.
+3. **Whether Ancestry's structure needs to change to answer every question `neutral-permanents.md` now asks of it** (e.g. which specific permanent caused a Neutral conversion, not just who ultimately pays/controls) — `PLAN.md` Track A item 18.
