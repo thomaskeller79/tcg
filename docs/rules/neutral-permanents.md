@@ -1,14 +1,26 @@
 # Neutral Permanents
 
-*A third control state — **Neutral** — alongside Champion A/Champion B, giving every permanent type a defined answer for "what happens when nobody controls this." For Terrain/Structure/Item with no Behavior, Neutral just means inert (`ancestry.md`). For any permanent capable of acting on its own, Neutral means it acts under a **Behavior** — a deterministic policy standing in for a player's own decisions.*
+*A third control state — **Neutral** — alongside Champion A/Champion B, giving every permanent type a defined answer for "what happens when nobody controls this." Every object's **decider** is its controller if it has one; otherwise its **Behavior** — a deterministic policy standing in for a player's own decisions, carried as a property of the object — if it has one; otherwise nobody, and the object is **dormant** (D83).*
 
-**Decisions:** D54–D58, D60–D65, D82 (`history/decisions.md`)
+**Decisions:** D54–D58, D60–D65, D82, D83 (`history/decisions.md`)
 
 ---
 
 ## Control: A / B / Neutral, for every permanent type
 
-Fully covered in `ancestry.md` — every permanent's controller is derived by climbing its parent chain to the root, resolving to Champion A, Champion B, or Neutral. This doc covers what happens once a permanent is Neutral and capable of acting, and the neutral turns it acts in.
+Fully covered in `ancestry.md` — every permanent's controller is derived by climbing its parent chain to the root, resolving to Champion A, Champion B, or Neutral. This doc covers what happens once a permanent is Neutral, and the neutral turns it acts in.
+
+## Decider: controller, Behavior, or dormant (D83)
+
+| Controller | Behavior property | Decider |
+|---|---|---|
+| a Champion | any | that Champion |
+| Neutral | set (includes its neutral turn) | the Behavior — the object acts **autonomously** |
+| Neutral | none | nobody — the object is **dormant** |
+
+A **dormant** object makes no choices: its activated abilities can't be used, and a triggered ability that needs a choice (a target, a "may") doesn't happen. Mandatory, choiceless triggered abilities and static abilities still apply — e.g. a dormant Structure with "when a creature enters a terrain within distance 2 and this has at least 1 Activation Point, this deals 2 damage to that creature and its Activation Points become 0" still hits whichever creature enters.
+
+The controller comes from the Ancestry; the Behavior never does — it is attached only by a card, a scenario, or a rule (§Becoming Neutral).
 
 ## Permanent identity: timestamp and ID
 
@@ -31,11 +43,11 @@ Each round is four turns: `Champion A → Neutral A → Champion B → Neutral B
 
 **Neutral A and Neutral B are turn-order participants only — never "Champions" for any other purpose.** They have no life, hand, or library; they are never a legal `target player`; they are never counted by "each player." Control is still, and only ever, Champion A / Champion B / Neutral (`ancestry.md`) — the two seats name *when* a Neutral permanent acts, never *who* controls it.
 
-A permanent's assigned neutral turn is chosen by whatever effect made it Neutral (or spawned it directly as one), persists until reassigned or the permanent becomes controlled, and, for a permanent with no card effect behind it, is assigned by the mission/scenario instead (`PLAN.md` §9).
+A permanent's assigned neutral turn is chosen by whatever effect made it Neutral (or spawned it directly as one), persists until reassigned together with its Behavior (§Becoming Neutral) — while the permanent is controlled it is simply unused — and, for a permanent with no card effect behind it, is assigned by the mission/scenario instead (`PLAN.md` §9).
 
 ## Behavior
 
-A Neutral permanent capable of acting — it holds its own Activation Points (`economy.md`) and has at least one legal action available to it — follows a **Behavior**: a named keyword (e.g. `Aggressive toward X`) that expands to a fixed, deterministic decision policy, the same way any other keyword (Flying, Ranged N) expands to fixed rules text. This is card-text vocabulary only, never exposed as such.
+A Neutral permanent carrying a Behavior, and capable of acting — it holds its own Activation Points (`economy.md`) and has at least one legal action available to it — follows that **Behavior**: a named keyword (e.g. `Aggressive toward X`) that expands to a fixed, deterministic decision policy, the same way any other keyword (Flying, Ranged N) expands to fixed rules text. This is card-text vocabulary only, never exposed as such.
 
 ### Scope
 
@@ -60,6 +72,8 @@ Modes are **live-derived**, not stored: the active mode is whichever trigger cur
 
 If no mode's trigger holds, or every currently-triggered mode's candidate set is empty, the permanent does nothing this decision point.
 
+A mode's trigger condition may test the permanent's own type, so one Behavior keyword can act differently when carried by a Companion than by a creature — written into the keyword's own definition, not a separate variant.
+
 ### Selecting abilities by effect shape, not by identity
 
 A mode's candidate generator queries the permanent's **currently legal activated abilities matching its declared effect shape** — the same live legal-action enumeration the engine maintains for any actor — never a specific named ability. This is re-run fresh at every decision point, off current state including every active modifier, so:
@@ -72,7 +86,7 @@ There is no "notice a change" step, because nothing about a permanent's own abil
 
 ### Target selection and reconsideration
 
-Target derivation reuses the standard legal-target query (existence, type, any stated condition, visibility/concealment, D19) — the same check any attack or ability already uses. A mode's target is re-validated by this same query at every decision point; if it's no longer legal, the mode's trigger condition (which depends on a live target existing) simply stops holding, and the next decision point re-derives from scratch. This alone produces correct deception for free: if a target's true stats are disguised (Mimic), the policy acts on the claimed value like anyone else would, discovering the truth only when an actual interaction tests the claim (D18) — the same belief-consistency model that already governs Champions.
+Target derivation reuses the standard legal-target query (existence, type, any stated condition, visibility/concealment, D19), with visibility measured in the permanent's own live view (D85) — the same check any attack or ability already uses. A mode's target is re-validated by this same query at every decision point; if it's no longer legal, the mode's trigger condition (which depends on a live target existing) simply stops holding, and the next decision point re-derives from scratch. This alone produces correct deception for free: if a target's true stats are disguised (Mimic), the policy acts on the claimed value like anyone else would, discovering the truth only when an actual interaction tests the claim (D18) — the same belief-consistency model that already governs Champions.
 
 No generalized "perception" or "belief state" system exists. A range restriction is a plain distance check stated directly in a mode's trigger or target derivation. Anything a keyword genuinely needs to remember beyond what's live-derivable (a Patrol's progress along its route, a Flee's remembered destination) is explicit, named, stored data scoped to that keyword — never a generic mirror of the full observer-view system.
 
@@ -98,20 +112,20 @@ Defend is not a special case: it is simply another activated ability a mode can 
 
 ## Becoming Neutral: Behavior and neutral-turn assignment
 
-A permanent capable of acting (see Scope, above) that becomes Neutral — whether entering the Island directly as Neutral, or converting from an already-controlled permanent — needs both a Behavior and a neutral-turn assignment (A or B) before it can act. Which applies depends on how it happened (D82):
+A permanent capable of acting (see Scope, above) that becomes Neutral — whether entering the Island directly as Neutral, or converting from an already-controlled permanent — needs both a Behavior and a neutral-turn assignment (A or B) before it can act. Which applies depends on how it happened (D82, D83):
 
-- **Caused by another Neutral permanent's own ability** (activated or a mandatory trigger; creation or conversion alike): defaults to inheriting both the Behavior and the neutral-turn assignment of the causing permanent — the same Behavior instance, the same turn. Overridable by explicit card text, same as any other default below.
+- **Caused by another Neutral permanent's own ability** (activated or a mandatory trigger; creation or conversion alike): defaults to inheriting both the Behavior and the neutral-turn assignment of the causing permanent — the same Behavior instance, the same turn. Both are bound into the trace when it is declared (`interaction-stack.md`, D83), so the inheritance holds even if the causing permanent is gone by resolution. Overridable by explicit card text, same as any other default below.
 - **Caused by a Champion's card effect:** the effect must state both explicitly. No default.
 - **Caused by a Map or scenario placing a permanent at Setup with no card effect behind it:** the mission/scenario must state both explicitly. No default.
-- **Caused automatically by game rules** — the clearest such case is a still-Champion-controlled Companion dying and orphaning what it funded (`ancestry.md` §Removing an inner node; a Companion already Neutral when it dies changes nothing about its subtree's controller, since it was Neutral already): defaults to the neutral-turn seat already paired with its former controller in turn order (Neutral A if it was Champion A's, Neutral B if Champion B's), and a Behavior of `Aggressive toward` the *other* Champion — not its former controller. A second such pathway — Structure/Ruin/Grave losing payer and controller when its terrain's bond is severed or blocked — is tracked separately, `PLAN.md` Track A item 19, since it may need different treatment.
+- **Caused automatically by an Ancestry change** — the subtree update that accompanies removing or re-parenting a node (`ancestry.md` §Removing an inner node, D83). It assigns a Behavior to creatures only, and only to those whose controller changes from a Champion to Neutral:
+  - **A still-Champion-controlled Companion dies:** each creature it funded defaults to the neutral-turn seat already paired with its controller at that moment in turn order (Neutral A if it was Champion A's, Neutral B if Champion B's), and a Behavior of `Aggressive toward` the *other* Champion — not its former controller. A Companion already Neutral when it dies changes nothing: its subtree was Neutral already.
+  - **A Companion is made Neutral (D55):** its creatures become Neutral with it and are assigned the Companion's own Behavior instance and neutral turn — the one the converting effect gave the Companion. A conversion effect names exactly one Behavior; card text wanting something different for the creatures states it explicitly (D84).
 
-A Structure/Terrain/Item with no stated Behavior in any of the above simply sits inert — the pre-existing rule that nobody may activate an uncontrolled Object's ability (`ancestry.md`) already covers it.
+Terrain, Structure, Ruin, Grave, and Item never receive a Behavior this way — losing control through the Ancestry (including a terrain whose Bond edge is inactive or removed) leaves them **dormant** until something restores control, unless they already carry a Behavior (e.g. placed by a scenario), which then decides for them (D83, D84).
 
-**Known gap:** the first case above needs to identify *which specific permanent* caused it, but a Trace's Ancestry parent (D81) is deliberately flattened to the nearest live Champion or Companion — exactly nothing when the causing permanent is itself Neutral. Not resolved here — `PLAN.md` Track A item 18.
+**A Behavior is never removed by gaining a controller.** While controlled, a permanent keeps its Behavior and neutral turn unused — the controller decides. When it becomes Neutral, a newly assigned Behavior and neutral turn replace the old pair; if nothing is assigned (e.g. a temporary control effect ends), the old pair decides again (D84). A card that wants a permanent to lose its Behavior says so.
 
 A freshly cast Neutral Creature/Companion/Structure is summoning-sick like any other cast permanent (`economy.md`) and can't act until its first Activation Points refresh.
-
-Gaining control of a Neutral permanent ends its Behavior immediately.
 
 ## Invariant vs. mutable
 
