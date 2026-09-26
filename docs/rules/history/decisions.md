@@ -6,6 +6,26 @@
 
 ---
 
+### D86 — Slice controller uniformity is an entry rule, not a standing invariant; only a control change can mix a Slice; D66's fizzle removed
+
+Resolves `PLAN.md` Track A item 23 (mixed-controller Slice after automatic control loss). **Reverses D66.**
+
+**The gap:** D66 enforced "a Slice's occupants share one controller, no exceptions" only for control-change *effects*, by fizzling them. Automatic control changes can't fizzle, and there is an open-ended set of them: a Companion dies and its creature (now Neutral, D83/D84) shares a Slice with a creature its Champion cast directly; a temporary control effect ends while the stolen creature stands among the thief's creatures; and D66 applied to "target Companion becomes Neutral" (the whole subtree converts) would make such a card almost never resolve. Expected to be incomplete — so a general answer was needed, not per-case rulings.
+
+**Candidates:** (1) *veto* — a creature whose change would mix its Slice instead takes the Slice's controller — rejected as exploitable (steal "until end of turn," park the creature among your own, keep it forever); (2) *repair by destruction* — every creature whose control change would mix a Slice is destroyed — total and machinery-free, but harsh and combo-prone (temporary steal + parking = a kill spell; a Companion's death destroying some of its creatures is the double punishment D82 avoided); (3) *entry-only invariant* — adopted. D66's own rejected alternatives (forced combat, a "Captured" state, forced relocation) were re-checked and still don't fit.
+
+**Adopted: general relaxation (allowing mixed Slices outright) stays rejected; mixed Slices exist only as a special case.** Entering a Slice — Move, Summon, Relocate/push, Ascend/Descend — still requires every occupant to share the entrant's controller (D68's procedure unchanged), and the 3-slot cap stays a hard invariant. **A Slice may become mixed only through a control change** — any control change, automatic or by effect. D68's rejection of mixed occupancy is untouched: it was about entry (a creature walking into or through any non-full hex, gutting pillar 2), which stays blocked. The general relaxation was also rejected for complexity: it would make "who is being attacked" a question on every attack, one that matters almost never and confuses players when it does. The special case is accepted as a precedent for its opportunities. **D66's fizzle is removed:** control-change effects never check occupancy. Knowingly overridden: D66's pessimistic-default argument that stealing a creature out of a defended cluster shouldn't be easy — it now works, but the stolen creature stands among enemies.
+
+**Falls out with no new rules:** nobody can enter a mixed Slice (its occupants don't share any entrant's controller), so it blocks both sides; any occupant leaves normally, and once one side is gone the Slice is uniform again; capacity is unaffected (a control change adds no occupant); an enemy on the hex blocks mana paths for both sides; D67 vision is per controller and unaffected; location-based effects ("each creature on target hex") are unaffected; Behaviors need nothing new.
+
+**Adopted in principle, exact rule deferred to item 25:** co-located enemies in a mixed Slice can fight each other (it makes no sense flavor-wise that they can't). Surfaced along the way: uniformity is per Slice, not per hex, so enemies at distance 0 already exist today (Ground held by A under Sky held by B); a Melee change to "distance ≤ 1" would therefore open same-hex cross-Slice melee generally, not just in mixed Slices. The user's starting point for the attack model — an attack targets a hex plus an attacked entity (Champion A, Champion B, or Neutral, leaning to Neutral as one entity), selected by default when only one is present, every creature of that entity may defend — is recorded in item 25, not decided here.
+
+`PLAN.md` Track A item 23 removed; item 25 (exact combat rules, including Slices) added; item 2's motivating example relied on D66's fizzle and is flagged there.
+
+→ `overview.md` §2, `ancestry.md` (§Control changes and occupancy, Invariant), `PLAN.md`.
+
+---
+
 ### D85 — What a trace checks at resolution: its remaining text plus four implicit conditions; perception is always a live view
 
 Resolves `PLAN.md` Track A item 22 (what "can no longer be targeted" means at resolution). **Decided for now, deliberately untested** — the list is not expected to be complete; a second pass is item 24.
