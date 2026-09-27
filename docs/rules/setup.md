@@ -2,7 +2,7 @@
 
 *How a legal match's four components (card deck, terrain deck, Champion, Map) combine into the actual starting board state — and why this isn't a domain transition, even though Champion and Terrain are printed and collected like any other card.*
 
-**Decisions:** D76, D77 (`history/decisions.md`)
+**Decisions:** D76, D77, D87 (`history/decisions.md`)
 
 ---
 
@@ -24,7 +24,7 @@ Setup runs entirely in the background, before either player's first real decisio
    - **Neutral ground: no default (D76).** Every Map must explicitly specify which population algorithm it uses, plus that algorithm's own parameters, chosen from a growing, open-ended library rather than one hardcoded default. "Fixed assignment" (the Map lists exactly what sits on each neutral hex) is one such algorithm, not a privileged fallback. Other algorithms are expected — e.g. a **gradient/blend** algorithm placing terrain similar to each Champion's own home base near that Champion and blending toward the middle for a natural feel; a **clustered-distribution** algorithm scattering specific special terrain randomly within a bounded sub-region rather than uniformly across the whole map. These are illustrations of the library's shape, not adopted named mechanics.
 3. **Place each Champion on its home tile** (D11) **with 4 Activation Points** — both Champions enter identically; see step 5 for the asymmetry between going first and second. Champion starts **bonded to its home tile** (`champions.md`) — kept deliberately (D77): it speeds up the opening, and it taxes any strategy that wants to rush the Champion out of its own realm (Collapse Network required first).
 4. **Initialize Neutral permanents** — out of scope here; a direct follow-up subtask (`PLAN.md` §8 item 7).
-5. **Begin Champion A's turn.** Its first Beginning phase runs with **Activation-Points refresh skipped** — mana-refresh and beginning-of-turn trigger-firing (including any "at the beginning of your first turn" ability) still run normally. In practice this only ever affects the Champion today: Terrain already gets full Activation Points immediately on creation regardless of Beginning-phase timing (`resources-terrain.md`), and nothing else with Activation Points exists yet. Champion B's own first turn, later in the round, runs its Beginning phase completely normally — it reaches full Activation Points on its own first turn. This is the source of the first-move-advantage asymmetry between the two Champions.
+5. **Begin Champion A's turn.** Its first Beginning phase runs with **Activation-Points refresh skipped** — mana-refresh and beginning-of-turn trigger-firing (including any "at the beginning of your first turn" ability) still run normally. In practice this only ever affects the Champion today: Terrain holds no Activation Points (D87), and nothing else with Activation Points exists at Setup yet. (A Structure brought by a terrain card will; how it arrives, and with how many Activation Points, is open — `resources-terrain.md` Open question 3.) Champion B's own first turn, later in the round, runs its Beginning phase completely normally — it reaches full Activation Points on its own first turn. This is the source of the first-move-advantage asymmetry between the two Champions.
 
 ## Invariant vs. mutable
 

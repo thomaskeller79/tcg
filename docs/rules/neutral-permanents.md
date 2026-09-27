@@ -125,7 +125,7 @@ Terrain, Structure, Ruin, Grave, and Item never receive a Behavior this way — 
 
 **A Behavior is never removed by gaining a controller.** While controlled, a permanent keeps its Behavior and neutral turn unused — the controller decides. When it becomes Neutral, a newly assigned Behavior and neutral turn replace the old pair; if nothing is assigned (e.g. a temporary control effect ends), the old pair decides again (D84). A card that wants a permanent to lose its Behavior says so.
 
-A freshly cast Neutral Creature/Companion/Structure is summoning-sick like any other cast permanent (`economy.md`) and can't act until its first Activation Points refresh.
+A Neutral permanent entering the Island enters with 0 Activation Points like any other (D89, `economy.md`) and can't act until its first Activation Points refresh.
 
 ## Invariant vs. mutable
 

@@ -12,7 +12,8 @@
 - **Bond surcharge on a non-basic** — e.g. "Bonding this costs `4!AP` more," printed on a powerful non-basic terrain — the AP-cost analog of MTG's "enters tapped." A per-card modifier on the Bond action's cost (pillar 5), not a base-rule change.
 - **Terrain with a static combat buff** — e.g. "Defending creatures on this terrain get +1 power."
 - **Terrain with a movement surcharge** — e.g. "Moving into this terrain costs +1 AP."
-- **Terrain with a printed activated ability** — e.g. "3 mana: heal 1 Life to target creature on this terrain." Activated by whichever player/Companion **controls** the terrain (bonded it into their network) — mana only, no AP (terrain has none of its own) — and funded from that controller's own pool: shared pool if Champion-bonded, that specific Companion's private pool if Companion-bonded. Uncontrolled (unbonded) terrain's ability can't be activated by anyone. See `resources-terrain.md`.
+- **Terrain with a paid triggered ability** — e.g. "Whenever a creature enters this, you may pay 1 AP. If you do, deal 1 damage to that creature." Terrain holds no AP, so the cost is paid by its bonder (Champion or Companion); a dormant (Neutral) terrain skips it, since it needs a choice (D87). See `resources-terrain.md`.
+- **Terrain that brings a Structure (D87)** — e.g. **Fire Flat** (Terrain: produces 1 Fire) comes with a **Fire Barrack** (Structure: `3!AP` + 1 Fire: create a **Fire Warrior** on this hex — Ground, its card's default Slice; fizzles if that Slice has no space). Terrain has no activated abilities; the Structure carries the engine and can be destroyed, leaving a plain Fire land. Fire Warrior is a normal card (D88). How the Structure arrives at Setup is open (`resources-terrain.md` Open question 3).
 
 ---
 

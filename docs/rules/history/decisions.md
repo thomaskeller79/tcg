@@ -6,6 +6,58 @@
 
 ---
 
+### D90 — Subterranean grants Root access, not a Root starting Slice; a cast Subterranean creature enters on Ground by default
+
+Corrects the D32 mapping "a burrower-type keyword → Below," which `structures-items.md` had carried as "Subterranean → Root (D42)" — D42 itself never said Subterranean creatures start in Root. **Subterranean** grants being able to exist in the Root Slice plus Ascend/Descend (D42); it does not choose the entering Slice, so a Subterranean creature enters on **Ground** like any creature without a Slice keyword. **Flying is different:** a flyer is always in the Sky unless it loses Flying, so Flying does set the entering Slice. A creature that enters directly into Root says so on its own card (the same card-printed Slice choice D32 already allows).
+
+→ `structures-items.md`, `glossary.md`.
+
+---
+
+### D89 — Every permanent entering the Island enters with 0 Activation Points; replaces D57
+
+**Adopted:** a permanent entering the Island — cast, created by an effect (D88), flickered, however it got there — enters with **0 Activation Points** and refreshes at its controller's next Beginning phase. That is all summoning sickness is: a permanent that wasn't there at the beginning of its controller's turn can't act yet. **Haste** removes it. D57's criterion ("did it enter via casting") is dropped — it wrongly let a created creature (e.g. D87's Fire Warrior) act immediately.
+
+**Setup is not entering:** Setup-placed permanents (Champion, Terrain, anything the Map places) are created by Setup, not by entering the Island (`setup.md`, D76), so this rule doesn't apply to them — the Champions' starting AP and Champion A's skipped first refresh (D76) are unchanged.
+
+**A control change does not touch Activation Points.** A stolen creature keeps its current AP and can act against its previous controller right away. Considered and rejected: MTG-style "sick unless controlled continuously since your turn began" (or resetting AP to 0 on a control change) — an extra rule for a case that is self-limiting: a stolen creature usually stands among its former allies, now enemies, and is killed before it can act unless it can act itself; and in practice steal effects usually grant haste anyway. One rule, no exceptions, is preferred.
+
+→ `economy.md`, `overview.md`, `structures-items.md`, `glossary.md`, `neutral-permanents.md`.
+
+---
+
+### D88 — Every created object has a card; there are no tokens; Grave and Ruin are a status of the dead object, not separate objects
+
+**Adopted:** anything created in the game references a real card — card text never says "create a 2/2 creature with…", it names a card (with a link to it). Every permanent therefore carries all required properties (a real mana cost, not MTG's token "mana value 0"), and Bounce/Flicker need no special rules for created objects. D69's "a Bounce/Flicker-created object is not a token" generalizes: nothing is a token.
+
+**Consequences, accepted on purpose:**
+- **Created-object cards are normal cards.** E.g. Fire Warrior (created by Fire Barrack, D87's example) is legal in a deck like any other card. For power-level reasons it will mostly be played only via the cards that create it; no deckbuilding restriction is adopted for it.
+- **Bouncing a created object creates a real, castable Card** in its Champion's Hand (D69) — unlike MTG, where a bounced token ceases to exist. Wanted, not a side effect to patch.
+- **Map-placed permanents** (Neutral Structures/Items/Creatures/Companions, `PLAN.md` Track A item 7) reference cards too.
+
+**Grave and Ruin are not separate objects and not separate cards.** A Grave is the dead creature's own object, and a Ruin the destroyed Structure's, in a different **status** — keeping its own card, the same way a creature carrying a permanent counter is still that creature. They are resources: cards require or consume them (a zombify-style card needs a Grave; a Structure may be cheaper built on a Ruin). **They hold no Activation Points** (reverses D58 for them). Defining the status itself — which properties survive, how "target creature" excludes it, how D40's slot rule and D81's terrain parent read under it, what returning it does — is open: `PLAN.md` Track A item 27.
+
+→ `object-properties.md`, `glossary.md`, `economy.md`, `ancestry.md`, `PLAN.md`.
+
+---
+
+### D87 — Terrain holds no Activation Points and has no activated abilities; activated power comes from a Structure the terrain brings; static and triggered terrain abilities stay
+
+**The gap:** Terrain held its own printed Activation Points (D58) only to gate and fund its own activated abilities — the one AP-holder that can't be attacked, destroyed or cast. Tested against two prototype cards: **Fire Barrack Spot** (Terrain: produces 1 Fire; `3!AP` + 1 Fire: create a Fire Warrior) and **Fire Flat** (Terrain: produces 1 Fire; comes with a **Fire Barrack**, a Structure carrying that same ability). The first is an engine that can only be answered positionally, since no rule destroys terrain. The second gives the same engine a combat answer (Structure → Ruin, leaving a plain Fire land) and uses existing Structure machinery: parent is the terrain, mana climbs to the bonder, dormant when the terrain is Neutral (D83), self-acting under a Behavior (D84) — a natural PvE spawner.
+
+**Adopted:**
+- **Terrain holds no Activation Points and has no activated abilities** (reverses D58 for Terrain; D57's "Terrain enters with full AP" becomes moot).
+- **Activated power a terrain card wants is carried by a Structure the terrain brings with it** — a real card (D88), able to use either of the hex's two Structure slots (D40; a Root Structure is hidden for free). **How it arrives at Setup is deliberately open:** `setup.md` forbids "enters the Island" for Setup-placed permanents, a technicality from Setup having no response window; a clean solution is to be found, not patched here.
+- **Terrain keeps static and triggered abilities.** A triggered ability may print a cost ("whenever a creature enters this, you may pay 1 AP; if you do, deal 1 damage to it"): this falls out of Payment (D58/D74) with no new rule — Terrain holds no AP, so the walk climbs to its bonder (Champion or Companion), same as mana. A trigger with a choice needs a decider, so a dormant Neutral terrain skips it (D83). A once-per-round limit, which own-AP used to provide, is printed where wanted.
+- **A dormant terrain's static abilities and choiceless triggers still apply** (D83, confirmed for Terrain): an unbonded swamp on neutral ground still slows everyone.
+- **GUI requirement:** a terrain-ability badge shows only on hexes whose terrain has static/triggered abilities, so basics stay visually quiet; the badge follows the **observer's belief**, so a Mimic terrain presenting as a basic shows none. A static's effect must also be shown where it lands (movement preview, affected creature's stats). Hex-view sketch: `PLAN.md` Track B item 5.
+
+**Rejected:** *(a) Terrain has no abilities at all beyond Element and mana*, everything else on a Structure — the most uniform option, every non-mana effect destructible, and far less for a player to monitor across ~50 hexes. Rejected because some effects are properties of the land itself (a swamp's movement cost), and moving them onto a Structure feels artificial; the monitoring argument is answered by the GUI requirement instead. The Bond surcharge (`card-ideas.md`) is unaffected — it is paid from the bonder's AP.
+
+→ `resources-terrain.md`, `economy.md`, `ancestry.md`, `structures-items.md`, `setup.md`, `glossary.md`, `docs/cards/card-ideas.md`, `PLAN.md`.
+
+---
+
 ### D86 — Slice controller uniformity is an entry rule, not a standing invariant; only a control change can mix a Slice; D66's fizzle removed
 
 Resolves `PLAN.md` Track A item 23 (mixed-controller Slice after automatic control loss). **Reverses D66.**
@@ -451,7 +503,7 @@ Unifies "Action Points" (Actor) and "Activation Capacity" (Object, D47) into a s
 
 **Consequence:** an Object's own Activation-Points-costed ability (e.g. a Structure's printed activated ability) is now funded by the Object itself, not by whoever bonds/controls it — a genuine balance change, decoupling such abilities from the controlling player's own action economy. This is also what makes D56's Behavior scope work for Objects: an Activation-Points-only ability is always self-payable by a Neutral Object holding its own Activation Points, with no bonder required; a mana-inclusive ability still needs a live root for that portion. → `economy.md`, `ancestry.md`, `resources-terrain.md`, `structures-items.md`.
 
-### D57 — Summoning sickness (and Haste) is determined by casting, not by Actor/Object type
+### D57 — Summoning sickness (and Haste) is determined by casting, not by Actor/Object type *(superseded by D89)*
 Supersedes D47's "Objects enter play with full Activation Capacity immediately, unlike an Actor." The actual determining factor was never Actor-vs-Object — it's whether the permanent entered the Island through the **casting/Aether procedure** (D33/D46) or was placed as match-setup data. **Creature, Companion, and Structure are all cast**, so all three now enter with **0 Activation Points** (summoning sickness, D14), refreshing at their first eligible refresh; **Haste** (D14's existing positive keyword) now applies uniformly to any of them, not just Creature. **Terrain** (placed via a map's home zone/neutral area) **and the Champion** (placed at match setup) never go through the casting procedure at all, so they were never subject to summoning sickness in the first place — not a type exception, the rule about casting simply never applied to them; the Champion's own separate D48 starting-AP asymmetry is an unrelated, additional balancing lever. A Ruin/Grave, being a transformation of an already-in-play permanent rather than something newly cast, is likewise unaffected. → `economy.md`, `structures-items.md`, `resources-terrain.md`.
 
 ### D56 — Behavior: mechanism, scope, and Neutral Phases
@@ -550,7 +602,7 @@ Unlike Structure (D24, attackable, has Life), an **Item never has Life** — it'
 ### D33 — Casting/materialization via the Aether: target locked before resolution; illegal target fizzles per-instruction, not a whole-spell counter
 Casting a Creature, Structure, or Item follows one procedure: choose the spell → choose target terrain + layer → pay cost → the spell goes into the **Aether** (a trace ahead of the stack's `now` marker, `../interaction-stack.md`, D16) → when `now` reaches it, it resolves: the Aether trace stays put and its resolution creates a separate, linked permanent at the chosen (terrain, layer) — not the trace itself relocating (D16, refined 2026-08-11). Because the board can change while a spell sits in the Aether (opponent responses, contested terrain, a layer filling up), resolution re-checks legality. **If a chosen target is no longer legal, that specific instruction fizzles — the spell does not resolve that part — rather than the whole spell being countered MTG-style.** For a single-target permanent cast (today's only case) this looks identical to a counter in outcome, but the principle is general: a future multi-effect spell with several targets only loses the parts that went illegal, not the whole effect. Paid cost is never refunded either way. This is a general Aether-resolution rule (relates to D16), not specific to Structures/Items. → `../structures-items.md`, `../interaction-stack.md`.
 
-### D32 — Location model unified across Creature/Structure/Item; layer is card-derived, not a free choice
+### D32 — Location model unified across Creature/Structure/Item; layer is card-derived, not a free choice *(burrower mapping corrected by D90)*
 A permanent's board location is uniformly **(terrain cell, layer)** — Creature (already true, D12), Structure (D31), and now a **loose** Item (closes the open "where does a loose item live" question from D25): a dropped item lands exactly where it was dropped, layer included (an underground creature's dropped sword ends up at (that cell, Below), hidden by the same rule that already hides Below creatures). An **equipped** Item's location is instead its carrying actor (D26) — not spatial at all, since it travels with that actor. **Legal layer(s) at cast time come from the card's own data/keywords, never a free choice by default**: in the overwhelming majority of cases exactly one layer is legal (no keyword → Ground; Flying → Above; a burrower-type keyword → Below), matching the pessimistic-default posture (D14) — a card may explicitly print a choice among multiple legal layers as opt-in flexibility, but there's no generic "pick any layer" capability. Applies identically to Creature and Structure casts. → `../structures-items.md`.
 
 ### D31 — Structure gains a Layer; capacity becomes 1-per-layer, not 1-per-hex
