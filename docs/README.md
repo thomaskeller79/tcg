@@ -2,7 +2,7 @@
 
 Four folders, split by the kind of question a doc answers:
 
-- **`rules/`** — *what the game is, right now.* Mechanics, board/card/resource/combat rules, vocabulary. Read this to understand how a match plays — no revision history or rejected alternatives mixed in.
+- **`rules/`** — *what the game is, right now.* Mechanics, board/card/resource/combat rules, vocabulary. Read this to understand how a match plays — no revision history or rejected alternatives mixed in. `rules/examples/` holds worked example cards walked through the rules step by step, used as regression tests for rule changes (not real cards; those live in `cards/`).
 - **`architecture/`** — *how it's built, right now.* Components, the client/server Host boundary, engine/platform choices. Read this to understand the codebase's shape.
 - **`tools/`** — *how to work with it.* File formats and workflows for the dev-facing tooling (e.g. the debug UI's scenario format), as opposed to the game engine itself.
 - **`cards/`** — concrete card ideas surfaced while designing the systems above, not yet a rules layer of their own.
