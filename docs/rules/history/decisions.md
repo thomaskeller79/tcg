@@ -6,6 +6,18 @@
 
 ---
 
+### D94 — Casting is a transaction: abort refunds everything; the card pays at the end of Pay; instructions bind outputs
+
+**The card is part of the cost** (D37, D68: "mana and the card alike"). It leaves the Hand as payment starts but arrives in Discard only when payment ends, so it can't pay for itself (an "exile a card from your discard" cost can't use the card being cast). Replaces D37/D68's unspecified "cast-commitment point."
+
+**Casting is a transaction; abort rolls it back.** Nothing done in steps 0–3 is visible to the opponent before the trace enters Pending, and triggers it fires (a sacrifice cost's "whenever a creature is sacrificed") are collected and enter Pending together with the trace, on top of it. An abort returns every paid cost and drops the collected triggers — the state is exactly as before step 0. Replaces the previous reading that an abort, like D68's cancel, forfeits what was paid. Rationale: nothing has happened yet from the opponent's point of view, so a refund can't be exploited; digital clients (e.g. MTG Arena) behave the same way, and in practice most casts take seconds. **Exception, interim:** once a D68 redirect attempt has failed, the cost is committed — the failure revealed hidden information, and a refunding abort after it would be the free probe D68 rejected. The user wants to rediscuss the redirect loop itself (`PLAN.md` Track A item 30); this exception is to be resettled there.
+
+**Instruction outputs** (confirmed from item 4's effect-normal-form discussion): an instruction can bind a named result (`killed := damage(T1, 3)`) that later instructions reference (`[if killed ≠ ∅] draw(1)`) — the meaning of "if it dies this way," distinct from "if T1 is dead." Outputs are the third kind of name beside variables (Pay) and targets (Target), bound at resolution, card-wide in scope and instanced per pick like targets (D91). An output of an instruction that didn't run is empty.
+
+→ `interaction-stack.md`.
+
+---
+
 ### D93 — Every game object has an ID; IDs follow text order within one creation event
 
 D61 gave IDs to permanents only. Trigger ordering (D92) needs a source ID for triggers from any object — a Trace, a Card ("when discarded"), a delayed trigger — so **every game object (Card, Trace, Permanent) gets an ID** from the same monotonic counter. Considered: a second ordering rule for non-permanent sources — rejected, one counter covers it. **Within one creation event, IDs follow the order in the text**: "create a Soldier and a Warrior" gives the Soldier the lower ID. "Create two Soldiers" assigns IDs in enumeration order, which is invisible to the player — accepted as harmless. A control change keeps the ID (D61, unchanged), so a stolen creature stays "old" among its new controller's triggers.
@@ -40,7 +52,7 @@ Surfaced in item 4's discussion; MTG's resolution rules (CR 608, 603.3, 704) wer
 
 Surfaced in item 4's discussion while working out what a card's rules text is made of; checked against MTG's CR 115, 601.2b–c and 700.2.
 
-**Procedure** (refines D46/D70/D83): **0. Legality** — Speed fits Pending, the card's **cast condition** holds ("cast only if you control a Rebel"), and at least one legal cost-and-target combination exists. **1. Pay. 2. Choose. 3. Target** (with D68's redirect loop). **4.** The trace enters Pending. The card itself is part of the cost: it goes to Discard at the start of Pay, before anything else is paid — D37/D68 said only "the cast-commitment point"; abort remains possible until step 4. **The cast condition is checked only at step 0** — sacrificing the only Rebel as part of the cost is legal (MTG behaves the same).
+**Procedure** (refines D46/D70/D83): **0. Legality** — Speed fits Pending, the card's **cast condition** holds ("cast only if you control a Rebel"), and at least one legal cost-and-target combination exists. **1. Pay. 2. Choose. 3. Target** (with D68's redirect loop). **4.** The trace enters Pending. The card itself is part of the cost (refined in D94); abort remains possible until step 4. **The cast condition is checked only at step 0** — sacrificing the only Rebel as part of the cost is legal (MTG behaves the same).
 
 **References bind as early as possible**, as a side effect of whichever step fixes what they depend on — D83's "bound at declaration" is kept, its timing refined. Source-relative references ("you", the payer, an inherited Behavior/neutral turn) bind right after step 0, before Pay — Pay can change the Ancestry (a "sacrifice this creature" cost removes the source). Target-relative references ("target creature's controller") bind right after step 3. Considered: binding everything at the end — rejected for the sacrificed-source case.
 
