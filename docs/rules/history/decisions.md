@@ -6,6 +6,54 @@
 
 ---
 
+### D93 — Every game object has an ID; IDs follow text order within one creation event
+
+D61 gave IDs to permanents only. Trigger ordering (D92) needs a source ID for triggers from any object — a Trace, a Card ("when discarded"), a delayed trigger — so **every game object (Card, Trace, Permanent) gets an ID** from the same monotonic counter. Considered: a second ordering rule for non-permanent sources — rejected, one counter covers it. **Within one creation event, IDs follow the order in the text**: "create a Soldier and a Warrior" gives the Soldier the lower ID. "Create two Soldiers" assigns IDs in enumeration order, which is invisible to the player — accepted as harmless. A control change keeps the ID (D61, unchanged), so a stolen creature stays "old" among its new controller's triggers.
+
+→ `neutral-permanents.md`, `object-properties.md`.
+
+---
+
+### D92 — Trace resolution: card order, just-in-time checks, immediate death, collected triggers; Instant blocks active play instead of resolving atomically
+
+Surfaced in item 4's discussion; MTG's resolution rules (CR 608, 603.3, 704) were read as the reference point and mostly not adopted.
+
+**Card order, checked just-in-time.** Instructions run in card order; each is checked (D33/D85) immediately before it runs, against the current state including what earlier instructions did. Considered: MTG's up-front target check (608.2b) — rejected. It exists in MTG only to feed the whole-spell fizzle ("all targets illegal → nothing happens"), which D33 already rejected; without it an up-front check has no consequence and would only act on stale state. Resolution-time choices are made when their instruction is reached.
+
+**Death is immediate.** A permanent whose current Life is 0 or less dies immediately after the instruction that caused it — "destroy" and "0 Life" behave identically, and the next instruction already sees it dead. Considered: MTG's state-based actions, deferred until the spell finishes (704.3) — rejected as the source of "if it dies this way" needing workarounds. Per-damage-event granularity rejected: it would break simultaneous damage (D13 combat, "deal 1 damage to each creature"). Accepted consequence: text order matters — "deal 3 damage to T1; T1 gets +3 max-Life" kills a 3-Life T1 and the second instruction fizzles.
+
+**Every state change is an instruction.** Cost payment and phase-boundary events (an "until end of turn" buff ending) are instructions too, so "immediately after the instruction" needs no list of exceptions (pillar 5). An instruction does not require a trace: a trace is one way instructions are executed (queued, respondable); the casting procedure and the turn structure execute instructions directly, without Pending, so paying a cost or a buff expiring is never respondable.
+
+**Triggers are collected, then enter Pending.** Triggers fired while a trace resolves are collected; once the trace has finished and moved to Past, they enter Pending so that the earliest instruction's triggers are on top (resolve first). Considered: entering Pending as each trigger fires — rejected, LIFO would reverse text order. Within one instruction: APNAP over the four seats (D60) — the active seat's triggers enter first and resolve last — then by source ID (D61/D93, oldest enters first, resolves last), then by printed ability order, then by the order of events inside the instruction. Fully identical triggers are interchangeable and need no order. **Order is automatic, never chosen by a Champion** — MTG's player-ordered triggers (603.3b) rejected as a rarely relevant, annoying decision point; the UI shows the order in Pending before anyone must respond. D61's wording "oldest ID first onto the stack, so oldest resolves first" contradicted LIFO; corrected: oldest enters first, resolves last.
+
+**The trace moves to Past as the final step of its resolution**, before its collected triggers enter Pending, so a trigger reading "traces in Past" sees it.
+
+**Instant is not atomic; it blocks active play.** While an Instant is in Pending, nothing can be actively put into the Aether (no cast, no activation, including another Instant); `Now` advances automatically until the Instant has resolved. Triggers are still added and resolve normally — e.g. a trigger from the Instant's own sacrifice cost enters Pending above it and resolves first, with no special rule. Replaces D45's "enters Pending and `Now` is advanced past it as part of the same action."
+
+**Compared against simpler games.** Hearthstone avoids these questions by having no player responses (Secrets are automatic) and hiding deferred death processing and order-of-play trigger resolution in the engine; Legends of Runeterra (Burst/Fast/Slow speeds, visible LIFO stack, immediate death) is the closest match. Conclusion: with responses (D45) kept, this procedure is already near the simple end; the remaining rule for automatic decisions is that they are visible before a player has to act.
+
+→ `interaction-stack.md`, `economy.md`, `glossary.md`, `neutral-permanents.md`.
+
+---
+
+### D91 — Casting procedure refined: legality step, earliest-possible binding, optional and labelled cost branches, card-wide target scope
+
+Surfaced in item 4's discussion while working out what a card's rules text is made of; checked against MTG's CR 115, 601.2b–c and 700.2.
+
+**Procedure** (refines D46/D70/D83): **0. Legality** — Speed fits Pending, the card's **cast condition** holds ("cast only if you control a Rebel"), and at least one legal cost-and-target combination exists. **1. Pay. 2. Choose. 3. Target** (with D68's redirect loop). **4.** The trace enters Pending. The card goes to Discard at commitment; abort is possible until step 4. **The cast condition is checked only at step 0** — sacrificing the only Rebel as part of the cost is legal (MTG behaves the same).
+
+**References bind as early as possible**, as a side effect of whichever step fixes what they depend on — D83's "bound at declaration" is kept, its timing refined. Source-relative references ("you", the payer, an inherited Behavior/neutral turn) bind right after step 0, before Pay — Pay can change the Ancestry (a "sacrifice this creature" cost removes the source). Target-relative references ("target creature's controller") bind right after step 3. Considered: binding everything at the end — rejected for the sacrificed-source case.
+
+**Pay stays before Choose** (D70 kept). MTG announces modes before paying (601.2b) so a mode can carry its own cost (Spree, 700.2h) and kicker can add targets. The same expressiveness comes from the cost itself: a disjunct may have an **empty branch (ε)**, making it optional; branches are **labelled** (`c2 = (b1: 1 ∨ b2: 2 ∨ b3: 3)`), and an instruction condition may test which branch was paid (`c2 = b1`). Kicker = an optional conjunct plus a condition; Spree = one disjunct enumerating the mode combinations (2ⁿ−1 branches, accepted — printed text can show the MTG-style sugar); Escalate = a variable cost plus `choose X+1`. Conditions test the **label**, not the amount, since two branches can cost the same; two same-cost plain-mana branches are therefore both prompted (D70's auto-pay applies only when exactly one branch is legal). Paying for no mode at all (all optional branches ε) is legal and simply wasteful — no constraint added.
+
+**Target scope.** A target declared at card level is one shared instance, referenceable by every instruction (including across modal effects); a target declared inside a modal option is instanced fresh for every pick of that option (D70's "each pick is its own instance"; MTG 700.2d). A target is required only if an instruction in a chosen option references it (MTG 700.2c) — settled before step 3, since all choices are made first. "That creature"/"it" is a reference to a target, not a new target.
+
+**Target counts and choosers.** A target slot has a count `min..max` ("up to one target creature" allows zero); an instruction with zero bound targets does nothing (not a fizzle). A choice can name its chooser, which need not be the trace's controller (MTG 700.2e); the chooser binds like any reference.
+
+→ `interaction-stack.md`.
+
+---
+
 ### D90 — Subterranean grants Root access, not a Root starting Slice; a cast Subterranean creature enters on Ground by default
 
 Corrects the D32 mapping "a burrower-type keyword → Below," which `structures-items.md` had carried as "Subterranean → Root (D42)" — D42 itself never said Subterranean creatures start in Root. **Subterranean** grants being able to exist in the Root Slice plus Ascend/Descend (D42); it does not choose the entering Slice, so a Subterranean creature enters on **Ground** like any creature without a Slice keyword. **Flying is different:** a flyer is always in the Sky unless it loses Flying, so Flying does set the entering Slice. A creature that enters directly into Root says so on its own card (the same card-printed Slice choice D32 already allows).

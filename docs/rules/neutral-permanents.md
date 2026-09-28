@@ -2,7 +2,7 @@
 
 *A third control state — **Neutral** — alongside Champion A/Champion B, giving every permanent type a defined answer for "what happens when nobody controls this." Every object's **decider** is its controller if it has one; otherwise its **Behavior** — a deterministic policy standing in for a player's own decisions, carried as a property of the object — if it has one; otherwise nobody, and the object is **dormant** (D83).*
 
-**Decisions:** D54–D58, D60–D65, D82, D83 (`history/decisions.md`)
+**Decisions:** D54–D58, D60–D65, D82, D83, D93 (`history/decisions.md`)
 
 ---
 
@@ -27,7 +27,7 @@ The controller comes from the Ancestry; the Behavior never does — it is attach
 Every permanent on the Island carries two identifiers, assigned when it enters:
 
 - **Timestamp** — shared by every permanent produced by the same creation event (one effect resolving, or one setup placement). Card text compares timestamps: "a creature that entered the Island before another target creature" is true, false, or — for two permanents from the same event — neither, since they share a timestamp and neither entered before the other.
-- **ID** — always unique, assigned as a monotonically increasing counter, no ties ever. This is the engine's own tiebreak, used to order several Neutral permanents' simultaneous Behavior triggers (oldest ID first) and as the final tiebreak inside a Behavior's own scoring.
+- **ID** — always unique, assigned as a monotonically increasing counter, no ties ever. **Every game object has one** — Card and Trace as well as Permanent (D93) — so any trigger source can be ordered. Within one creation event, IDs follow the order in the text ("create a Soldier and a Warrior": the Soldier's is lower). This is the engine's own tiebreak, used to order simultaneous triggers within one seat (the oldest ID enters Pending first and so resolves last — `interaction-stack.md` §Resolution) and as the final tiebreak inside a Behavior's own scoring.
 
 A permanent that re-enters the Island (recast after dying, replayed after being bounced) gets a new timestamp and a new ID — it's a new permanent, not a continuation. A permanent that only changes control keeps both.
 

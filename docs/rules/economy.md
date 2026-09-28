@@ -2,7 +2,7 @@
 
 *The full resource model in one place. There are **two** resources — mana and Activation Points — and the same shape — "mana access + a private action budget" — repeats for every actor, **including the Champion and the Companion**. Learn it once, it applies everywhere (pillar 3).*
 
-**Decisions:** D8 (terrain/mana), D9 (Champion economy), D10 (Action Points), D15 (Defend cost), D22 (Companion), D45 (Speed), D47 (Activation Capacity), D48, D49 (Champion/Companion Attack), D58 (Activation Points), D65 (Defend once per round), D76 (first-turn AP asymmetry), D77 (mana accounting), D87 (Terrain holds no AP), D88 (Ruin/Grave hold no AP), D89 (summoning sickness) — `history/decisions.md`
+**Decisions:** D8 (terrain/mana), D9 (Champion economy), D10 (Action Points), D15 (Defend cost), D22 (Companion), D45 (Speed), D47 (Activation Capacity), D48, D49 (Champion/Companion Attack), D58 (Activation Points), D65 (Defend once per round), D76 (first-turn AP asymmetry), D77 (mana accounting), D87 (Terrain holds no AP), D88 (Ruin/Grave hold no AP), D89 (summoning sickness), D92 (Instant blocks active play) — `history/decisions.md`
 
 ---
 
@@ -60,7 +60,7 @@ Every card/ability has one of four **Speeds**, gated by what's currently sitting
 - **Slow** — controller's main phase only, Pending empty.
 - **Quick** — whenever only **Physical Traces** (the trace left by Move/Attack/Ascend/Descend) are in Pending.
 - **Reactive** — whenever no **Instant Trace** is in Pending.
-- **Instant** — any time; resolves **fully atomically**, zero response window for anyone, not even another Instant — a deliberate simplification that keeps the top speed tier free of unbounded stack/priority-passing complexity.
+- **Instant** — whenever no Instant is in Pending; while it sits in Pending, nothing can be actively put into the Aether and `Now` advances automatically until it has resolved — zero response window for anyone, not even another Instant. Triggers are still added and resolve normally. A deliberate simplification that keeps the top speed tier free of unbounded stack/priority-passing complexity.
 
 Speed governs *when* a card/ability may be played; `!`/`*` still govern *how its AP is consumed* — independent axes, same as before. Spending AP reactively still draws from the actor's normal AP budget, never a separate reactive pool — so answering on the opponent's turn means that AP had to be held in reserve since the actor's own last turn. Applies generally, for any actor. Full detail: `interaction-stack.md`.
 

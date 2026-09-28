@@ -2,7 +2,7 @@
 
 *What a game object is made of — Card, Trace, and Permanent as one connected chain — and how properties move (or don't) when one creates another, including backward: Bounce and Flicker.*
 
-**Decisions:** D69, D70, D72, D73, D74, D75, D83, D88 (`history/decisions.md`)
+**Decisions:** D69, D70, D72, D73, D74, D75, D83, D88, D93 (`history/decisions.md`)
 
 ---
 
@@ -13,6 +13,8 @@ Every game object belongs to exactly one domain, and each domain has exactly one
 - **Mind** — **Card**. In Hand, Library, or Discard.
 - **Aether** — **Trace**. In Past, Pending, or Future.
 - **Matter** — **Permanent**. On the Island — an Actor (Champion, Companion, Creature) or an Object (Structure, Item, Terrain, Grave, Ruin).
+
+Every game object — Card, Trace, and Permanent alike — carries a unique, monotonic **ID** (D61, D93; `neutral-permanents.md` §Permanent identity).
 
 Two things that look like they might belong on this list don't:
 
@@ -33,7 +35,7 @@ The six ordered cross-domain transitions this doc actually covers:
 | Aether → Matter | Trace resolves | Ordinary game progression |
 | Matter → Aether | **Flicker** | Creates a new Trace |
 | Matter → Mind | **Bounce** | Creates a new Card, sent to whichever Hand the effect's own text names (D74 — e.g. "to its controller's hand," "to your hand") — this doc's property model has no separate "owner" field; the destination is ordinary card-level data resolved via the Controller walk (`ancestry.md`), the same as any other controller-referencing effect. |
-| Mind → Matter | — | **Forbidden, invariant.** Magic always leaves a trace — even an Instant-speed effect passes through the Aether atomically (D45) rather than skipping it. |
+| Mind → Matter | — | **Forbidden, invariant.** Magic always leaves a trace — even an Instant-speed effect passes through the Aether (D45, D92) rather than skipping it. |
 | Aether → Mind | **Remand** | Creates a new Card, destination resolved identically to Bounce (D74). For a permanent-producing card, follows the identical rule as Matter→Mind (Trace and Card are close enough in the property chain that no special case is needed). For a **Spell**, the general cost/choice-lock, target-reset rule (§4) applies unchanged — confirmed against a worked example (D70): cost, `X`, and every modal choice (including a repeated "choose N times" selection) survive; each instruction's target is stripped back to a bare placeholder. |
 
 **This table is incomplete on purpose, not by oversight.** An existing Permanent using one of its own abilities (including the base Move/Attack/Ascend/Descend defaults, or any printed activated ability) *also* creates a Trace — call it **Activate** — and this is the routine, constant case during play, not a rare one. It is not simply "Matter → Aether" in the same sense as Flicker: Flicker **removes** the Permanent as part of creating the linked Trace, while Activate leaves the acting Permanent completely untouched — same object, same zone, unconsumed, free to act again. That makes Activate closer in shape to Cast (the source object isn't destroyed either way) than to Flicker, but not identical to Cast either (Cast at least relocates/spends the card to Discard; Activate doesn't even do that).
