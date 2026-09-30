@@ -6,13 +6,23 @@
 
 ---
 
+### D96 — An output is its instruction's state diff; repeated picks run in menu order
+
+**Output = state diff.** An instruction's output is everything it changed (the state after minus the state before), queried by conditions and arguments ("how many creatures died"); the deaths it causes are part of it, since they happen immediately after it (D92). Replaces D94/D95's "a named result, such as the objects it killed." Sums across repeated picks need no aggregate: "draw a card for each creature killed" repeated in each option gives the total. Thresholds across picks don't work that way — parked with the related gaps in `PLAN.md` item 33.
+
+**Repeated picks run in menu order**, repeats back to back (as MTG's 700.2d), not in the order the player picked them — deterministic, independent of input order.
+
+→ `effect-form.md`.
+
+---
+
 ### D95 — Effect normal form: one "choose" primitive, block scope, three-state outputs, conditions on instructions
 
 Settles the internal form of rules text (item 4's "rules text" property), kept compact for validators and AI; card text may use sugar. Grammar and details: `effect-form.md`.
 
 **One primitive.** A mandatory chooser (default "you") chooses a `min..max` count among options (an effect) or objects (a selection), at cast or at resolution. A target is exactly an object selection at cast; "you may X" is `choose 0..1 at resolution { X }`; "a creature of your choice" is an object selection at resolution — so no separate non-target declaration is needed. Considered: an optional chooser field — rejected, mandatory-with-default is simpler. Kind ("creature," "hex") is an ordinary constraint, not a separate field (card text may present it differently).
 
-**Conditions sit on the instruction only.** Considered: conditions on the effect, or in both places — two places add no expressiveness; the instruction is where just-in-time checks happen anyway. Accepted gap: a condition can't gate a choice (`effect-form.md` open question 4).
+**Conditions sit on the instruction only.** Considered: conditions on the effect, or in both places — two places add no expressiveness; the instruction is where just-in-time checks happen anyway. Accepted gap, later reopened as `PLAN.md` item 33: a condition can't gate a choice.
 
 **Block scope.** A name is visible in the block where it's declared (card or option), only to what follows. Card level: variables (`X`, branch labels) and card-level selections, one instance each — needed for a target shared across effects (Cinder Verdict's T1). Option level: option selections and all outputs, instanced per pick. Considered: card-wide outputs — rejected, ambiguous when an option is picked twice; the user also floated option-only scope for everything, dropped because it can't express a target shared across effects without nesting. Cost: a fact needed in several options is repeated; aggregates across picks aren't expressible.
 

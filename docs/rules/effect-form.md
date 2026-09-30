@@ -2,7 +2,7 @@
 
 *The internal structure every card's and ability's rules text is written in. Card text shown to players may use shorter wording ("you may," "kicker," "choose one or more"); every such wording must translate into this form. Kept deliberately compact, so that a card validator or an AI can read and check it.*
 
-**Decisions:** D83, D91, D92, D94, D95 (`history/decisions.md`)
+**Decisions:** D83, D91, D92, D94, D95, D96 (`history/decisions.md`)
 
 ---
 
@@ -42,11 +42,13 @@ Every name is one of three kinds, differing only in when it is bound:
 | selection | Target (at cast) or its instruction (at resolution) | `T := you choose 1..1 creature` |
 | output | Resolution | `killed := damage(T, 3)` |
 
+Picks of a repeatable effect run in **menu order**, repeats back to back.
+
 **A name is visible in the block where it is declared — the card, or an option — and only to what follows its declaration.** Variables and card-level selections are card-wide, with one instance each. Option-level selections and all outputs live in their option; a repeatable option picked twice has two independent instances of each, neither visible to the other or outside the option. An effect that needs the same fact in several options repeats it in each.
 
 ## Outputs
 
-An instruction can bind an output — a named result, such as the objects it killed — for later instructions in the same option. An output exists only during its trace's resolution; it never reaches the trace's stored state, so Remand never touches it. It is in one of three states:
+An instruction can bind an output for later instructions in the same option. **The output is the instruction's state diff** — everything it changed, including the deaths it caused (they happen immediately after it, `interaction-stack.md` §Resolution) — and conditions and arguments query it ("how many creatures died"). An output exists only during its trace's resolution; it never reaches the trace's stored state, so Remand never touches it. It is in one of three states:
 
 - **unbound** — its instruction didn't run (its condition was false, or it read an unbound output);
 - **empty** — its instruction ran or fizzled and affected nothing ("up to 2 target creatures gain trample" with 0 targets);
@@ -74,6 +76,4 @@ Worked example across the whole casting and resolution procedure: `examples/cind
 ## Open questions
 
 1. **Relations between two selections** (D83: "target hex within distance 1 of T1" stays in the trace and is rechecked). `PLAN.md` Track A item 32 would drop them in favour of instruction conditions; until then a selection's constraint naming another selection is a relation.
-2. **Order of repeated picks.** When a repeatable effect picks the same option several times, do the instances run in menu order (repeats back to back, as MTG does) or in the order picked? Proposed: menu order.
-3. **Aggregates across picks** ("draw a card for each creature killed by this spell") aren't expressible — outputs don't leave their option instance. Accepted until a real card needs it.
-4. **A condition can't gate a choice.** Conditions sit on instructions, so "if a creature was sacrificed, an opponent chooses one: …" still asks for the choice when the condition is false, with every option then doing nothing. Harmless when the condition is settled at cast (it collapses first), but a resolution-time condition would force a pointless choice.
+2. **Conditions and outputs across options** — a condition can't gate a choice, a resolution-time choice can't read an output, and thresholds across repeated picks aren't expressible. `PLAN.md` Track A item 33.
