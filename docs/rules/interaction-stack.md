@@ -2,7 +2,7 @@
 
 *Players can act on the opponent's turn (MTG-style instants). One primitive covers instants, combat tricks, and traps: a **Speed** tag per card/ability, checked live against what's sitting in **Pending**, the Aether's next-to-resolve zone.*
 
-**Decisions:** D6, D16, D35, D38, D45, D46, D68, D70, D75, D83, D85, D91, D92, D94 (`history/decisions.md`)
+**Decisions:** D6, D16, D35, D38, D45, D46, D68, D70, D75, D83, D85, D91, D92, D94, D95 (`history/decisions.md`)
 
 ---
 
@@ -79,7 +79,7 @@ Qualifiers consumed by binding are never re-checked, and there is no implicit lo
 
 **Death is immediate.** A permanent whose current Life is 0 or less dies immediately after the instruction that caused it; "destroy" and reaching 0 Life behave identically, and the next instruction already sees the result. Damage dealt by one instruction is simultaneous — "deal 1 damage to each creature" and a Combat's damage (D13) apply fully before anything dies. Text order therefore matters: "deal 3 damage to target creature; it gets +3 max-Life" kills a 3-Life creature, and the second instruction fizzles.
 
-**An instruction can bind an output** — a named result, such as the objects it killed — that later instructions of the same trace can reference: `killed := damage(T1, 3)`, then `[if killed ≠ ∅] draw(1)`. This is what "if it dies this way" means, as opposed to "if T1 is dead" (which something else may have caused). Outputs are the third kind of name on a card, beside variables (bound at Pay) and targets (bound at Target); they are bound at resolution, share the card-wide scope of targets, and are instanced per pick inside a repeatable option. An output of an instruction that didn't run (unchosen option, fizzled) is empty.
+**An instruction can bind an output** — a named result, such as the objects it killed — that later instructions in the same option can reference: `killed := damage(T1, 3)`, then `[if killed ≠ ∅] draw(1)`. This is what "if it dies this way" means, as opposed to "if T1 is dead" (which something else may have caused). An output is unbound if its instruction didn't run, empty if it ran or fizzled without affecting anything; an instruction reading an unbound output doesn't run either. Scope and states: `effect-form.md`.
 
 **Every state change is an instruction**, not only a trace's text: paying a cost and a phase-boundary event (an "until end of turn" effect ending) are instructions too, so the death rule above applies to them unchanged. An instruction does not require a trace. A trace is one way instructions are executed — queued in Pending, respondable; the casting procedure and the turn structure execute their instructions directly, never through Pending, so paying a cost or an effect expiring can't be responded to.
 

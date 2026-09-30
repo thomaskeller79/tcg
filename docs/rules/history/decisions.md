@@ -6,6 +6,24 @@
 
 ---
 
+### D95 — Effect normal form: one "choose" primitive, block scope, three-state outputs, conditions on instructions
+
+Settles the internal form of rules text (item 4's "rules text" property), kept compact for validators and AI; card text may use sugar. Grammar and details: `effect-form.md`.
+
+**One primitive.** A mandatory chooser (default "you") chooses a `min..max` count among options (an effect) or objects (a selection), at cast or at resolution. A target is exactly an object selection at cast; "you may X" is `choose 0..1 at resolution { X }`; "a creature of your choice" is an object selection at resolution — so no separate non-target declaration is needed. Considered: an optional chooser field — rejected, mandatory-with-default is simpler. Kind ("creature," "hex") is an ordinary constraint, not a separate field (card text may present it differently).
+
+**Conditions sit on the instruction only.** Considered: conditions on the effect, or in both places — two places add no expressiveness; the instruction is where just-in-time checks happen anyway. Accepted gap: a condition can't gate a choice (`effect-form.md` open question 4).
+
+**Block scope.** A name is visible in the block where it's declared (card or option), only to what follows. Card level: variables (`X`, branch labels) and card-level selections, one instance each — needed for a target shared across effects (Cinder Verdict's T1). Option level: option selections and all outputs, instanced per pick. Considered: card-wide outputs — rejected, ambiguous when an option is picked twice; the user also floated option-only scope for everything, dropped because it can't express a target shared across effects without nesting. Cost: a fact needed in several options is repeated; aggregates across picks aren't expressible.
+
+**Outputs have three states** — unbound (didn't run), empty (ran or fizzled, affected nothing), a value; an instruction reading an unbound output doesn't run and its own output is unbound. Refines D94's "an output of an instruction that didn't run is empty," which made "if it did not die this way" true when the damage never happened. Considered: two states with a static rule that a reader repeats its producer's condition — rejected by the user as worse than three states.
+
+**Track C rule:** every card designed in Track C is written out in this form; a card that doesn't fit is reworded or surfaces a Track A item.
+
+→ `effect-form.md`, `interaction-stack.md`, `PLAN.md` Track C, `docs/cards/card-ideas.md`.
+
+---
+
 ### D94 — Casting is a transaction: abort refunds everything; the card pays at the end of Pay; instructions bind outputs
 
 **The card is part of the cost** (D37, D68: "mana and the card alike"). It leaves the Hand as payment starts but arrives in Discard only when payment ends, so it can't pay for itself (an "exile a card from your discard" cost can't use the card being cast). Replaces D37/D68's unspecified "cast-commitment point."

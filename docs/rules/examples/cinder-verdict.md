@@ -4,7 +4,7 @@
 
 **Tests:** cast condition, early binding, CNF cost with `X`, an ε branch and a mixed disjunct, settled-condition collapse, `choose X` with repeats and per-pick target instances, an up-to-zero target, a card-scope target shared across modal effects, a relation between two targets (D83), target-relative binding (chooser, Behavior), a response in Pending, just-in-time checks, immediate death, a resolution-time choice, a Neutral creation, IDs in text order, trigger collection and ordering.
 
-**Depends on open items:** the effect notation below is provisional (`PLAN.md` Track A item 4); the relation H1–T1 exists only under current D83 (item 32 would remove it); a relation and verb read against a Grave (item 27); a chooser that could be Neutral (item 31).
+**Depends on open items:** the relation H1–T1 exists only under current D83 (item 32 would remove it); a relation and verb read against a Grave (item 27); a chooser that could be Neutral (item 31).
 
 ---
 
@@ -20,21 +20,29 @@
 > **E3.** If a creature was sacrificed to pay for this, T1's controller chooses one: they discard a card, **or** you draw a card.
 > **E4.** If kicked, create two Fire Warriors on target hex **H2** adjacent to a creature you control, then create an Ember Imp there, Neutral, *Aggressive toward T1's controller*, acting on Neutral A.
 
-Normal form (provisional notation):
+Normal form (`../effect-form.md`):
 
 ```
 castCondition: you control a Fire creature
 cost:  c1 = 🔥 ∧ c2 = (b1: 🔥🔥 ∨ b2: sacrifice creature) ∧ c3 = X ∧ c4 = (b1: 2 ∨ b2: ε)
-card-scope targets: T1 {permanent, creature}, H1 {location, hex}, H2 {location, hex, own: adjacent to a creature you control}
-relations: H1 within 1 of T1
-E1: choose 1 { out1 := damage(T1, X+1);  [if out1.died] create(Fire Warrior, H1) }
-E2: choose X, repeatable {
-      a: Ta {permanent, creature, count 0..1};  damage(Ta, 1)
-      b: skipRefresh(T1) }
-E3: choose 1 { [if c2 = b2] choose 1 at resolution by T1.controller { discard(T1.controller, 1), draw(you, 1) } }
-E4: choose 1 { [if c4 = b1] create(Fire Warrior, H2); create(Fire Warrior, H2);
-               create(Ember Imp, H2, triple: Neutral, Aggressive toward T1.controller, Neutral A) }
+
+T1 := you choose 1..1 creature
+H1 := you choose 1..1 hex, within 1 of T1                  -- names T1: a relation under D83 (item 32)
+H2 := you choose 1..1 hex, adjacent to a creature you control
+
+E1: you choose 1..1 { killed := damage(T1, X+1);  [if killed ≠ ∅] create(Fire Warrior, H1) }
+E2: you choose X..X repeatable
+      a: { Ta := you choose 0..1 creature;  damage(Ta, 1) }
+      b: { skipRefresh(T1) }
+E3: T1.controller choose 1..1 at resolution
+      { [if c2 = b2] discard(T1.controller, 1) }
+      { [if c2 = b2] draw(you, 1) }
+E4: you choose 1..1 { [if c4 = b1] create(Fire Warrior, H2);
+                      [if c4 = b1] create(Fire Warrior, H2);
+                      [if c4 = b1] create(Ember Imp, H2, triple: Neutral, Aggressive toward T1.controller, Neutral A) }
 ```
+
+E3 shows `effect-form.md` open question 4: the condition can't gate the choice itself, so it's repeated in each option; it's settled at Pay and collapses, so no pointless choice is asked here.
 
 E4 is three separate create instructions. Written as one instruction ("create two Fire Warriors"), the two Warcaller triggers below would come from the same instruction, source and ability, and be ordered only by event order inside the instruction (D92).
 
@@ -77,7 +85,7 @@ Text column: only the lines that changed in that step. ~~Struck~~ is removed, **
 
 | Instr. | Check | Result | Triggers collected | Trace line after this instruction |
 |---|---|---|---|---|
-| E1 `out1 := damage(Brute, 4)` | Brute: identity ✓ visible ✓. No location condition, so the move doesn't matter. | Brute takes 4 → **dies immediately** → becomes a Grave. | **t1** Watcher (B) | ✓ **done: Stone Brute #20 died** |
+| E1 `killed := damage(Brute, 4)` | Brute: identity ✓ visible ✓. No location condition, so the move doesn't matter. | Brute takes 4 → **dies immediately** → becomes a Grave. | **t1** Watcher (B) | ✓ **done: Stone Brute #20 died** |
 | E1 `[if died] create(Warrior, h₁)` | Condition ✓. **Relation "h₁ within 1 of Stone Brute #20":** now a Grave at distance 2 → **false** → fizzles. | No Warrior. | none | ✗ **fizzled: relation false** |
 | E2 a¹ `damage(Boar, 1)` | ✓ | Boar dies immediately. | **t2** Watcher (B) · **t3** Boar's death trigger (Neutral A) | ✓ **done: Wild Boar #30 died** |
 | E2 a² | No target. | Does nothing. | none | – *(nothing)* |

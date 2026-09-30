@@ -4,6 +4,8 @@
 
 **Status:** Living scratch doc · **Date:** 2026-08-07
 
+**Before promoting an idea to a real card:** write its rules text out in the effect normal form (`../rules/effect-form.md`). If it doesn't fit, reword the card or file the gap as a Track A item in `PLAN.md`.
+
 ---
 
 ## Terrain
