@@ -6,6 +6,20 @@
 
 ---
 
+### D103 — Structure is an Actor; Permanent and Actor are the property groups; properties are never added
+
+**Structure is an Actor.** D44 defined Actors as the types holding their own Activation Points; Structure has held them since D58/D88, so the classification just never caught up. Actors: Champion, Companion, Creature, Structure. Objects (Item, Terrain, Grave, Ruin) remain a label only. "Only permanents holding AP can carry a Behavior" (D100) is now simply "only Actors can".
+
+**Two property groups** for the inventory: **Permanent** (name, subtypes, static and triggered abilities, ID and timestamp, location, parent, `source`, cost, Speed, cast condition; derived controller, payer, Elements) and **Actor** (Permanent plus activated abilities, Activation Points, Life, Behavior). Per type: Terrain = Permanent + its own block; Item = Permanent + activated abilities; Structure = Actor; Creature = Actor + Attack; Companion and Champion = Creature + mana pool — their property lists are identical, everything separating them lies in values and abilities. Considered and dropped: **Object** (its two property-bearing members share almost nothing) and **castable permanent** (Creature, Companion, Structure, Item — a useful word for card text, item 39, but no property group once "none" counts as a value).
+
+**"None" is an ordinary value; properties are never added or removed during play.** A Champion's parent, a Map-placed permanent's `source`, Terrain's cost are simply none. A type lacks a property only where any value would change the rules (Terrain with Activation Points could act). Consequently a Structure has **no Attack** — Attack on Structure (default 0) was considered and declined; whether a Structure can ever fight is left open (`object-properties.md` Open question 7).
+
+**Champion stats are a Creature's** — Attack, Life, Activation Points — closing the gap that `champions.md` never printed a damage value. A Champion's card definition is the **customised card from the player's loadout**, not the generic printed card, since progression changes it between matches; the loadout (Champion, Map, deck, terrain deck, a future sideboard) sits outside every zone, like the Map (`PLAN.md` Track A item 12). Hand, Library and Discard are zones the Champion owns, not its properties.
+
+→ `object-properties.md` §5, `glossary.md`, `overview.md` §1, `structures-items.md`, `economy.md`, `ancestry.md`, `champions.md`.
+
+---
+
 ### D102 — Reveal is a keyword; the surfacing rule is withdrawn
 
 **Reveal** sets one player's belief about an object equal to its true state, lifting any Mimic face — D18's "collapse → full truth", triggered deliberately instead of by a contradicting hard fact. It is a one-time event, not a lasting state: an object that is hidden again later (e.g. a Root-Slice creature moving out of the observer's D67 vision) is not tracked.

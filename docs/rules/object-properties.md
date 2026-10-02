@@ -2,7 +2,7 @@
 
 *What a game object is made of — Card, Trace, and Permanent as one connected chain — and how properties move (or don't) when one creates another, including backward: Bounce and Flicker.*
 
-**Decisions:** D69, D70, D72, D73, D74, D75, D83, D88, D93, D97, D98, D99, D100, D101 (`history/decisions.md`)
+**Decisions:** D69, D70, D72, D73, D74, D75, D83, D88, D93, D97, D98, D99, D100, D101, D103 (`history/decisions.md`)
 
 ---
 
@@ -12,7 +12,7 @@ Every game object belongs to exactly one domain, and each domain has exactly one
 
 - **Mind** — **Card**. In Hand, Library, or Discard.
 - **Aether** — **Trace**. In Past, Pending, or Future.
-- **Matter** — **Permanent**. On the Island — an Actor (Champion, Companion, Creature) or an Object (Structure, Item, Terrain, Grave, Ruin).
+- **Matter** — **Permanent**. On the Island — an Actor (Champion, Companion, Creature, Structure) or an Object (Item, Terrain, Grave, Ruin) (D103).
 
 Every game object — Card, Trace, and Permanent alike — carries a unique, monotonic **ID** (D61, D93; `neutral-permanents.md` §Permanent identity).
 
@@ -80,7 +80,7 @@ Once a variable value is resolved — an X-cost, an X/X/X stat line, a modal car
 
 ## 5. Property inventory
 
-One list per object type. **Stored** properties are state; **derived** ones are queries over other state and never stored (one fact, one home, D101); **definition-only** ones live on the printed card definition, reached through the name, never on a game object.
+One list per object type, built from two shared groups (D103). **Stored** properties are state; **derived** ones are queries over other state and never stored (one fact, one home, D101); **definition-only** ones live on the card definition, reached through the name, never on a game object. **Properties are never added or removed during play**, only their values change; "none" is an ordinary value (a Champion's parent, a Map-placed permanent's `source`). A type lacks a property only where giving it a value would change the rules (Terrain with Activation Points could act).
 
 **General rules (all types).**
 - **Name is immutable** and is the reference to the card definition; names are unique across card definitions (D99). The definition supplies printed originals and same-card identity. Every other property can be changed.
@@ -93,34 +93,32 @@ One list per object type. **Stored** properties are state; **derived** ones are 
 
 **Card** (Mind). Stored: name, cost (CNF, D91), Speed, cast condition (D91), subtypes, rules text (effects in the normal form, `effect-form.md`, D95), ID, `source`. Spell-specific properties: `PLAN.md` Track A item 33.
 
-**Terrain** (Matter; reaches the Island at Setup, never a Card).
-- Stored: name; mana production (amount and kind — coloured, hybrid, generic…); static abilities; triggered abilities; subtypes; ID and timestamp; position in the Layout (fixed); move-cost (base 1) and per-Slice capacity (base 3), both changed by static abilities; bond record (Champion, Companion, or none); drawn-this-cycle flag (D77).
-- Derived: controller (D54), payer, Elements, occupants and Structure-slot contents (from their locations).
-- Definition-only: a Structure the terrain card brings (`resources-terrain.md` Open question 3) — once on the Island it is an ordinary Structure.
-- Absent: cost, Speed, cast condition, activated abilities (D87), Activation Points, Life, Attack, Behavior (D100), `source` beyond Setup. Terrain Type is flavour only — it names the terrain and nothing can query it (D100). Bond surcharges and Mimic are static abilities.
+**Permanent** (Champion, Companion, Creature, Structure, Item, Terrain).
+- Stored: name; subtypes; static abilities; triggered abilities; ID and timestamp; location; parent; `source`; cost, Speed, cast condition (copied along the chain, unused on the Island; none for Champion and Terrain, which are placed at Setup).
+- Derived: controller (D54), payer, Elements.
+- **Location** is (terrain, Slice) — for an equipped Item, its carrying Actor. **A Terrain's location is fundamentally different**: its position in the hex grid, fixed, and itself what every other location points to. Terrain is the odd type in general; kept as is for now.
+- **Parent** is stored for Terrain (its bond record), Creature and Companion (the payer, fixed at creation, changed only by an explicit control change, D55); read off the location for Structure (its terrain) and Item (its carrier, none while loose) (D101); always none for the Champion.
 
-**Item.**
-- Stored: name; cost, Speed, cast condition (copied along the chain, unused on the Island); subtypes; static, triggered, activated abilities (activated only usable while equipped; an equip surcharge is a static); ID and timestamp; `source`; location — (terrain, Slice) while loose, its carrying Actor while equipped.
-- Derived: parent (the carrier, or none while loose, D101), controller, payer, Elements.
-- Absent: Activation Points, Life, Attack, Behavior, capacity, Duration.
+**Actor** (Champion, Companion, Creature, Structure) = Permanent plus:
+- Stored: activated abilities; max- and current-Activation Points (no default, enter at 0, D89); max- and current-Life; Behavior assignment (Behavior plus neutral turn, one property, `neutral-permanents.md`; always none for the Champion, which never becomes Neutral). Only Actors can carry a Behavior.
+- Derived: carried Items (from the Items' locations; non-empty only for an Actor with Equip).
 
-**Structure.**
-- Stored: everything Item stores, with location always (terrain, Slice), Slice = Ground or Root (D101); max- and current-Activation Points (no default, enters at 0, D89); max- and current-Life (0 → Ruin, `PLAN.md` Track A item 27); Behavior assignment (Behavior plus neutral turn, one property, `neutral-permanents.md`).
-- Derived: parent (the terrain in its location, D101), controller, payer, Elements.
-- Absent: Attack (a printed ability may still deal damage, D24), capacity.
+**Per type.**
+- **Terrain** = Permanent + mana production (amount and kind — coloured, hybrid, generic…); move-cost (base 1) and per-Slice capacity (base 3), both changed by static abilities; drawn-this-cycle flag (D77). Derived: occupants and Structure-slot contents. Definition-only: a Structure the terrain card brings (`resources-terrain.md` Open question 3), once on the Island an ordinary Structure. No activated abilities (D87), no Activation Points or Life. Terrain Type is flavour only — it names the terrain and nothing can query it (D100). Bond surcharges and Mimic are static abilities.
+- **Item** = Permanent + activated abilities (usable only while equipped; an equip surcharge is a static ability).
+- **Structure** = Actor. Slice = Ground or Root, in the Structure slot. No Attack (D24) — whether a Structure can ever fight is open (Open question 7).
+- **Creature** = Actor + max- and current-Attack. Slice = Root, Ground or Sky, capacity 3 per Slice. Keywords (Flying, Subterranean, Haste, Ranged N…) are static abilities; the defaults (Move, Attack, Defend, Equip, Un-equip, Ascend/Descend) are ordinary activated abilities (D10). A Creature losing its Champion controller receives a Behavior assignment (D83). Defend's once-per-turn limit is expected to be a history-track query (`PLAN.md` Track A item 34).
+- **Companion** = Creature + mana pool (its shape waits for the colour-cost model, `PLAN.md` Track A item 37). Derived: bonded terrains. Bond is one of its default activated abilities. Definition-only: which Champion(s) may run it. Its parent is a Champion or none, never another Companion.
+- **Champion** = Companion's property list, with parent, `source`, cost, Speed, cast condition and Behavior always none. Same stats as a Creature: Attack, Life, Activation Points. Default activated abilities: Draw, Bond, Move (confined to its realm while connected), Collapse Network, Attack, Defend, Equip, Un-equip, plus its signature abilities. Its card definition is the **customised card from the player's loadout**, not the generic printed card (progression changes it between matches). Hand, Library and Discard are zones it owns, not properties.
 
-**Creature.**
-- Stored: everything Structure stores, with location (terrain, Slice), Slice = Root, Ground or Sky, capacity 3 per Slice; max- and current-Attack; parent (its payer, fixed at creation, changed only by an explicit control change, D55). Keywords (Flying, Subterranean, Haste, Ranged N…) are static abilities; the defaults (Move, Attack, Defend, Equip, Un-equip, Ascend/Descend) are ordinary activated abilities (D10). A Creature losing its Champion controller receives a Behavior assignment (D83).
-- Derived: controller, Elements, carried Items (from their locations).
-- Defend's once-per-turn limit: expected to be a history-track query, not a property (`PLAN.md` Track A item 34).
-
-**Grave/Ruin:** `PLAN.md` Track A item 27. **Still to inventory:** Companion, Champion, Trace (including Duration and physical / non-physical, D98).
+**Grave/Ruin:** `PLAN.md` Track A item 27. **Still to inventory:** the Card objects of the non-spell types (Creature, Companion, Structure, Item), and Trace (including Duration and physical / non-physical, D98).
 
 ## Open questions
 
 1. **Card-level continuous effects** (e.g. a hypothetical "target creature card in your hand gains +1/+1/+1"), tracked at `PLAN.md` §8 item 11 — this doc describes how such a modifier would propagate *if* it existed, not whether/how one gets attached to a Card in the first place.
-2. **The per-type property inventory (§5) is incomplete** — Companion, Champion and Trace remain (`PLAN.md` Track A item 4). One gap already known: Champion's own Attack stat is unprinted anywhere (`champions.md` gives an Attack *ability cost*, `6!AP`/`3!AP`, but never a damage value). Grave/Ruin's properties are `PLAN.md` Track A item 27.
-3. **This doc only covers the six *cross-domain* transitions**, tracked at `PLAN.md` §8 item 5. Untouched: transitions *within* a domain (Library→Hand/draw, Hand→Discard/discard, Pending→Past/resolve, Pending↔Future/delay, mill, etc.) — some are ordinary game progression, others (discard, mill) are card-grantable actions in their own right and may need their own version of the "what does the created/moved object keep" question. An object leaving every zone ceases to exist (§2, D97); what removal effects are called, and how a creature ceases to exist outright given that destroying it leaves a Grave, is `PLAN.md` Track A item 27.
+2. **The per-type property inventory (§5) is incomplete** — the non-spell Card objects and Trace remain (`PLAN.md` Track A item 4). Grave/Ruin's properties are `PLAN.md` Track A item 27.
+3. **This doc only covers the six *cross-domain* transitions**, tracked at `PLAN.md` §8 item 5. Untouched: transitions *within* a domain (Library→Hand/draw, Hand→Discard/discard, Pending→Past/resolve, Pending↔Future/delay, mill, etc.) — some are ordinary game progression, others (discard, mill) are card-grantable actions in their own right and may need their own version of the "what does the created/moved object keep" question. An object leaving every zone ceases to exist (§2, D97); how a creature ceases to exist outright, given that destroying it leaves a Grave, is `PLAN.md` Track A item 27; what removal effects are called is item 39.
 4. **How do Map, the Champions' terrain decks, and the Champions themselves actually combine to produce the initial board state?** Champion and Terrain plausibly reach the Island through a mechanism that also involves the Map, not a plain Card→Permanent read — genuinely open, not just unstated. Tracked at `PLAN.md` §8 item 12.
 5. **Following `source` into a hidden zone.** A link from a visible permanent to a card in an opponent's Discard reaches hidden information; whether card text may follow it, and what it must reveal, is undecided (the opponent's cards are expected to be reachable only at the cost of a reveal).
 6. **The creation triple (D83).** Every instruction that creates a permanent binds, at declaration, the new permanent's controller, Behavior, and neutral turn. Defaults: a card source → the casting Champion; a controlled permanent's ability → its controller; a source with no controller → Neutral, with the source's Behavior and neutral turn; card text creating a Neutral permanent must state its Behavior and neutral turn, or the card is invalid. Controller = a Champion → the new permanent's parent is the resolved payer; Neutral → it is created as a parentless root. Still open: a name for this field that doesn't clash with the Trace's own controller, and its place in the per-type inventory (`PLAN.md` Track A item 4).
+7. **Can a Structure ever fight?** A Structure has no Attack property (D103), and properties are never added during play, so "this Structure gains Attack 3" can't exist. A fighting Structure would need either a separate type ("structure creature") or Attack on every Structure after all (printed 0 by default). Tracked in `PLAN.md` Track A item 4.

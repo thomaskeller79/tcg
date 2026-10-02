@@ -54,7 +54,7 @@ Consequences of the pause rule specifically:
 *(Resolved questions are cut once closed — the rule lives in the sections above and, for decision-grade calls, in `history/decisions.md`. Only genuinely open items stay here.)*
 
 ## Open questions
-1. **Color-cost model** — do card costs demand specific colored pips (MTG-style), generic + color requirements, or something else? *(Lean: colored pips — open for a fuller pros/cons discussion before locking in.)*
+1. **Color-cost model** — do card costs demand specific colored pips (MTG-style), generic + color requirements, or something else? *(Lean: colored pips — open for a fuller pros/cons discussion before locking in.)* Tracked at `PLAN.md` Track A item 37.
 2. **Denial balance** *(tuning)* — how much economic damage should one blocker be able to inflict relative to its own cost, and how reroute-friendly do boards need to be by default so a single chokepoint isn't a hard lock (links to the still-open board-size question, `overview.md` §Open questions)? A numeric/playtest question, not a structural one — distinct from the terrain-*ability* design space above (what a terrain card can print), which is separately captured in `docs/cards/card-ideas.md`.
 3. **How a terrain's Structure arrives at Setup (D87).** Setup-placed permanents can't use "enters the Island" (`setup.md`), a consequence of Setup having no response window, not a design goal. Needs a clean mechanism for a terrain card that brings a Structure — including which slot it takes and its creation triple (`object-properties.md` Open questions) — rather than a special-case wording.
 

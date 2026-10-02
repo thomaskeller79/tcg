@@ -2,7 +2,7 @@
 
 *Each player is embodied on the board by a single Champion: an avatar that summons creatures, casts spells, and channels magic — and that **evolves between games** along branching paths. Provisional term "Champion" (candidates: Channeler, Champion; not "Commander").*
 
-**Decisions:** D2, D9, D48, D49, D76, D77 (`history/decisions.md`)
+**Decisions:** D2, D9, D48, D49, D76, D77, D103 (`history/decisions.md`)
 
 ---
 
@@ -22,7 +22,7 @@
 
 ## In-match: what a Champion is
 - A special **card type / board entity**, one per player, placed at match start on its **home tile** (usually a landmark terrain, but not a special *objective* — see win condition). Placement is a Setup event, not a Cast — see `setup.md`.
-- Has stats like a unit (HP, Movement). **It is attackable, and its death loses the game** (D9). There is **no separate Base** — the Champion *is* the objective.
+- Has the same stats as a Creature: **Attack, Life, Activation Points** (D103). **It is attackable, and its death loses the game** (D9). There is **no separate Base** — the Champion *is* the objective.
 - **Flavor / role.** The world is saturated with mana; only **channelers** can draw it from the land and turn it into magic. A Champion's job is to *channel*, not to fight. It is simultaneously the **economic root** (D8), the **win condition**, and the **most exposed piece** — one entity carrying all three roles is what makes its every decision tense.
 - Has **Champion abilities**: activatable signature powers, gated by AP (below) and possibly extra mana cost. Each carries a **Speed** (Slow/Quick/Reactive/Instant, D45); default is **Slow** (own Action phase only, Pending empty) — no Champion-specific timing rule, same mechanism as any other Actor's abilities.
 - 🪝 Abilities, stats, and channeling are the same **effects / queries / modifiers** as everything else (pillars 5). A Champion is not a bespoke subsystem — it's a card type with persistent identity.
