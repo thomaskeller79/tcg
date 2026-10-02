@@ -6,6 +6,20 @@
 
 ---
 
+### D105 — Transition rules per property; Item walked through; position; loose Items never in Sky
+
+**Transition rules.** The property inventory records, per property, how a created object gets its value from its predecessor: **copy**, **narrow** (open choices resolved — the CNF cost loses its unpaid disjuncts at Trace creation), **fresh** (ID, timestamp, `source`), **convert** (target ↔ location), **drop** (no slot on the new object), **derive** (a query). A table of which tier has which property says what exists where but not how one object becomes the next; the user asked for the process. Being tested type by type, starting with Item.
+
+**Item.** Name, subtypes, abilities, cost and Speed copy (under the prototype scope, D104, narrowing has nothing to do); ID, timestamp, `source` fresh; location converts from the cast target and back to a Flicker target, and is dropped by Bounce; parent, controller, payer, Elements derive.
+
+**Position.** Flickering an equipped Item needs a terrain target, but its location is its carrier. Locations already form a tree rooted at the Terrain, so every permanent gets a derived **position**: follow `location` until reaching a terrain. Ancestry was considered and rejected: it coincides with location for Items and Structures (D101) but not for a Creature, whose parent is its payer. A Flicker target takes the position as its terrain and the current Slice if the card's Slice filter (D32, default Ground) allows it, otherwise the filter's Slice — an equipped Item returns on its carrier's terrain, in Ground.
+
+**Loose Items are never in Sky.** Un-equip and carrier death (D27, D30) drop the Item on the carrier's terrain, in Root if the carrier is in Root, in Ground otherwise — replacing "at the carrier's current (terrain, Slice)". For Equip, Ground and Sky count as one Slice, so a flyer can equip an Item lying in Ground; Sky creatures never descend. Matches the Structure slots, where Ground stands in for Sky (D40).
+
+→ `object-properties.md` §4, §5, `structures-items.md`, `glossary.md`.
+
+---
+
 ### D104 — Prototype scope: restricted card shapes until the game runs; out-of-scope rules go to Track D
 
 **Process rule.** Until there is a running game, rules are built for a restricted set of card shapes; extensions come after playing. Three conditions: the restricted set is a **subset** of the full model, so extending it only adds (every legal card stays legal); the restriction applies to **card shapes, not engine structure** (domains, transitions, property tiers, the casting procedure stay fully designed — pillar 5 lives there); **nothing decided is deleted** — rules outside the scope stay documented, marked as such. Corner cases no in-scope card needs are parked in `PLAN.md` Track D, not discussed.
