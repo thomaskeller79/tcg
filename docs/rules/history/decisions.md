@@ -6,6 +6,20 @@
 
 ---
 
+### D107 — Companion and Structure transition rules; leaving the Island cascades like death; Structures never fight
+
+**Companion** = Creature's rules (D106) plus: mana pool fresh and empty, dropped going backward; bonded terrains derived from the terrains' bond records, so a new Companion — including a flickered one — starts with none; Bond is a default ability written on the card and copies.
+
+**Leaving the Island cascades like death.** Every Ancestry cascade was worded "dies" (Companion: terrains unbond, funded creatures and Traces get a Behavior per D82; Creature: carried Items drop). Flicker and Bounce aren't deaths but the permanent ceases to exist (D97), leaving bond records and parent links pointing at nothing. "Dies" in these cascades now means dies or leaves the Island by any route. A dead creature's Grave is still the same object (D88), so death itself is unchanged.
+
+**Structure** = Creature's rules without Attack: location converts as for Item (a flickered Structure returns to its own terrain's slot; a slot filled meanwhile is an ordinary illegal target), parent derived from its terrain, Behavior copies from the creating Trace. No cascade, since nothing has a Structure as parent.
+
+**A Structure never fights** — closes item 4 (d). It has no Attack (D103) and can still be attacked (it has Life). Moving the question to Track D was proposed and declined: the user's answer is a plain no, not a deferral.
+
+→ `object-properties.md` §5, `ancestry.md`, `companions.md`.
+
+---
+
 ### D106 — Creature transition rules; a created permanent copies parent and Behavior from its Trace unless the instruction states a triple
 
 **Creature.** Name, subtypes, cost, Speed, max-tier stats and all abilities copy — the default abilities (Move, Attack, Defend, Equip, Un-equip) are written on the card, hidden from players; "this creature can't attack" is how a card without Attack reads. Current-Attack and current-Life are fresh at max, current-AP fresh at 0 (D89); all three drop going backward. Location as for Item (D105). ID, timestamp, `source` fresh; controller, payer, Elements, position derive.

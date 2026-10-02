@@ -4,7 +4,7 @@
 
 **Note (D58, D87, D88):** Structure holds its own printed **Activation Points** like every Actor (it is one, D103), though it has no mana access — self-gating "has this printed ability already fired this round" *and* self-funding that ability's Activation Points cost directly, no climbing. Terrain, Item, Ruin and Grave hold none, so an Activation Points cost printed on a Terrain's triggered ability climbs to its bonder like mana does. The Ancestry below answers who funds a *mana* cost, and any cost the entity can't pay itself. See `economy.md`, `resources-terrain.md`, `structures-items.md`.
 
-**Decisions:** D26–D30, D47, D54–D55, D57–D58, D68, D74, D81, D83, D84, D86, D87, D88, D100, D101, D106 (`history/decisions.md`)
+**Decisions:** D26–D30, D47, D54–D55, D57–D58, D68, D74, D81, D83, D84, D86, D87, D88, D100, D101, D106, D107 (`history/decisions.md`)
 
 ---
 
@@ -63,6 +63,8 @@ Either kind of Neutral terrain strips a Structure on that cell of its payer and 
 Removing an inner node cuts its children's parent links — each child becomes a root; a link never points at a removed node. This breaks the chain for all of its successors.
 
 **A change to the Ancestry — removing a node, or re-parenting one (e.g. a Companion made Neutral, D55) — includes updating its subtree, in the same step, while the tree is still intact (D83).** Every creature in the subtree whose controller changes from a Champion to Neutral is assigned a Behavior as part of that change; no other object type is. Because the tree is still intact at that moment, the update can see who the creature's controller was — which is what distinguishes a Companion that was always Champion A's, one Champion B stole earlier, and one that was already Neutral (nothing to assign). Which Behavior is assigned: `neutral-permanents.md` §Becoming Neutral.
+
+**"Dies" in these cascades means dies or leaves the Island by any route — Flicker and Bounce too (D107):** the permanent ceases to exist (D97), so its subtree is updated exactly as for a death.
 
 1. **Companion dies.** Its bonded terrain reverts to unbonded. If the Companion was still Champion-controlled, any Creature or Trace it's the parent of loses both its payer and its controller — the climb to find a controller no longer reaches a live Champion, so there isn't one; each such Creature is assigned a Behavior by the subtree update. If the Companion was already Neutral, nothing changes for its subtree's controller — it was Neutral already, since a Neutral Companion is itself a root (D55).
 2. **Creature dies.** Any Item it carried becomes ownerless (parent removed, reverts to loose). There is no creature-parents-creature case, so nothing else cascades from a creature's death.
