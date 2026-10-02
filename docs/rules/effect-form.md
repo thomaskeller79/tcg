@@ -2,7 +2,7 @@
 
 *The internal structure every card's and ability's rules text is written in. Card text shown to players may use shorter wording ("you may," "kicker," "choose one or more"); every such wording must translate into this form. Kept deliberately compact, so that a card validator or an AI can read and check it.*
 
-**Decisions:** D83, D91, D92, D94, D95, D96 (`history/decisions.md`)
+**Decisions:** D83, D91, D92, D94, D95, D96, D104 (`history/decisions.md`)
 
 ---
 
@@ -20,6 +20,18 @@ arg         ::= name | reference | card name | creation triple
 ```
 
 The cost (a CNF, `interaction-stack.md` §Casting) and the cast condition are card properties outside this form; the cost's variables (`X`) and branch labels are names the form can read.
+
+## Prototype scope
+
+Until the game runs end to end, only cards of this restricted shape are legal (D104). Every such card is a valid card in the full form, so extending the scope only adds.
+
+- **Rules text** is targets (objects selected at cast, any number) plus a **sequence of instructions** (`verb arg*`), run in card order — one effect with one option, chosen by you, at cast.
+- **Not in scope:** modes, conditions, outputs, repeatable picks, choices at resolution, choosers other than you.
+- **A permanent card** has no target but its implicit location.
+- **Abilities** of a permanent (static, triggered, activated) follow the same shape.
+- **Cost** is a fixed list — a CNF with one option per clause: no `X`, no branches, no cast condition.
+
+The procedure stays the full one (pay → choose → target, `interaction-stack.md`), with Choose empty. The rest of this doc describes the full form; parts outside the scope stay decided, and their open questions are `PLAN.md` Track D.
 
 ## One primitive: choose
 
@@ -75,5 +87,5 @@ Worked example across the whole casting and resolution procedure: `examples/cind
 
 ## Open questions
 
-1. **Relations between two selections** (D83: "target terrain within distance 1 of T1" stays in the trace and is rechecked). `PLAN.md` Track A item 32 would drop them in favour of instruction conditions; until then a selection's constraint naming another selection is a relation.
-2. **Conditions and outputs across options** — a condition can't gate a choice, a resolution-time choice can't read an output, and thresholds across repeated picks aren't expressible. `PLAN.md` Track A item 33.
+1. **Relations between two selections** (D83: "target terrain within distance 1 of T1" stays in the trace and is rechecked). `PLAN.md` Track D item 32 would drop them in favour of instruction conditions; until then a selection's constraint naming another selection is a relation.
+2. **Conditions and outputs across options** — a condition can't gate a choice, a resolution-time choice can't read an output, and thresholds across repeated picks aren't expressible. `PLAN.md` Track D item 41.

@@ -42,7 +42,7 @@ E4: you choose 1..1 { [if c4 = b1] create(Fire Warrior, H2);
                       [if c4 = b1] create(Ember Imp, H2, triple: Neutral, Aggressive toward T1.controller, Neutral A) }
 ```
 
-E3 shows `PLAN.md` Track A item 33: the condition can't gate the choice itself, so it's repeated in each option; it's settled at Pay and collapses, so no pointless choice is asked here.
+E3 shows `PLAN.md` Track D item 41: the condition can't gate the choice itself, so it's repeated in each option; it's settled at Pay and collapses, so no pointless choice is asked here.
 
 E4 is three separate create instructions. Written as one instruction ("create two Fire Warriors"), the two Warcaller triggers below would come from the same instruction, source and ability, and be ordered only by event order inside the instruction (D92).
 

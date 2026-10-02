@@ -6,6 +6,20 @@
 
 ---
 
+### D104 — Prototype scope: restricted card shapes until the game runs; out-of-scope rules go to Track D
+
+**Process rule.** Until there is a running game, rules are built for a restricted set of card shapes; extensions come after playing. Three conditions: the restricted set is a **subset** of the full model, so extending it only adds (every legal card stays legal); the restriction applies to **card shapes, not engine structure** (domains, transitions, property tiers, the casting procedure stay fully designed — pillar 5 lives there); **nothing decided is deleted** — rules outside the scope stay documented, marked as such. Corner cases no in-scope card needs are parked in `PLAN.md` Track D, not discussed.
+
+**The scope** (`effect-form.md` §Prototype scope): rules text is targets plus a sequence of instructions, run in card order; no modes, conditions, outputs, repeatable picks, resolution-time choices or choosers other than you; a permanent card targets only its location; abilities follow the same shape; cost is a fixed list (no `X`, branches or cast condition). Several targets per card stay in. Modes were dropped too: if they are easy to add, they are easy later; if not, the prototype avoided them.
+
+**Out of scope but still decided:** D72 (modal permanents), D95's resolution-time choices, conditions and block scope, D94/D96 outputs and menu order, D91's cost branches and cast condition, D83's relations, D70's `X`. **Unaffected engine procedure:** pay → choose → target with a CNF cost (D70/D91), the casting transaction (D94), resolution checks (D85, item 24), the redirect loop (D68, item 30), resolution order (D92).
+
+**First consequence:** choices on permanent cards and "as this enters, choose…" abilities (MTG's linked abilities) are out of scope; considered for later: make the choice at cast as an ordinary option, locked like a mode (Track D item 40).
+
+→ `effect-form.md`, `PLAN.md` §8 Track D.
+
+---
+
 ### D103 — Structure is an Actor; Permanent and Actor are the property groups; properties are never added
 
 **Structure is an Actor.** D44 defined Actors as the types holding their own Activation Points; Structure has held them since D58/D88, so the classification just never caught up. Actors: Champion, Companion, Creature, Structure. Objects (Item, Terrain, Grave, Ruin) remain a label only. "Only permanents holding AP can carry a Behavior" (D100) is now simply "only Actors can".
