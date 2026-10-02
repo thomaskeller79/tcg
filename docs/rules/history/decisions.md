@@ -6,6 +6,18 @@
 
 ---
 
+### D106 — Creature transition rules; a created permanent copies parent and Behavior from its Trace unless the instruction states a triple
+
+**Creature.** Name, subtypes, cost, Speed, max-tier stats and all abilities copy — the default abilities (Move, Attack, Defend, Equip, Un-equip) are written on the card, hidden from players; "this creature can't attack" is how a card without Attack reads. Current-Attack and current-Life are fresh at max, current-AP fresh at 0 (D89); all three drop going backward. Location as for Item (D105). ID, timestamp, `source` fresh; controller, payer, Elements, position derive.
+
+**Parent.** A cast card is always paid from its Champion's pool (D20; a Companion's pool funds only its own subtree), so the payer of a cast is the Champion who held the card — no counterexample found. Parent is derived on the Card (the zone's Champion, D81), copied into the Trace, then into the Permanent and on Flicker; Bounce derives it again from the destination Hand.
+
+**Creation triple placed (item 4 (c), D83).** A permanent copies parent and Behavior assignment from the Trace that creates it — a cast creature gets the Champion and no Behavior; a permanent created by a Neutral source's ability gets no parent and the source's Behavior, which the Trace copied at activation (D82). So a **Trace carries a Behavior assignment**; D83's decider already covered every object, the property just wasn't listed. Flicker copies it there and back (a flickered Neutral creature stays Neutral, same turn); Bounce drops it. **A creation instruction may state a triple as an argument, and it wins:** a stated Champion is the parent directly (the opponent paid nothing, so the payer can't be it); "Neutral" means no parent plus the stated Behavior and neutral turn, missing either makes the card invalid. Claude first put stated triples outside the prototype scope; withdrawn — the triple is an ordinary argument of a `verb arg*` instruction, so D104 includes it. The triple's name stays open.
+
+→ `object-properties.md` §5, Open question 6, `ancestry.md`, `glossary.md`.
+
+---
+
 ### D105 — Transition rules per property; Item walked through; position; loose Items never in Sky
 
 **Transition rules.** The property inventory records, per property, how a created object gets its value from its predecessor: **copy**, **narrow** (open choices resolved — the CNF cost loses its unpaid disjuncts at Trace creation), **fresh** (ID, timestamp, `source`), **convert** (target ↔ location), **drop** (no slot on the new object), **derive** (a query). A table of which tier has which property says what exists where but not how one object becomes the next; the user asked for the process. Being tested type by type, starting with Item.
