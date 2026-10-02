@@ -2,7 +2,7 @@
 
 *Two non-Actor permanent card types (D17): **Structure** (stationary, hex-bound) and **Item** (carryable) — both **Objects** in the D44 terminology. Neither has *mana* access of its own, so — unlike the three **Actors** (Creature/Champion/Companion) — someone else must fund and control the mana portion of their abilities, via the general Ancestry (`ancestry.md`). A Structure does hold its own **Activation Points** (D58), self-funding the AP portion directly; an Item holds none at all.*
 
-**Decisions:** D24, D25, D31–D35, D39, D40, D41, D44, D46, D47, D54, D57, D58, D68, D70, D83, D87, D88, D89, D90 (`history/decisions.md`)
+**Decisions:** D24, D25, D31–D35, D39, D40, D41, D44, D46, D47, D54, D57, D58, D68, D70, D83, D87, D88, D89, D90, D100 (`history/decisions.md`)
 
 ---
 
@@ -52,7 +52,7 @@ Casting a Creature, Structure, or **Item** all follow the same procedure — no 
 - **An unequipped (loose) Item has no usable ability at all.** This is what keeps the Ancestry a clean tree instead of needing a multi-parent/DAG case for "who can activate a loose item lying on a contested hex" — there's simply nothing to activate until someone equips it. Unlike every other permanent, an Item never holds Activation Points (D58) — it's the one Object excluded from that resource entirely.
 - **Funding, once equipped:** an Item's parent is its equipping actor — its ability is paid from that actor's own AP + whatever mana pool that actor's own chain resolves to (D26). Since exactly one actor can be an Item's parent at a time, **exclusivity is automatic** — no separate rule needed for "only one carrier." While equipped, an Item has no spatial (terrain, Slice) location at all — it travels with its carrier implicitly.
 - **"Stealing" an item is just Equip, costed:** an enemy actor standing on the same hex (and Slice) as a loose Item can equip it via the same generic ability — a real, costed decision, not an ambient side-effect of proximity.
-- **A specific Item can print an equip surcharge** ("when this is equipped, pay an additional 3 mana and 2 AP") — the same triggered-cost pattern already used for a non-basic terrain's bond surcharge (`card-ideas.md`), not a new mechanism.
+- **A specific Item can print an equip surcharge** as a static ability ("equipping this costs an additional 3 mana and 2 AP", D100) — part of the Equip ability's cost, paid before the Equip trace exists (D70), the same pattern as a non-basic terrain's bond surcharge (`card-ideas.md`), not a new mechanism.
 - **When its carrier dies, an Item becomes ownerless (confirmed, D27):** its parent is removed and it reverts to loose **at the carrier's current (terrain, Slice)**, re-equippable by anyone via the same generic ability. Unlike a Creature whose payer dying just orphans it in place (D26), an Item's whole point is that it *can* change hands.
 - **Un-equip is a generic default ability too (D30):** `0AP`, free and uncapped — drops the Item to loose at the actor's current (terrain, Slice). Same removable/re-priceable treatment as Equip (D10). Voluntary drop and carrier-death (above) now both resolve through the same "reverts to loose" outcome.
 

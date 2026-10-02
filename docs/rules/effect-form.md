@@ -75,5 +75,5 @@ Worked example across the whole casting and resolution procedure: `examples/cind
 
 ## Open questions
 
-1. **Relations between two selections** (D83: "target hex within distance 1 of T1" stays in the trace and is rechecked). `PLAN.md` Track A item 32 would drop them in favour of instruction conditions; until then a selection's constraint naming another selection is a relation.
+1. **Relations between two selections** (D83: "target terrain within distance 1 of T1" stays in the trace and is rechecked). `PLAN.md` Track A item 32 would drop them in favour of instruction conditions; until then a selection's constraint naming another selection is a relation.
 2. **Conditions and outputs across options** — a condition can't gate a choice, a resolution-time choice can't read an output, and thresholds across repeated picks aren't expressible. `PLAN.md` Track A item 33.

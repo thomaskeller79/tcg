@@ -26,7 +26,7 @@ Two generous defaults surfaced outside the formal sweep (as loose hedges in `ove
 | Old default | New default | Positive keyword needed | Where |
 |---|---|---|---|
 | A Root-Slice (hidden) creature could initiate an attack on a Ground-Slice creature (flagged "tentative, pending balance") | Illegal by default (D14) | Not designed yet — PLAN.md Track C item 5 | `overview.md` §4 (D19) |
-| A creature surfaced by attacking auto-re-concealed the instant it left that hex (flagged "(confirm)") | Surfacing is permanent by default (D14) — no automatic re-concealment | Not designed yet — PLAN.md Track C item 6 | `overview.md` §4 (D19) |
+| A creature surfaced by attacking auto-re-concealed the instant it left that hex (flagged "(confirm)") | Surfacing is permanent by default (D14) — no automatic re-concealment. **Withdrawn by D102:** the surfacing rule itself was never confirmed and is gone. | — | — |
 
 ## TODO
 - Sweep the remaining decisions/design notes for more generous defaults (permanents, Structures/Items, Champion abilities, perception).

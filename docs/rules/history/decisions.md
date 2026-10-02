@@ -6,6 +6,80 @@
 
 ---
 
+### D102 — Reveal is a keyword; the surfacing rule is withdrawn
+
+**Reveal** sets one player's belief about an object equal to its true state, lifting any Mimic face — D18's "collapse → full truth", triggered deliberately instead of by a contradicting hard fact. It is a one-time event, not a lasting state: an object that is hidden again later (e.g. a Root-Slice creature moving out of the observer's D67 vision) is not tracked.
+
+**Withdrawn: "attacking from the Root Slice surfaces a creature" (D19, hardened to "permanently" by D80).** D19 had recorded it as an interpretation of a user note, marked for confirmation; D80 resolved that hedge by picking the stricter reading instead of confirming the rule itself. The user doesn't recognise the rule. Root-Slice visibility is D67 alone (an observer sees a hex's Root occupants while one of their permanents is in the Root Slice on that hex or a neighbour). A concealment keyword that is lost when an opponent's creature enters the same location and Slice is Track C content, not a base rule. Track C item 6 (re-concealment ability) is removed. D80's other half (Root cannot attack Ground) stands.
+
+→ `asymmetric-information.md`, `overview.md` §4, `history/pessimistic-default-audit.md`.
+
+---
+
+### D101 — One fact, one home: occupants store their location; parents are read off it where possible
+
+A permanent stores its own **location**; a terrain's occupants and the contents of its Structure slots are derived queries (an engine may keep a reverse index as a cache). Location is (terrain, Slice) for Creature and Structure alike — a Structure's Slice is Ground or Root, never Sky — and (terrain, Slice) or a carrying Actor for an Item. The position of a creature among a Slice's three places is display-only. Considered: storing occupants on the terrain, which would give the place within the Slice for free — rejected, the rules never ask for it, and if they ever do it becomes a third component of the location.
+
+Consequence for the Ancestry: an edge that duplicates the location is read off it, not stored. Structure → terrain is the terrain in its location; Item → carrier is its location when that is an Actor (a loose Item has no parent). Stored edges remain Terrain → bonder (the bond record) and Creature/Companion/Trace → payer. No behaviour changes; it decides which properties the per-type inventory (`object-properties.md` §5) lists.
+
+→ `object-properties.md` §5, `ancestry.md`.
+
+---
+
+### D100 — Terrain: exactly one per hex, location targets name a terrain, Type is flavour, Element is derived
+
+**Every hex holds exactly one Terrain, always.** Terrain can't be destroyed; a future "destroy target terrain" would replace it with a void terrain, keeping the invariant. So a hex is only the terrain's position in the Map's Layout (adjacency, distance), not an object of its own, and card text targets **"target terrain"**, never "target hex". The terrain stores its grid position; nothing in the base rules changes it.
+
+**Terrain Type is flavour only.** Copied from the Map at Setup, it names the terrain (Forest, Plain…) and nothing can query it — not a rules property.
+
+**Element is derived**, as MTG derives colour identity: the set (0–8) of Elements in the mana the terrain produces and in its rules text. Mana production is an expression (amount; coloured, hybrid, generic…), not "1 of its Element".
+
+**Bond and equip surcharges are static abilities** ("bonding this costs an additional `4!AP`"), part of the action's cost and paid before its trace exists (D70) — not triggered costs, which would fire after the bond/equip had already happened.
+
+**Only permanents that hold Activation Points can carry a Behavior** (`neutral-permanents.md`): Actors and Structure. Terrain and Item never do; corrects passages that said a dormant Terrain or Item could "already carry one".
+
+→ `object-properties.md` §5, `map.md`, `glossary.md`, `resources-terrain.md`, `structures-items.md`, `neutral-permanents.md`, `ancestry.md`, `interaction-stack.md`, `effect-form.md`, `examples/cinder-verdict.md`.
+
+---
+
+### D99 — Name is immutable and is the link to the card definition; subtypes on every type; copy restriction is deckbuilding-only
+
+**Name is the one immutable property** of every game object, and **names are unique across card definitions** (reprints share one). The name therefore is the reference to the printed card definition — no separate field. The definition is outside the game and can't be removed, which `source` (D97) can't guarantee: a card can leave Discard, and an ability-created permanent has no card object at all (D88's "real card" is a definition). The definition supplies printed originals ("return to printed stats", "becomes a copy of") and same-card identity (uniqueness, item 1; "a trace with the same name"). Name-changing effects don't exist; if wanted, they come with a separate current-name property. Considered: deriving immutable values through `source` — rejected, it breaks on the two cases above and on Markovian creation (§3 of `object-properties.md`).
+
+All other properties are copied along the chain (Speed and cast condition stay on a permanent though unused there, so a Bounce returns what the chain carried — same accepted "banking" as raised max-stats).
+
+**Subtypes** are a property of every type with a card (including Terrain), and mutable. **Copy restriction** is irrelevant once the game starts: it lives on the card definition only, never on a game object.
+
+→ `object-properties.md` §5, `glossary.md`.
+
+---
+
+### D98 — History is a track of facts with a one-round window; physical is a Trace property
+
+**Aether holds objects, history holds facts.** Card text asking about the recent past ("did a creature attack this turn?") reads a **history track**: the sequence of instruction outputs (D96 state diffs), each with its timestamp. Nobody can select or target an entry. Considered: answering history from traces — rejected, it would fill the Aether with every Move and dilute its role as the visible record of magic; keeping Physical traces in Past longer — rejected for the same reason, and a card can already print a Duration on a physical ability.
+
+**The window is one round, a hard rule**: older history can't be accessed at all. One round is the shortest window containing every seat's turn (D60), so "since your last turn" stays expressible. Whether the engine keeps snapshots or diffs is a Track B question. Open: per-observer filtering — a hidden creature's move is an output too, so a query must read the asking player's view.
+
+Lasting changes remain properties of the object; only short-term memory moves to the history track (first candidate: Defend's once-per-turn limit, `PLAN.md` Track A item 34).
+
+**Physical / non-physical is a Trace property**, not a Duration value of 0 — so "non-physical trace" stays meaningful when a card changes a physical ability's Duration.
+
+→ `object-properties.md`, `glossary.md`.
+
+---
+
+### D97 — Objects that leave every zone cease to exist; `source` is a backward link, joined up on removal
+
+**No exile zone and no record state.** A trace fading from Past, a card removed from Discard, any object leaving every zone simply ceases to exist; nothing can bring it back. A digital game doesn't need MTG's exile as a place to put things. The engine may still keep a log (replays, determinism) — the rules never read it. Considered (kept in `history/playtest-variants.md`): the object stays as a record that only stored links can reach. **Adopted to try, explicitly revertible**: B is A with the links dropped, so switching only changes what the rules may read.
+
+**`source`** (D75's open provenance question) is a link from every object to its **immediate predecessor** — permanent → trace → card, or → the activating permanent. Only backward links are stored; "what this trace created" is a query over `source`. **When an object ceases to exist, links through it are joined up**: whatever had it as `source` takes over its `source`. So Mind → Matter stays reachable (a card and the permanent it produced stay linked while both exist), while Aether → Matter lasts only while the trace does — permanents get harder to reach through their trace as they age, making Duration a design lever. Card text wanting "the card that created it" follows `source` until it reaches a card. A link to an object that no longer exists resolves to nothing (D85's identity check). Following a link into a hidden zone (an opponent's Discard) is a separate question; an opponent's cards are hidden, so targeting them is expected to cost a reveal.
+
+Removal vocabulary (proposed: "destroy", "sacrifice") and how a creature ceases to exist outright, given that destroying it leaves a Grave (D88), are decided in `PLAN.md` Track A item 27.
+
+→ `object-properties.md` §2, §5, `glossary.md`, `history/playtest-variants.md`.
+
+---
+
 ### D96 — An output is its instruction's state diff; repeated picks run in menu order
 
 **Output = state diff.** An instruction's output is everything it changed (the state after minus the state before), queried by conditions and arguments ("how many creatures died"); the deaths it causes are part of it, since they happen immediately after it (D92). Replaces D94/D95's "a named result, such as the objects it killed." Sums across repeated picks need no aggregate: "draw a card for each creature killed" repeated in each option gives the total. Thresholds across picks don't work that way — parked with the related gaps in `PLAN.md` item 33.
@@ -259,7 +333,7 @@ Resolves `PLAN.md` §8 item 9 ("is Ownership a top-level concept, or only meanin
 
 → `ancestry.md` (renamed from `ownership.md`; parent table extended, Controller/Payment sections updated, new Open Questions section), `glossary.md` (Parent/Payment/Controller entries updated, new Ancestry entry, Trace/Grave/Ruin/Companion entries updated), `companions.md`, `structures-items.md`, `overview.md`, `interaction-stack.md` (terminology sweep), `object-properties.md` (Open Question 5 resolved, Open Question 2 updated), `PLAN.md` (item 9 removed as resolved, item 4's resolved sub-clause trimmed, item 10's stale cross-reference fixed, items 16–17 appended).
 
-### D80 — Two combat defaults tightened to match the pessimistic-default principle (D14): Root cannot attack Ground; surfacing is permanent
+### D80 — Two combat defaults tightened to match the pessimistic-default principle (D14): Root cannot attack Ground; surfacing is permanent *(surfacing part withdrawn by D102)*
 
 Surfaced while scanning `docs/rules/` for loose, unscoped asides — two combat defaults were still generous, each hiding behind its own unresolved hedge instead of an actual decision.
 

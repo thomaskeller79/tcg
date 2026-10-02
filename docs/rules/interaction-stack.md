@@ -2,7 +2,7 @@
 
 *Players can act on the opponent's turn (MTG-style instants). One primitive covers instants, combat tricks, and traps: a **Speed** tag per card/ability, checked live against what's sitting in **Pending**, the Aether's next-to-resolve zone.*
 
-**Decisions:** D6, D16, D35, D38, D45, D46, D68, D70, D75, D83, D85, D91, D92, D94, D95 (`history/decisions.md`)
+**Decisions:** D6, D16, D35, D38, D45, D46, D68, D70, D75, D83, D85, D91, D92, D94, D95, D100 (`history/decisions.md`)
 
 ---
 
@@ -60,9 +60,9 @@ Playing a card or activating an ability is a strict procedure. No step may look 
 Every reference in the trace's text is bound before the trace enters the Aether, **as early as possible**: each binds as a side effect of whichever step fixes what it depends on. Source-relative references ("you," the payer, an inherited Behavior and neutral turn) bind right after step 0 — before Pay, which can change the Ancestry (a "sacrifice this creature" cost removes the source). Target-relative references ("target creature's controller," a chooser named that way) bind right after step 3.
 
 - **A target** is replaced by the bound object **together with every qualifier that belongs only to that target** — "target creature you control," "target creature within distance 2 of this," "target creature at a hex within distance 2" all become just the chosen creature. A qualifier belongs to its own target unless it names a *different target*; "you" and "this" are references, not targets.
-- **A clause relating two targets stays in the trace text.** "Deal 3 damage to target creature at target hex" becomes "Deal 3 damage to Imp 16 at hex (4,7)."
+- **A clause relating two targets stays in the trace text.** "Deal 3 damage to target creature at target terrain" becomes "Deal 3 damage to Imp 16 at terrain (4,7)."
 - **"You"/"your"** binds by the walk it already uses (`ancestry.md`): the Controller walk for "creatures you control," the Payment walk for "your mana pool" or "you draw." "Add 1 mana to your mana pool" on a Companion's creature becomes "Companion X adds 1 mana to its mana pool."
-- **A choice made at resolution** ("you may," "a creature of your choice on target hex") binds its chooser now; the choice itself is still made at resolution.
+- **A choice made at resolution** ("you may," "a creature of your choice on target terrain") binds its chooser now; the choice itself is still made at resolution.
 - **An instruction that makes a permanent Neutral** (creating it Neutral, or converting it) binds its Behavior and neutral turn now (`neutral-permanents.md` §Becoming Neutral).
 
 Remand deletes bindings together with target annotations, since none of them has a Card-tier slot (`object-properties.md` §3); the next declaration binds them fresh. Card data must therefore represent which qualifiers belong to which target, and which clauses relate two targets.
@@ -75,7 +75,7 @@ When a trace resolves (crosses `Now`), its instructions run **in card order**, a
 3. **Protection** — it doesn't have "can't be affected by [this kind of effect]." "Can't be targeted" is not checked here: targeting is a step of casting, so gaining it in response doesn't affect a trace already in Pending.
 4. **Verb applicability** — it is still something the instruction's verb can act on.
 
-Qualifiers consumed by binding are never re-checked, and there is no implicit location condition: a creature-targeting effect still hits a target that moved or changed control in response, unless it moved somewhere its caster can't see; an effect acting on a hex — or relating its creature to a target hex — can be dodged by moving. **Only the failing instruction fizzles — the rest of the card still resolves.** Paid cost is never refunded either way.
+Qualifiers consumed by binding are never re-checked, and there is no implicit location condition: a creature-targeting effect still hits a target that moved or changed control in response, unless it moved somewhere its caster can't see; an effect acting on a terrain — or relating its creature to a target terrain — can be dodged by moving. **Only the failing instruction fizzles — the rest of the card still resolves.** Paid cost is never refunded either way.
 
 **Death is immediate.** A permanent whose current Life is 0 or less dies immediately after the instruction that caused it; "destroy" and reaching 0 Life behave identically, and the next instruction already sees the result. Damage dealt by one instruction is simultaneous — "deal 1 damage to each creature" and a Combat's damage (D13) apply fully before anything dies. Text order therefore matters: "deal 3 damage to target creature; it gets +3 max-Life" kills a 3-Life creature, and the second instruction fizzles.
 

@@ -4,7 +4,7 @@
 
 **Note (D58, D87, D88):** Structure is the one Object that holds its own printed **Activation Points**, the same resource an Actor holds — self-gating "has this printed ability already fired this round" *and* self-funding that ability's Activation Points cost directly, no climbing. Terrain, Item, Ruin and Grave hold none, so an Activation Points cost printed on a Terrain's triggered ability climbs to its bonder like mana does. The Ancestry below answers who funds a *mana* cost, and any cost the entity can't pay itself. See `economy.md`, `resources-terrain.md`, `structures-items.md`.
 
-**Decisions:** D26–D30, D47, D54–D55, D57–D58, D68, D74, D81, D83, D84, D86, D87, D88 (`history/decisions.md`)
+**Decisions:** D26–D30, D47, D54–D55, D57–D58, D68, D74, D81, D83, D84, D86, D87, D88, D100, D101 (`history/decisions.md`)
 
 ---
 
@@ -27,6 +27,8 @@ Worked examples: a creature reading **"add 1 mana to your mana pool"** stops at 
 **This is also why Bounce/Remand need no separate "owner" concept:** a card that returns a permanent to a hand states its own destination in its own text ("to **its controller's** hand," "to **your** hand") and resolves it via the ordinary Controller walk above, not a new mechanism. A Neutral permanent simply has no controller's hand to reach — same fizzle shape as any other instruction with nothing to act on. See `object-properties.md` §2.
 
 ## Parent, by type
+
+Where the parent is fully given by an object's location, it is read off the location rather than stored (D101): Structure, Ruin and Grave → the terrain in their location; Item → its carrier when its location is an Actor. Stored parent links are Terrain → bonder (the bond record), and Creature/Companion/Trace → payer.
 
 | Entity | Parent |
 |---|---|
@@ -51,7 +53,7 @@ What still needs distinguishing is the terrain's **bond record** (its parent lin
 - **A bond record pointing to a live bonder, with the path currently clear:** controller = that bonder's Champion. Produces mana.
 - **A bond record pointing to a live bonder, with the path currently blocked:** controller = Neutral, but the bond record is untouched — the instant the path clears, the controller-walk succeeds again automatically, with no new Bond action needed. This is a live, per-query result, never a stored flag.
 
-Formally, every Ancestry edge carries an **active condition** (D83). For every edge except the Bond edge (Terrain → bonder) the condition is simply "always." The Bond edge is active only while an enemy-free path connects the terrain to its bonder. Payment and Controller only traverse active edges, so a blocked Bond edge stops both. An edge becoming inactive or active again is **not an Ancestry change** — no node is removed, no subtree update runs (below), and nothing that depends on it receives a Behavior; the terrain and anything on it are simply dormant until the edge is active again, unless they already carry a Behavior (D84).
+Formally, every Ancestry edge carries an **active condition** (D83). For every edge except the Bond edge (Terrain → bonder) the condition is simply "always." The Bond edge is active only while an enemy-free path connects the terrain to its bonder. Payment and Controller only traverse active edges, so a blocked Bond edge stops both. An edge becoming inactive or active again is **not an Ancestry change** — no node is removed, no subtree update runs (below), and nothing that depends on it receives a Behavior; the terrain and anything on it are simply dormant until the edge is active again, except a Structure that already carries a Behavior (D84; only permanents holding Activation Points can carry one, D100).
 - **No bond record at all:** controller = Neutral, and stays that way until someone performs a fresh Bond. Reachable via the bonding Companion dying (reverts to unbonded, not inherited by the Champion).
 
 Either kind of Neutral terrain strips a Structure on that cell of its payer and controller alike — opens area-control fights over contested terrain (block it briefly, or sever the bond outright; either way the Structure is cut loose) — and produces no mana while Neutral, same as any uncontrolled Object.
@@ -64,7 +66,7 @@ Removing an inner node cuts its children's parent links — each child becomes a
 
 1. **Companion dies.** Its bonded terrain reverts to unbonded. If the Companion was still Champion-controlled, any Creature or Trace it's the parent of loses both its payer and its controller — the climb to find a controller no longer reaches a live Champion, so there isn't one; each such Creature is assigned a Behavior by the subtree update. If the Companion was already Neutral, nothing changes for its subtree's controller — it was Neutral already, since a Neutral Companion is itself a root (D55).
 2. **Creature dies.** Any Item it carried becomes ownerless (parent removed, reverts to loose). There is no creature-parents-creature case, so nothing else cascades from a creature's death.
-3. **Terrain's controller becomes Neutral** (its Bond edge is inactive because the path is blocked, or the bond is removed outright). Any Structure, Ruin, or Grave on it loses both payer and controller and is never assigned a Behavior — dormant, unless it already carries one (D84) — the basis for area-control play over contested terrain (above).
+3. **Terrain's controller becomes Neutral** (its Bond edge is inactive because the path is blocked, or the bond is removed outright). Any Structure, Ruin, or Grave on it loses both payer and controller and is never assigned a Behavior — dormant, unless it is a Structure already carrying one (D84, D100) — the basis for area-control play over contested terrain (above).
 
 Champion death isn't an inner-node case — it ends the match outright (D9), so a Card's parent (always exactly one Champion) has nothing to break for the same reason. Structure and Item never have children under the present design (nothing attaches to a Structure; nothing attaches to an Item) — a Trace, unlike a Permanent, *can* have another Trace as a child, but per the table above that link is only ever a one-time resolution stop, never the recorded parent, so it carries no cascade risk of its own.
 
@@ -98,7 +100,7 @@ Every eligible actor gets a generic ability, **`2AP: Equip target Item sharing t
 
 ## What an uncontrolled (Neutral) permanent does
 
-A Neutral object's **decider** is its **Behavior**, if it carries one — a property of the object, attached by a card, a scenario, or a rule, never derived from the Ancestry. Without one it is **dormant**: nobody may activate its abilities, and only its mandatory, choiceless triggered abilities still happen (D83). Terrain, Structure, and Item losing control through the Ancestry never receive a Behavior, so they are dormant unless they already carry one; a Creature losing a Champion controller through an Ancestry change is assigned a Behavior (above). A Behavior is never removed by gaining a controller — it is unused while controlled and is replaced only by a new assignment (D84). Full detail, including which permanents are eligible and how Behaviors are scoped and funded, and how Behavior/neutral-turn assignment is resolved for every way a permanent can become Neutral: `neutral-permanents.md` (D82, D83, D84).
+A Neutral object's **decider** is its **Behavior**, if it carries one — a property of the object, attached by a card, a scenario, or a rule, never derived from the Ancestry. Without one it is **dormant**: nobody may activate its abilities, and only its mandatory, choiceless triggered abilities still happen (D83). Terrain, Structure, and Item losing control through the Ancestry never receive a Behavior, so they are dormant — unless it is a Structure already carrying one, since only permanents holding Activation Points can carry a Behavior (D100); a Creature losing a Champion controller through an Ancestry change is assigned a Behavior (above). A Behavior is never removed by gaining a controller — it is unused while controlled and is replaced only by a new assignment (D84). Full detail, including which permanents are eligible and how Behaviors are scoped and funded, and how Behavior/neutral-turn assignment is resolved for every way a permanent can become Neutral: `neutral-permanents.md` (D82, D83, D84).
 
 ## Open questions
 

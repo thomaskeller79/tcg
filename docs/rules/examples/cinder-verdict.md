@@ -13,12 +13,12 @@
 > **Cinder Verdict** · Spell · Fire · Speed: Quick
 > *Cast only if you control a Fire creature.*
 > **Cost:** 🔥 + (🔥🔥 **or** sacrifice a creature) + `X` + optional kicker {2}
-> **E1.** Deal `X`+1 damage to target creature **T1**. If it dies this way, create a Fire Warrior on target hex **H1** within distance 1 of T1.
+> **E1.** Deal `X`+1 damage to target creature **T1**. If it dies this way, create a Fire Warrior on target terrain **H1** within distance 1 of T1.
 > **E2.** Choose `X`, repeats allowed:
 >  • **a.** Deal 1 damage to up to one target creature **Ta**.
 >  • **b.** T1 doesn't refresh AP at its controller's next Beginning.
 > **E3.** If a creature was sacrificed to pay for this, T1's controller chooses one: they discard a card, **or** you draw a card.
-> **E4.** If kicked, create two Fire Warriors on target hex **H2** adjacent to a creature you control, then create an Ember Imp there, Neutral, *Aggressive toward T1's controller*, acting on Neutral A.
+> **E4.** If kicked, create two Fire Warriors on target terrain **H2** adjacent to a creature you control, then create an Ember Imp there, Neutral, *Aggressive toward T1's controller*, acting on Neutral A.
 
 Normal form (`../effect-form.md`):
 
@@ -27,8 +27,8 @@ castCondition: you control a Fire creature
 cost:  c1 = 🔥 ∧ c2 = (b1: 🔥🔥 ∨ b2: sacrifice creature) ∧ c3 = X ∧ c4 = (b1: 2 ∨ b2: ε)
 
 T1 := you choose 1..1 creature
-H1 := you choose 1..1 hex, within 1 of T1                  -- names T1: a relation under D83 (item 32)
-H2 := you choose 1..1 hex, adjacent to a creature you control
+H1 := you choose 1..1 terrain, within 1 of T1                  -- names T1: a relation under D83 (item 32)
+H2 := you choose 1..1 terrain, adjacent to a creature you control
 
 E1: you choose 1..1 { killed := damage(T1, X+1);  [if killed ≠ ∅] create(Fire Warrior, H1) }
 E2: you choose X..X repeatable
@@ -67,19 +67,19 @@ Text column: only the lines that changed in that step. ~~Struck~~ is removed, **
 | **0. Legality** | Quick fits Pending (empty). Cast condition: Pyro Adept #10 ✓. Source-relative binding: "you" = Champion A. | cast condition, early binding | ~~*Cast only if you control a Fire creature.*~~<br>E3… or ~~you draw~~ **Champion A draws** a card<br>E4… adjacent to a creature ~~you control~~ **Champion A controls** |
 | **1. Pay** | The card goes to Discard. 🔥; c2 = **b2**: A sacrifices **Pyro Adept #10**; X = 3; c4 = b1, pays {2}. | cast condition not rechecked (legal); ε branch; mixed disjunct needs explicit confirmation | **Cost:** 🔥 + sacrifice a creature + 3 + 2<br>E1: Deal ~~X+1~~ **4** damage…<br>E2: Choose ~~X~~ **3**…<br>E3: ~~If a creature was sacrificed to pay for this,~~ T1's controller chooses one…<br>E4: ~~If kicked,~~ create two Fire Warriors… |
 | **2. Choose** | E2: 3 picks → **a, a, b**. Each **a** gets its own Ta instance. | count = variable, per-pick instances | E2 becomes:<br>**a¹.** Deal 1 damage to up to one target creature **Ta¹**.<br>**a².** Deal 1 damage to up to one target creature **Ta²**.<br>**b.** T1 doesn't refresh AP at its controller's next Beginning. |
-| **3. Target** | T1 = Stone Brute #20. H1 = h₁ (within 1 of Brute). H2 = h₂ (next to Warcaller). Ta¹ = Wild Boar #30. **Ta² = none.** | up-to-zero; own qualifier consumed, relation kept | E1: Deal 4 damage to **Stone Brute #20**. If it dies this way, create a Fire Warrior on **hex h₁** within distance 1 of **Stone Brute #20**.<br>a¹: Deal 1 damage to **Wild Boar #30**.<br>a²: ~~Deal 1 damage to up to one target creature.~~ **(no target: does nothing)**<br>b: **Stone Brute #20** doesn't refresh AP…<br>E4: …on **hex h₂** ~~adjacent to a creature Champion A controls~~ |
+| **3. Target** | T1 = Stone Brute #20. H1 = h₁ (within 1 of Brute). H2 = h₂ (next to Warcaller). Ta¹ = Wild Boar #30. **Ta² = none.** | up-to-zero; own qualifier consumed, relation kept | E1: Deal 4 damage to **Stone Brute #20**. If it dies this way, create a Fire Warrior on **terrain h₁** within distance 1 of **Stone Brute #20**.<br>a¹: Deal 1 damage to **Wild Boar #30**.<br>a²: ~~Deal 1 damage to up to one target creature.~~ **(no target: does nothing)**<br>b: **Stone Brute #20** doesn't refresh AP…<br>E4: …on **hex h₂** ~~adjacent to a creature Champion A controls~~ |
 | *binding* | Target-relative: T1.controller = **Champion B**. | target-relative binding | E2 b: …at ~~its controller's~~ **Champion B's** next Beginning.<br>E3: ~~T1's controller~~ **Champion B** chooses one: ~~they discard~~ **Champion B discards** a card, or Champion A draws a card.<br>E4: …Aggressive toward ~~T1's controller~~ **Champion B**… |
 | **4. Pending** | The trace enters Pending. | | *(full trace text below)* |
 
 **The trace as it enters Pending:**
 
 > **Cinder Verdict** (trace) · Quick · paid: 🔥 + sacrifice a creature + 3 + 2
-> **E1.** Deal 4 damage to Stone Brute #20. If it dies this way, create a Fire Warrior on hex h₁ within distance 1 of Stone Brute #20.
+> **E1.** Deal 4 damage to Stone Brute #20. If it dies this way, create a Fire Warrior on terrain h₁ within distance 1 of Stone Brute #20.
 > **E2.** a¹. Deal 1 damage to Wild Boar #30. · a². *(nothing)* · b. Stone Brute #20 doesn't refresh AP at Champion B's next Beginning.
 > **E3.** Champion B chooses one: Champion B discards a card, or Champion A draws a card.
-> **E4.** Create two Fire Warriors on hex h₂, then create an Ember Imp there, Neutral, Aggressive toward Champion B, acting on Neutral A.
+> **E4.** Create two Fire Warriors on terrain h₂, then create an Ember Imp there, Neutral, Aggressive toward Champion B, acting on Neutral A.
 
-**B responds** with a Quick card: "Move target creature you control to an adjacent hex." B moves Brute #20 to a hex at distance 2 from h₁ that is still adjacent to Watcher. Nothing else responds; that trace resolves, then `Now` reaches Cinder Verdict.
+**B responds** with a Quick card: "Move target creature you control to an adjacent terrain." B moves Brute #20 to a hex at distance 2 from h₁ that is still adjacent to Watcher. Nothing else responds; that trace resolves, then `Now` reaches Cinder Verdict.
 
 ## Resolution, instruction by instruction
 

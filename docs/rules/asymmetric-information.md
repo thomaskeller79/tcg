@@ -2,7 +2,7 @@
 
 *Champions do not share one view of the board. What each Champion perceives is itself a manipulable, card-driven property.*
 
-**Decisions:** D7, D12, D18, D41, D42, D67, D71 (`history/decisions.md`)
+**Decisions:** D7, D12, D18, D41, D42, D67, D71, D102 (`history/decisions.md`)
 
 ---
 
@@ -71,6 +71,7 @@ The hard core of pillar 6 is not *hiding* a fact but keeping a *false view inter
 - **No deduction engine.** The engine guarantees hard facts are truthful and enforces a **small, finite, documented set of conservation laws** (e.g. *sum of claimed mana costs this turn ≤ public network max* → auto-collapse over-claims; card-count / library-size conservation). **All other deduction is the human's** — the UI surfaces hard facts; players see through bluffs themselves. The mind-game lives in the player, not the CPU.
 - **A lie is cheap until reality tests it.** A mimicked stat holds until combat makes true and fake outcomes diverge (deals unexpected damage, or dies when the fake said it lives); a mimicked cost holds until conservation can't reconcile it. Even pure hiding leaks through **counts** (know they have 5 units, see 4 → one is submerged).
 - **Collapse → full truth (default).** When a claim breaks, the observer learns the *entire* truth, including which of a masked pool it really was (shown as 2/1 masking A-or-B → reveal which). A per-card partial-reveal is possible later but not the default.
+- **Reveal (keyword, D102)** forces the same collapse on purpose: it sets one player's belief about an object equal to its true state, lifting any Mimic face. It is a one-time event, not a lasting state — an object that becomes hidden again afterwards is not tracked.
 
 ## Resource observability — the hard/soft border (D18)
 The border is a **principle, not a per-resource list**:

@@ -171,3 +171,24 @@ Item a hidden Life stat on the chance a future card wants to burn the ground.
 
 **Worth revisiting if:** a real card idea wants area-damage to sweep loose items off a contested
 hex as a genuine tactical option.
+
+---
+
+## Objects leaving every zone (D97)
+
+**Current rule (adopted to try):** an object that leaves every zone ceases to exist; links through
+it are joined up, so a permanent can be reached through its trace only while the trace lasts. See
+`../object-properties.md` §2.
+
+### Variant — record state · NOT ADOPTED, kept as the fallback
+An object that leaves every zone stays as a record: no player can select it, but stored links
+(`source`) still reach it, so a permanent stays reachable through its long-faded trace.
+
+**Argued for:** nothing is ever lost; any chain can always be walked back to its card.
+
+**Why not (for now):** it is an exile zone under another name, and it removes the age-hardening
+D97 wants to try — permanents becoming harder to reach through their trace as it fades, which makes
+trace Duration a design lever.
+
+**Worth revisiting if:** age-hardening isn't fun in play, or cards keep wanting to reach a faded
+trace. Switching back only changes what the rules may read; the engine can keep the records anyway.

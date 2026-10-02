@@ -2,7 +2,7 @@
 
 *A third control state — **Neutral** — alongside Champion A/Champion B, giving every permanent type a defined answer for "what happens when nobody controls this." Every object's **decider** is its controller if it has one; otherwise its **Behavior** — a deterministic policy standing in for a player's own decisions, carried as a property of the object — if it has one; otherwise nobody, and the object is **dormant** (D83).*
 
-**Decisions:** D54–D58, D60–D65, D82, D83, D93 (`history/decisions.md`)
+**Decisions:** D54–D58, D60–D65, D82, D83, D93, D100 (`history/decisions.md`)
 
 ---
 
@@ -121,7 +121,7 @@ A permanent capable of acting (see Scope, above) that becomes Neutral — whethe
   - **A still-Champion-controlled Companion dies:** each creature it funded defaults to the neutral-turn seat already paired with its controller at that moment in turn order (Neutral A if it was Champion A's, Neutral B if Champion B's), and a Behavior of `Aggressive toward` the *other* Champion — not its former controller. A Companion already Neutral when it dies changes nothing: its subtree was Neutral already.
   - **A Companion is made Neutral (D55):** its creatures become Neutral with it and are assigned the Companion's own Behavior instance and neutral turn — the one the converting effect gave the Companion. A conversion effect names exactly one Behavior; card text wanting something different for the creatures states it explicitly (D84).
 
-Terrain, Structure, Ruin, Grave, and Item never receive a Behavior this way — losing control through the Ancestry (including a terrain whose Bond edge is inactive or removed) leaves them **dormant** until something restores control, unless they already carry a Behavior (e.g. placed by a scenario), which then decides for them (D83, D84).
+Terrain, Structure, Ruin, Grave, and Item never receive a Behavior this way — losing control through the Ancestry (including a terrain whose Bond edge is inactive or removed) leaves them **dormant** until something restores control. A Structure that already carries a Behavior (e.g. placed by a scenario) is decided for by it instead (D83, D84); Terrain, Item, Ruin and Grave hold no Activation Points and so can never carry one (D100).
 
 **A Behavior is never removed by gaining a controller.** While controlled, a permanent keeps its Behavior and neutral turn unused — the controller decides. When it becomes Neutral, a newly assigned Behavior and neutral turn replace the old pair; if nothing is assigned (e.g. a temporary control effect ends), the old pair decides again (D84). A card that wants a permanent to lose its Behavior says so.
 

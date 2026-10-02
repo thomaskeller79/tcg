@@ -2,7 +2,7 @@
 
 *A map card is a fourth match component, alongside the card deck, terrain deck, and Champion. It resolves once at game start into board data and is not itself part of any zone.*
 
-**Decisions:** D11, D51, D52, D53, D76 (`history/decisions.md`)
+**Decisions:** D11, D51, D52, D53, D76, D100 (`history/decisions.md`)
 
 ---
 
@@ -19,7 +19,7 @@ Populating these areas with actual terrain is itself a map-authored rule — see
 ## Terrain Type and Element (D52)
 Every hex on the map — home ground or neutral ground alike — carries a **Terrain Type**: a purely worldbuilding classification with **no mechanical effect** (no move-cost, LOS, or capacity changes). It is fixed by the map card itself, independent of whichever Element ends up on that hex. Initial set, open to extending or shortening: **Forest, Open, Wetland, Shore, Elevated, Settlement, Urban, Edge.**
 
-**Element** is the mana color of a terrain card (D51) — **Light, Fire, Metal, Earth, Darkness, Ice, Water, Air**. Every terrain card, basic or non-basic alike, carries only an Element, never its own Terrain Type — Type always comes from whichever hex it lands on.
+**Element** is a mana color (D51) — **Light, Fire, Metal, Earth, Darkness, Ice, Water, Air**. A terrain's Elements are derived from the mana it produces and its rules text, 0–8 of them (D100). No terrain card carries its own Terrain Type — Type always comes from whichever hex it lands on, and only names the terrain.
 
 A hex's full identity is its **Terrain Type combined with whichever Element lands there** — e.g. a Fire card landing on a Forest-type hex becomes a "Fire-adapted forest." This lets a map carry a consistent authored identity (a city map, a forest-choked map) regardless of which Elements the two players actually bring to a match. Specific Type+Element combination names are not locked.
 
