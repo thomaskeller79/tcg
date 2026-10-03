@@ -192,3 +192,24 @@ trace Duration a design lever.
 
 **Worth revisiting if:** age-hardening isn't fun in play, or cards keep wanting to reach a faded
 trace. Switching back only changes what the rules may read; the engine can keep the records anyway.
+
+## What a falling permanent leaves (D110)
+
+**Current rule:** a permanent that falls ceases to exist, and a new Remnant (Creature, Companion) or
+Ruin (Structure) is created on its terrain. See `../object-properties.md` §5.
+
+### Variant — Grave/Ruin as a status of the same object (D88) · REVERSED by D110
+A dead creature stays the same object, with its own card, in a Grave status.
+
+**Argued for:** references survive death. A trace that kills its target can still read it
+afterwards: "destroy T, then create a Warrior within distance 1 of T" works, since the Grave keeps
+T's location.
+
+**Why replaced:** death becomes a special case next to Flicker and Bounce. Every Ancestry cascade
+had to say "dies or leaves the Island", "target creature" needed a rule to exclude Graves, and
+returning a Grave needed its own "reverse the status" rule. As new objects, all three fall out of
+existing rules. The lost references are handled by targeting the hex.
+
+**Worth revisiting if:** "do something where it fell" cards turn out frequent and the hex-target
+wording reads badly in practice. The other way out is last-known information (MTG 608.2h) — also
+rejected for now, since it is a new mechanism and would change Flicker too.

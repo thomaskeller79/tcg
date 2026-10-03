@@ -12,7 +12,7 @@ Every game object belongs to exactly one domain, and each domain has exactly one
 
 - **Mind** — **Card**. In Hand, Library, or Discard.
 - **Aether** — **Trace**. In Past, Pending, or Future.
-- **Matter** — **Permanent**. On the Island — an Actor (Champion, Companion, Creature, Structure) or an Object (Item, Terrain, Grave, Ruin) (D103).
+- **Matter** — **Permanent**. On the Island — an Actor (Champion, Companion, Creature, Structure) or an Object (Item, Terrain, Remnant, Ruin) (D103).
 
 Every game object — Card, Trace, and Permanent alike — carries a unique, monotonic **ID** (D61, D93; `neutral-permanents.md` §Permanent identity).
 
@@ -72,7 +72,7 @@ Once a variable value is resolved — an X-cost, an X/X/X stat line, a modal car
 
 **This is also why a lock-in decision is never made per-property in isolation — it follows directly from *when* a trace comes into existence at all (D70, `interaction-stack.md`).** Casting/activating is a strict pay → choose → target procedure, and a trace isn't a real, reachable object in the Aether until all three steps finish — so cost and every modal choice are *always* already resolved by the time anything (Remand included) can act on a trace; only target, the final step, can ever still be "live" enough to reset.
 
-**A cost that consumes specific objects to be paid — sacrifice X creatures, discard N cards, pay N life — only ever locks in the magnitude (X, N), never the identity of what was consumed.** The specific creatures sacrificed are never tracked as a property of anything created afterward.
+**A cost that consumes specific objects to be paid — fell X creatures you control, discard N cards, pay N life — only ever locks in the magnitude (X, N), never the identity of what was consumed.** The specific creatures felled are never tracked as a property of anything created afterward.
 
 **Target never locks in.** No counterexample has been found to a single flat rule: whatever a card, trace, or triggered ability targets — a location, a creature, a player — resets, requiring a fresh choice at every instantiation, regardless of direction. A card's declared number/type of targets is ordinary Card-level metadata used to check cast legality, but it never holds an assigned target value at the Card level, in any form — that's the actual difference from cost, which does hold a value-shaped slot at the Card level even before it's resolved. A targetless Spell has nothing to reset, so Remand (§2) locks in everything about it (cost, mode) with nothing left over.
 
@@ -121,13 +121,16 @@ One list per object type, built from two shared groups (D103). Each property als
 - **Spell trace** = Trace + name, subtypes, Speed, rules text with its targets bound. Remand drops the bindings (§4).
 - **Ability trace** (an activated or triggered ability) = Trace + the ability's rules text with its targets bound; Duration and physical copied from the ability (the base Move, Attack, Ascend, Descend are physical). Its name is none: an ability has no card definition of its own (`PLAN.md` Track D item 42).
 
-**Grave/Ruin:** `PLAN.md` Track A item 27.
+**Remnant and Ruin** (Objects, D110). A permanent that **falls** (reaching 0 Life, or "fell") ceases to exist, and a new object is created on its terrain: a **Remnant** for a Creature or Companion, a **Ruin** for a Structure. "Destroy" leaves nothing.
+- Stored: name (**copies** from the fallen permanent — the reference to its card definition, D99, which raise reads); ID, timestamp (**fresh**); `source` (the fallen permanent, joined up to its `source` once it ceases to exist, D97); location. Nothing else survives: no stats, Activation Points, abilities, Behavior or counters. No Life, so it can't be attacked.
+- Location: the fallen permanent's terrain. A Remnant's Slice follows the loose-Item rule (D105) — Root stays Root, Ground and Sky become Ground — and it is capacity-exempt. A Ruin stays in its Structure slot and occupies it (D40).
+- Derived: parent (its terrain, D81, D101), controller, payer, position. A Remnant belongs to whoever bonded its terrain, not to the fallen permanent's controller.
+- **Raise** (Remnant/Ruin → Permanent): the Remnant/Ruin ceases to exist, and a permanent of its card is created by the Creature/Structure transition rules (D106, D107) — card properties copy, current stats fresh at max, current-AP fresh at 0; `source` is the Remnant/Ruin; parent and Behavior copy from the raising Trace unless the instruction states a triple. Terrain copies; the Slice is the Remnant's if the card's Slice filter allows it, otherwise the filter's (as Flicker, §4).
 
 ## Open questions
 
 1. **Card-level continuous effects** (e.g. a hypothetical "target creature card in your hand gains +1/+1/+1"), tracked at `PLAN.md` §8 item 11 — this doc describes how such a modifier would propagate *if* it existed, not whether/how one gets attached to a Card in the first place.
-2. **Grave/Ruin's properties** are `PLAN.md` Track A item 27.
-3. **This doc only covers the six *cross-domain* transitions**, tracked at `PLAN.md` §8 item 5. Untouched: transitions *within* a domain (Library→Hand/draw, Hand→Discard/discard, Pending→Past/resolve, Pending↔Future/delay, mill, etc.) — some are ordinary game progression, others (discard, mill) are card-grantable actions in their own right and may need their own version of the "what does the created/moved object keep" question. An object leaving every zone ceases to exist (§2, D97); how a creature ceases to exist outright, given that destroying it leaves a Grave, is `PLAN.md` Track A item 27; what removal effects are called is item 39.
+3. **This doc only covers the six *cross-domain* transitions**, tracked at `PLAN.md` §8 item 5. Untouched: transitions *within* a domain (Library→Hand/draw, Hand→Discard/discard, Pending→Past/resolve, Pending↔Future/delay, mill, etc.) — some are ordinary game progression, others (discard, mill) are card-grantable actions in their own right and may need their own version of the "what does the created/moved object keep" question. An object leaving every zone ceases to exist (§2, D97). Falling — a permanent ceasing to exist and a Remnant or Ruin being created — is a within-domain transition specified in §5 (D110).
 4. **How do Map, the Champions' terrain decks, and the Champions themselves actually combine to produce the initial board state?** Champion and Terrain plausibly reach the Island through a mechanism that also involves the Map, not a plain Card→Permanent read — genuinely open, not just unstated. Tracked at `PLAN.md` §8 item 12.
 5. **Following `source` into a hidden zone.** A link from a visible permanent to a card in an opponent's Discard reaches hidden information; whether card text may follow it, and what it must reveal, is undecided (the opponent's cards are expected to be reachable only at the cost of a reveal).
 6. **Name of the creation triple** (D83, D106). A permanent copies parent and Behavior assignment from the Trace that creates it, unless its creation instruction states a triple (controller, Behavior, neutral turn) as an argument: a stated Champion becomes the parent directly; "Neutral" means no parent plus the stated Behavior and neutral turn, and a Neutral triple missing either makes the card invalid. Still open: a name for the triple that doesn't clash with the Trace's own controller (`PLAN.md` Track A item 39).

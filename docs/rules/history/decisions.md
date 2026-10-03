@@ -6,6 +6,35 @@
 
 ---
 
+### D110 — Remnant and Ruin are new objects; fell / destroy / raise; no "sacrifice"; card location restrictions are card statics
+
+**Reverses D88's status model.** A permanent that **falls** ceases to exist, and a new object is created on its terrain: a **Remnant** (Creature, Companion) or a **Ruin** (Structure). The user's motivation (item 27): the game shouldn't distinguish death from Flicker and Bounce. The Ancestry notices that a node ceased to exist and updates its subtree, so every cascade (D107) is now worded "ceases to exist", with death no longer a special case. Also bought: "target creature" excludes a Remnant for free (a different type); raising one reuses the creation rules instead of a "reverse the status" rule; `source` joins up through the fallen permanent (D97). **Cost accepted:** a trace that fells its target can't refer to it afterwards (D85's identity check), exactly as after a Flicker. Cards that act where something fell target the hex: "Fell target creature T on target hex H. Create a Fire Warrior on H." The user judged this no real cost. Rejected alternatives: last-known information (a new mechanism, and it would change Flicker too) and keeping the status model — `history/playtest-variants.md`.
+
+**Removal vocabulary** (closes the removal-words part of item 39):
+- **fell** / **falls**: the permanent ceases to exist and leaves a Remnant or Ruin. Applies to Creature, Companion, Structure (an Item has no Life and can't fall). Reaching 0 Life is falling. Replaces "dies"/"kill"/"destroy" in that sense. Chosen as the one common verb that fits both a creature and a building.
+- **destroy** / **is destroyed**: the object ceases to exist and leaves nothing; no fall triggers. Applies to every object (permanent, Remnant, Ruin, trace, card). Strictly stronger than fell on a permanent, so priced higher. Accepted risk: MTG players expect "destroy" to leave a graveyard card.
+- **raise**: a Remnant or Ruin ceases to exist, and a permanent of its card is created at its location — the opposite of fell. Rejected: "return … from grave" (the target is a Remnant, not a creature).
+- **No "sacrifice".** "Fell a creature you control" / "destroy a creature you control" says the same; "sacrifice" would cover only one of the two verbs and need a twin. What it buys in MTG (bypassing indestructible) is decided when such a keyword is designed — e.g. "can't be felled except to pay a cost" as data on that card.
+- Rejected for fell: kill (wrong on a Structure), defeat (collides with losing the match), slay (creature-only), break/raze (Structure-only). For destroy: erase, unmake, banish.
+
+**Remnant** is a working name for what was "Grave"; finalized in item 39 (alternatives considered are listed there).
+
+**Remnant and Ruin properties** (a transition within the Matter domain):
+- **Name copies** from the fallen permanent — the reference to its card definition (D99), which is what raise reads. Nothing else of the permanent survives: no stats, Activation Points (D88), abilities, Behavior, counters. An Object (D103); no Life, so it can't be attacked.
+- **ID, timestamp fresh; `source`** = the fallen permanent, joined up to that permanent's own `source` once it ceases to exist (D97).
+- **Location:** the fallen permanent's terrain. A Remnant's Slice follows the loose-Item rule (D105): Root stays Root, Ground and Sky become Ground — so a Root Remnant is hidden like a Root creature, and killing a hidden creature reveals nothing new. Claude first preferred keeping the Sky Slice, the user preferred no Slice; this reuse of an existing rule settled it. A Remnant is capacity-exempt (D40). A Ruin stays in its Structure slot and occupies it (D40).
+- **Parent, controller, payer derived** from the terrain (D81, D101): a Remnant belongs to whoever bonded the terrain, so a creature that falls on your terrain leaves *your* Remnant. Confirmed by the user, no change from before.
+
+**Raise** = Remnant/Ruin → Permanent, by the creation rules (D106/D107): everything from the card definition copies; current stats fresh at max, current-AP fresh at 0 (D89); ID, timestamp fresh, `source` = the Remnant/Ruin; parent and Behavior copy from the raising Trace unless the instruction states a triple. Terrain copies from the Remnant/Ruin; the Slice is the Remnant's if the card's Slice filter allows it, otherwise the filter's (as Flicker, D105). An illegal location (full Slice, enemy present) is an ordinary illegal location, as for Flicker (D107). Prototype card: **Raise the Fallen** (Spell): Raise target Remnant you control.
+
+**Card location restrictions are card statics — prototype scope extended (D104, D108).** "This card can only target a terrain you control with a Ruin" is a static ability of the *card*, not of the permanent it becomes (the user's call, by analogy to cycling). D32's Slice filter is the same kind of restriction, now named as one; Flying grants a card static (enter in Sky) alongside its permanent static. These are in scope — the one kind of card ability functioning off the Island. Prototype card: **Watchtower** (Structure): can only target a Structure slot holding a Ruin you control; casting it there replaces the Ruin (D40). Claude's first try, "destroy a Ruin on this card's hex" as a cost, fails: the cost is paid before the target exists (D46).
+
+**Un-summon** (D16) is a route to ceasing to exist without falling: no Remnant, no fall triggers.
+
+→ `object-properties.md` §5, `glossary.md`, `ancestry.md`, `interaction-stack.md`, `effect-form.md`, `structures-items.md`, `companions.md`, `overview.md`, `economy.md`, `asymmetric-information.md`, `neutral-permanents.md`, `examples/cinder-verdict.md`, `history/playtest-variants.md`, `PLAN.md` items 27 (closed), 39.
+
+---
+
 ### D109 — Trace groups; Duration 5 for every trace but physical ones; Ability traces have no name
 
 **Trace groups**, by what creates the trace: **Trace** (all: ID, timestamp, `source` fresh; parent and Behavior copied, D106; cost narrowed to what was paid; Duration; physical; derived controller, payer, Elements) → **Permanent trace** (+ everything on the permanent card + its target, which becomes the location), **Spell trace** (+ name, subtypes, Speed, rules text with bound targets), **Ability trace** (+ the ability's rules text with bound targets).
@@ -282,7 +311,7 @@ Corrects the D32 mapping "a burrower-type keyword → Below," which `structures-
 
 ---
 
-### D88 — Every created object has a card; there are no tokens; Grave and Ruin are a status of the dead object, not separate objects
+### D88 — Every created object has a card; there are no tokens; Grave and Ruin are a status of the dead object, not separate objects *(status model reversed by D110: Remnant and Ruin are new objects)*
 
 **Adopted:** anything created in the game references a real card — card text never says "create a 2/2 creature with…", it names a card (with a link to it). Every permanent therefore carries all required properties (a real mana cost, not MTG's token "mana value 0"), and Bounce/Flicker need no special rules for created objects. D69's "a Bounce/Flicker-created object is not a token" generalizes: nothing is a token.
 

@@ -28,7 +28,7 @@ Until the game runs end to end, only cards of this restricted shape are legal (D
 - **Rules text** is targets (objects selected at cast, any number) plus a **sequence of instructions** (`verb arg*`), run in card order — one effect with one option, chosen by you, at cast.
 - **Not in scope:** modes, conditions, outputs, repeatable picks, choices at resolution, choosers other than you.
 - **A permanent card** has no target but its implicit location.
-- **Abilities** of a permanent (static, triggered, activated) follow the same shape, and function only on the Island (an activated one through its Trace). Abilities that function from Hand, Library or Discard are not in scope.
+- **Abilities** of a permanent (static, triggered, activated) follow the same shape, and function only on the Island (an activated one through its Trace). Abilities that function from Hand, Library or Discard are not in scope, with one exception: **card statics restricting the card's own location target** (D110) — the Slice filter (D32, e.g. Flying: enters in Sky) and restrictions such as "can only target a terrain you control with a Ruin."
 - **Cost** is a fixed list — a CNF with one option per clause: no `X`, no branches, no cast condition.
 
 The procedure stays the full one (pay → choose → target, `interaction-stack.md`), with Choose empty. The rest of this doc describes the full form; parts outside the scope stay decided, and their open questions are `PLAN.md` Track D.
@@ -52,7 +52,7 @@ Every name is one of three kinds, differing only in when it is bound:
 |---|---|---|
 | variable | Pay | `X`, `c2 = b1` |
 | selection | Target (at cast) or its instruction (at resolution) | `T := you choose 1..1 creature` |
-| output | Resolution | `killed := damage(T, 3)` |
+| output | Resolution | `felled := damage(T, 3)` |
 
 Picks of a repeatable effect run in **menu order**, repeats back to back.
 
@@ -60,13 +60,13 @@ Picks of a repeatable effect run in **menu order**, repeats back to back.
 
 ## Outputs
 
-An instruction can bind an output for later instructions in the same option. **The output is the instruction's state diff** — everything it changed, including the deaths it caused (they happen immediately after it, `interaction-stack.md` §Resolution) — and conditions and arguments query it ("how many creatures died"). An output exists only during its trace's resolution; it never reaches the trace's stored state, so Remand never touches it. It is in one of three states:
+An instruction can bind an output for later instructions in the same option. **The output is the instruction's state diff** — everything it changed, including the permanents it felled (they fall immediately after it, `interaction-stack.md` §Resolution) — and conditions and arguments query it ("how many creatures fell"). An output exists only during its trace's resolution; it never reaches the trace's stored state, so Remand never touches it. It is in one of three states:
 
 - **unbound** — its instruction didn't run (its condition was false, or it read an unbound output);
 - **empty** — its instruction ran or fizzled and affected nothing ("up to 2 target creatures gain trample" with 0 targets);
 - **a value.**
 
-**An instruction that reads an unbound output doesn't run, and its own output is unbound too.** So "didn't happen" propagates and is never mistaken for "happened, with no effect": after `killed := [if c4 = b1] damage(T, 3)`, "if it did not die this way" (`[if killed = ∅]`) is true only when the damage actually happened (or fizzled) without killing.
+**An instruction that reads an unbound output doesn't run, and its own output is unbound too.** So "didn't happen" propagates and is never mistaken for "happened, with no effect": after `felled := [if c4 = b1] damage(T, 3)`, "if it did not fall this way" (`[if felled = ∅]`) is true only when the damage actually happened (or fizzled) without felling anything.
 
 ## Conditions
 
@@ -81,7 +81,7 @@ A condition sits on the instruction only. A condition on a fact already settled 
 | "Escalate {1}. Choose one or more." | cost conjunct `X·1`; `you choose X+1..X+1 { … }` |
 | "You may draw a card." | `you choose 0..1 at resolution { draw(you, 1) }` |
 | "Target opponent chooses a creature they control. Destroy it." | `P := you choose 1..1 opponent`; `C := P choose 1..1 at resolution creature, controlled by P`; `destroy(C)` |
-| "Deal 3 damage to target creature. If it dies this way, draw a card." | `T := you choose 1..1 creature`; `killed := damage(T, 3)`; `[if killed ≠ ∅] draw(you, 1)` |
+| "Deal 3 damage to target creature. If it falls this way, draw a card." | `T := you choose 1..1 creature`; `felled := damage(T, 3)`; `[if felled ≠ ∅] draw(you, 1)` |
 
 Worked example across the whole casting and resolution procedure: `examples/cinder-verdict.md`.
 

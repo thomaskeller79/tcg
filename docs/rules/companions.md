@@ -21,7 +21,7 @@
 
 - A real card in the maindeck: drawn to Hand, **summoned like a Creature** (D20 — paid in mana from the Champion's pool, onto a bonded terrain cell in the Champion's realm, subject to Slice capacity and summoning sickness).
 - **Stats: Attack / Life / AP**, the same three numbers as a Creature (D10) — it occupies a board slot and is attackable. It moves, fights, and bonds using the network-dependent cost shape below (shared logic with the Champion, D9), not a Creature's flat defaults.
-- Losing a Companion is a real, permanent loss (Life → 0 → destroyed → grave, D14/D16) — it doesn't end the match, but it **un-bonds the terrain it personally bonded** (see Terrain network, below) and its printed abilities go with it.
+- Losing a Companion is a real, permanent loss (Life → 0 → it falls, leaving a Remnant, D14, D110) — it doesn't end the match, but it **un-bonds the terrain it personally bonded** (see Terrain network, below) and its printed abilities go with it.
 
 ## The Companion action economy — mana + AP, same shape, more restrictive
 
@@ -55,7 +55,7 @@ D8 currently has exactly one network root (the Champion). A Companion on the Isl
 - **Terrain's parent follows the bonder.** Whoever *performs* the bond (Champion or a specific Companion) determines which pool that terrain feeds going forward: Champion-bonded → the Champion's pool; Companion-bonded → that Companion's own pool. Direct mechanical expression of the fiction (only the bonder's own channeling capacity determines where the mana goes); reuses D8's existing bond/pause machinery, just tagged per-root.
 - **Severing/pause is per-root, unchanged mechanically.** An enemy on a bonded terrain's only path back to *its owning root* pauses that terrain's draw — exactly D8's existing rule, just checked against whichever root owns the node.
 - **Control follows Ancestry too.** If a terrain carries its own printed activated ability (`resources-terrain.md`), only the controlling root's owner may activate it, funded **only** from that root's own pool — a Companion-bonded terrain's ability spends from that Companion's own pool alone, never the Champion's.
-- **A Companion's death un-bonds its terrain.** Unlike the Champion's network — where bonding is permanent, and only the *draw* is conditional (D8) — a Companion's bond is only as permanent as the Companion itself. When it dies or leaves the Island (Flicker, Bounce, D107), the terrain it personally bonded reverts to **unbonded** (same "undo, don't just pause" vocabulary as **un-summon**, D16) rather than sitting paused forever. It can later be bonded again, by any surviving root, under whatever reachability holds at that time. This makes a Companion a real, killable economic target, not just a body on the board.
+- **A Companion ceasing to exist un-bonds its terrain.** Unlike the Champion's network — where bonding is permanent, and only the *draw* is conditional (D8) — a Companion's bond is only as permanent as the Companion itself. When it ceases to exist (falling, being destroyed, Flicker, Bounce; D107, D110), the terrain it personally bonded reverts to **unbonded** (same "undo, don't just pause" vocabulary as **un-summon**, D16) rather than sitting paused forever. It can later be bonded again, by any surviving root, under whatever reachability holds at that time. This makes a Companion a real, killable economic target, not just a body on the board.
 
 ## A Neutral Companion is a root for Ancestry too (D55)
 

@@ -42,7 +42,7 @@ Chasing many colors or powerful non-basics may require connecting **outward in a
 
 Terrain's **controller** is just the general three-valued result (Champion A / Champion B / Neutral, D54) applied to this connectivity check — see `ancestry.md`'s "Terrain's controller vs. its bond record" for the full framing. What matters for the economy specifically is *why* a terrain is currently Neutral, since that governs how it comes back:
 - **Bond record intact, path currently blocked** — the pause case below. Reverts to producing mana automatically the instant the path clears, provided this cycle's credit hasn't already been drawn (D77's per-permanent flag) — connectivity itself is still checked **live, per query** (walking the path), never cached.
-- **No bond record at all (unbonded)** — the link is actually gone. Needs a fresh Bond action to restore. Reachable via the bonding **Companion dying** (reverts to unbonded, not inherited by the Champion).
+- **No bond record at all (unbonded)** — the link is actually gone. Needs a fresh Bond action to restore. Reachable via the bonding **Companion ceasing to exist** (reverts to unbonded, not inherited by the Champion).
 
 Consequences of the pause rule specifically:
 - **Pause, not sever (reversible).** An enemy creature anywhere on the path between a bonded terrain and the Champion **pauses** all mana downstream of it (relative to the Champion). Remove/kill the blocker, or reroute along another bonded path, and the mana resumes. Denial can never become permanent screw this way — permanent severing now exists too, but only via the explicit unbonded-state triggers above, never merely from positional blocking.
