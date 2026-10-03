@@ -2,7 +2,7 @@
 
 *What a game object is made of — Card, Trace, and Permanent as one connected chain — and how properties move (or don't) when one creates another, including backward: Bounce and Flicker.*
 
-**Decisions:** D69, D70, D72, D73, D74, D75, D83, D88, D93, D97, D98, D99, D100, D101, D103, D105, D106, D107 (`history/decisions.md`)
+**Decisions:** D69, D70, D72, D73, D74, D75, D83, D88, D93, D97, D98, D99, D100, D101, D103, D105, D106, D107, D108 (`history/decisions.md`)
 
 ---
 
@@ -91,7 +91,11 @@ One list per object type, built from two shared groups (D103). Each property als
 - **Elements** are always derived (D100): the Elements in the mana an object produces and in its rules text.
 - **Short-term history** ("attacked this turn") is a query over the history track, not a property (D98; `glossary.md` **History track**).
 
-**Card** (Mind). Stored: name, cost (CNF, D91), Speed, cast condition (D91), subtypes, rules text (effects in the normal form, `effect-form.md`, D95), ID, `source`. Spell-specific properties: `PLAN.md` Track A item 33.
+**Card** (Mind), grouped like the permanents, minus what exists only on the Island (D108):
+- **Card** (all): name, subtypes, cost (CNF, D91), Speed, cast condition (D91; outside the prototype scope, D104), ID, timestamp, `source`. Derived: parent (the zone's Champion, D81), Elements.
+- **Permanent card** = Card + static, triggered and activated abilities. **Actor card** = Permanent card + max-Activation Points, max-Life.
+- **Per type:** Item card = Permanent card; Structure card = Actor card; Creature card = Actor card + max-Attack; Companion card = Creature card (its mana pool is fresh on the Island, D107). Champion and Terrain have no Card object.
+- **Spell card** = Card + rules text (effects in the normal form, `effect-form.md`, D95; in the prototype scope, targets plus a sequence of instructions) + Duration (default 5, `Duration X`, D50), copied into its Trace. Spell properties beyond the prototype scope: `PLAN.md` Track A item 33.
 
 **Permanent** (Champion, Companion, Creature, Structure, Item, Terrain).
 - Stored: name; subtypes; static abilities; triggered abilities; ID and timestamp; location; parent; `source`; cost, Speed, cast condition (copied along the chain, unused on the Island; none for Champion and Terrain, which are placed at Setup).
@@ -111,12 +115,12 @@ One list per object type, built from two shared groups (D103). Each property als
 - **Companion** = Creature + mana pool (its shape waits for the colour-cost model, `PLAN.md` Track A item 37). Derived: bonded terrains. Bond is one of its default activated abilities. Definition-only: which Champion(s) may run it. Its parent is a Champion or none, never another Companion. Transition rules (D107): as Creature (D106); the mana pool is **fresh**, empty, and **dropped** going backward; bonded terrains are **derived** from the terrains' bond records, so a new Companion starts with none.
 - **Champion** = Companion's property list, with parent, `source`, cost, Speed, cast condition and Behavior always none. Same stats as a Creature: Attack, Life, Activation Points. Default activated abilities: Draw, Bond, Move (confined to its realm while connected), Collapse Network, Attack, Defend, Equip, Un-equip, plus its signature abilities. Its card definition is the **customised card from the player's loadout**, not the generic printed card (progression changes it between matches). Hand, Library and Discard are zones it owns, not properties.
 
-**Grave/Ruin:** `PLAN.md` Track A item 27. **Still to inventory:** the Card objects of the non-spell types (Creature, Companion, Structure, Item), and Trace (including Duration and physical / non-physical, D98).
+**Grave/Ruin:** `PLAN.md` Track A item 27. **Still to inventory:** Trace (including Duration and physical / non-physical, D98).
 
 ## Open questions
 
 1. **Card-level continuous effects** (e.g. a hypothetical "target creature card in your hand gains +1/+1/+1"), tracked at `PLAN.md` §8 item 11 — this doc describes how such a modifier would propagate *if* it existed, not whether/how one gets attached to a Card in the first place.
-2. **The per-type property inventory (§5) is incomplete** — the non-spell Card objects and Trace remain (`PLAN.md` Track A item 4). Grave/Ruin's properties are `PLAN.md` Track A item 27.
+2. **The per-type property inventory (§5) is incomplete** — Trace remains (`PLAN.md` Track A item 4). Grave/Ruin's properties are `PLAN.md` Track A item 27.
 3. **This doc only covers the six *cross-domain* transitions**, tracked at `PLAN.md` §8 item 5. Untouched: transitions *within* a domain (Library→Hand/draw, Hand→Discard/discard, Pending→Past/resolve, Pending↔Future/delay, mill, etc.) — some are ordinary game progression, others (discard, mill) are card-grantable actions in their own right and may need their own version of the "what does the created/moved object keep" question. An object leaving every zone ceases to exist (§2, D97); how a creature ceases to exist outright, given that destroying it leaves a Grave, is `PLAN.md` Track A item 27; what removal effects are called is item 39.
 4. **How do Map, the Champions' terrain decks, and the Champions themselves actually combine to produce the initial board state?** Champion and Terrain plausibly reach the Island through a mechanism that also involves the Map, not a plain Card→Permanent read — genuinely open, not just unstated. Tracked at `PLAN.md` §8 item 12.
 5. **Following `source` into a hidden zone.** A link from a visible permanent to a card in an opponent's Discard reaches hidden information; whether card text may follow it, and what it must reveal, is undecided (the opponent's cards are expected to be reachable only at the cost of a reveal).

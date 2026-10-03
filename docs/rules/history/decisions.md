@@ -6,6 +6,18 @@
 
 ---
 
+### D108 — Card groups mirror the permanent groups; card abilities function only on the Island (prototype scope)
+
+**Card groups.** Card (all: name, subtypes, cost, Speed, cast condition, ID, timestamp, `source`; derived parent and Elements) → **Permanent card** (+ static, triggered and activated abilities) → **Actor card** (+ max-AP, max-Life). Item card = Permanent card; Structure card = Actor card; Creature card = Actor card + max-Attack; Companion card = Creature card. **Spell card** = Card + rules text + Duration (D50). Read off the transition walks (D105–D107): a card holds exactly what its permanent copies, nothing the Island makes fresh. Activated abilities sit on Permanent card rather than Actor card, at the user's call: Item has them too, and no card-level type lacks them in a way that matters (Terrain, which has none, D87, never is a Card). **Timestamp** added to the Card list — the general rule already said every game object, and the walks treat it as fresh everywhere.
+
+**Spell under the prototype scope** needs nothing more: its rules text is targets plus a sequence of instructions (D104). Item 33 keeps only what lies beyond the scope.
+
+**Scope addition (D104):** a card's abilities function only on the Island (an activated one through its Trace). Abilities working from Hand, Library or Discard ("as long as this is in your hand…", cycling, channel) are out of scope — folded into Track D item 11 as the mirror of effects reaching into the Mind.
+
+→ `object-properties.md` §5, `effect-form.md` §Prototype scope, `PLAN.md` item 11.
+
+---
+
 ### D107 — Companion and Structure transition rules; leaving the Island cascades like death; Structures never fight
 
 **Companion** = Creature's rules (D106) plus: mana pool fresh and empty, dropped going backward; bonded terrains derived from the terrains' bond records, so a new Companion — including a flickered one — starts with none; Bond is a default ability written on the card and copies.
