@@ -6,6 +6,20 @@
 
 ---
 
+### D109 — Trace groups; Duration 5 for every trace but physical ones; Ability traces have no name
+
+**Trace groups**, by what creates the trace: **Trace** (all: ID, timestamp, `source` fresh; parent and Behavior copied, D106; cost narrowed to what was paid; Duration; physical; derived controller, payer, Elements) → **Permanent trace** (+ everything on the permanent card + its target, which becomes the location), **Spell trace** (+ name, subtypes, Speed, rules text with bound targets), **Ability trace** (+ the ability's rules text with bound targets).
+
+**Duration is 5 for every trace by default, 0 for a physical one** (the user's simplification). A Spell card or ability may print `Duration X` (D50); a permanent card has no Duration slot (D108), so a Permanent trace always has 5. Physical and Duration are copied from the ability for an Ability trace.
+
+**An Ability trace's name is none.** Giving it the permanent's name would make it look like a card: a name is the reference to a card definition (D99). The user would like every trace to be able to become a card (Remand, "return target trace to your hand"); Permanent and Spell traces already can (D74). For an Ability trace this needs a definition identity per ability (which would then be the trace's name), self-references that survive leaving the permanent, and a cost for triggered abilities — `PLAN.md` Track D item 42. "None" keeps the property in place, so that extension only fills in a value.
+
+**Item 4 closed.** Every type's property list and transition rules are in `object-properties.md` §5 (D97–D109); the creation triple's name joins item 39.
+
+→ `object-properties.md` §5, `PLAN.md` items 39, 42.
+
+---
+
 ### D108 — Card groups mirror the permanent groups; card abilities function only on the Island (prototype scope)
 
 **Card groups.** Card (all: name, subtypes, cost, Speed, cast condition, ID, timestamp, `source`; derived parent and Elements) → **Permanent card** (+ static, triggered and activated abilities) → **Actor card** (+ max-AP, max-Life). Item card = Permanent card; Structure card = Actor card; Creature card = Actor card + max-Attack; Companion card = Creature card. **Spell card** = Card + rules text + Duration (D50). Read off the transition walks (D105–D107): a card holds exactly what its permanent copies, nothing the Island makes fresh. Activated abilities sit on Permanent card rather than Actor card, at the user's call: Item has them too, and no card-level type lacks them in a way that matters (Terrain, which has none, D87, never is a Card). **Timestamp** added to the Card list — the general rule already said every game object, and the walks treat it as fresh everywhere.
