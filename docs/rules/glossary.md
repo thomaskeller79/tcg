@@ -7,7 +7,7 @@
 | Term | Meaning |
 |---|---|
 | **Match** | One complete game between players, ending when a win condition is met. |
-| **Setup** | *(D76.)* The background procedure that turns a Map, terrain decks, and Champions into the starting board state — fully non-observable, no priority or response window exists while it runs. Not a domain transition (Champion/Terrain never occupy a Mind-domain zone to begin with). See `setup.md`. |
+| **Setup** | *(D76, D114.)* The procedure that turns a Map, terrain decks, decks and Champions into the starting board state. It is Champion A's first Beginning phase: observable, with mulligan decisions, but it opens no priority. Not a domain transition (Champion/Terrain never occupy a Mind-domain zone to begin with). See `setup.md`. |
 | **Turn** | One Champion's full sequence of phases. Turns alternate between Champions. |
 | **Phase** | An ordered segment of a turn (e.g. Start, Draw, Action, End). The phase list is **data**, so cards can add/skip phases. |
 | **Board** | The hex grid where the match is played, produced from a **Map** card (D11). A set of hex **cells** keyed by cube/axial coordinate. |

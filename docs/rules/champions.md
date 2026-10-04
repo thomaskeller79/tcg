@@ -2,7 +2,7 @@
 
 *Each player is embodied on the board by a single Champion: an avatar that summons creatures, casts spells, and channels magic — and that **evolves between games** along branching paths. Provisional term "Champion" (candidates: Channeler, Champion; not "Commander").*
 
-**Decisions:** D2, D9, D48, D49, D76, D77, D103 (`history/decisions.md`)
+**Decisions:** D2, D9, D48, D49, D76, D77, D103, D114 (`history/decisions.md`)
 
 ---
 
@@ -37,7 +37,7 @@ The Champion runs the **same two-resource shape as a creature** — there is no 
 
 **Mana credits live.** A bond's mana isn't summoning-sick — the instant a bonded terrain is reachable, its production credits directly to the Champion's pool via its own drawn-this-cycle flag (D77, `resources-terrain.md`), no Beginning-phase delay. **Default match setup:** both Champions start **pre-bonded to their own home tile** — 1 mana is already available turn 1. Combined with the realm constraint below, a fresh Champion is *already rooted* from turn 1: its first move costs `2AP` and stays inside its one-tile territory unless it pays `0AP` to Collapse Network. This pre-bond is kept deliberately (D77) — it speeds up the opening, and it means rushing the Champion out of its own realm always costs a Collapse Network first, from turn 1 on.
 
-**First-turn AP asymmetry (D76):** both Champions enter the Island identically, at **4 Activation Points** each (placeholder; exact number is a tuning-pass question). The asymmetry between going first and second comes from Round 1's own structure: the first Champion's opening Beginning phase skips Activation-Points refresh specifically (mana-refresh and beginning-of-turn triggers still run normally), while the second Champion's own first turn, later the same round, refreshes fully as normal — a first-move-advantage balancing lever. See `setup.md`.
+**First-turn AP asymmetry (D114):** at Setup each Champion's Activation Points become at least **4** (placeholder; exact number is a tuning-pass question). The asymmetry between going first and second comes from Setup being Champion A's first Beginning phase: Champion A gets no Activation-Points refresh on turn 1, while the second Champion's own first turn, later the same round, refreshes fully as normal — a first-move-advantage balancing lever. See `setup.md`.
 
 **Default AP actions** (baseline example: **7 AP**; the exact numbers, and the full signature-ability list, are still open — this fixes the *shape* of the economy, not its content):
 

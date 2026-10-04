@@ -6,6 +6,27 @@
 
 ---
 
+### D114 — Setup is Champion A's first Beginning phase; Setup-placed permanents enter the Island; terrain and hand mulligans; Haste X
+
+Closes item 29. D89 exempted Setup-placed permanents by saying Setup isn't entering the Island — added at write-up time only to protect D76 (Champions start at 4 AP, Champion A's first refresh skipped). With it came `setup.md`'s workaround: a Setup-placed permanent couldn't use "enters the Island" and had to say "at the beginning of your first turn".
+
+**Adopted (user's call on every point):**
+- **Setup-placed permanents enter the Island** under the ordinary rules: 0 Activation Points unless Haste (D89, now with no exception), and their "enters the Island" triggers fire. The "at the beginning of your first turn" workaround is gone.
+- **Setup replaces Champion A's turn-1 Beginning phase.** Champion A is the active seat, which gives Setup's triggers an APNAP order without a new rule. D76's "skip A's first AP refresh" is no longer a rule: A's first Beginning phase is Setup, which places instead of refreshing. D76 rejected "skip A's whole first Beginning phase" because it would lose the payoff mana-refresh and A's first-turn triggers; neither applies here, since mana credits live (D77) and Setup keeps the trigger step.
+- **Setup opens no priority, but is observable.** "Invisible and non-interactive" is dropped: mulligans are decisions on what a player sees. What matters is that no one can act or respond, including to Setup's own triggers — the user's one firm requirement.
+- **Procedure** (`setup.md`): S1 Island shape · S2 deal terrain face up, not yet on the Island (home ground for each player who hasn't kept; neutral ground on the first pass only) · S3 terrain mulligan, home ground only, back to S2 while anyone takes one · S4 all terrain enters · S5 each Champion enters on its home tile, bonds it, and its AP becomes max(current, 4) · S6 shuffle and draw an opening hand for each player who hasn't kept · S7 hand mulligan, back to S6 while anyone takes one · S8 Map-placed Neutral permanents enter · S9 trigger step: every trigger from S1–S8 enters Pending as one batch in the automatic order (the per-instruction ordering rule is extended to Setup as one batch) and resolves without priority. Then Champion A's Action phase, with the first priority window.
+- **Order, user's choice:** the Mind after the Champions — seeing the hand before the Champion stands on the Island read as strange; mulliganing terrain before seeing the hand was accepted. Claude had proposed the Mind first, so the terrain mulligan could take the hand's colours into account. S8 after S7 may move after playtesting.
+- **Dealing before entering** (S2/S4): terrain mulliganed away never entered, so it leaves no dead trigger in S9 — the user's point: in an observable Setup, fizzling triggers from terrain that isn't there are confusing. Considered first: terrain enters at S2 and its triggers fizzle on identity (D85) — no extra rule, but visible noise.
+- **The home-tile bond is an instruction** ("each Champion bonds its home tile"), not the Champion's `2*AP` Bond ability — otherwise it would use Champion A's once-per-turn Bond for turn 1.
+- **max(current, 4)**, not "gains 4" or "set to 4": a Champion with Haste keeps its higher entry value.
+- **Mulligan costs** are required (the loops must end), possibly increasing, and settled by playtesting. Currencies named: starting mana (1), opening hand size (5), starting AP (4).
+- **Haste X** (follows from "summoning sickness is 0 AP on entering"): the permanent enters with X Activation Points, capped at its max; plain Haste means its max. An entry-time keyword — granting it to a permanent already on the Island does nothing (such a card says "gains X Activation Points"); Flicker sets a Haste permanent back to X. Its name is item 39's.
+- **Champion B keeps its Setup mana (1, credited at S5) through Champion A's turn 1**, and may hold AP for Instant-speed play — wanted, the same reason both Champions get 4 AP at Setup.
+
+→ `setup.md` (rewritten procedure), `economy.md`, `champions.md`, `overview.md` §3/§10, `glossary.md`, `resources-terrain.md` Open question 3 (AP and trigger part settled; slot and creation triple still open), `PLAN.md` item 29 (closed), Track B.
+
+---
+
 ### D113 — Both Champions falling from the same instruction is a draw; a loose Item stays unparented
 
 **Simultaneous Champion fall → draw** (closes item 44, user's call). Falling's consequences are immediate (D112), so one instruction — a Combat with mutual retaliation (D13), "deal 2 damage to each Champion" — can fell both Champions in one step; the match is then a draw. Only one instruction can do this: once an instruction fells one Champion, the match ends immediately and nothing after it runs. The code needs a draw result (`PLAN.md` Track B).
@@ -339,7 +360,7 @@ Corrects the D32 mapping "a burrower-type keyword → Below," which `structures-
 
 ---
 
-### D89 — Every permanent entering the Island enters with 0 Activation Points; replaces D57
+### D89 — Every permanent entering the Island enters with 0 Activation Points; replaces D57 *(Setup exception removed by D114)*
 
 **Adopted:** a permanent entering the Island — cast, created by an effect (D88), flickered, however it got there — enters with **0 Activation Points** and refreshes at its controller's next Beginning phase. That is all summoning sickness is: a permanent that wasn't there at the beginning of its controller's turn can't act yet. **Haste** removes it. D57's criterion ("did it enter via casting") is dropped — it wrongly let a created creature (e.g. D87's Fire Warrior) act immediately.
 
@@ -563,7 +584,7 @@ Resolves `PLAN.md` §8 item 14. The existing "mana is summoning-sick" rule (a pe
 
 → `resources-terrain.md`, `champions.md` (keep the pre-bond, rewrite its rationale), `economy.md`, `setup.md`.
 
-### D76 — Match Setup is not a domain transition; Champion/Terrain placement, first-turn AP asymmetry, and neutral-ground population all revised
+### D76 — Match Setup is not a domain transition; Champion/Terrain placement, first-turn AP asymmetry, and neutral-ground population all revised *(Setup procedure, its non-observability, the enters-the-Island consequence and the skipped refresh revised by D114)*
 
 Resolves `PLAN.md` §8 item 9(e), scoped to **Champion and Terrain only** — Neutral-permanent/scenario placement is explicitly split out as its own item (§8 item 15), not addressed here. New `setup.md`.
 
