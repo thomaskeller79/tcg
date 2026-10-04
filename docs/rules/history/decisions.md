@@ -6,6 +6,16 @@
 
 ---
 
+### D112 — Falling's type-dependent consequences are immediate consequences, not triggers; this replaces state-based actions
+
+**Adopted:** a falling permanent ceases to exist and, by type, a Remnant is created (Creature, Companion), nothing happens (Structure), or the match ends (Champion) — all in the same step, right after the instruction that caused the fall, as part of that instruction's output (D96). **Immediate consequence** names everything the rules make happen because of an instruction; there is no separate state-based check phase (MTG's state-based actions). It extends D92 ("falling is immediate"), and "every state change is an instruction" makes it catch e.g. an effect ending that leaves a creature at 0 Life. Card abilities reacting to a fall stay ordinary triggers through Pending.
+
+**Considered — the consequences as Instant-speed triggers** (user's question): Instant speed removes the response window, but triggers are still added while an Instant is in Pending (`interaction-stack.md` Speed table), so three problems remain. (1) **Ordering:** a card's "when this falls, raise its Remnant" fires together with the Remnant-creation trigger; APNAP can put the card's trigger on top, so the raise finds no Remnant — fixing it needs "rule triggers resolve first," a state-based action in disguise. (2) **The rest of the trace runs first:** in "Fell target creature on H. Draw a card for each Remnant on H," the second instruction would run before the Remnant exists. (3) **Two Champions falling** would have their match-end triggers ordered by APNAP, so trigger order would pick the winner. Rejected; the user agreed. Who wins when both Champions fall at once is still open: `PLAN.md` Track A item 44.
+
+→ `interaction-stack.md` §Resolution, `glossary.md`, `PLAN.md` item 44.
+
+---
+
 ### D111 — Ruin dropped as a type; a fallen Structure leaves nothing; only Creature and Companion leave a Remnant
 
 **Why Ruins were dropped** (user, reopening item 27 a day after D110): Remnants will matter often, since creatures fall all the time and zombify-style cards, Remnant-consuming abilities and Remnant control by terrain are all natural designs. Ruins were the niche half: the only use D88 ever named was "a Structure may be cheaper built on a Ruin" (a cost reduction, outside the prototype scope), and the only prototype card found in the D110 discussion, **Watchtower** ("can only target a terrain you control with a Ruin"), existed only because Ruins existed — no card was found that wanted a Ruin for its own sake. Meanwhile Ruins cost rules: a type of their own, a slot rule (D40: a Ruin occupies its slot, building onto it replaces it, an effect can clear it), and raise needing a Structure case. A type that every falling Structure produces by default, with no reason to stay around, also breaks the pessimistic-default rule (D14): power comes from cards opting in.
