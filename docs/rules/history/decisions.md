@@ -6,6 +6,26 @@
 
 ---
 
+### D115 — An attack names a terrain, a Slice and an entity; same-Slice attacks plus Sky → Ground; who defends; when an attack is legal
+
+First part of item 25 (combat). Before: an attack targeted a terrain (D100), the defending Champion declared defenders "on that hex" (D4), and D19's table allowed Ground → Root and Sky → Root "if located".
+
+**Adopted (user's call on every point):**
+- **The target is a terrain, a Slice and an entity** (Champion A, Champion B, or Neutral). A terrain alone doesn't say whom you attack: a hex can hold creatures of three entities, split across Slices, or mixed within one after a control change (D86). **Neutral is one entity** — the Neutral A/B seats only name turns; splitting them would make one attack on a mixed group of Neutrals impossible for no gain. Slice and entity are selected automatically when only one is legal; in the base rules only a Sky attacker ever chooses a Slice.
+- **Slice rule:** an attacker may only attack its own Slice, plus Sky → Ground. Ground → Root and Sky → Root ("if located") are dropped: Root is its own battlefield, and so is Sky unless a flyer chooses to attack Ground. The user: these are the base rules; keywords will add many more pairs (e.g. Ground → Root), just not as ground rules.
+- **Who may defend:** creatures of the attacked entity on the attacked terrain, in the attacked Slice; when Ground is attacked, Sky creatures too. Ground never defends the Sky, Root only defends Root. Retaliation by defenders stays universal (D19). Hidden Root creatures therefore never defend against a Ground attack, so defending never reveals them.
+- **Legality:** an attack can be declared only if the attacking Champion's view shows at least one permanent of the attacked entity in the attacked Slice of that terrain — the attack version of "no paying into a target-less cast" (`interaction-stack.md` step 0). It also means attacking can't probe for hidden creatures. If the only such permanent leaves in response and nobody defends, the attack does nothing and its AP stays spent — what the response bought. **Undefended:** the attacker's damage goes only to the attacked entity's permanents in the attacked Slice.
+
+**Considered — no Slice in the target** (Claude's first proposal, briefly agreed): the Slice rules would decide who defends, so Sky defending a Ground attack needed no exception. The user found the flaw: without an attacked Slice, "Sky attacks Ground" (Ground may defend) and "Sky attacks Sky" (Ground may not) can't be told apart. **Considered — defending by connected Slices** (Claude: Ground and Sky defend each other, keeping D19's "air superiority = initiative, not immunity"): the user chose the per-Slice rule, under which Ground can't defend the Sky.
+
+**Noted, left to item 26:** a Ground creature may enter a hex where the enemy has only flyers (entry checks one Slice, D86); flyers over your terrain then block your mana there, and your Ground creatures can't attack them.
+
+**Still open in item 25:** damage assignment and Trample-like exceptions, range at distance 0 (Melee, Ranged, same-hex attacks, mixed Slices), and Defend (item 34).
+
+→ `overview.md` §4, `glossary.md`, `object-properties.md`, `PLAN.md` item 25, Track B.
+
+---
+
 ### D114 — Setup is Champion A's first Beginning phase; Setup-placed permanents enter the Island; terrain and hand mulligans; Haste X
 
 Closes item 29. D89 exempted Setup-placed permanents by saying Setup isn't entering the Island — added at write-up time only to protect D76 (Champions start at 4 AP, Champion A's first refresh skipped). With it came `setup.md`'s workaround: a Setup-placed permanent couldn't use "enters the Island" and had to say "at the beginning of your first turn".
@@ -993,7 +1013,7 @@ Generalizes D5's card-level instant/sorcery-speed split down to the **ability** 
 ### D20 — Summoning: onto a bonded terrain in your realm; mana cost on card
 A creature is summoned onto a **bonded terrain cell within the player's realm/mana network** (so the **realm is the deployment zone as well as the economy** — the summoning frontier creeps with the realm). Cost = the card's **mana** (a plain mana-economy play, unrelated to the Champion's own AP, D9), payable multiple times/turn as mana allows. Constraints: a **free slot on the creature's layer** (D4/D12). **Open (rec pessimistic, D14):** **summoning sickness** — a summoned creature **cannot act the turn it enters** by default; "acts immediately" is a positive (haste-like) keyword. → `../overview.md` §4.
 
-### D19 — Cross-layer combat: initiation is layer-restricted, retaliation is universal
+### D19 — Cross-layer combat: initiation is layer-restricted, retaliation is universal *(table revised and defenders defined by D115)*
 Default attack **initiation** legality (attacker → target): **Ground→**Ground ✓, Flyer ✗, Sub only-if-located. **Flyer→**Ground ✓, Flyer ✓, Sub only-if-located. **Sub→**Ground ✓ *(tentative, balance)*, Flyer ✗, Sub ✓ (if located). Subterrain is **hidden by default** (D12) → cannot be targeted unless located. All defaults; cards give exceptions (reach/anti-air/true-sight). **Retaliation is UNIVERSAL (corrects an earlier "gated by matrix" reading):** a defender **always** deals its damage back to the attacker regardless of layer — a ground creature retaliates against a diving flyer even though it can't *initiate* on flyers. Combat is mutual across layers; air superiority = an **initiative / target-selection** advantage, not damage-immunity. **Sole exception: Ranged** — a keyword making the attack **one-way** (no retaliation): "deals damage equal to its power to target creature." (Ranged combat otherwise untackled; covered by keyword later.) **Acting reveals a concealed sub:** attacking **surfaces** it → it stays **located while it remains on that hex**, and **re-conceals only when it moves away** *(interpreted from user's note — confirm next session)*. "Strike and stay hidden" is a rare positive keyword. This *is* D18 (a concealed thing risks revealing via the hard fact of acting). → `../overview.md` §4.
 
 ### D18 — Belief-consistency model for asymmetric information (the hard core of pillar 6)

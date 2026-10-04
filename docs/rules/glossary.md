@@ -98,7 +98,7 @@
 | **Meta-layer** | Systems *outside* the deterministic match core that persist across matches (Champion progression, unlocks, collection). |
 | **Band** | A level range (e.g. 1–5) that defines a match/tournament format. Champions only face others in the same band. Power is horizontal within a band, stepping up between bands. |
 | **Ground slot** | One of the 3 creature positions on a hex's **Ground** Slice. Each of the three Slices (Root/Ground/Sky, D12) holds up to 3 creatures. |
-| **Combat** | An explicit fight object: `{attacking units, target terrain, declared defenders}` that resolves. Scheduled sequentially by default; potentially phased later. |
+| **Combat** | An explicit fight object: `{attacking units, target terrain + Slice + entity, declared defenders}` that resolves (D115). Scheduled sequentially by default; potentially phased later. |
 | **Pending** | *(D38.)* The **Aether** domain's "immediate future" zone — traces about to resolve, next to `Now`, resolving top-down. See `interaction-stack.md`. |
 | **Priority** | The right to act at a given moment; governed per-card/ability by **Speed** (D45). |
 | **Speed** | *(D45.)* Every card/ability has one of four speeds, gated by Pending's live contents: **Slow** (controller's main phase only, Pending empty), **Quick** (only **Physical Traces** in Pending), **Reactive** (no **Instant Trace** in Pending), **Instant** (whenever no Instant is in Pending; blocks all active play until it has resolved — zero response window, not even from another Instant; triggers still resolve). See `interaction-stack.md`. |
