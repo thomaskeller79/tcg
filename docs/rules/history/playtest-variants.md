@@ -193,10 +193,10 @@ trace Duration a design lever.
 **Worth revisiting if:** age-hardening isn't fun in play, or cards keep wanting to reach a faded
 trace. Switching back only changes what the rules may read; the engine can keep the records anyway.
 
-## What a falling permanent leaves (D110)
+## What a falling permanent leaves (D110, D111)
 
-**Current rule:** a permanent that falls ceases to exist, and a new Remnant (Creature, Companion) or
-Ruin (Structure) is created on its terrain. See `../object-properties.md` §5.
+**Current rule:** a permanent that falls ceases to exist. A fallen Creature or Companion leaves a new
+Remnant on its terrain; a fallen Structure leaves nothing. See `../object-properties.md` §5.
 
 ### Variant — Grave/Ruin as a status of the same object (D88) · REVERSED by D110
 A dead creature stays the same object, with its own card, in a Grave status.
@@ -213,3 +213,22 @@ existing rules. The lost references are handled by targeting the hex.
 **Worth revisiting if:** "do something where it fell" cards turn out frequent and the hex-target
 wording reads badly in practice. The other way out is last-known information (MTG 608.2h) — also
 rejected for now, since it is a new mechanism and would change Flicker too.
+
+### Variant — every fallen Structure leaves a Ruin (D40, D88, D110) · DROPPED by D111
+A fallen Structure leaves a Ruin in its slot: an Object that occupies the slot until a Structure is
+cast onto it (replacing it in one action) or an effect clears it. Cards can require or consume
+Ruins, and raise rebuilds the Structure.
+
+**Argued for:** symmetry with the Remnant; a battlefield that shows its history; a resource for
+"build on a Ruin" cards.
+
+**Why dropped:** no card wanted a Ruin for its own sake. The only named use was "cheaper built on a
+Ruin" (a cost reduction, outside the prototype scope); the only prototype card, Watchtower ("can
+only target a terrain you control with a Ruin"), existed only because Ruins existed. Yet Ruins cost
+a type, a slot rule, and a Structure case for raise — and a leftover every Structure produces by
+default, with no reason to stay around, is a generous default (D14). Now a Structure that should
+leave a ruin creates one itself with a fall trigger ("When this falls, create Ruined Tower on its
+slot"), and the ruin is an ordinary Structure with its own abilities.
+
+**Worth revisiting if:** many Structure cards end up printing the same "leave a ruin" trigger, or
+"build on a ruin" turns out to be a strong design space — then a default may pay for itself.

@@ -6,7 +6,27 @@
 
 ---
 
-### D110 — Remnant and Ruin are new objects; fell / destroy / raise; no "sacrifice"; card location restrictions are card statics
+### D111 — Ruin dropped as a type; a fallen Structure leaves nothing; only Creature and Companion leave a Remnant
+
+**Why Ruins were dropped** (user, reopening item 27 a day after D110): Remnants will matter often, since creatures fall all the time and zombify-style cards, Remnant-consuming abilities and Remnant control by terrain are all natural designs. Ruins were the niche half: the only use D88 ever named was "a Structure may be cheaper built on a Ruin" (a cost reduction, outside the prototype scope), and the only prototype card found in the D110 discussion, **Watchtower** ("can only target a terrain you control with a Ruin"), existed only because Ruins existed — no card was found that wanted a Ruin for its own sake. Meanwhile Ruins cost rules: a type of their own, a slot rule (D40: a Ruin occupies its slot, building onto it replaces it, an effect can clear it), and raise needing a Structure case. A type that every falling Structure produces by default, with no reason to stay around, also breaks the pessimistic-default rule (D14): power comes from cards opting in.
+
+**Adopted:**
+- **A fallen Structure leaves nothing;** its slot is free again. Ruin is no longer a type, and a Structure slot only ever holds a Structure.
+- **A ruin, if a card wants one, is a Structure.** A Structure card can say "When this falls, create Ruined Tower on its slot," where Ruined Tower is an ordinary Structure card with its own abilities — its own reason to stay around (the user's proposal; a double-faced card is one way to print the pair). No rule supports this beyond the fall trigger and normal creation.
+- **Only Creature and Companion leave a Remnant.** A falling Champion ends the match (D9) and leaves nothing.
+- **Fell / destroy stay for everything with Life, Structures included.** The user first suggested the vocabulary was needed only for creature-types; Claude pushed back and the user agreed: the Remnant is creature-only, but the fell/destroy split is about **fall triggers**, which Structures need too — Ruined Tower relies on "when this falls," and destroying the tower (no fall trigger) is meaningfully different from felling it (leaves the ruined Structure). Without the vocabulary, a Structure at 0 Life would need its own word. "Fell a tower" reads fine.
+- **Raise applies to Remnants only.** Rebuilding a Structure is a card (e.g. a Ruined Tower ability), not a rule.
+- **D40's slot rule** reduces to: two Structure slots per hex (Ground, Root). The D110 scope extension (card statics restricting the card's own location) stays: the Slice filter still needs it. Watchtower is withdrawn.
+
+**Remnant kept as the working name.** With Ruins gone, its one weakness ("a Ruin is arguably also a remnant") disappears. **Fallen** as a noun got stronger (no Ruin to confuse it with; fell / falls / a Fallen / raise is a full set), but still loses: a Structure still falls without leaving a Fallen, and the noun clashes with the adjective in card text ("each fallen creature" vs "each Fallen"). **Body** was considered newly (creature-only now): plain and universal, but flavourless and odd for elementals and spirits. Final naming stays in item 39.
+
+**Side fix:** `ancestry.md` justified a loose Item having no terrain parent by contrast with "Ruin/Grave/Structure, which occupy a capacity-limited slot" — never true of Graves, which occupy no slot. Now stated per type: Structure occupies a slot; a Remnant is terrain-parented so it belongs to whoever bonded its terrain (D110). Whether a loose Item should be terrain-parented the same way is open (`PLAN.md` Track A item 43).
+
+→ `object-properties.md` §5, `glossary.md`, `ancestry.md`, `structures-items.md`, `overview.md`, `economy.md`, `neutral-permanents.md`, `interaction-stack.md`, `effect-form.md`, `resources-terrain.md`, `cards/card-ideas.md`, `history/playtest-variants.md`, `PLAN.md` items 39, 43.
+
+---
+
+### D110 — Remnant and Ruin are new objects; fell / destroy / raise; no "sacrifice"; card location restrictions are card statics *(Ruin dropped by D111)*
 
 **Reverses D88's status model.** A permanent that **falls** ceases to exist, and a new object is created on its terrain: a **Remnant** (Creature, Companion) or a **Ruin** (Structure). The user's motivation (item 27): the game shouldn't distinguish death from Flicker and Bounce. The Ancestry notices that a node ceased to exist and updates its subtree, so every cascade (D107) is now worded "ceases to exist", with death no longer a special case. Also bought: "target creature" excludes a Remnant for free (a different type); raising one reuses the creation rules instead of a "reverse the status" rule; `source` joins up through the fallen permanent (D97). **Cost accepted:** a trace that fells its target can't refer to it afterwards (D85's identity check), exactly as after a Flicker. Cards that act where something fell target the hex: "Fell target creature T on target hex H. Create a Fire Warrior on H." The user judged this no real cost. Rejected alternatives: last-known information (a new mechanism, and it would change Flicker too) and keeping the status model — `history/playtest-variants.md`.
 
@@ -311,7 +331,7 @@ Corrects the D32 mapping "a burrower-type keyword → Below," which `structures-
 
 ---
 
-### D88 — Every created object has a card; there are no tokens; Grave and Ruin are a status of the dead object, not separate objects *(status model reversed by D110: Remnant and Ruin are new objects)*
+### D88 — Every created object has a card; there are no tokens; Grave and Ruin are a status of the dead object, not separate objects *(status model reversed by D110: Remnant is a new object; Ruin dropped by D111)*
 
 **Adopted:** anything created in the game references a real card — card text never says "create a 2/2 creature with…", it names a card (with a link to it). Every permanent therefore carries all required properties (a real mana cost, not MTG's token "mana value 0"), and Bounce/Flicker need no special rules for created objects. D69's "a Bounce/Flicker-created object is not a token" generalizes: nothing is a token.
 
@@ -855,7 +875,7 @@ A Unit needs the **Subterranean** keyword to exist Underground at all — access
 ### D41 — Levels renamed: Ground/Above/Below → Surface/Air/Underground
 Pure relabeling, no mechanical content — same three levels (D12), same capacities. → `../overview.md` §2, `../glossary.md`, all cross-references.
 
-### D40 — Structure/Ruin capacity: two slots per hex, superseding D31; Ruins occupy their slot
+### D40 — Structure/Ruin capacity: two slots per hex, superseding D31; Ruins occupy their slot *(Ruins dropped by D111)*
 **Supersedes D31.** A hex now has **two** Structure/Ruin slots, not one-per-layer: a shared **Surface** slot (Ground+Above combined — Air isn't expected to be structure-dense enough to need its own) and a separate **Underground** slot (concealment kept as its own dedicated axis). Legal cast layer(s) are still card-data-driven (D32, unchanged). Accepted consequence: a Ground and an Above Structure can no longer coexist on one hex either, since they now share a slot. **A destroyed Structure leaves a Ruin in whichever slot it occupied, and — unlike a Grave — a Ruin occupies its slot.** Building a new Structure directly onto a ruined slot replaces the ruin in one action (no separate clear step); a ruin can also be cleared directly by an explicit effect, independent of building. Graves stay completely outside this system: free, unlimited, never competing for a slot. → `../structures-items.md` (rewrite Structure occupancy), `../glossary.md` (Ruin as distinct from Grave).
 
 ### D39 — Supersedes D17: "Spell" no longer needs to be an umbrella; "Rite" no longer needed as a separate name

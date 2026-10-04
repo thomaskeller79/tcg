@@ -28,7 +28,7 @@ Until the game runs end to end, only cards of this restricted shape are legal (D
 - **Rules text** is targets (objects selected at cast, any number) plus a **sequence of instructions** (`verb arg*`), run in card order — one effect with one option, chosen by you, at cast.
 - **Not in scope:** modes, conditions, outputs, repeatable picks, choices at resolution, choosers other than you.
 - **A permanent card** has no target but its implicit location.
-- **Abilities** of a permanent (static, triggered, activated) follow the same shape, and function only on the Island (an activated one through its Trace). Abilities that function from Hand, Library or Discard are not in scope, with one exception: **card statics restricting the card's own location target** (D110) — the Slice filter (D32, e.g. Flying: enters in Sky) and restrictions such as "can only target a terrain you control with a Ruin."
+- **Abilities** of a permanent (static, triggered, activated) follow the same shape, and function only on the Island (an activated one through its Trace). Abilities that function from Hand, Library or Discard are not in scope, with one exception: **card statics restricting the card's own location target** (D110) — the Slice filter (D32, e.g. Flying: enters in Sky) and restrictions such as "can only target a terrain holding a Remnant you control."
 - **Cost** is a fixed list — a CNF with one option per clause: no `X`, no branches, no cast condition.
 
 The procedure stays the full one (pay → choose → target, `interaction-stack.md`), with Choose empty. The rest of this doc describes the full form; parts outside the scope stay decided, and their open questions are `PLAN.md` Track D.

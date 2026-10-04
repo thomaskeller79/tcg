@@ -15,15 +15,16 @@
 - **Terrain with a static combat buff** — e.g. "Defending creatures on this terrain get +1 power."
 - **Terrain with a movement surcharge** — e.g. "Moving into this terrain costs +1 AP."
 - **Terrain with a paid triggered ability** — e.g. "Whenever a creature enters this, you may pay 1 AP. If you do, deal 1 damage to that creature." Terrain holds no AP, so the cost is paid by its bonder (Champion or Companion); a dormant (Neutral) terrain skips it, since it needs a choice (D87). See `resources-terrain.md`.
-- **Terrain that brings a Structure (D87)** — e.g. **Fire Flat** (Terrain: produces 1 Fire) comes with a **Fire Barrack** (Structure: `3!AP` + 1 Fire: create a **Fire Warrior** on this hex — Ground, its card's default Slice; fizzles if that Slice has no space). Terrain has no activated abilities; the Structure carries the engine and can be destroyed, leaving a plain Fire land. Fire Warrior is a normal card (D88). How the Structure arrives at Setup is open (`resources-terrain.md` Open question 3).
+- **Terrain that brings a Structure (D87)** — e.g. **Fire Flat** (Terrain: produces 1 Fire) comes with a **Fire Barrack** (Structure: `3!AP` + 1 Fire: create a **Fire Warrior** on this hex — Ground, its card's default Slice; fizzles if that Slice has no space). Terrain has no activated abilities; the Structure carries the engine and can be felled, leaving a plain Fire land. Fire Warrior is a normal card (D88). How the Structure arrives at Setup is open (`resources-terrain.md` Open question 3).
 
-## Remnants and Ruins (D110)
+## Remnants and falling (D110, D111)
 
-Prototype cards from the item 27 discussion — what a fallen permanent leaves, and the fell / destroy / raise verbs.
+Prototype cards from the item 27 discussion — what a fallen creature leaves, and the fell / destroy / raise verbs. Ruins were dropped as a type (D111); a ruin is now a card of its own.
 
 - **Raise the Fallen** (Spell) — "Raise target Remnant you control." The basic zombify. "You control" means a Remnant on terrain you bonded, so an enemy creature that fell on your ground can be raised; the raised creature is yours (parent copies from your Trace).
-- **Watchtower** (Structure) — card static: "can only target a terrain you control with a Ruin." Casting it replaces the Ruin (D40). The way to express "build on a Ruin" without a cost that refers to the not-yet-chosen location.
+- **Watchtower → Ruined Tower** (Structure pair, e.g. a double-faced card) — Watchtower: "When this falls, create Ruined Tower on its slot." Ruined Tower is an ordinary Structure that needs its own reason to stay around (an ability worth keeping, e.g. cheap cover or a one-shot salvage). Felling the Watchtower leaves the ruin; destroying it leaves nothing. Replaces the withdrawn D110 Watchtower ("can only target a terrain you control with a Ruin").
 - **Gravewarden** (Creature) — "`1AP`, destroy target Remnant within distance 1: this gains 2 Life." A Remnant as a consumed resource.
+- **Ghoul** (Creature) — card static: "can only target a terrain holding a Remnant you control." A location restriction as a card static (D110), and the Remnant as a requirement rather than a cost.
 - **Unmake** (Spell) — "Destroy target creature." Removal that leaves no Remnant and fires no fall triggers; should cost more than an equivalent "fell."
 - **Carrion Crow** (Creature, Flying) — "When a creature within distance 1 falls, draw a card." Tests the fall trigger: destroy, Flicker and Bounce don't fire it.
 - **"Do something where it fell"** — target the hex: "Fell target creature T on target hex H. Create a Fire Warrior on H." After the fell, T no longer exists, so text can't read T's location.
