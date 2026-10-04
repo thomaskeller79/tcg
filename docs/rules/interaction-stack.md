@@ -82,7 +82,7 @@ Qualifiers consumed by binding are never re-checked, and there is no implicit lo
 **Immediate consequences (D112).** What the rules themselves make happen because of an instruction happens in the same step, right after it — never as a trigger and never as a trace, so there is no Pending entry, no ordering among triggers, and no gap the rest of the trace could observe; it is part of the instruction's output (D96). This replaces MTG's state-based actions: there is no separate check phase. Falling's immediate consequences: the permanent ceases to exist, and by type —
 - **Creature, Companion:** a Remnant is created on its terrain (D110).
 - **Structure:** nothing (D111).
-- **Champion:** the match ends (D9). Both Champions falling from one instruction is undecided (`PLAN.md` Track A item 44).
+- **Champion:** the match ends (D9). If both Champions fall from the same instruction, the match is a **draw** (D113).
 
 Cards that react to falling ("when a creature falls…") are ordinary triggers and go through Pending; when one resolves, the Remnant already exists.
 

@@ -6,6 +6,16 @@
 
 ---
 
+### D113 — Both Champions falling from the same instruction is a draw; a loose Item stays unparented
+
+**Simultaneous Champion fall → draw** (closes item 44, user's call). Falling's consequences are immediate (D112), so one instruction — a Combat with mutual retaliation (D13), "deal 2 damage to each Champion" — can fell both Champions in one step; the match is then a draw. Only one instruction can do this: once an instruction fells one Champion, the match ends immediately and nothing after it runs. The code needs a draw result (`PLAN.md` Track B).
+
+**A loose Item is not terrain-parented** (closes item 43, user's call). The question (raised by D111's side fix): a loose Item and a Remnant now look alike — both lie on a terrain, capacity-exempt, same Slice rule — yet a Remnant belongs to whoever bonded its terrain (D110) while a loose Item has no parent (D81). The user's answer: an Item's control is never determined by its location; it comes from its carrier. Only a creature's Remnant takes control from where it lies. So D81 stands, now with that reason instead of the dropped "capacity-limited slot" contrast.
+
+→ `interaction-stack.md` §Resolution, `champions.md`, `overview.md` §7, `ancestry.md`, `PLAN.md` items 43, 44 (closed).
+
+---
+
 ### D112 — Falling's type-dependent consequences are immediate consequences, not triggers; this replaces state-based actions
 
 **Adopted:** a falling permanent ceases to exist and, by type, a Remnant is created (Creature, Companion), nothing happens (Structure), or the match ends (Champion) — all in the same step, right after the instruction that caused the fall, as part of that instruction's output (D96). **Immediate consequence** names everything the rules make happen because of an instruction; there is no separate state-based check phase (MTG's state-based actions). It extends D92 ("falling is immediate"), and "every state change is an instruction" makes it catch e.g. an effect ending that leaves a creature at 0 Life. Card abilities reacting to a fall stay ordinary triggers through Pending.

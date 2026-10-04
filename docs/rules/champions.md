@@ -88,7 +88,7 @@ Consequences:
 - **Open — access / down-leveling:** once a champion enters a higher band, is it locked out of lower brackets? Recommendation: allow **down-leveling** (field any champion in any bracket at/below its level, using only that bracket's legal config) to preserve access and keep queues healthy.
 
 ## Interactions with other pillars / systems
-- **Win condition (D9):** killing the enemy Champion **wins the game** (Duelyst-style). There is **no separate Base** — the home tile is just the Champion's start location (usually a landmark terrain), not a destructible objective. The Champion is objective + economic root + most-exposed piece in one.
+- **Win condition (D9):** felling the enemy Champion **wins the game** (Duelyst-style); if both Champions fall from the same instruction, it is a **draw** (D113). There is **no separate Base** — the home tile is just the Champion's start location (usually a landmark terrain), not a destructible objective. The Champion is objective + economic root + most-exposed piece in one.
 - **Resources (D8):** the Champion **is** the resource engine — the root node of the terrain network; Bond (its `2*AP` action) is how it bonds.
 - **Deckbuilding:** Champion likely gates deck identity (faction/color restriction hook).
 

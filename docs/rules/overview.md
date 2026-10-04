@@ -81,7 +81,7 @@ Two nested terms describe where an object is. A **zone** is the container an obj
 - Faction/color *structure* exists as a hook; flavor deferred.
 
 ## 7. Win condition
-- **Default (D9):** **kill the enemy Champion.** There is **no separate Base** — a Champion's "home ground" is just the area around its start tile (usually a landmark terrain), not a destructible objective. The Champion is the objective, the economic root (D8), and the most-exposed piece all at once.
+- **Default (D9):** **fell the enemy Champion**; both falling from the same instruction is a draw (D113). There is **no separate Base** — a Champion's "home ground" is just the area around its start tile (usually a landmark terrain), not a destructible objective. The Champion is the objective, the economic root (D8), and the most-exposed piece all at once.
 - 🪝 The win check is an **evaluated effect**, not a hardcoded `if`. → alternate win conditions ("control 5 hexes," "mill the enemy deck") are cards.
 
 ## 8. Invariants (deliberately NOT mutable)
