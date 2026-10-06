@@ -108,7 +108,7 @@ Reordering or recomposing the same handful of criteria — "prefer damage, then 
 
 ### Declare Defenders
 
-Defend is not a special case: it is simply another activated ability a mode can select, evaluated at the declare-defenders decision point (D4) through the same live-query-and-score machinery as any proactive action. A Neutral creature has no bespoke "always defends" rule — whether it defends, and against what, falls out of whatever mode is currently active and whatever that mode's scoring prefers, exactly as it would for any other permanent whose controller happens to be a deterministic policy rather than a person.
+Defend is not a special case: it is simply another activated ability a mode can select, evaluated whenever the Neutral permanent could respond to an Attack on it (D117) through the same live-query-and-score machinery as any proactive action. A Neutral creature has no bespoke "always defends" rule — whether it defends, and against what, falls out of whatever mode is currently active and whatever that mode's scoring prefers, exactly as it would for any other permanent whose controller happens to be a deterministic policy rather than a person.
 
 ## Becoming Neutral: Behavior and neutral-turn assignment
 

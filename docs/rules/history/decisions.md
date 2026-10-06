@@ -6,6 +6,27 @@
 
 ---
 
+### D117 — Defend is a Quick response to the Attack; defenders are added bit by bit; the Attack checks at resolution whether it is defended; Champion and Companion Defend doubled while bonded
+
+Closes item 34. Before: "when a hex is attacked, the defending Champion declares defenders" (D4), with no rule for *when* relative to the Attack trace in Pending.
+
+**Requirements (user):** a priority window after the attack and another after defenders are declared, as in MTG; no special rule for Attack traces — physical actions either use the Aether as intended or stay out of it; no new area to track beyond Matter, own Mind and Aether.
+
+**Adopted:**
+- **Defend is an ordinary Quick activated ability**, "Defend target attack" (`1~AP`, D116), played by an eligible creature (D115) in response to the Attack trace. It leaves a Physical Trace; when that resolves, it **adds its creature to the Attack trace as a defender** (user's precision: a change to the Attack trace's state). Not defending is passing. Both windows come from the Aether itself, with no special rule. D75's "at most one Physical Trace in Pending" becomes "at most one Slow physical action"; Defend is the one Quick physical action.
+- **At resolution the Attack checks whether it still has a defender** (user's choice, deliberately unlike MTG). Defended: the attacker splits its Attack freely among the remaining defenders, each deals its Attack back (D13). Undefended (none added, or all gone — e.g. killed in response): free split among all legal targets — the attacked entity's permanents in the attacked Slice, in the attacking Champion's view — no retaliation.
+- **Defending bit by bit** (user's observation): defenders are not declared once; they accumulate one Defend at a time, interleaved with tricks. Unlike other TCGs, where the block is a one-time choice. The user sees nothing bad in it: a valuable creature never has to commit until it's needed. Claude's notes, accepted as a playtest point: the defender can always answer last with another body, which weakens the attacker's tricks and removal aimed at defenders, and together with gang-up tilts combat toward the defender — braked by each Defend's AP cost and lock.
+- **Champion and Companion Defend `2~AP` while network-bonded, `1~AP` otherwise** (user) — doubled like their Move and Attack (D49). This answers the open S9: a Champion that spent its AP on Draw and Bond can't defend until its next turn, like any creature that spent everything.
+- Neutral permanents defend through their Behavior whenever they could respond to an Attack on them (D65's Behavior part unchanged).
+
+**Considered** (full write-ups in `playtest-variants.md` §Combat procedure): a two-stage Attack trace (Claude's first attempt — a special rule, ruled out); physical actions outside the Aether (rejected by the user — another area to track); the user's "Defend counters Attack" (rule-made Instant trace, a trace removing another — three mechanisms X doesn't need); a **combat phase** (several attackers per hex, who defends whom, fewer interruptions — but loses interleaving, puts windows outside the Aether, and splits physical actions into trace and non-trace; never rejected in the records, only postponed, D3/D21; item 2 could bring its depth back). The user noted X has its own "who blocks whom": with limited defences across several attacks in one turn, choosing who defends what is not trivial.
+
+**Split out:** whether a Ranged attack can be defended (Ranged takes no retaliation, D19) — `PLAN.md` Track A item 45.
+
+→ `interaction-stack.md` §Speed, §Combat integration, `overview.md` §4, `economy.md`, `champions.md`, `companions.md`, `glossary.md`, `neutral-permanents.md`, `playtest-variants.md`, `PLAN.md` items 25, 34 (closed), 45, Track B.
+
+---
+
 ### D116 — Attack costs `3~AP`, Defend `1~AP`; new cost flavor `~`; Defender keyword; `*` means once per own-turn cycle
 
 Part of items 25 and 34. Before: Attack `3!AP` (drain all), Defend `0*AP` (free, once per turn by the notation, once per round by D65), and a card could opt in to "this creature can't defend" (D15).
@@ -645,7 +666,7 @@ Resolves `PLAN.md` §8 item 9(e), scoped to **Champion and Terrain only** — Ne
 
 → `setup.md` (new — full procedure), `map.md` (neutral-ground default removed, D53 revised), `champions.md` (D48 superseded, pre-bond flagged provisional), `overview.md` §3 (mana/AP refresh split into independently-skippable effects), `PLAN.md` §8 item 9(e) marked resolved for Champion/Terrain and item 9 overall marked fully resolved, with items 13, 14, and 15 spun out as the threads this surfaced but deliberately didn't resolve here.
 
-### D75 — What Activate is: the identical pay→choose→target procedure, ordinary per-ability Duration, and a corrected doc bug that makes "at most one Physical Trace in Pending" an actual rule; the `source` property stays deliberately parked
+### D75 — What Activate is: the identical pay→choose→target procedure, ordinary per-ability Duration, and a corrected doc bug that makes "at most one Physical Trace in Pending" an actual rule; the `source` property stays deliberately parked *(one Physical Trace → one Slow physical action, D117)*
 
 Resolves `PLAN.md` §8 item 9(f) (what "Activate" — an existing Permanent using its own ability — actually is) except for one deliberately deferred piece.
 

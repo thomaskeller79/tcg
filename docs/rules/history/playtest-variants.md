@@ -274,3 +274,42 @@ slot"), and the ruin is an ordinary Structure with its own abilities.
 
 **Worth revisiting if:** many Structure cards end up printing the same "leave a ruin" trigger, or
 "build on a ruin" turns out to be a strong design space — then a default may pay for itself.
+
+---
+
+## Combat procedure (D117)
+
+**Current rule:** Defend is a Quick activated ability played in response to the Attack trace; its
+trace adds the creature to the Attack as a defender; defenders accumulate bit by bit; the Attack
+checks at resolution whether it is still defended. See `../interaction-stack.md` §Combat integration.
+**Playtest point:** defending bit by bit lets the defender always answer last with another body —
+watch whether combat tilts too far toward the defender (with gang-up, D13).
+
+### Variant — combat phase · NOT ADOPTED, worth a playtest
+Action → Combat → Action, the combat phase a sequence of steps with priority windows (declare
+attackers → window → declare defenders → window → damage), like the Beginning phase. **For:**
+several attackers on one hex and "who defends whom", decisions made with every attack visible,
+fewer interruptions (two windows and one defender step per combat), a clear combat moment for card
+text and the GUI. Never rejected in the records — only postponed as "simpler for now" (D3, D21).
+**Against:** loses interleaving (attack, free a hex, move through it), puts priority windows outside
+the Aether, and makes Attack not a trace while Move still is. Item 2 (simultaneous actions) could
+bring back interleaving and give the multi-attacker depth to moves too.
+
+### Variant — Defend counters Attack · NOT ADOPTED
+The user's option: the Attack creates a rule-made, Instant "declare defenders" trace; declaring
+defenders creates a Defend trace, whose resolution runs the fight and removes the Attack trace, like
+a counterspell; an Attack that still resolves is undefended. Uses the Aether as intended, but needs
+rule-made traces, a trace removing another trace, and several Physical Traces in Pending — three
+mechanisms the adopted rule doesn't need.
+
+### Variant — physical actions outside the Aether · REJECTED
+Each physical action a fixed step sequence with priority windows (Attack: declare → window →
+defenders → window → damage), nothing physical in Pending, Quick redefined as "during a physical
+action's window". Keeps interleaving, but the defender is prompted once per attack. Rejected by the
+user: one more area to keep track of, next to Matter, own Mind and Aether — and it should be
+solvable with the Aether.
+
+### Rejected — a two-stage Attack trace
+The Attack trace survives one round of passing priority, defenders are declared, then it resolves
+after the second. Gives both windows, but is a special rule for Attack traces — exactly what the
+user ruled out ("use the Aether as intended or not at all").

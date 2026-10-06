@@ -2,7 +2,7 @@
 
 *Players can act on the opponent's turn (MTG-style instants). One primitive covers instants, combat tricks, and traps: a **Speed** tag per card/ability, checked live against what's sitting in **Pending**, the Aether's next-to-resolve zone.*
 
-**Decisions:** D6, D16, D35, D38, D45, D46, D68, D70, D75, D83, D85, D91, D92, D94, D95, D100 (`history/decisions.md`)
+**Decisions:** D6, D16, D35, D38, D45, D46, D68, D70, D75, D83, D85, D91, D92, D94, D95, D100, D115, D116, D117 (`history/decisions.md`)
 
 ---
 
@@ -12,11 +12,11 @@
 | Speed | Playable whenever… | What happens after |
 |---|---|---|
 | **Slow** | it's the controller's main phase, and Pending is empty. | Enters Pending, waits its turn, resolves and fades normally. |
-| **Quick** | only **Physical Traces** are in Pending — the trace left by Move, Attack, Ascend, or Descend. | Same as Slow. |
+| **Quick** | only **Physical Traces** are in Pending — the trace left by Move, Attack, Ascend, Descend, or Defend. | Same as Slow. |
 | **Reactive** | no **Instant Trace** is in Pending. | Same as Slow — a normal Pending entry, respondable by anything whose Speed currently permits it. |
 | **Instant** | no **Instant Trace** is in Pending. | **Blocks all active play until it has resolved**: while it sits in Pending, nothing can be actively put into the Aether (no cast, no activation — **no response window for anyone, not even another Instant**) and `Now` advances automatically. Triggers are still added and resolve normally. |
 
-**Move/Attack/Ascend/Descend are Slow (D75), not Quick** — Quick describes what *other* cards can play while a Physical Trace already sits in Pending (combat tricks, below), not the physical action's own speed. Being Slow means a physical action can't be declared while Pending is non-empty, so **at most one Physical Trace ever sits in Pending at a time** — an actual enforced consequence of the Speed system, not merely how things happen to play out.
+**Move/Attack/Ascend/Descend are Slow (D75), not Quick** — Quick describes what *other* cards can play while a Physical Trace already sits in Pending (combat tricks, below), not the physical action's own speed. Being Slow means such an action can't be declared while Pending is non-empty, so **at most one Slow physical action ever sits in Pending at a time** — an actual enforced consequence of the Speed system, not merely how things happen to play out. **Defend is the one Quick physical action (D117):** its traces stack on top of the Attack they answer.
 
 Pending is the zone just ahead of `Now` — `Now` itself is **not a zone**, just the moving point dividing Pending from Past. **`Now` advances past whatever's next in Pending when both Champions pass priority in succession** (neither has anything they want to play). The sole exception is an Instant: while one is in Pending, `Now` advances automatically, never waiting for both Champions to pass, until the Instant has resolved. As things resolve they cross `Now` and become past **traces**, which then fade (except Physical Traces, which get zero Past residency at all).
 
@@ -38,8 +38,18 @@ These are the two fundamental ability shapes, and neither is tied to card Type �
 - **Activated:** a deliberate choice — pay a cost upfront to put it in Pending at all. This is what `overview.md` §4's `mana + AP` cost model describes.
 - **Triggered:** "when X happens, do Y" (table above) — enters Pending automatically the instant its condition is met, no activation choice involved. A triggered ability can still carry its own cost, paid **at resolution** rather than upfront, typically as an optional clause ("whenever a creature enters within distance 2, **you may pay 2 mana**; if you do, draw a card"). Funding for that resolution-time cost follows the ordinary Ancestry payment walk (D26) like any other cost; only the controller (D28) decides whether to pay.
 
-## Combat integration
-An Attack is a **Physical Trace** (D45): it enters Pending exactly like any other trace, so it just sits there, respondable, until `Now` reaches it. Attack declared → it's a Physical Trace in Pending → any Quick/Reactive/Instant-speed card can be played in response (a defender's trick, then the attacker's counter-trick, and so on, gated by each response's own Speed) → the Attack resolves.
+## Combat integration (D117)
+An Attack is a **Physical Trace** (D45): it enters Pending exactly like any other trace, so it just sits there, respondable, until `Now` reaches it.
+
+**Defend is an ordinary activated ability of Quick speed:** "Defend target attack" (`1~AP`; doubled while network-bonded for a Champion or Companion, D116). An eligible creature of the attacked entity (D115) plays it in response to the Attack trace; it leaves its own Physical Trace on top. When that trace resolves, it **adds its creature to the Attack trace as a defender** — an ordinary change to the trace's state. Not defending is just passing.
+
+**Defending bit by bit.** Defenders are not declared once: each Defend is its own response, so defenders accumulate one at a time, interleaved with tricks from both sides. The attacked entity can defend with one creature, see the attacker's trick (a pump, removal on the defender), and then add another defender; the attacker can answer each Defend with another trick, as its Speed allows. The exchange ends when everyone passes in a row and the Attack resolves. Consequences, accepted on purpose: a valuable creature never has to commit until it's needed; the defender can always answer last with another body while it has eligible creatures with AP, which weakens the attacker's tricks and removal aimed at defenders; together with gang-up (D13) this tilts combat toward the defender, braked by each Defend's AP cost and lock. A playtest point (`history/playtest-variants.md`).
+
+**When the Attack resolves, it checks whether it still has a defender** (one that is still there and still eligible):
+- **Defended:** the attacker splits its Attack freely among the remaining defenders; every defender deals its Attack back (D13).
+- **Undefended** (no defender was added, or none remains — e.g. killed in a response): the attacker splits its damage freely among all legal targets — the attacked entity's permanents in the attacked Slice of that terrain, in the attacking Champion's view — with no retaliation.
+
+Tricks (Quick, Reactive, Instant) can be played at any point while the Attack is in Pending, as their Speed allows.
 
 ## Casting and activating: legality, pay, choose, target (D46, D70, D91)
 Playing a card or activating an ability is a strict procedure. No step may look ahead at a later one, and none is revisited once passed:
