@@ -2,7 +2,7 @@
 
 *Players can act on the opponent's turn (MTG-style instants). One primitive covers instants, combat tricks, and traps: a **Speed** tag per card/ability, checked live against what's sitting in **Pending**, the Aether's next-to-resolve zone.*
 
-**Decisions:** D6, D16, D35, D38, D45, D46, D68, D70, D75, D83, D85, D91, D92, D94, D95, D100, D115, D116, D117 (`history/decisions.md`)
+**Decisions:** D6, D16, D35, D38, D45, D46, D68, D70, D75, D83, D85, D91, D92, D94, D95, D100, D115, D116, D117, D118 (`history/decisions.md`)
 
 ---
 
@@ -48,6 +48,8 @@ An Attack is a **Physical Trace** (D45): it enters Pending exactly like any othe
 **When the Attack resolves, it checks whether it still has a defender** (one that is still there and still eligible):
 - **Defended:** the attacker splits its Attack freely among the remaining defenders; every defender deals its Attack back (D13).
 - **Undefended** (no defender was added, or none remains — e.g. killed in a response): the attacker splits its damage freely among all legal targets — the attacked entity's permanents in the attacked Slice of that terrain, in the attacking Champion's view — with no retaliation.
+
+**The attacker stays where it is (D118)**, even when no enemy is left in the attacked Slice; advancing after combat is a keyword's job (pessimistic default). Attacking does not by itself reveal hidden permanents on the attacked hex — each concealment effect says what breaks it (`asymmetric-information.md`).
 
 Tricks (Quick, Reactive, Instant) can be played at any point while the Attack is in Pending, as their Speed allows.
 

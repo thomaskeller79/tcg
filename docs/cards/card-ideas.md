@@ -32,3 +32,7 @@ Prototype cards from the item 27 discussion — what a fallen creature leaves, a
 ---
 
 *Add more here as they come up.*
+
+## Combat (D117, D118)
+
+- **Pursue** (keyword idea) — "After an attack by this creature leaves no enemy in the attacked Slice, it may move there." Melee only; the advance is part of the Attack's resolution, free (the attacker is locked by `3~AP`), into the attacker's own Slice of that hex, and the entry rule (D86) still applies. Advancing after combat is not a base rule (D118, pessimistic default).

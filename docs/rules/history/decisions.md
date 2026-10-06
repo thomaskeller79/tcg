@@ -6,6 +6,18 @@
 
 ---
 
+### D118 — The attacker stays put; no base rule reveals on contact — each concealment effect specifies what breaks it
+
+**Advancing after combat.** The user proposed that an attacker that leaves no defender alive may or must enter the attacked hex. Claude's problems with it: "no defender survived" isn't "the Slice is empty" (non-defending creatures may remain, and D86's entry rule forbids entering then); Ranged attackers would jump N hexes; the attacker is locked by `3~AP`, so the advance would have to be part of the Attack's resolution; "must" can drag an attacker from a safe hex into the enemy's reach; and "may" is a free move — a generous default against D14. **Adopted (user):** the attacker stays; advancing is a keyword's job — **Pursue** parked as an idea in `docs/cards/card-ideas.md`.
+
+**Revealing on contact.** The user proposed: attacking a hex in Root reveals hidden Root occupants there; attacking in Ground or Sky reveals hidden Ground and Sky occupants (Sky defends Ground, D115); the same for entering a hex. Claude: for default Root concealment this is mostly D67 already (a Melee attacker or mover is next to the hex); should "revealed" also strip a Mimic face (a full Reveal, D102)? Claude proposed lifting only the concealment, since a Mimic collapses by its own rules when it acts. The user agreed on Mimic and concluded that this can't be one general rule: **every concealment effect must specify it itself.** There can be further Root concealment beyond the default, so D67 is just the default's own specification.
+
+**Adopted:** no base rule reveals on attack or entry. Default Root concealment keeps D67 as its specification. Every other concealment effect must state what happens when (C-a) its hex is attacked in its Slice group, (C-b) an enemy enters its hex in its Slice group, (C-c) the concealed creature acts itself — a Track C rule for every concealment card. The Slice groups (Root; Ground + Sky) and "the concealment breaks" are the recommended default for C-a/C-b; breaking concealment doesn't lift a Mimic face and is one-time, like Reveal (D102).
+
+→ `interaction-stack.md` §Combat integration, `asymmetric-information.md` §Concealment effects, `docs/cards/card-ideas.md`, `PLAN.md` Track C.
+
+---
+
 ### D117 — Defend is a Quick response to the Attack; defenders are added bit by bit; the Attack checks at resolution whether it is defended; Champion and Companion Defend doubled while bonded
 
 Closes item 34. Before: "when a hex is attacked, the defending Champion declares defenders" (D4), with no rule for *when* relative to the Attack trace in Pending.

@@ -2,7 +2,7 @@
 
 *Champions do not share one view of the board. What each Champion perceives is itself a manipulable, card-driven property.*
 
-**Decisions:** D7, D12, D18, D41, D42, D67, D71, D102 (`history/decisions.md`)
+**Decisions:** D7, D12, D18, D41, D42, D67, D71, D102, D118 (`history/decisions.md`)
 
 ---
 
@@ -51,6 +51,16 @@ A hex has three vertical Slices, bottom to top (Root / Ground / **Sky**); the **
 **Proximity exception (D67):** "hidden by default" is narrower than "hidden from everyone but the owner." An observer sees a hex's Root-Slice occupants if **any permanent they control** has Root-Slice presence on that hex or on a neighboring hex — matching-Slice presence specifically, not just any presence (a Ground or Sky unit standing on a hex gains no Root-Slice vision of that same hex at all), and it's a per-*observer* fact, not a per-*creature* one: it can come from any of the observer's own permanents, not specifically the one about to act. Root-Slice vision is a **live, continuously-recomputed query**, exactly like every other perception query on this page, not a one-time reveal — it can be lost again the moment the qualifying presence leaves or ceases to exist. Range is exactly one hex, and it costs a real, killable creature to establish, so it's a bounded, costed way to "bring light into the dark," not a free scouting tool.
 
 **This is why entering any Slice is blind exactly when the acting Champion has no qualifying presence already covering the destination** (`overview.md` §4) — not an "Ascend is safe, Descend isn't" rule. A creature Ascending is *usually* safe only because its controller is usually already standing right there; Ascending into a Mist-concealed Ground hex is exactly as blind as any Descend. A creature Descending is *usually* blind only because a controller usually has no independent Root-Slice presence at that hex yet — but if a second Subterranean scout is already stationed there or on a neighboring hex, the Descend is perfectly safe, because the visibility belongs to the Champion, not to whichever specific creature is moving.
+
+## Concealment effects specify their own breaking (D118)
+
+There is **no base rule** that attacking or entering a hex reveals what is hidden there. The default Root concealment breaks only by D67's proximity exception above — which in practice breaks it on contact, since a Melee attacker or a mover is in or next to the hex. **Every other concealment effect** (Mist, Submerged, further Root effects, Mimic) must state on its card or keyword what happens when:
+
+- **C-a.** its hex is attacked in its Slice group,
+- **C-b.** an enemy enters its hex in its Slice group,
+- **C-c.** the concealed creature acts itself (attacks, defends, uses an ability).
+
+**Slice groups:** Root alone; Ground and Sky together (Sky defends Ground, D115). Recommended default for C-a/C-b, which a card follows unless it says otherwise: the concealment breaks — attacking or entering Root reveals Root occupants, attacking or entering Ground or Sky reveals Ground and Sky occupants. Breaking concealment lifts only the concealment, not a Mimic face (a Mimic collapses by its own rules, e.g. when it acts), and like Reveal (D102) it is a one-time event.
 
 ## Example mechanics (seed — flesh out later)
 | Mechanic | Truth | What the opponent perceives |
