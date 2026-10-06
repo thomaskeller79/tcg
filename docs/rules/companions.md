@@ -2,7 +2,7 @@
 
 *A Champion's signature "friend": a card that sits mechanically **between Creature and Champion**. Introduces the game's channeling hierarchy explicitly: **Creature spends mana it can't draw; Companion draws mana it can't share; Champion draws and shares.***
 
-**Decisions:** D22, D26, D49, D54–D55, D107 (`history/decisions.md`)
+**Decisions:** D22, D26, D49, D54–D55, D107, D116 (`history/decisions.md`)
 
 ---
 
@@ -41,7 +41,7 @@ No new resource. Mana + AP are the only two things that keep the world ticking �
 | Action | Cost | Notes |
 |---|---|---|
 | **Move** | `1AP` if its network collapses · `2AP` if it stays connected | Same differential as the Champion (D9) — a Companion is its own root, so its own connection is what's at stake when it moves. |
-| **Attack** | `3!AP` if its network collapses · `6!AP` if it stays connected | The generic Actor default (D49): `3!AP` base, doubled while bonded. Drain-all (`!`) in both cases, same as the Champion's own Attack and a Creature's default. |
+| **Attack** | `3~AP` if its network collapses · `6~AP` if it stays connected | The generic Actor default (D49, D116): `3~AP` base, doubled while bonded. No more abilities this turn (`~`) in both cases, same as the Champion's own Attack and a Creature's default. |
 | **Bond** | `3*AP` *(tuning example)* | Once/turn (the `*` flavor, D9 / `economy.md`); priced high against a small total AP pool so it crowds out most of the rest of the turn. |
 | **Its own printed abilities** | card-specific `mana + AP` | Typically pricier than an equivalent Champion ability — a Companion is a narrower, less efficient channeler, not a second Champion. |
 

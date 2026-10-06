@@ -33,10 +33,53 @@ the bonded cells themselves.
 "staying connected" — playtesting showed this reads as "I can still move outside of the network."
 The current rule requires the destination to *be* a bonded cell, full stop.
 
-## Defend cost (D15)
+## Attack and Defend cost (D15, D116)
 
-**Current rule:** `0*AP` — free, but at most once per turn per actor, completely decoupled from
-remaining AP. See `history/decisions.md` D15 for the full rationale.
+**Current rule (D116):** Attack `3~AP`, Defend `1~AP` (option O4 below); the **Defender** keyword
+gives `1AP: Defend`. See `history/decisions.md` D116 for the full rationale.
+
+### The six options compared (D116)
+`x~AP` = spend x, no more abilities this turn; `x!AP` = drain all remaining AP; `0*AP` = free,
+once per own-turn cycle. Results per scenario: ✓ desired outcome, – a matter of preference, ✗ fails.
+
+| | Attack | Defend | S1 | S2a | S2b | S2c | S3 |
+|---|---|---|---|---|---|---|---|
+| **O1** | `3!AP` | `1!AP` | ✗ | ✓ | – | ✗ | ✗ |
+| **O2** | `3!AP` | `1~AP` | ✗ | ✓ | – | ✗ | ✓ |
+| **O3** | `3~AP` | `1!AP` | ✓ | ✓ | – | ✓ | ✗ |
+| **O4** (adopted) | `3~AP` | `1~AP` | ✓ | ✓ | – | ✓ | ✓ |
+| **O5** (old rule, D15) | `3!AP` | `0*AP` | ✓ | ✓ | – | ✓ | ✗ |
+| **O6** | `3~AP` | `0*AP` | ✓ | ✓ | – | ✓ | ✗ |
+
+- **S1 — mirror trade.** Two creatures (4 AP, Attack 3, Life 5); a attacks b, b defends, then b
+  attacks a in its own turn. Desired: a draw (both die) — attacking first must not be worse than
+  being attacked. With `!` on Attack the attacker has 0 AP and can't defend: D15's original bug.
+- **S2a — reach pays off.** a (5 AP, Attack 3, Life 4) moves 2 and attacks e (Life 3), killing it.
+  Desired: the all-in attack is worth it. All pass.
+- **S2b — all in, the target survives.** As S2a, but e has Life 5 and attacks back. Under O1–O4 a
+  can't defend (it spent everything); under O5/O6 it defends for free. **Both are legitimate
+  styles:** O1–O4 reward getting into position first, O5/O6 reward attacking.
+- **S2c — step adjacent and wait.** a moves next to e without attacking; e attacks, a defends; then
+  a attacks e. Under O1/O2, e has 0 AP after its own attack and dies undefended — whoever attacks
+  first loses, so both sides wait (a standoff). The other four give the symmetric trade.
+- **S3 — Neutral bait.** An idle creature (4 AP) is attacked by a Neutral monster in Neutral A's
+  turn, then by the other Champion's creature. Desired (user's call): it can defend against each
+  opponent once — keeping AP back buys one defence per opponent turn; otherwise monsters become a
+  tax on defence against the real opponent. Only the `1~AP` options pass.
+
+**Not played through, expected outcomes noted:** S4 two attackers on one hex in one turn (a creature
+defends one of them, the second needs another creature or Defender); S5 a powerful `!` ability
+(costs the creature its defence until its next refresh); S6 +1 AP as a trick (makes a surprise
+defender); S7 Defender keyword (defends every attack while AP and Life last); S8 no multi-attack and
+no hit-and-run; S9 a Champion that used Draw and Bond (all its AP) — open, `PLAN.md` item 34.
+
+**Looked for and not found: a standoff under O4.** The closest case is a **fortress** — a hex full of
+Defender-keyword creatures, which gang up (D13) on every attack while attacks come one at a time, so
+attacking that hex is always bad. Without the keyword, `1~AP` breaks it: defenders are locked after
+one defence per turn, so later attacks the same turn land undefended. The user accepts the fortress:
+it is unlikely, and setting one up on a hex important enough to need attacking deserves the reward.
+**Known O4 cost:** the `~` lock also stops the defender (or attacker) from using its own abilities
+for the rest of that turn — e.g. a pump ability after defending.
 
 ### Variant 1 — `1!AP` (Exhaust) · REJECTED, concrete bug found
 Defending costs `1!AP` (exhaust to 0), at most once per turn, gated on having AP left. **Why it
@@ -80,10 +123,9 @@ Adding a second, smaller refresh point makes "how much AP does an actor have rig
 across the whole engine, not a one-off card effect. Plus a third cost-flavor axis (`!!`, next to
 `!`/`*`/`^`) for players and card designers to track.
 
-**Not decided.** `0*AP` is the live rule (fixes the same bug with a smaller, more contained
-change: one existing mechanism reused, no new refresh timing, no new cost flavor). Variant 2 stays
-here as a real alternative worth an actual playtest if `0*AP`'s side effects (e.g. Defend being
-fully AP-independent) turn out to feel wrong once more content exists.
+**Not adopted.** D116's `3~AP` / `1~AP` fixes the same bug differently: the attacker keeps its leftover
+AP for defending, so no second refresh point is needed — at the price of one new cost flavor (`~`).
+Variant 2 stays here as a real alternative worth an actual playtest.
 
 ---
 

@@ -2,7 +2,7 @@
 
 *The full resource model in one place. There are **two** resources — mana and Activation Points — and the same shape — "mana access + a private action budget" — repeats for every actor, **including the Champion and the Companion**. Learn it once, it applies everywhere (pillar 3).*
 
-**Decisions:** D8 (terrain/mana), D9 (Champion economy), D10 (Action Points), D15 (Defend cost), D22 (Companion), D45 (Speed), D47 (Activation Capacity), D48, D49 (Champion/Companion Attack), D58 (Activation Points), D65 (Defend once per round), D76 (first-turn AP asymmetry), D77 (mana accounting), D87 (Terrain holds no AP), D88, D110 (Remnant holds no AP), D89 (summoning sickness), D92 (Instant blocks active play), D114 (Setup is entering; Haste X) — `history/decisions.md`
+**Decisions:** D8 (terrain/mana), D9 (Champion economy), D10 (Action Points), D15 (Defend cost), D22 (Companion), D45 (Speed), D47 (Activation Capacity), D48, D49 (Champion/Companion Attack), D58 (Activation Points), D65 (Defend once per round), D76 (first-turn AP asymmetry), D77 (mana accounting), D87 (Terrain holds no AP), D88, D110 (Remnant holds no AP), D89 (summoning sickness), D92 (Instant blocks active play), D114 (Setup is entering; Haste X), D116 (`~` cost; Attack `3~AP`, Defend `1~AP`) — `history/decisions.md`
 
 ---
 
@@ -32,28 +32,25 @@ AP **subsumes** the old separate stats rather than adding to them:
 - **Movement stat is gone** → moving costs AP; a creature's "speed" *is* its AP.
 - **Range demotes to a keyword** (`Ranged N`); most creatures are melee. The three *defining* numbers stay Attack / Life / AP.
 
-## Move and attack are default *abilities*, not rules (D10)
-There is no hardcoded move/attack logic. Every creature carries two **default abilities**, each **replaceable** by a creature-specific version:
+## Move, attack and defend are default *abilities*, not rules (D10, D116)
+There is no hardcoded move/attack logic. Every creature carries three **default abilities**, each **replaceable** by a creature-specific version:
 - **`1AP: Move`** — one hex per AP.
-- **`3!AP: Attack`** — see the `!` cost below.
+- **`3~AP: Attack`** — see the `~` cost below.
+- **`1~AP: Defend`** — see Defending below.
 
 This is pillar 5 at its purest: the base rules *are* abilities, so the engine needs only an ability/cost system — no special move/attack code.
 
-### The `!` cost notation
-An AP cost is written `xAP` or `x!AP`:
+### AP cost flavors: `xAP`, `x!AP`, `x~AP`, `x*AP`
 - **`xAP`** — spend exactly `x`. Leftover AP remains usable (enables multi-action, e.g. a custom `1AP` attack that permits hit-and-run or multi-attack).
-- **`x!AP`** — **require `x`, then consume *all* remaining AP.** A single such action ends the creature's turn-actions.
+- **`x!AP`** ("exhaust") — **require `x`, then consume *all* remaining AP.** The permanent can't act again until its next refresh, including on other players' turns: no defending, no reactive abilities.
+- **`x~AP`** ("done for this turn", D116) — **spend exactly `x`; the permanent can't activate abilities until the end of this turn.** Leftover AP stays and is usable again from the next turn on — in particular on the opponents' turns, for defending.
+- **`x*AP`** ("once per cycle") — **spend exactly `x`; this specific action may be used at most once per own-turn cycle** (from the controller's turn start to its next one), regardless of leftover AP or AP gained later.
 
-**No-multi-attack is emergent, not a rule:** default attack is `3!AP`, so attacking drains the creature; a creature printed with `3AP: Attack` (no bang) *could* attack twice. The engine's cost system must support "require-x-consume-all" as a cost flavor; the specific values are tuning/content.
+**No-multi-attack and no hit-and-run are emergent, not rules:** default attack is `3~AP`, so after attacking the creature can do nothing else this turn; a creature printed with `3AP: Attack` *could* attack twice, or attack and move away.
 
-Read `!` as **"exhaust."** A creature at 0 AP *looks* spent — which is why a card that grants **+1 AP** is deceptively strong (an apparently-tapped creature can suddenly act/block; feeds pillar 6).
+**`!` is for powerful abilities:** a strong ability priced with `!` costs the permanent its defence until its next refresh — power is balanced against the ability to defend. Read `!` as **"exhaust."** A creature at 0 AP *looks* spent — which is why a card that grants **+1 AP** is deceptively strong (an apparently-exhausted creature can suddenly act or defend; feeds pillar 6).
 
-### The `*` cost notation (once-per-turn)
-A second cost flavor, distinct from `!`: **`x*AP`** — spend exactly `x`, and this specific action may be used **at most once per turn**, regardless of leftover AP or AP gained later that turn.
-
-This is **not** the same thing as `!`: `!` drains the *whole remaining pool* but doesn't itself prevent reuse if AP is later refilled (the deliberate "surprise blocker" combo above); `*` doesn't touch the rest of the pool at all, it just locks out repeats of that one action for the turn.
-
-Used by the Champion's `5*AP: Draw` and `2*AP: Bond` actions (`champions.md`) — `Draw`/`Bond` need to stay usable *together* in one turn while each staying capped to once/turn, which `!` cannot express without also zeroing the pool. Also used by the Companion's own Bond ability (`companions.md`) — same flavor, priced higher relative to the Companion's smaller AP total so it crowds out the rest of the turn.
+**`*`** is used by the Champion's `5*AP: Draw` and `2*AP: Bond` actions (`champions.md`) — `Draw`/`Bond` need to stay usable *together* in one turn while each staying capped, which neither `!` nor `~` can express. Also used by the Companion's own Bond ability (`companions.md`) — same flavor, priced higher relative to the Companion's smaller AP total so it crowds out the rest of the turn.
 
 ### Speed (Slow/Quick/Reactive/Instant, D45)
 Every card/ability has one of four **Speeds**, gated by what's currently sitting in **Pending** (the Aether's next-to-resolve zone, D38):
@@ -62,15 +59,15 @@ Every card/ability has one of four **Speeds**, gated by what's currently sitting
 - **Reactive** — whenever no **Instant Trace** is in Pending.
 - **Instant** — whenever no Instant is in Pending; while it sits in Pending, nothing can be actively put into the Aether and `Now` advances automatically until it has resolved — zero response window for anyone, not even another Instant. Triggers are still added and resolve normally. A deliberate simplification that keeps the top speed tier free of unbounded stack/priority-passing complexity.
 
-Speed governs *when* a card/ability may be played; `!`/`*` still govern *how its AP is consumed* — independent axes, same as before. Spending AP reactively still draws from the actor's normal AP budget, never a separate reactive pool — so answering on the opponent's turn means that AP had to be held in reserve since the actor's own last turn. Applies generally, for any actor. Full detail: `interaction-stack.md`.
+Speed governs *when* a card/ability may be played; `!`/`~`/`*` still govern *how its AP is consumed* — independent axes, same as before. Spending AP reactively still draws from the actor's normal AP budget, never a separate reactive pool — so answering on the opponent's turn means that AP had to be held in reserve since the actor's own last turn. Applies generally, for any actor. Full detail: `interaction-stack.md`.
 
 The `x!!AP` ("double-exhaust") idea remains a proposed-not-adopted alternative — see `history/playtest-variants.md`.
 
-### Defending (D15, D65)
-Defending costs **`0*AP`** — free, but at most **once per round** per actor, completely decoupled from remaining AP in both directions. This is the one exception to the plain `*` flavor's "once per turn": with Neutral turns (D60) putting up to four turns in a round, "once per turn" would let a single creature defend up to four times a round, well beyond what the cap was calibrated for — once per round keeps total defensive capacity stable regardless of how many turns fall in a round. The reset point is still the controller's own turn-start, the same cadence AP already refreshes on — for a Champion that's its own one turn per round as before; for a Neutral permanent, its assigned neutral turn. `cannot defend` remains an occasional negative keyword. A card can still deliberately spend a creature's Defend for the round as part of a strong ability's own effect (the MTG "tap cost" flavor) — explicit card-level data, not a base-rule exception. Rejected alternatives and the bug that ruled out the original toggle: `history/decisions.md` D15, D65, `history/playtest-variants.md`.
+### Defending (D116)
+Defending costs **`1~AP`**: 1 AP, and the defender can't activate abilities for the rest of that turn. Since every opponent turn is a separate turn (Neutral A, the other Champion, Neutral B), a creature can defend **once per opponent turn**, as long as it has AP for it — every AP held back from its own turn buys one more defence in a later opponent turn. A creature that went all in on its own turn (moved and attacked with everything) can't defend until its next refresh; one that used a `!` ability can't either. A card granting AP makes a surprise defender. The cost to defending is also Life: each defence takes the attacker's damage. **Defender** (positive keyword): this creature has `1AP: Defend` instead — it can defend any number of attacks per turn while its AP lasts. `cannot defend` remains an occasional negative keyword. Rejected alternatives and the scenarios that decided it: `history/decisions.md` D15, D116, `history/playtest-variants.md`.
 
 ## Champion AP — the same model as a creature (D9)
-The Champion **has an AP value and spends it directly**, exactly like a creature — one movement/combat/action query for every entity, no gating resource and no second combat model. The Champion's specific action costs (draw/bond/move/abilities) differ from a plain creature's defaults and live in `champions.md`; its **Attack cost matches the generic Actor default** (`3!AP` doubled to `6!AP` while network-bonded, D49) — same for Companion. **First-turn asymmetry (D114):** Setup raises both Champions to at least the same starting AP (placeholder 4); the first-move-advantage lever is that Setup is Champion A's first Beginning phase, so Champion A gets no AP-refresh on turn 1 (`setup.md`).
+The Champion **has an AP value and spends it directly**, exactly like a creature — one movement/combat/action query for every entity, no gating resource and no second combat model. The Champion's specific action costs (draw/bond/move/abilities) differ from a plain creature's defaults and live in `champions.md`; its **Attack cost matches the generic Actor default** (`3~AP` doubled to `6~AP` while network-bonded, D49, D116) — same for Companion. **First-turn asymmetry (D114):** Setup raises both Champions to at least the same starting AP (placeholder 4); the first-move-advantage lever is that Setup is Champion A's first Beginning phase, so Champion A gets no AP-refresh on turn 1 (`setup.md`).
 
 ## Activation Points: one resource for Champion, Companion, Creature and Structure (D58, D87, D88)
 **Activation Points** is the one resource held by Champion, Companion, Creature and Structure alike — Item, Terrain and Remnant hold none (a Terrain's AP cost climbs to its bonder, D87; a Remnant is what a fallen creature leaves, D110) — each with its own value **explicitly printed on its card data**, refreshing to that max every eligible refresh (D89, below), no carryover by default. There is no default value — a card's printed number has to be large enough to actually afford its own priciest self-funded ability, since holding Activation Points and funding an ability from them are the same thing. Values are kept comparable across types on purpose, so a generic effect ("target permanent gains 2 Activation Points") means the same thing regardless of what it targets.
