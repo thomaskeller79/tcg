@@ -67,11 +67,7 @@ once per own-turn cycle. Results per scenario: ✓ desired outcome, – a matter
   opponent once — keeping AP back buys one defence per opponent turn; otherwise monsters become a
   tax on defence against the real opponent. Only the `1~AP` options pass.
 
-**Not played through, expected outcomes noted:** S4 two attackers on one hex in one turn (a creature
-defends one of them, the second needs another creature or Defender); S5 a powerful `!` ability
-(costs the creature its defence until its next refresh); S6 +1 AP as a trick (makes a surprise
-defender); S7 Defender keyword (defends every attack while AP and Life last); S8 no multi-attack and
-no hit-and-run; S9 a Champion that used Draw and Bond (all its AP) — open, `PLAN.md` item 34.
+**More scenarios** (S4–S10, not played through) and the definitions above: `../examples/combat-scenarios.md`.
 
 **Looked for and not found: a standoff under O4.** The closest case is a **fortress** — a hex full of
 Defender-keyword creatures, which gang up (D13) on every attack while attacks come one at a time, so
