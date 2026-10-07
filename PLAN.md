@@ -230,6 +230,7 @@ Design work runs across three parallel tracks — **Rules** (mechanics/engine-le
    ```
 
 6. **Priority windows must not leak information (pillar 6)** — a GUI design constraint; no case observed yet. If the GUI pauses only when a player has a playable response, the pause itself tells the opponent that player holds a Quick/Reactive card (MTG Arena's known problem). D117 makes combat open many windows (one per Attack, one per Defend), so this matters more now. Candidates: a short fixed-length pause at every window, or windows that stop only where a player asked them to in advance.
+7. **Rules sync: bring the engine and debug UI up to D1–D122 (in progress, branch `track-b-rules-sync`).** Rebuilds RulesCore on the Card/Trace/Permanent object model and implements Mind/Aether/Matter, Speeds, the terrain network (Knotting, cut, theft), Slices with a Root view, combat via Defend traces, Setup, and Neutral turns. Gap analysis, build order, educated guesses (G1…) and questions (Q1…): `docs/architecture/implementation-plan.md`. Supersedes items 1–4 once done.
 
 **Track D — Out of prototype scope (D104):**
 
