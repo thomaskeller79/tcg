@@ -6,6 +6,14 @@
 
 ---
 
+### D120 — Melee is distance ≤ 1, so creatures on the same hex can fight
+
+Closes item 25. Before: "Melee = adjacent", which left attacks within a hex unstated — though they are ordinary, since a flyer may enter a hex with enemies on the Ground (D119), and a Slice can become mixed through a control change (D86). **Adopted (user):** Melee means distance ≤ 1 — the same hex or an adjacent one. Same-hex attacks follow the Slice tables like any other (D115): Sky → Ground on the same hex, and co-located enemies in a mixed Slice (the user wants them able to fight, flavor). Ranged at distance 0 moved to item 45. Whether creatures sharing a hex *and* a Slice need any special rule (moving away, defending, capacity) is item 46, with the user's caveat to keep the default rules' complexity in mind for so rare a case.
+
+→ `overview.md` §2, §4, `PLAN.md` items 25 (closed), 45, 46.
+
+---
+
 ### D119 — Entering a hex depends only on creatures in your own Slice; enemy Structures don't block
 
 **Question (user):** what is the general rule for when a creature can enter a hex — is "no enemy in the same Slice" sufficient, given flyers above enemy Ground creatures, and abilities like "defends as though it had flying" or "attacks as though it had flying"?
