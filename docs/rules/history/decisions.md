@@ -6,6 +6,18 @@
 
 ---
 
+### D119 — Entering a hex depends only on creatures in your own Slice; enemy Structures don't block
+
+**Question (user):** what is the general rule for when a creature can enter a hex — is "no enemy in the same Slice" sufficient, given flyers above enemy Ground creatures, and abilities like "defends as though it had flying" or "attacks as though it had flying"?
+
+**Adopted (user):** the existing rule is sufficient — a creature may enter a Slice if every occupant shares its controller and there is a free place (D86; Neutral counts as another controller). Entering and fighting are separate questions: such abilities change who may attack or defend whom (the Slice tables, D115), never who may enter. **Occupants are creature-type permanents** (Creature, Companion, Champion): an enemy Structure in its own slot (D40) does not block entry (Claude raised the gap; the user: a creature may enter a hex with an enemy's Structure — blocking would be a keyword, by the pessimistic default), nor do Remnants or loose Items (capacity-exempt).
+
+**Also corrected in discussion:** that flyers parked over your terrain block your mana holds only under today's default (every enemy blocks paths, D8/D86); item 26 proposes making mana-blocking a positive ability instead, which would make it a flyer's paid choice.
+
+→ `overview.md` §2, `PLAN.md` item 26.
+
+---
+
 ### D118 — The attacker stays put; no base rule reveals on contact — each concealment effect specifies what breaks it
 
 **Advancing after combat.** The user proposed that an attacker that leaves no defender alive may or must enter the attacked hex. Claude's problems with it: "no defender survived" isn't "the Slice is empty" (non-defending creatures may remain, and D86's entry rule forbids entering then); Ranged attackers would jump N hexes; the attacker is locked by `3~AP`, so the advance would have to be part of the Attack's resolution; "must" can drag an attacker from a safe hex into the enemy's reach; and "may" is a free move — a generous default against D14. **Adopted (user):** the attacker stays; advancing is a keyword's job — **Pursue** parked as an idea in `docs/cards/card-ideas.md`.
