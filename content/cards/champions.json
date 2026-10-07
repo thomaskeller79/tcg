@@ -1,0 +1,6 @@
+[
+  { "id": "champion.pyra", "name": "Pyra, Ember Channeler", "type": "Champion", "attack": 2, "life": 20, "ap": 7,
+    "text": "Champion. Draw 5*AP, Bond 2*AP, Move 2AP in its realm (1AP disconnected), Collapse Network 0AP, Attack 3~AP (6~AP bonded), Defend 1~AP (2~AP bonded)." },
+  { "id": "champion.thorn", "name": "Thorn, Root Warden", "type": "Champion", "attack": 2, "life": 20, "ap": 7,
+    "text": "Champion. Draw 5*AP, Bond 2*AP, Move 2AP in its realm (1AP disconnected), Collapse Network 0AP, Attack 3~AP (6~AP bonded), Defend 1~AP (2~AP bonded)." }
+]

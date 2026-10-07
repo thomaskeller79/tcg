@@ -1,0 +1,12 @@
+[
+  { "id": "terrain.light", "name": "Sunlit Meadow", "type": "Terrain", "produces": ["Light"], "text": "Produces 1 Light." },
+  { "id": "terrain.fire", "name": "Ember Field", "type": "Terrain", "produces": ["Fire"], "text": "Produces 1 Fire." },
+  { "id": "terrain.metal", "name": "Iron Vein", "type": "Terrain", "produces": ["Metal"], "text": "Produces 1 Metal." },
+  { "id": "terrain.earth", "name": "Stone Field", "type": "Terrain", "produces": ["Earth"], "text": "Produces 1 Earth." },
+  { "id": "terrain.darkness", "name": "Shade Hollow", "type": "Terrain", "produces": ["Darkness"], "text": "Produces 1 Darkness." },
+  { "id": "terrain.ice", "name": "Frost Plain", "type": "Terrain", "produces": ["Ice"], "text": "Produces 1 Ice." },
+  { "id": "terrain.water", "name": "Clear Spring", "type": "Terrain", "produces": ["Water"], "text": "Produces 1 Water." },
+  { "id": "terrain.air", "name": "Windy Heights", "type": "Terrain", "produces": ["Air"], "text": "Produces 1 Air." },
+  { "id": "terrain.mire", "name": "Sucking Mire", "type": "Terrain", "produces": ["Water"], "moveCost": 2, "text": "Produces 1 Water. Moving onto it costs 2 AP." },
+  { "id": "terrain.forge", "name": "Volcanic Forge", "type": "Terrain", "produces": ["Fire", "Metal"], "text": "Produces 1 Fire and 1 Metal." }
+]

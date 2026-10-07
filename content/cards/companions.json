@@ -1,0 +1,11 @@
+[
+  { "id": "companion.ash", "name": "Ash, Pyra's Familiar", "type": "Companion", "subtypes": ["Salamander"], "cost": "2F", "attack": 2, "life": 4, "ap": 5, "bondAp": 3,
+    "abilities": [ { "id": "ash-kindle", "name": "Kindle", "cost": "1F 3!AP",
+      "instructions": [ { "verb": "create", "card": "creature.fire-warrior", "target": "here" } ] } ],
+    "text": "Bonds terrain into its own pool (3*AP). Kindle: 1F, 3!AP: create a Fire Warrior on its terrain." },
+  { "id": "companion.moss", "name": "Moss, Thorn's Companion", "type": "Companion", "subtypes": ["Treant"], "cost": "2E", "attack": 1, "life": 6, "ap": 5, "bondAp": 3,
+    "abilities": [ { "id": "moss-regrowth", "name": "Regrowth", "cost": "1E 2AP",
+      "targets": [ { "name": "T1", "kind": "Actor", "control": "You", "withinOfSource": 1 } ],
+      "instructions": [ { "verb": "heal", "target": "T1", "amount": 3 } ] } ],
+    "text": "Bonds terrain into its own pool (3*AP). Regrowth: 1E, 2AP: heal 3 to a permanent you control within 1." }
+]

@@ -1,0 +1,21 @@
+[
+  { "id": "structure.watchtower", "name": "Watchtower", "type": "Structure", "subtypes": ["Building"], "cost": "2M", "life": 6, "ap": 2,
+    "abilities": [ { "id": "tower-volley", "name": "Volley", "cost": "2AP",
+      "targets": [ { "name": "T1", "kind": "Creature", "control": "NotYou", "withinOfSource": 2 } ],
+      "instructions": [ { "verb": "damage", "target": "T1", "amount": 1 } ] } ] },
+  { "id": "structure.barrack", "name": "Fire Barrack", "type": "Structure", "subtypes": ["Building"], "cost": "2F", "life": 5, "ap": 3,
+    "abilities": [ { "id": "barrack-muster", "name": "Muster", "cost": "1F 3AP",
+      "instructions": [ { "verb": "create", "card": "creature.fire-warrior", "target": "here" } ] } ] },
+  { "id": "structure.thorn-wall", "name": "Thorn Wall", "type": "Structure", "subtypes": ["Wall"], "cost": "1E", "life": 8, "ap": 0, "keywords": ["Knotting"],
+    "text": "Knotting: a wall that knots the leylines through its terrain." },
+  { "id": "structure.root-cellar", "name": "Root Cellar", "type": "Structure", "subtypes": ["Building"], "cost": "1D", "life": 4, "ap": 2, "entersSlice": "Root",
+    "abilities": [ { "id": "cellar-stash", "name": "Stash", "cost": "2AP", "instructions": [ { "verb": "draw", "amount": 1 } ] } ],
+    "text": "Built in the Root slot (hidden). Stash: 2AP: draw a card." },
+  { "id": "item.flame-blade", "name": "Flame Blade", "type": "Item", "subtypes": ["Weapon"], "cost": "1F", "carrierAttack": 2, "text": "Its carrier gets +2 Attack." },
+  { "id": "item.iron-shield", "name": "Iron Shield", "type": "Item", "subtypes": ["Armor"], "cost": "1M", "carrierLife": 3, "text": "Its carrier gets +3 max Life." },
+  { "id": "item.spark-amulet", "name": "Spark Amulet", "type": "Item", "subtypes": ["Trinket"], "cost": "F",
+    "abilities": [ { "id": "amulet-jolt", "name": "Jolt", "cost": "2AP",
+      "targets": [ { "name": "T1", "kind": "Creature", "control": "NotYou", "withinOfSource": 1 } ],
+      "instructions": [ { "verb": "damage", "target": "T1", "amount": 1 } ] } ],
+    "text": "While equipped: 2AP (its carrier's): deal 1 damage to a creature within 1." }
+]

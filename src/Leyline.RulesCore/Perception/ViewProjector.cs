@@ -1,92 +1,212 @@
-using Leyline.RulesCore.Events;
-using Leyline.RulesCore.Queries;
+using Leyline.RulesCore.Model;
+using Leyline.RulesCore.Rules;
 using Leyline.RulesCore.State;
 
 namespace Leyline.RulesCore.Perception;
 
 /// <summary>
-/// (TrueState, observer) → View. M1's only redaction rule: Underground-level occupants not
-/// owned by the observer, and not "located" (D19), are hidden — via Query.IsVisibleTo, the same
-/// visibility rule Combat's targeting consults (perception is just another query axis).
+/// (TrueState, observer) → View (architecture.md §2.2). Redaction rules: hidden permanents (Root,
+/// D12/D67) are left out; mana pools are shown only for the observer's own roots (D18); Hand and
+/// Discard contents only to their owner, Library contents to the owner in canonical order (D71);
+/// a trace whose acting permanent is hidden shows as a hidden action (G17). The omniscient
+/// projection is the debug UI's sanctioned true-state exception (architecture.md §2.9).
 /// </summary>
 public static class ViewProjector
 {
-    public static View Project(TrueState state, PlayerId observer)
+    public static View Project(TrueState state, PlayerId? observer, bool omniscient = false, int logLines = 60)
     {
-        var network = Query.ResolveNetworkStatus(state);
-        var cells = state.Board.AllCells.Select(c =>
+        bool Sees(Permanent p) => omniscient || state.CanSee(observer, p);
+        bool Owns(PlayerId player) => omniscient || observer == player;
+
+        var homeOf = new Dictionary<HexCoord, string>();
+        foreach (var (player, hexes) in state.Map.HomeGrounds)
+            foreach (var h in hexes)
+                homeOf[h] = player.ToString();
+
+        var hexViews = state.Hexes.Select(hex =>
         {
-            network.TryGetValue(c.Coord, out var status);
-            return new CellView(
-                c.Coord,
-                c.Terrain,
-                c.Surface.Occupants.ToList(),
-                VisibleOccupants(c.Underground, observer, state),
-                c.Air.Occupants.ToList(),
-                network.ContainsKey(c.Coord) ? status.Owner : null,
-                status.Producing);
+            var t = state.TerrainOf(hex);
+            var def = state.Def(t);
+            var bonder = Network.BonderOf(state, t);
+            return new HexView(
+                hex, t.Id.Value, def.Id, def.Name, t.TerrainType, def.Produces, def.IsVoid, def.MoveCost,
+                bonder?.Id.Value,
+                bonder is null ? null : ControllerName(state.Controller(bonder)),
+                Network.IsFlowing(state, t),
+                Network.IsPaused(state, t),
+                t.Drawn,
+                def.Abilities.Count > 0,
+                homeOf.GetValueOrDefault(hex));
         }).ToList();
 
-        var actors = state.AllActors
-            .Where(a => Query.IsVisibleTo(a.Id, observer, state))
-            .Select(a => ToActorView(a, state))
+        var permanents = state.Permanents
+            .Where(p => p.Kind != PermanentKind.Terrain && Sees(p))
+            .Select(p => ToView(state, p, observer, omniscient))
             .ToList();
 
-        var mana = state.Players.Select(p => new PlayerManaView(p.Id, p.Id == observer ? p.Mana : null)).ToList();
-        var hands = state.Players
-            .Select(p => new HandView(p.Id, p.Hand.Count, p.Id == observer ? p.Hand.ToList() : null))
-            .ToList();
-        // A player knows which cards are in their own Library, but never their draw order (that
-        // stays hidden even from the owner) — so the observer's own entry gets Cards sorted into
-        // a canonical order, never the true (deterministic-for-testing, otherwise-would-be-
-        // shuffled) draw sequence PlayerState.Library actually holds.
-        var libraries = state.Players
-            .Select(p => new LibraryView(p.Id, p.Library.Count,
-                p.Id == observer ? p.Library.OrderBy(c => c.Value, StringComparer.Ordinal).ToList() : null))
-            .ToList();
-        var discards = state.Players.Select(p => new DiscardView(p.Id, p.Discard.ToList())).ToList();
+        var players = state.Players.Select(ps =>
+        {
+            var owner = Owns(ps.Id);
+            var champion = state.ChampionOf(ps.Id);
+            return new ZonesView(
+                ps.Id.ToString(),
+                champion?.Id.Value,
+                ps.Hand.Count,
+                owner ? ps.Hand.Select(id => Card(state, id)).ToList() : null,
+                ps.Library.Count,
+                owner ? (omniscient ? ps.Library.AsEnumerable() : ps.Library.OrderBy(id => state.Get<CardObject>(id).Definition, StringComparer.Ordinal).ThenBy(id => id)).Select(id => Card(state, id)).ToList() : null,
+                ps.Discard.Count,
+                owner ? ps.Discard.Select(id => Card(state, id)).ToList() : null,
+                owner && champion?.Pool is { } pool ? Pool(pool) : null);
+        }).ToList();
 
-        var past = state.Past.Select(t => new PastTraceView(t.Id, t.Controller, t.Description, t.CreatedAtRound, t.FadesAtRound)).ToList();
-        var pending = state.Pending.Items.Select(t => ToTraceView(t, state)).ToList();
-        var future = state.Future.Select(t => ToTraceView(t, state)).ToList();
+        var pending = state.Pending.Select(id => Trace(state, state.Get<TraceObject>(id), observer, omniscient)).ToList();
+        var past = state.Past.Select(id => Trace(state, state.Get<TraceObject>(id), observer, omniscient)).ToList();
+        var resolving = state.Resolving is { } r ? Trace(state, state.Get<TraceObject>(r), observer, omniscient) : null;
+
+        DecisionView? decision = state.Decision switch
+        {
+            DamageSplitDecision d => new DecisionView("DamageSplit", d.Decider.ToString(),
+                $"{(d.Defended ? "Defended" : "Undefended")}: split {d.Amount} damage", d.Candidates.Select(c => c.Value).ToList(), d.Amount),
+            RedirectDecision rd => new DecisionView("Redirect", rd.Decider.ToString(),
+                "That destination is blocked by something hidden — pick another or cancel (the cost stays paid)", [], 0),
+            _ => null,
+        };
+
+        var log = state.Log
+            .Where(e => omniscient || e.About.All(id => !state.Exists(id) || state.CanSee(observer, id)))
+            .TakeLast(logLines)
+            .Select(e => new LogView(e.Seq, e.Round, e.Text))
+            .ToList();
 
         return new View(
-            observer,
+            omniscient ? "Omniscient" : observer?.ToString() ?? "Neutral",
             state.TurnNumber,
-            state.RoundNumber,
-            state.ActivePlayer,
-            state.CurrentPhase.Id,
-            cells,
-            actors,
-            mana,
-            hands,
-            libraries,
-            discards,
-            past,
+            state.Round,
+            Turns.SeatName(state.ActiveSeat),
+            state.Phase.ToString(),
+            state.PriorityHolder?.ToString(),
+            observer is { } o && state.PriorityHolder == o && state.Decision is null && state.Phase == Phase.Action && !state.IsOver,
+            decision,
+            observer is { } o2 && state.Decision?.Decider == o2,
+            state.Winner?.ToString(),
+            state.IsDraw,
+            hexViews,
+            permanents,
+            players,
             pending,
-            future,
-            state.Winner,
-            state.ActiveWindow is { } window && window.CurrentPriority == observer);
+            past,
+            resolving,
+            state.Content.All.Select(CardInfoOf).ToList(),
+            log,
+            state.Map.Name);
     }
 
-    public static IReadOnlyList<ObservedEvent> ProjectEvents(IReadOnlyList<IEvent> trueEvents, PlayerId observer, TrueState state) =>
-        trueEvents.Select(e => new ObservedEvent(e)).ToList();
+    public static string ControllerName(PlayerId? controller) => controller?.ToString() ?? "Neutral";
 
-    private static TraceView ToTraceView(Trace trace, TrueState state) =>
-        new(trace.Id, trace.Controller, trace.Resolution.Describe(state));
+    private static CardView Card(TrueState state, ObjectId id) => new(id.Value, state.Get<CardObject>(id).Definition);
 
-    private static IReadOnlyList<ActorId> VisibleOccupants(LevelOccupancy level, PlayerId observer, TrueState state) =>
-        level.Occupants.Where(id => Query.IsVisibleTo(id, observer, state)).ToList();
+    private static IReadOnlyDictionary<string, int> Pool(ManaPool pool) =>
+        pool.Amounts.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value);
 
-    private static ActorView ToActorView(ActorState actor, TrueState state)
+    private static PermanentView ToView(TrueState state, Permanent p, PlayerId? observer, bool omniscient)
     {
-        var (name, kind, maxLife) = actor is IHasCardDefinition d
-            ? (state.Content.Get(d.Definition).Name, actor is ChampionState ? "Champion" : "Creature", state.Content.Get(d.Definition).Life)
-            : ("?", "Unknown", actor.Life);
-        return new ActorView(
-            actor.Id, actor.Owner, name, kind,
-            Query.ResolveAttack(actor.Id, state), actor.Life, maxLife, actor.CurrentAp, Query.ResolveMaxAp(actor.Id, state),
-            Query.ResolveAbilityIds(actor.Id, state).OrderBy(a => a, StringComparer.Ordinal).ToList(),
-            actor.Position, actor.Level);
+        var def = state.Def(p);
+        var controller = state.Controller(p);
+        var showPool = p.Pool is not null && (omniscient || (observer is not null && controller == observer));
+        return new PermanentView(
+            p.Id.Value,
+            def.Id,
+            p.Kind == PermanentKind.Remnant ? $"Remnant of {def.Name}" : def.Name,
+            p.Kind.ToString(),
+            ControllerName(controller),
+            state.PositionOf(p),
+            p.Slice.ToString(),
+            p.Carrier?.Value,
+            state.Attack(p),
+            p.Kind.IsActor() ? p.CurrentLife : 0,
+            state.MaxLife(p),
+            p.CurrentAp,
+            state.MaxAp(p),
+            p.Kind == PermanentKind.Remnant ? [] : def.Keywords.Select(k => k.ToString()).ToList(),
+            state.Abilities(p).Select(AbilityOf).ToList(),
+            p.Locked,
+            p.UsedThisCycle.OrderBy(x => x, StringComparer.Ordinal).ToList(),
+            p.Behavior?.ToString(),
+            showPool ? Pool(p.Pool!) : null,
+            Sight.IsInRoot(p),
+            p.Kind.IsRoot() && Network.IsRootConnected(state, p));
+    }
+
+    public static AbilityView AbilityOf(AbilityDefinition a) =>
+        new(a.Id, a.Name, a.Cost.ToString(), a.Speed.ToString(), a.Physical,
+            a.Text.Length > 0 ? a.Text : string.Join(" ", a.Instructions.Select(i => InstructionText(i, null))),
+            a.Trigger?.ToString());
+
+    public static CardInfo CardInfoOf(CardDefinition d) =>
+        new(d.Id, d.Name, d.Type.ToString(), d.Subtypes, d.Cost.ToString(), d.Speed.ToString(), d.Attack, d.Life, d.Ap,
+            d.Keywords.Select(k => k.ToString()).ToList(),
+            (d.Type is CardType.Spell or CardType.Terrain ? d.Abilities : DefaultAbilities.For(d)).Select(AbilityOf).ToList(),
+            d.Instructions.Select(i => InstructionText(i, null)).ToList(),
+            d.Produces, d.Elements, d.Text);
+
+    private static TraceView Trace(TrueState state, TraceObject t, PlayerId? observer, bool omniscient)
+    {
+        var hidden = !omniscient && !state.CanSeeTrace(observer, t);
+        var controller = ControllerName(t.You);
+        if (hidden)
+            return new TraceView(t.Id.Value, t.Kind.ToString(), "A hidden action", controller, t.Physical, t.Speed.ToString(), true, [], [], [], "", null, null, null);
+
+        string NameIfVisible(ObjectId id) =>
+            state.Find<GameObject>(id) is Permanent p && !omniscient && !state.CanSee(observer, p) ? "a hidden object" : state.NameOf(id);
+
+        var targets = t.Targets
+            .SelectMany(kv => kv.Value.Select(c => $"{kv.Key}: {(c.Object is { } o ? NameIfVisible(o) : c.ToString())}"))
+            .ToList();
+        if (t.Location is { } loc)
+            targets.Add($"location: {loc}");
+
+        AttackView? attack = t.Attack is { } a
+            ? new AttackView(a.Hex, a.Slice.ToString(), ControllerName(a.Entity),
+                a.Defenders.Where(d => state.Find<Permanent>(d) is not { } dp || omniscient || state.CanSee(observer, dp)).Select(d => d.Value).ToList())
+            : null;
+
+        var instructions = t.Instructions.Select(i => InstructionText(i, name =>
+            t.Targets.TryGetValue(name, out var choices) && choices.Count > 0
+                ? string.Join(" and ", choices.Select(c => c.Object is { } o ? NameIfVisible(o) : c.ToString()))
+                : name == "self" && t.ActingPermanent is { } ap ? NameIfVisible(ap) : null)).ToList();
+
+        int? fades = t.RoundResolved is { } r ? r + t.Duration : null;
+        return new TraceView(t.Id.Value, t.Kind.ToString(), t.Text, controller, t.Physical, t.Speed.ToString(), false,
+            targets, instructions, t.Notes.ToList(), t.PaidCost, fades, attack, t.ActingPermanent?.Value);
+    }
+
+    /// <summary>Plain-language text for an instruction; <paramref name="bound"/> resolves a
+    /// target name to what it's bound to (null = keep the name).</summary>
+    public static string InstructionText(Instruction i, Func<string, string?>? bound)
+    {
+        string T(string? name) => name switch
+        {
+            null => "it",
+            "self" => bound?.Invoke("self") ?? "this",
+            "here" => "its terrain",
+            _ => bound?.Invoke(name) ?? name,
+        };
+        return i.Verb switch
+        {
+            "damage" => $"Deal {i.Amount} damage to {T(i.Target)}.",
+            "heal" => $"Heal {T(i.Target)} by {i.Amount}.",
+            "draw" => $"Draw {Math.Max(1, i.Amount)} card{(Math.Max(1, i.Amount) == 1 ? "" : "s")}.",
+            "gainAp" => $"{T(i.Target)} gains {i.Amount} Activation Points.",
+            "buff" => $"{T(i.Target)} gets {(i.Amount >= 0 ? "+" : "")}{i.Amount} {i.Stat}{(i.UntilEndOfTurn ? " until end of turn" : "")}.",
+            "fell" => $"Fell {T(i.Target)}.",
+            "destroy" => $"Destroy {T(i.Target)}.",
+            "unbond" => $"Unbond {T(i.Target)}.",
+            "bounce" => $"Return {T(i.Target)} to its controller's hand.",
+            "flicker" => $"Flicker {T(i.Target)}.",
+            "create" => $"Create a {i.Card} on {T(i.Target)}.",
+            "raise" => $"Raise {T(i.Target)}.",
+            _ => i.Verb,
+        };
     }
 }

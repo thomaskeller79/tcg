@@ -1,66 +1,129 @@
-using Leyline.RulesCore.Events;
-using Leyline.RulesCore.State;
+using Leyline.RulesCore.Model;
 
 namespace Leyline.RulesCore.Perception;
 
-/// <summary>D10's three stats (Attack/Life/AP), plus the two "what this resets/compares to"
-/// values: MaxLife (the printed/starting Life, for a damaged-vs-fresh comparison — Life itself
-/// never auto-heals, D14) and MaxAp (the effective max CurrentAp refills to every Beginning
-/// phase, Query.ResolveMaxAp). Attack has no separate base/current split — it's never stored,
-/// always freshly resolved via Query.ResolveAttack, so this one value already is "current."</summary>
-public sealed record ActorView(ActorId Id, PlayerId Owner, string Name, string Kind, int Attack, int Life, int MaxLife, int CurrentAp, int MaxAp, IReadOnlyList<string> AbilityIds, HexCoord Position, Level Level);
+/// <summary>One hex as an observer sees it: its terrain (always visible, D7), the network state
+/// (public, D8), and a mark for terrain with static or triggered abilities (D87).</summary>
+public sealed record HexView(
+    HexCoord Coord,
+    int TerrainId,
+    string TerrainCard,
+    string TerrainName,
+    string? TerrainType,
+    IReadOnlyList<Element> Produces,
+    bool IsVoid,
+    int MoveCost,
+    int? BondedBy,
+    string? BondedByChampion,
+    bool Flowing,
+    bool Paused,
+    bool Drawn,
+    bool HasAbilities,
+    string? HomeOf);
 
-/// <summary>NetworkOwner/NetworkProducing: D8's mana network is public info (needed for
-/// positional denial), so this is never redacted per-observer — null means unbonded.</summary>
-public sealed record CellView(HexCoord Coord, string? Terrain, IReadOnlyList<ActorId> Surface, IReadOnlyList<ActorId> Underground, IReadOnlyList<ActorId> Air, PlayerId? NetworkOwner, bool NetworkProducing);
+public sealed record AbilityView(string Id, string Name, string Cost, string Speed, bool Physical, string Text, string? Trigger);
 
-/// <summary>D18's resource border: the mana *network* (bonded/producing terrain) is public,
-/// but the live mana *balance* is the one deliberately-hidden standing quantity — Mana is only
-/// populated for the observer's own entry; null for every other player's (the engine of
-/// cost-deception, per `docs/rules/design-asymmetric-information.md`).</summary>
-public sealed record PlayerManaView(PlayerId Player, int? Mana);
+/// <summary>A permanent as seen by the observer. <see cref="Controller"/> is "A", "B" or
+/// "Neutral". <see cref="Pool"/> is only filled for the observer's own roots (D18: the live mana
+/// balance is the one hidden standing quantity).</summary>
+public sealed record PermanentView(
+    int Id,
+    string Card,
+    string Name,
+    string Kind,
+    string Controller,
+    HexCoord Hex,
+    string Slice,
+    int? Carrier,
+    int Attack,
+    int Life,
+    int MaxLife,
+    int Ap,
+    int MaxAp,
+    IReadOnlyList<string> Keywords,
+    IReadOnlyList<AbilityView> Abilities,
+    bool Locked,
+    IReadOnlyList<string> UsedThisCycle,
+    string? Behavior,
+    IReadOnlyDictionary<string, int>? Pool,
+    bool InRoot,
+    bool RootConnected);
 
-/// <summary>D7's resource border: hand *size* is public, contents are not — Count is always
-/// there; Cards is populated only for the observer's own hand (null for the opponent's).</summary>
-public sealed record HandView(PlayerId Player, int Count, IReadOnlyList<CardDefinitionId>? Cards);
+public sealed record CardView(int Id, string Card);
 
-/// <summary>The Mind domain's "future" zone (glossary). A player knows which cards are in their
-/// own Library — Cards is populated for the observer's own entry (null for the opponent's, like
-/// HandView) — but never the draw order: even the owner's own Cards is sorted into a canonical
-/// order by ViewProjector, never PlayerState.Library's true (deterministic-for-testing, would
-/// otherwise be shuffled) sequence. Count is public either way.</summary>
-public sealed record LibraryView(PlayerId Player, int Count, IReadOnlyList<CardDefinitionId>? Cards);
+/// <summary>A Champion's Mind zones as the observer sees them (D71): counts are public;
+/// contents only for the owner — and the owner's own Library in a canonical order, never the
+/// draw order.</summary>
+public sealed record ZonesView(
+    string Player,
+    int? ChampionId,
+    int HandCount,
+    IReadOnlyList<CardView>? Hand,
+    int LibraryCount,
+    IReadOnlyList<CardView>? Library,
+    int DiscardCount,
+    IReadOnlyList<CardView>? Discard,
+    IReadOnlyDictionary<string, int>? Pool);
 
-/// <summary>D37: Discard — the Mind domain's "past" zone — is fully public (matches the genre
-/// convention for a discard/graveyard-shaped zone; no rule hides it), so unlike Hand/Library
-/// there's no per-observer redaction here.</summary>
-public sealed record DiscardView(PlayerId Player, IReadOnlyList<CardDefinitionId> Cards);
+public sealed record AttackView(HexCoord Hex, string Slice, string Entity, IReadOnlyList<int> Defenders);
 
-/// <summary>A queued (Pending) or scheduled-later (Future) Aether trace, projected for display.
-/// Fully public in M1 — nothing hidden (a Trap, D6) exists yet to redact.</summary>
-public sealed record TraceView(TraceId Id, PlayerId Controller, string Description);
+public sealed record TraceView(
+    int Id,
+    string Kind,
+    string Text,
+    string Controller,
+    bool Physical,
+    string Speed,
+    bool Hidden,
+    IReadOnlyList<string> Targets,
+    IReadOnlyList<string> Instructions,
+    IReadOnlyList<string> Notes,
+    string PaidCost,
+    int? FadesAtRound,
+    AttackView? Attack,
+    int? ActingPermanent);
 
-/// <summary>A resolved trace sitting in Past, with its fade window (D50).</summary>
-public sealed record PastTraceView(TraceId Id, PlayerId Controller, string Description, int CreatedAtRound, int FadesAtRound);
+public sealed record DecisionView(string Kind, string Decider, string Text, IReadOnlyList<int> Candidates, int Amount);
 
+public sealed record CardInfo(
+    string Id,
+    string Name,
+    string Type,
+    IReadOnlyList<string> Subtypes,
+    string Cost,
+    string Speed,
+    int Attack,
+    int Life,
+    int Ap,
+    IReadOnlyList<string> Keywords,
+    IReadOnlyList<AbilityView> Abilities,
+    IReadOnlyList<string> Instructions,
+    IReadOnlyList<Element> Produces,
+    IReadOnlyList<Element> Elements,
+    string Text);
+
+public sealed record LogView(int Seq, int Round, string Text);
+
+/// <summary>What one observer perceives now (glossary "View"). Never true state, except the
+/// debug UI's omniscient projection (architecture.md §2.9).</summary>
 public sealed record View(
-    PlayerId Observer,
+    string Observer,
     int TurnNumber,
-    int RoundNumber,
-    PlayerId? ActivePlayer,
-    string CurrentPhase,
-    IReadOnlyList<CellView> Cells,
-    IReadOnlyList<ActorView> Actors,
-    IReadOnlyList<PlayerManaView> Mana,
-    IReadOnlyList<HandView> Hands,
-    IReadOnlyList<LibraryView> Libraries,
-    IReadOnlyList<DiscardView> Discards,
-    IReadOnlyList<PastTraceView> Past,
+    int Round,
+    string ActiveSeat,
+    string Phase,
+    string? PriorityHolder,
+    bool YourPriority,
+    DecisionView? Decision,
+    bool YourDecision,
+    string? Winner,
+    bool IsDraw,
+    IReadOnlyList<HexView> Hexes,
+    IReadOnlyList<PermanentView> Permanents,
+    IReadOnlyList<ZonesView> Players,
     IReadOnlyList<TraceView> Pending,
-    IReadOnlyList<TraceView> Future,
-    PlayerId? Winner,
-    bool AwaitingYourPriority);
-
-/// <summary>A true event, projected for one observer. 1:1 passthrough in M1 — the only
-/// redaction axis (below-layer occupancy) doesn't transform event shape, only visibility.</summary>
-public sealed record ObservedEvent(IEvent Projected);
+    IReadOnlyList<TraceView> Past,
+    TraceView? Resolving,
+    IReadOnlyList<CardInfo> Cards,
+    IReadOnlyList<LogView> Log,
+    string MapName);

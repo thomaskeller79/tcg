@@ -4,9 +4,8 @@ using Leyline.RulesCore.Perception;
 namespace Leyline.Host;
 
 /// <summary>
-/// A1: the single abstract boundary — "commands in, this seat's View+Events out." M1 ships
-/// only LocalHost; a future RemoteHost (M6) implements this same interface over a network
-/// transport without client-facing code needing to change.
+/// A1: the single abstract boundary — "commands in, this seat's View out." Only LocalHost exists
+/// today; a future RemoteHost (M6) implements the same interface over a network transport.
 /// </summary>
 public interface IHost
 {
@@ -15,4 +14,4 @@ public interface IHost
     View CurrentView(SeatId seat);
 }
 
-public sealed record HostResult(bool Accepted, string? RejectionReason, View View, IReadOnlyList<ObservedEvent> Events);
+public sealed record HostResult(bool Accepted, string? Error, View View);
