@@ -2,28 +2,34 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Leyline — M1.5 debug UI</title>
-  <link rel="stylesheet" href="style.css?v=5" />
+  <title>Leyline — debug hub</title>
+  <link rel="stylesheet" href="style.css?v=11" />
 </head>
-<body>
+<body data-seat="hub">
   <header>
-    <h1>Leyline debug UI</h1>
-    <nav class="view-nav">
-      <a href="p1.html" target="_blank">Open P1 view</a>
-      <a href="p2.html" target="_blank">Open P2 view</a>
-      <a href="true.html" target="_blank">Open True state view</a>
-    </nav>
-    <label>
-      Scenario:
-      <select id="scenario-select"></select>
-    </label>
+    <h1>Leyline debug hub</h1>
+    <label>Scenario: <select id="scenario-select"></select></label>
     <button id="load-button">Load</button>
-    <div id="phase-stepper" class="phase-stepper"></div>
-    <span id="status-line"></span>
+    <span id="hub-status"></span>
   </header>
-
-  <p class="hub-note">This hub loads scenarios and links to each observer's own tab — the board/hand/actions/Mind/Aether panels themselves live on those tabs now, not here. Each tab polls the same live match, so actions taken in one show up in the others within a couple seconds.</p>
-
-  <script src="app.js?v=5"></script>
+  <main class="hub">
+    <p>Load a scenario, then open each seat in its own tab. Every tab polls the same live match.</p>
+    <ul class="hub-links">
+      <li><a href="p1.html" target="_blank">Champion A's view</a> — what A sees and can do.</li>
+      <li><a href="p2.html" target="_blank">Champion B's view</a> — what B sees and can do.</li>
+      <li><a href="true.html" target="_blank">True state</a> — everything, unredacted (read-only, debug only).</li>
+    </ul>
+    <h2>How to play</h2>
+    <ul class="howto">
+      <li><b>Select</b> a token on the board or a card in your hand; its legal abilities appear on the right.</li>
+      <li><b>Activate</b>: pick an ability, then each target in order (highlighted on the board or as buttons), then <b>Confirm</b>. Abort any time before confirming — nothing is paid until then.</li>
+      <li>Everything you do enters <b>Pending</b> as a trace. It resolves when both Champions pass in a row. Respond with Quick / Reactive / Instant cards and abilities while you hold priority.</li>
+      <li><b>Defend</b> by answering an Attack in Pending (buttons on the attack, or select a creature → Defend).</li>
+      <li>Your Action phase ends when you pass with Pending empty and the opponent passes too.</li>
+      <li>Auto-pass passes for you when Pass is your only legal action (never to end your own Action phase).</li>
+      <li>The <b>Root</b> view shows the hidden Slice; you only see what your own Root presence reveals.</li>
+    </ul>
+  </main>
+  <script src="app.js?v=11"></script>
 </body>
 </html>

@@ -1,0 +1,32 @@
+# Permanents lab: Companions, Structures, Items, Remnants. Equip the Flame Blade (2AP) and the
+# Spark Amulet (its Jolt is paid from the carrier's AP); Ash's Kindle creates a Fire Warrior
+# from Ash's own pool; the Fire Barrack musters one too; Recall bounces, Blink flickers;
+# Raise the Fallen brings a Remnant back.
+name Permanents lab
+seed 4
+map hexagon 4
+start A 0,3
+start B 0,-3
+home A radius=1
+home B radius=1
+neutral fill terrain.fire
+champion A champion.pyra
+champion B champion.thorn
+terraindeck A terrain.fire*7
+terraindeck B terrain.darkness*7
+openinghand 0
+noshuffle
+bond A 0,2 0,1 1,1 1,2
+place A companion.ash 0,1
+place A creature.fire-warrior 1,1
+place A item.flame-blade 1,1
+place A item.spark-amulet 1,1
+place A structure.barrack 1,2
+place B creature.stone-brute 1,0
+place B companion.moss 0,-2
+handcard A spell.blink spell.recall spell.raise creature.herald creature.cinder-spirit
+handcard B spell.recall spell.smite
+mana A Fire 5
+mana A Light 2
+mana A Water 2
+mana A Darkness 3

@@ -1,0 +1,24 @@
+# A full match from Setup (D114): Pyra (Fire/Metal) against Thorn (Earth/Water/Darkness).
+# Both home grounds are dealt from 7-card terrain decks; neutral ground is drawn at random from
+# every basic plus two non-basics; two Wild Boars roam the middle.
+name Demo match
+seed 2026
+map hexagon 4
+void 2,-1 -2,1
+type Forest -3,1 -3,2 -2,2 -4,3
+type Settlement 3,-1 3,-2 2,-2
+type Wetland 1,1 0,1 -1,1
+type Elevated -1,-1 0,-1 1,-2
+start A 0,3
+start B 0,-3
+home A radius=1
+home B radius=1
+neutral random terrain.light terrain.fire terrain.metal terrain.earth terrain.darkness terrain.ice terrain.water terrain.air terrain.mire terrain.forge
+champion A champion.pyra
+champion B champion.thorn
+terraindeck A terrain.fire*3 terrain.metal*2 terrain.air terrain.light
+terraindeck B terrain.earth*3 terrain.water*2 terrain.darkness*2
+deck A creature.fire-warrior*3 creature.ember-imp*2 creature.flame-archer*2 creature.iron-golem creature.sky-hawk*2 creature.herald creature.cinder-spirit companion.ash structure.watchtower structure.barrack item.flame-blade item.iron-shield item.spark-amulet spell.firebolt*2 spell.flame-dart*2 spell.battle-surge spell.blink spell.smite spell.study
+deck B creature.stone-brute*3 creature.burrower*2 creature.marsh-lurker*2 creature.night-shade*2 creature.tide-caller companion.moss structure.thorn-wall structure.root-cellar spell.mend spell.quicken*2 spell.raise spell.recall spell.sever spell.stone-shards*2 spell.study spell.battle-surge
+neutralpermanent creature.wild-boar 1,0 behavior=Aggressive:A seat=NeutralA
+neutralpermanent creature.wild-boar -1,0 behavior=Aggressive:B seat=NeutralB

@@ -1,0 +1,28 @@
+# Network lab (D8, D121, D122). Pyra's thin branch reaches toward Thorn; Thorn's Marsh Lurker
+# (Knotting) sits on it, pausing everything behind it (red leylines). In Thorn's turn, Bond can
+# steal the paused hexes that touch Thorn's network — stealing the chokepoint cuts the rest.
+# Try also: Collapse Network (the realm lock), Sever the Leyline (a cut), Ash bonding into its
+# own pool, a Thorn Wall (a Structure with Knotting).
+name Network lab
+seed 9
+map hexagon 4
+start A 0,3
+start B 0,-3
+home A radius=1
+home B radius=1
+neutral fill terrain.fire
+type Forest 0,0 1,-1 0,1
+champion A champion.pyra
+champion B champion.thorn
+terraindeck A terrain.fire*7
+terraindeck B terrain.water*4 terrain.darkness*3
+openinghand 0
+noshuffle
+bond A 0,2 0,1 0,0 1,-1
+bond B 0,-2 1,-2
+place B creature.marsh-lurker 0,1
+place A companion.ash -1,2
+handcard A spell.firebolt structure.watchtower
+handcard B spell.sever structure.thorn-wall
+mana A Fire 3
+mana A Metal 2

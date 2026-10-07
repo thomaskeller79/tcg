@@ -169,5 +169,13 @@ public static class TestCards
         Keywords = [new Keyword(Keyword.Knotting)],
     };
 
-    public static IEnumerable<CardDefinition> All => [Grunt, Mirror, Brute, Mole, Knotter];
+    /// <summary>A Subterranean creature whose Slice filter names Root — the one way a cast can
+    /// meet a hidden occupant (D68).</summary>
+    public static readonly CardDefinition Digger = new()
+    {
+        Id = "test.digger", Name = "Digger", Type = CardType.Creature, Cost = new Cost([null]), Attack = 1, Life = 2, Ap = 3,
+        Keywords = [new Keyword(Keyword.Subterranean)], EntersSlice = Slice.Root,
+    };
+
+    public static IEnumerable<CardDefinition> All => [Grunt, Mirror, Brute, Mole, Knotter, Digger];
 }

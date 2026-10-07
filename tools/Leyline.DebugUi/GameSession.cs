@@ -1,59 +1,83 @@
+using Leyline.Content.Json;
 using Leyline.RulesCore;
 using Leyline.RulesCore.Commands;
+using Leyline.RulesCore.Model;
+using Leyline.RulesCore.Rules;
 using Leyline.RulesCore.State;
+using Leyline.Scenarios;
 using LeylineHost = Leyline.Host;
 
 namespace Leyline.DebugUi;
 
-/// <summary>Single mutable in-memory session — this is a local single-developer debug tool,
-/// not a multi-user server, so one current Match/Host is all it needs. Aliased "LeylineHost"
-/// because Leyline.Host.IHost collides with ASP.NET Core's own Microsoft.Extensions.Hosting.IHost.</summary>
+/// <summary>
+/// The one live match of this local, single-developer tool. Aliased "LeylineHost" because
+/// Leyline.Host.IHost collides with ASP.NET Core's own IHost.
+/// </summary>
 public sealed class GameSession
 {
-    public static readonly LeylineHost.SeatId P1Seat = new(1);
-    public static readonly LeylineHost.SeatId P2Seat = new(2);
+    public static readonly LeylineHost.SeatId SeatA = new(1);
+    public static readonly LeylineHost.SeatId SeatB = new(2);
 
-    private static readonly IReadOnlyDictionary<LeylineHost.SeatId, PlayerId> Seats = new Dictionary<LeylineHost.SeatId, PlayerId>
+    private readonly object _lock = new();
+
+    public GameSession(string contentDir)
     {
-        [P1Seat] = new PlayerId(1),
-        [P2Seat] = new PlayerId(2),
-    };
-
-    public Match? Match { get; private set; }
-    public LeylineHost.IHost? Host { get; private set; }
-
-    public void Load(Match match)
-    {
-        Match = match;
-        Host = new LeylineHost.LocalHost(match, Seats);
+        ContentDir = contentDir;
+        Content = CardJson.LoadDirectory(contentDir);
     }
 
-    /// <summary>
-    /// M1 ships zero instant-speed abilities (no stack content), so the only ever-legal
-    /// response inside a priority window is Pass — RulesEngine.LegalCommands enforces this
-    /// itself (only PassPriorityCommand is offered while a window is open). Auto-passing removes
-    /// pure clicking friction for Combat's window, where M1 has nothing worth watching resolve.
-    /// A CastResolution window (Creature/Spell casting, 2026-09-13) is deliberately excluded —
-    /// the whole point of a visible Pending/Now/Past Aether panel is to actually SEE a cast sit
-    /// in Pending and cross Now, which auto-passing hid end to end. Each seat now clicks its own
-    /// Pass button (RulesEngine.LegalCommands already offers exactly that when it's their
-    /// priority, so no new UI was needed). The moment real instant-speed content exists, the
-    /// single-legal-command check below stops matching on its own and this loop correctly falls
-    /// through to a real decision for Combat too.
-    /// </summary>
-    public void AutoResolvePriorityWindows()
+    public string ContentDir { get; }
+    public ICardDefinitionRepository Content { get; private set; }
+    public TrueState? State { get; private set; }
+    public LeylineHost.IHost? Host { get; private set; }
+    public string? ScenarioName { get; private set; }
+
+    /// <summary>Auto-pass per seat: when the only legal command is Pass, pass automatically —
+    /// except to end your own Action phase. Leaks that you hold nothing playable (PLAN.md
+    /// Track B item 6); acceptable for a debug tool, and switchable.</summary>
+    public bool[] AutoPass { get; } = [true, true];
+
+    public object Lock => _lock;
+
+    public void Load(string name, string path)
     {
-        if (Match is null || Host is null)
+        Content = CardJson.LoadDirectory(ContentDir); // pick up card edits without a restart
+        State = ScenarioLoader.LoadFromFile(path, Content);
+        Host = LeylineHost.LocalHost.TwoSeats(State);
+        ScenarioName = name;
+        RunAutoPass();
+    }
+
+    public static PlayerId PlayerOf(int seat) => seat == 1 ? PlayerId.A : PlayerId.B;
+    public static LeylineHost.SeatId SeatOf(PlayerId p) => p == PlayerId.A ? SeatA : SeatB;
+
+    public CommandResult Submit(int seat, int index)
+    {
+        if (State is null || Host is null)
+            return CommandResult.Reject("No scenario loaded.");
+        var legal = Host.LegalCommands(new LeylineHost.SeatId(seat));
+        if (index < 0 || index >= legal.Count)
+            return CommandResult.Reject("Stale or out-of-range action — the view will refresh.");
+        var result = Host.Submit(new LeylineHost.SeatId(seat), legal[index]);
+        RunAutoPass();
+        return new CommandResult(result.Accepted, result.Error);
+    }
+
+    public void RunAutoPass()
+    {
+        if (State is null || Host is null)
             return;
-
-        while (Match.State.ActiveWindow is { Kind: PriorityWindowKind.CombatDeclare } window)
+        for (var guard = 0; guard < 500 && !State.IsOver && State.Decision is null; guard++)
         {
-            var seat = window.CurrentPriority.Value == 1 ? P1Seat : P2Seat;
-            var legal = Host.LegalCommands(seat);
-            if (legal is not [PassPriorityCommand pass])
-                break;
-
-            Host.Submit(seat, pass);
+            if (State.PriorityHolder is not { } holder || !AutoPass[holder.Value - 1])
+                return;
+            var ownMainPhaseEnd = State.ActiveSeat.Champion() == holder && State.Pending.Count == 0;
+            if (ownMainPhaseEnd)
+                return;
+            var legal = Host.LegalCommands(SeatOf(holder));
+            if (legal is not [PassCommand pass])
+                return;
+            Host.Submit(SeatOf(holder), pass);
         }
     }
 }

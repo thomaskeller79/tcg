@@ -71,9 +71,9 @@ public static class RulesEngine
             // information, so the cost is committed; the player redirects or cancels.
             Activation.PayCost(state, draft);
             Consequences.Run(state);
-            var failed = draft.Targets[index][0];
-            state.Note($"Champion {cmd.Actor}'s target {failed} turns out to be blocked by something hidden.");
-            var remaining = RedirectCandidates(state, draft, index).Where(c => c != failed).ToList();
+            var failed = index < draft.Targets.Count ? draft.Targets[index][0] : null;
+            state.Note($"Champion {cmd.Actor}'s destination turns out to be blocked by something hidden.");
+            var remaining = failed is null ? [] : RedirectCandidates(state, draft, index).Where(c => c != failed).ToList();
             if (remaining.Count == 0)
             {
                 state.Note("No other destination — the action fails; its cost stays paid.");

@@ -1,0 +1,27 @@
+# Root lab (D12, D42, D67, D68). Switch the map to the Root view. Thorn's Burrowing Moles and
+# a Root Cellar hide below; Pyra sees a Root occupant only from her own Root presence on the
+# same or a neighbouring hex. Try: Descend blind onto a hidden mole (the action fails, AP spent),
+# Ascend, Night Shade sneaking under Pyra's lines, Raise the Fallen on a Remnant.
+name Root lab
+seed 3
+map hexagon 3
+start A 0,3
+start B 0,-3
+home A radius=0
+home B radius=0
+neutral fill terrain.earth
+champion A champion.pyra
+champion B champion.thorn
+terraindeck A terrain.fire
+terraindeck B terrain.darkness
+openinghand 0
+noshuffle
+bond B -1,-2 -1,-1
+place A creature.burrower 0,1
+place A creature.fire-warrior 0,2
+place B creature.burrower 0,0 slice=Root
+place B creature.burrower 1,-1 slice=Root
+place B creature.night-shade -1,1 slice=Root
+place B structure.root-cellar -1,-1
+handcard B spell.raise
+mana B Darkness 3

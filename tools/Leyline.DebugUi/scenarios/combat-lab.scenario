@@ -1,0 +1,33 @@
+# Combat lab: armies already in contact, every creature ready to act (debug placements on top
+# of a normal Setup). Try: attack (3~AP), respond with Defend (Quick, 1~AP) bit by bit, play
+# Flame Dart / Battle Surge / Quicken as tricks, split damage between two defenders, a Ranged
+# archer (no retaliation), flyers attacking Ground (Sky → Ground), Defender on the Iron Golem.
+name Combat lab
+seed 5
+map hexagon 3
+start A 0,3
+start B 0,-3
+home A radius=0
+home B radius=0
+neutral fill terrain.fire
+champion A champion.pyra
+champion B champion.thorn
+terraindeck A terrain.fire
+terraindeck B terrain.earth
+openinghand 0
+noshuffle
+place A creature.fire-warrior 0,1
+place A creature.fire-warrior 0,1
+place A creature.flame-archer 0,2
+place A creature.sky-hawk 1,0
+place A creature.iron-golem -1,1
+place B creature.stone-brute 0,0
+place B creature.marsh-lurker 0,0
+place B creature.tide-caller 0,-1
+place B creature.sky-hawk 0,0
+place B creature.night-shade -1,0
+handcard A spell.flame-dart*2 spell.battle-surge spell.firebolt
+handcard B spell.quicken*2 spell.battle-surge spell.stone-shards
+mana A Fire 6
+mana B Water 4
+mana B Earth 3

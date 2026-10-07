@@ -140,14 +140,14 @@ public static class ViewProjector
 
     public static AbilityView AbilityOf(AbilityDefinition a) =>
         new(a.Id, a.Name, a.Cost.ToString(), a.Speed.ToString(), a.Physical,
-            a.Text.Length > 0 ? a.Text : string.Join(" ", a.Instructions.Select(i => InstructionText(i, null))),
+            a.Text.Length > 0 ? a.Text : string.Join(" ", a.Instructions.Select(i => InstructionText(i, name => a.Targets.FirstOrDefault(t => t.Name == name) is { } spec ? SpecText(spec) : null))),
             a.Trigger?.ToString());
 
     public static CardInfo CardInfoOf(CardDefinition d) =>
         new(d.Id, d.Name, d.Type.ToString(), d.Subtypes, d.Cost.ToString(), d.Speed.ToString(), d.Attack, d.Life, d.Ap,
             d.Keywords.Select(k => k.ToString()).ToList(),
             (d.Type is CardType.Spell or CardType.Terrain ? d.Abilities : DefaultAbilities.For(d)).Select(AbilityOf).ToList(),
-            d.Instructions.Select(i => InstructionText(i, null)).ToList(),
+            d.Instructions.Select(i => InstructionText(i, name => d.Targets.FirstOrDefault(t => t.Name == name) is { } spec ? SpecText(spec) : null)).ToList(),
             d.Produces, d.Elements, d.Text);
 
     private static TraceView Trace(TrueState state, TraceObject t, PlayerId? observer, bool omniscient)
@@ -179,6 +179,22 @@ public static class ViewProjector
         int? fades = t.RoundResolved is { } r ? r + t.Duration : null;
         return new TraceView(t.Id.Value, t.Kind.ToString(), t.Text, controller, t.Physical, t.Speed.ToString(), false,
             targets, instructions, t.Notes.ToList(), t.PaidCost, fades, attack, t.ActingPermanent?.Value);
+    }
+
+    /// <summary>"up to one target creature you control within 2", for card text.</summary>
+    public static string SpecText(TargetSpec s)
+    {
+        var kind = s.Kind.ToString().ToLowerInvariant();
+        var text = (s.Min == 0 ? "up to one " : "") + "target " + kind;
+        if (s.Control == ControlFilter.You)
+            text += " you control";
+        else if (s.Control == ControlFilter.NotYou)
+            text += " you don't control";
+        if (s.WithinOfSource is { } d)
+            text += $" within {d}";
+        if (s.RelativeTo is { } r)
+            text += $" within {s.WithinOfTarget ?? 0} of {r}";
+        return text + $" ({s.Name})";
     }
 
     /// <summary>Plain-language text for an instruction; <paramref name="bound"/> resolves a

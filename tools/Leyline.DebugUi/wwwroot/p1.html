@@ -2,49 +2,49 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Leyline — P1 view</title>
-  <link rel="stylesheet" href="style.css?v=5" />
+  <title>Leyline — Champion A</title>
+  <link rel="stylesheet" href="style.css?v=11" />
 </head>
-<body data-view="1">
+<body data-seat="1">
   <header>
-    <h1>Leyline — P1 view</h1>
+    <h1>Leyline — <span class="seat-name">Champion A</span></h1>
+    <div id="turn-info" class="turn-info"></div>
+    <div class="view-toggle">
+      <button data-layer="surface" class="active">Ground + Sky</button>
+      <button data-layer="root">Root</button>
+    </div>
+    <label class="autopass"><input type="checkbox" id="autopass" /> auto-pass</label>
     <nav class="view-nav">
       <a href="index.html">Hub</a>
-      <a href="p2.html" target="_blank">P2</a>
-      <a href="true.html" target="_blank">True</a>
+      <a href="p1.html">A</a>
+      <a href="p2.html">B</a>
+      <a href="true.html">True</a>
     </nav>
-    <div id="phase-stepper" class="phase-stepper"></div>
-    <span id="status-line"></span>
   </header>
-
-  <h2 class="domain-title">Matter domain — the Island</h2>
-  <main id="panels">
-    <section class="panel" id="panel-p1">
-      <h2>P1 view</h2>
-      <div class="mana"></div>
-      <div class="board-wrap"><svg class="board"></svg></div>
-      <div class="selection"></div>
-      <div class="hand"></div>
-      <div class="actions"></div>
+  <div id="banner" class="banner"></div>
+  <main class="layout">
+    <section class="board-panel">
+      <svg id="board"></svg>
+      <div class="legend">
+        <span><i class="sw a"></i>A</span><span><i class="sw b"></i>B</span><span><i class="sw n"></i>Neutral</span>
+        <span><i class="dot green"></i>drawn</span><span><i class="dot red"></i>paused, undrawn</span>
+        <span>corners: <b>G</b>round / <b>S</b>ky · centre: Structure · left: Remnants · right: Items</span>
+      </div>
+    </section>
+    <section class="side-panel">
+      <div id="prompt" class="panel prompt"></div>
+      <div id="details" class="panel details"></div>
+      <div id="hand" class="panel hand"></div>
     </section>
   </main>
-
-  <h2 class="domain-title">Mind domain — Discard / Hand / Library</h2>
-  <main id="mind-panels" class="domain-panels">
-    <section class="panel domain-subpanel" id="mind-p1">
-      <h3>P1 view</h3>
-      <div class="mind-zones"></div>
-    </section>
-  </main>
-
-  <h2 class="domain-title">Aether domain — Past / Now / Pending / Future</h2>
-  <main id="aether-panels" class="domain-panels">
-    <section class="panel domain-subpanel" id="aether-p1">
-      <h3>P1 view</h3>
-      <div class="zone-block aether-timeline"></div>
-    </section>
-  </main>
-
-  <script src="app.js?v=5"></script>
+  <section class="panel aether">
+    <h2>Aether — Past · <span class="now">Now</span> · Pending</h2>
+    <div id="aether" class="aether-timeline"></div>
+  </section>
+  <section class="bottom">
+    <div class="panel mind"><h2>Mind — Hand · Library · Discard</h2><div id="mind"></div></div>
+    <div class="panel log"><h2>Log</h2><div id="log"></div></div>
+  </section>
+  <script src="app.js?v=11"></script>
 </body>
 </html>

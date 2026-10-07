@@ -1,851 +1,734 @@
-// Every *.html includes this file (and style.css) with a ?v=N cache-busting query string —
-// browsers were caching a stale copy across dotnet restarts, since restarting the server doesn't
-// touch the browser's own cache. Bump the v=N in every *.html file (index/p1/p2/true) whenever
-// this file or style.css changes, or a browser tab can keep running old code indefinitely.
-const HEX_SIZE = 26;
-const HEX_DIRS = [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]];
-const PHASE_SEQUENCE = ['Beginning', 'Action', 'End'];
-const PHASE_LABELS = { Beginning: 'Start', Action: 'Main', End: 'End' };
+// Leyline debug UI. One script for every page: index.html (hub, data-seat="hub"), p1.html /
+// p2.html (a Champion's own view, data-seat="1"/"2") and true.html (the omniscient view,
+// data-seat="0"). Bump ?v=N in every *.html when this file or style.css changes.
+'use strict';
 
-// Forced/pending decisions and turn control — never tied to a selected thing, so they stay
-// visible no matter what (if anything) is selected.
-const GLOBAL_KINDS = new Set([
-  'EndPhaseCommand', 'PassPriorityCommand',
-  'DeclareDefendersCommand', 'AssignDamageCommand', 'ChooseUndefendedTargetCommand',
-]);
+const SEAT_ATTR = document.body.dataset.seat;
+const SEAT = SEAT_ATTR === 'hub' ? null : Number(SEAT_ATTR); // 0 = true state
+const ME = SEAT === 1 ? 'A' : SEAT === 2 ? 'B' : null;
+const HEX = 46;
+const SQ3 = Math.sqrt(3);
+const ELEMENT_COLORS = {
+  Light: '#e9dc95', Fire: '#d9643f', Metal: '#9aa4ae', Earth: '#9a7444',
+  Darkness: '#5b4a73', Ice: '#b4dcea', Water: '#4385c8', Air: '#b8e2c8',
+};
+const ELEMENT_LETTER = { Light: 'L', Fire: 'F', Metal: 'M', Earth: 'E', Darkness: 'D', Ice: 'I', Water: 'W', Air: 'A' };
+const PHASES = ['Setup', 'Beginning', 'Action', 'End'];
 
-const cache = { view: { 1: null, 2: null }, trueState: null, legal: { 1: null, 2: null }, cards: [] };
+const ui = {
+  view: null,
+  legal: [],
+  layer: 'surface',
+  selection: null, // {type:'perm'|'card'|'hex', id, q, r}
+  wizard: null,    // {source, ability, chosen:[keys], focusHex}
+  error: null,
+  autoPass: [true, true],
+  scenario: null,
+  busy: false,
+};
 
-/// Each observer now gets its own tab (p1.html/p2.html/true.html, each `<body data-view="...">`);
-/// the hub (index.html) has no data-view and renders no panels at all, just scenario load +
-/// links. `1`/`2` are read as strings off the DOM but compared/used as the numeric panelKey
-/// elsewhere, so normalize once here.
-const VIEW = document.body.dataset.view === '1' ? 1 : document.body.dataset.view === '2' ? 2 : document.body.dataset.view === 'true' ? 'true' : null;
-
-function cardById(id) {
-  return cache.cards.find(c => c.id.value === id);
-}
-
-/// Plain-text printed-card summary: creature stats, or the Spell's hardcoded damage/heal effect
-/// (SpellEffectIds — the M1 placeholder for the real card-effect system, see CardDefinition's
-/// doc comment). Champion is never drawn/cast (design-champions.md), so no case needed here.
-function describeCardEffect(def) {
-  if (!def) return '';
-  if (def.type === 'Creature') return `Creature ${def.attack}/${def.life}/${def.maxAp}`;
-  if (def.type === 'Spell') {
-    if (def.effectId === 'spell.damage') return `Deal ${def.effectAmount} damage`;
-    if (def.effectId === 'spell.heal') return `Heal ${def.effectAmount}`;
-    return def.effectId ? `${def.effectId} (${def.effectAmount})` : 'No effect';
-  }
-  return def.type;
-}
-
-// The selected "thing" per panel: { type: 'actor', id: ActorId } | { type: 'card', id: CardDefinitionId } | null.
-const selection = { 1: null, 2: null, true: null };
+// ---------------------------------------------------------------------------- util
 
 async function api(path, options) {
   const res = await fetch(path, options);
   const text = await res.text();
-  if (!res.ok) throw new Error(`${path} -> ${res.status}: ${text || res.statusText}`);
+  if (!res.ok) throw new Error(`${path} → ${res.status}: ${text || res.statusText}`);
   return text ? JSON.parse(text) : null;
 }
 
-function hexCenter(q, r) {
-  const x = HEX_SIZE * (Math.sqrt(3) * q + (Math.sqrt(3) / 2) * r);
-  const y = HEX_SIZE * (1.5 * r);
-  return { x, y };
+function el(tag, attrs = {}, ...children) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'class') e.className = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else if (v !== undefined && v !== null && v !== false) e.setAttribute(k, v === true ? '' : v);
+  }
+  for (const c of children.flat()) {
+    if (c === null || c === undefined || c === false) continue;
+    e.append(c instanceof Node ? c : document.createTextNode(String(c)));
+  }
+  return e;
 }
 
-function hexPoints(cx, cy, size) {
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function svg(tag, attrs = {}, text) {
+  const e = document.createElementNS(SVG_NS, tag);
+  for (const [k, v] of Object.entries(attrs)) if (v !== undefined && v !== null) e.setAttribute(k, v);
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+
+const hexKey = (h) => `${h.q},${h.r}`;
+const targetKey = (list) => JSON.stringify(list.map(t => [t.object ?? null, t.hex ? hexKey(t.hex) : null, t.slice ?? null, t.entity ?? null]));
+const cardInfo = (id) => ui.view?.cards.find(c => c.id === id);
+const permById = (id) => ui.view?.permanents.find(p => p.id === id);
+const center = (q, r) => ({ x: HEX * (SQ3 * q + SQ3 / 2 * r), y: HEX * 1.5 * r });
+const initials = (name) => name.replace(/^Remnant of /, '').split(/[\s,]+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+
+function hexCorners(cx, cy, size) {
   const pts = [];
   for (let i = 0; i < 6; i++) {
-    const angle = (Math.PI / 180) * (60 * i - 30); // pointy-top
-    pts.push(`${cx + size * Math.cos(angle)},${cy + size * Math.sin(angle)}`);
+    const a = Math.PI / 180 * (60 * i - 30);
+    pts.push(`${cx + size * Math.cos(a)},${cy + size * Math.sin(a)}`);
   }
   return pts.join(' ');
 }
 
-const SVG_NS = 'http://www.w3.org/2000/svg';
-
-function svgEl(tag, attrs) {
-  const el = document.createElementNS(SVG_NS, tag);
-  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
-  return el;
+// Corner positions (pointy-top, corner i at 60i−30°). Track B item 5's layout: three
+// alternating corners for Ground creatures, the other three for Sky creatures.
+const G_CORNERS = [4, 0, 2];
+const S_CORNERS = [5, 1, 3];
+function cornerPos(cx, cy, i, k = 0.6) {
+  const a = Math.PI / 180 * (60 * i - 30);
+  return { x: cx + HEX * k * Math.cos(a), y: cy + HEX * k * Math.sin(a) };
 }
 
-/// Shared renderer: View and DebugStateDto both expose {cells:[{coord,terrain,ground,below,above}], actors:[{id,owner,name,kind,attack,life,maxLife,currentAp,maxAp,abilityIds,position,layer}]}.
-/// draggableSeat (1, 2, or null for the read-only true-state panel) enables drag-to-move/
-/// attack on that seat's own actors; panelKey (1, 2, or 'true') drives click-to-select
-/// regardless of ownership; sel is that panel's current selection (see `selection`'s doc comment).
-function renderBoard(svg, cells, actors, draggableSeat, panelKey, sel) {
-  if (!svg) return;
-  svg.innerHTML = '';
-  svg._cells = cells; // stashed for handleDrop's client-side pathfinding
-  if (!cells || cells.length === 0) return;
-
-  const selectedActorId = sel?.type === 'actor' ? sel.id : null;
-
-  const centers = cells.map(c => hexCenter(c.coord.q, c.coord.r));
-  const xs = centers.map(p => p.x);
-  const ys = centers.map(p => p.y);
-  const pad = HEX_SIZE * 1.3;
-  const minX = Math.min(...xs) - pad, maxX = Math.max(...xs) + pad;
-  const minY = Math.min(...ys) - pad, maxY = Math.max(...ys) + pad;
-  svg.setAttribute('viewBox', `${minX} ${minY} ${maxX - minX} ${maxY - minY}`);
-
-  const actorsById = new Map(actors.map(a => [a.id.value, a]));
-
-  cells.forEach((cell, i) => {
-    const { x, y } = centers[i];
-    const networkClass = cell.networkOwner != null
-      ? ` network-${cell.networkOwner.value}${cell.networkProducing ? '' : ' network-paused'}`
-      : '';
-    const hex = svgEl('polygon', {
-      points: hexPoints(x, y, HEX_SIZE - 1),
-      class: 'hex' + networkClass,
-      'data-q': cell.coord.q,
-      'data-r': cell.coord.r,
-    });
-    const networkNote = cell.networkOwner != null
-      ? ` — P${cell.networkOwner.value} network (${cell.networkProducing ? 'producing' : 'paused'})`
-      : '';
-    hex.appendChild(svgEl('title', {})).textContent = `(${cell.coord.q},${cell.coord.r})${networkNote}`;
-    hex.addEventListener('pointerdown', () => { dragState = { kind: 'hex', panelKey }; });
-    svg.appendChild(hex);
-
-    const occupants = [...cell.surface, ...cell.underground, ...cell.air];
-    occupants.forEach((idRef, oi) => {
-      const actor = actorsById.get(idRef.value);
-      if (!actor) return;
-      const offset = (oi - (occupants.length - 1) / 2) * 18;
-      drawActor(svg, actor, x + offset, y, draggableSeat, panelKey, actor.id.value === selectedActorId);
-    });
-  });
-}
-
-function drawActor(svg, actor, x, y, draggableSeat, panelKey, isSelected) {
-  const ownerClass = actor.owner.value === 1 ? 'owner-1' : actor.owner.value === 2 ? 'owner-2' : 'owner-unknown';
-  const levelClass = actor.level === 'Underground' ? ' level-underground' : '';
-  const draggable = draggableSeat != null && actor.owner.value === draggableSeat;
-  const circle = svgEl('circle', {
-    cx: x, cy: y, r: 12,
-    class: `actor ${ownerClass}${levelClass}${draggable ? ' draggable' : ''}${isSelected ? ' selected' : ''}`,
-    'data-q': actor.position.q,
-    'data-r': actor.position.r,
-    'data-actor-id': actor.id.value,
-  });
-  circle.appendChild(svgEl('title', {})).textContent =
-    `${actor.name} (${actor.kind}) P${actor.owner.value} — attack=${actor.attack}, life=${actor.life}/${actor.maxLife}, ap=${actor.currentAp}/${actor.maxAp}, level=${actor.level}`;
-  circle.addEventListener('pointerdown', evt => startDrag(evt, draggableSeat, actor.id.value, actor.position.q, actor.position.r, circle, panelKey, draggable));
-  svg.appendChild(circle);
-
-  // Always the three D10 stats, in the game's own Attack/Life/AP order; current AP (not max)
-  // since that's the actionable number during play — max values are in the tooltip above.
-  const label = svgEl('text', { x, y: y + 3, class: 'actor-label' });
-  label.textContent = `${actor.attack}/${actor.life}/${actor.currentAp}`;
-  svg.appendChild(label);
-}
-
-// --- Selection + drag-and-drop. A pointerdown on a hex starts a "click to deselect"; a
-// pointerdown on any token (owned or not) starts a "click to select" that upgrades to a real
-// move/attack drag if it ends on a different, owned-and-draggable hex. One state machine
-// resolves all three interactions (click-select, click-deselect, drag-move/attack) from a
-// single global pointerup handler. ---
-
-let dragState = null;
-
-function startDrag(evt, seat, actorId, q, r, el, panelKey, draggable) {
-  evt.preventDefault();
-  dragState = { kind: 'actor', seat, actorId, q, r, panelKey, draggable };
-  if (draggable) el.classList.add('dragging');
-}
-
-document.addEventListener('pointerup', evt => {
-  if (!dragState) return;
-  const ds = dragState;
-  dragState = null;
-  document.querySelectorAll('.actor.dragging').forEach(el => el.classList.remove('dragging'));
-
-  if (ds.kind === 'hex') {
-    selection[ds.panelKey] = null;
-    renderAllPanels();
-    return;
-  }
-
-  const dropTarget = document.elementFromPoint(evt.clientX, evt.clientY)?.closest('[data-q]');
-  const toQ = dropTarget ? Number(dropTarget.getAttribute('data-q')) : null;
-  const toR = dropTarget ? Number(dropTarget.getAttribute('data-r')) : null;
-  const droppedOnStart = dropTarget && toQ === ds.q && toR === ds.r;
-
-  if (!dropTarget || droppedOnStart || !ds.draggable) {
-    // A plain click (no target, or released where it started), or a non-owned token dragged
-    // elsewhere — either way nothing can move/attack, so just select it.
-    selection[ds.panelKey] = { type: 'actor', id: ds.actorId };
-    renderAllPanels();
-    return;
-  }
-
-  selection[ds.panelKey] = { type: 'actor', id: ds.actorId }; // moved via drag -> also select it
-  handleDrop(ds.seat, ds.actorId, ds.q, ds.r, toQ, toR);
-});
-
-/// BFS over the cells that exist on the board (occupancy/cost aren't modeled here — each hop
-/// is re-validated against the real legal-move list as the walk executes).
-function findPath(cells, from, to) {
-  const key = (q, r) => `${q},${r}`;
-  const present = new Set(cells.map(c => key(c.coord.q, c.coord.r)));
-  if (!present.has(key(to.q, to.r))) return null;
-
-  const start = key(from.q, from.r);
-  const cameFrom = new Map([[start, null]]);
-  const queue = [from];
-  while (queue.length) {
-    const cur = queue.shift();
-    if (cur.q === to.q && cur.r === to.r) {
-      const path = [];
-      let k = key(cur.q, cur.r);
-      while (k !== start) {
-        const [q, r] = k.split(',').map(Number);
-        path.push({ q, r });
-        k = cameFrom.get(k);
-      }
-      return path.reverse();
-    }
-    for (const [dq, dr] of HEX_DIRS) {
-      const nq = cur.q + dq, nr = cur.r + dr, nk = key(nq, nr);
-      if (present.has(nk) && !cameFrom.has(nk)) {
-        cameFrom.set(nk, key(cur.q, cur.r));
-        queue.push({ q: nq, r: nr });
-      }
-    }
-  }
-  return null;
-}
-
-/// Walks the planned path one hop at a time, submitting the real MoveCommand for each hop
-/// (re-checked against fresh legal commands every step — the path is only a route, not a
-/// legality guarantee). If a hop matches a legal Attack instead of a Move — i.e. we've arrived
-/// adjacent to a drop target occupied by an enemy — attack and stop, satisfying both "drag to
-/// walk" and "drag onto an enemy to attack" with one loop. Stops cleanly (partial move) if a
-/// hop is blocked, out of AP, or otherwise illegal.
-async function handleDrop(seat, actorId, fromQ, fromR, toQ, toR) {
-  const status = document.getElementById('status-line');
-  const cells = document.querySelector(`#panel-p${seat} svg.board`)?._cells;
-  if (!cells) return;
-
-  const path = findPath(cells, { q: fromQ, r: fromR }, { q: toQ, r: toR });
-  if (!path) {
-    status.textContent = `No path from (${fromQ},${fromR}) to (${toQ},${toR}).`;
-    return;
-  }
-
-  let steps = 0;
-  for (const hop of path) {
-    const legal = await api(`/api/legal/${seat}`);
-    const move = legal.find(c => c.kind === 'Move' && c.actorId === actorId && c.targetHex?.q === hop.q && c.targetHex?.r === hop.r);
-    const attack = legal.find(c => c.kind === 'Attack' && c.actorId === actorId && c.targetHex?.q === hop.q && c.targetHex?.r === hop.r);
-
-    // Attack takes priority over Move: ground layers allow shared occupancy among allies
-    // (capacity 3, D12), so a hex could in principle be both a legal move and attack target —
-    // dropping onto an enemy must attack, never walk in.
-    if (attack) {
-      await submitAction(seat, attack.index, { skipRefresh: true });
-      steps++;
-      break; // combat declared — the rest of the sequence (defend/assign/etc.) stays button-driven
-    } else if (move) {
-      await submitAction(seat, move.index, { skipRefresh: true });
-      steps++;
-    } else {
-      break; // blocked, out of AP, or otherwise illegal — stop where we are
-    }
-  }
-
-  if (steps < path.length)
-    status.textContent = `Moved ${steps}/${path.length} hex(es) toward (${toQ},${toR}) — stopped (no further legal move).`;
-  await refreshAll();
-}
-
-/// Once a unit is selected: Move/Attack filtered to that exact unit (their ActorId already
-/// only ever matches this seat's own units, since `legal` is itself seat-scoped). Bond/Draw/
-/// Collapse are PlayerId-scoped commands with no ActorId to match on, so they're attributed to
-/// "the selected Champion" instead — but only when it's this seat's *own* Champion selected, not
-/// just any Champion (selecting the enemy's to inspect it must not surface your own actions).
-/// Once a card is selected: only CastCreature/CastSpell for that exact card. Nothing selected:
-/// only the global, not-tied-to-one-thing commands (end phase, forced combat decisions).
-function filterForSelection(legal, sel, actors, seat) {
-  if (!legal) return [];
-  if (!sel)
-    return legal.filter(c => GLOBAL_KINDS.has(c.kind));
-
-  if (sel.type === 'card') {
-    return legal.filter(c => GLOBAL_KINDS.has(c.kind) || ((c.kind === 'CastCreature' || c.kind === 'CastSpell') && c.card === sel.id));
-  }
-
-  const selectedActor = actors?.find(a => a.id.value === sel.id);
-  const isOwnChampion = selectedActor?.kind === 'Champion' && selectedActor.owner.value === seat;
-  return legal.filter(c => {
-    if (GLOBAL_KINDS.has(c.kind)) return true;
-    if (c.kind === 'Move' || c.kind === 'Attack') return c.actorId === sel.id;
-    if (c.kind === 'Bond' || c.kind === 'Draw' || c.kind === 'Collapse') return isOwnChampion;
-    return false;
-  });
-}
-
-function renderSelectionInfo(container, actors, sel, mana, panelKey) {
-  if (!container) return;
-  if (!sel) {
-    container.innerHTML = '<span class="empty">Nothing selected — click a token or a card.</span>';
-    return;
-  }
-  if (sel.type === 'card') {
-    const def = cardById(sel.id);
-    if (!def) {
-      container.innerHTML = `<strong>${sel.id}</strong> <span class="abilities">(card in hand)</span>`;
-      return;
-    }
-    // Step 2 of the cast process (select -> pay -> target -> cast): show the cost and what it
-    // does before any target is chosen. Casting itself still pays the cost atomically — mana
-    // isn't spent until a target below is actually picked.
-    const ownMana = panelKey !== 'true' ? mana?.find(m => m.player.value === panelKey)?.mana : null;
-    const costNote = ownMana == null
-      ? `cost: ${def.manaCost} mana`
-      : ownMana >= def.manaCost
-        ? `cost: ${def.manaCost} mana (you have ${ownMana})`
-        : `cost: ${def.manaCost} mana (you have ${ownMana} — not enough)`;
-    container.innerHTML =
-      `<strong>${def.name}</strong> (${def.type}) — ${costNote}<br>` +
-      `<span class="abilities">${describeCardEffect(def)} — pick a target below to cast</span>`;
-    return;
-  }
-  const actor = actors?.find(a => a.id.value === sel.id);
-  if (!actor) {
-    container.innerHTML = '<span class="empty">Nothing selected — click a token or a card.</span>';
-    return;
-  }
-  container.innerHTML =
-    `<strong>${actor.name}</strong> (${actor.kind}, P${actor.owner.value}) — ` +
-    `attack=${actor.attack} life=${actor.life}/${actor.maxLife} ap=${actor.currentAp}/${actor.maxAp}<br>` +
-    `<span class="abilities">abilities: ${actor.abilityIds.join(', ') || 'none'}</span>`;
-}
-
-/// Step 3 of the cast process (select -> pay -> target -> cast): once a card is selected,
-/// filterForSelection has already narrowed `commands` to just that card's legal CastCreature/
-/// CastSpell (card, target) pairs — describeCastTarget relabels each with what it actually hits
-/// instead of the raw command dump, so the button list reads as "pick a target."
-function describeCastTarget(cmd, actors) {
-  if (cmd.kind === 'CastCreature') return `Summon at (${cmd.targetHex.q},${cmd.targetHex.r})`;
-  if (cmd.kind === 'CastSpell') {
-    const target = actors?.find(a => a.id.value === cmd.targetActorId);
-    return target ? `Target: ${target.name} (P${target.owner.value})` : cmd.label;
-  }
-  return cmd.label;
-}
-
-/// What hovering a given command's button should highlight on the board: the hex it targets
-/// (Move/Attack/Bond/CastCreature all carry targetHex), or the actor it targets (CastSpell's
-/// targetActorId — no hex of its own). Everything else (Draw, Collapse, EndPhase, Pass, combat
-/// decisions) has no single resolved target, so no highlight.
-function resolveHoverTarget(cmd) {
-  if (cmd.targetHex) return { type: 'hex', q: cmd.targetHex.q, r: cmd.targetHex.r };
-  if (cmd.kind === 'CastSpell' && cmd.targetActorId != null) return { type: 'actor', id: cmd.targetActorId };
-  return null;
-}
-
-function setBoardHighlight(svg, target, on) {
-  if (!svg || !target) return;
-  const el = target.type === 'hex'
-    ? svg.querySelector(`polygon.hex[data-q="${target.q}"][data-r="${target.r}"]`)
-    : svg.querySelector(`circle.actor[data-actor-id="${target.id}"]`);
-  el?.classList.toggle('hover-target', on);
-}
-
-function renderActions(container, seat, commands, onPick, actors, svg) {
-  container.innerHTML = '';
-  if (!commands || commands.length === 0) {
-    const empty = document.createElement('div');
-    empty.className = 'empty';
-    empty.textContent = 'No legal actions right now.';
-    container.appendChild(empty);
-    return;
-  }
-  for (const cmd of commands) {
-    const btn = document.createElement('button');
-    btn.textContent = (cmd.kind === 'CastCreature' || cmd.kind === 'CastSpell') ? describeCastTarget(cmd, actors) : cmd.label;
-    btn.onclick = () => onPick(seat, cmd.index);
-    const target = resolveHoverTarget(cmd);
-    if (target) {
-      btn.addEventListener('mouseenter', () => setBoardHighlight(svg, target, true));
-      btn.addEventListener('mouseleave', () => setBoardHighlight(svg, target, false));
-    }
-    container.appendChild(btn);
-  }
-}
-
-function cardChipText(cardId) {
-  const def = cardById(cardId);
-  if (!def) return cardId;
-  return `${def.name} (${def.manaCost} mana) — ${describeCardEffect(def)}`;
-}
-
-function renderHand(container, hands, seat, sel) {
-  container.innerHTML = '';
-  const own = hands.find(h => h.player.value === seat);
-  if (!own) return;
-
-  const label = document.createElement('div');
-  label.textContent = `Hand (${own.count}):`;
-  container.appendChild(label);
-
-  for (const card of own.cards ?? []) {
-    const chip = document.createElement('span');
-    const isSelected = sel?.type === 'card' && sel.id === card.value;
-    chip.className = 'card' + (isSelected ? ' selected' : '');
-    chip.textContent = cardChipText(card.value);
-    chip.onclick = () => {
-      selection[seat] = { type: 'card', id: card.value };
-      renderAllPanels();
-    };
-    container.appendChild(chip);
-  }
-}
-
-/// The true-state panel reveals everything (the deliberate exception, see DebugStateDto's own
-/// doc comment) — both players' hands as chips, plus a compact library line each.
-function renderTrueHands(container, zones) {
-  container.innerHTML = '';
-  for (const z of zones) {
-    const row = document.createElement('div');
-    row.className = 'hand-row';
-
-    const label = document.createElement('div');
-    label.className = 'library-line';
-    label.textContent = `P${z.player.value} hand (${z.hand.length}) — library (${z.library.length}): ${z.library.map(c => c.value).join(', ') || '—'}`;
-    row.appendChild(label);
-
-    for (const card of z.hand) {
-      const chip = document.createElement('span');
-      chip.className = `card owner-${z.player.value}`;
-      chip.textContent = cardChipText(card.value);
-      row.appendChild(chip);
-    }
-    container.appendChild(row);
-  }
-}
-
-/// Mana used to live only in the tiny header status line, easy to miss. Each panel now gets its
-/// own prominent readout: the P1/P2 panels show that seat's own mana (D21 — a snapshot taken
-/// once per Beginning phase, not live; see RefreshManaEffect), the true-state panel shows both.
-function renderMana(container, manaList, panelKey) {
-  if (!container) return;
-  if (panelKey === 'true') {
-    container.textContent = manaList.map(m => `P${m.player.value} mana: ${m.mana}`).join('    ');
-    return;
-  }
-  const own = manaList.find(m => m.player.value === panelKey)?.mana ?? 0;
-  container.textContent = `Mana: ${own}`;
-}
-
-function renderPhaseStepper(currentPhase) {
-  const container = document.getElementById('phase-stepper');
-  container.innerHTML = '';
-  for (const phase of PHASE_SEQUENCE) {
-    const step = document.createElement('span');
-    step.className = 'phase-step' + (phase === currentPhase ? ' current' : '');
-    step.textContent = PHASE_LABELS[phase] ?? phase;
-    container.appendChild(step);
-  }
-}
-
-function statusLine(view) {
-  const active = view.activePlayer ? `Active P${view.activePlayer.value}` : 'Active Neutral';
-  const parts = [`Round ${view.roundNumber}`, `Turn ${view.turnNumber}`, active];
-  if (view.winner) parts.push(`WINNER: P${view.winner.value}`);
-  else if (view.awaitingYourPriority) parts.push('awaiting your priority');
-  // D18: live mana balance is hidden from every observer but its own — a redacted View reports
-  // null for every other player, so only the observer's own entry ever has a number to show.
-  const mana = view.mana.filter(m => m.mana != null).map(m => `P${m.player.value} mana=${m.mana}`).join(', ');
-  return parts.join(' | ') + (mana ? ' | ' + mana : '');
-}
-
-/// Hub/True-state pages have no single "you" to redact for or ask "awaiting your priority" —
-/// unredacted mana for both players, and priority named by seat instead.
-function trueStatusLine(trueState) {
-  const active = trueState.activePlayer ? `Active P${trueState.activePlayer.value}` : 'Active Neutral';
-  const parts = [`Round ${trueState.roundNumber}`, `Turn ${trueState.turnNumber}`, active];
-  if (trueState.winner) parts.push(`WINNER: P${trueState.winner.value}`);
-  else if (trueState.activeWindow) parts.push(`awaiting P${trueState.activeWindow.currentPriority.value}'s priority`);
-  const mana = trueState.mana.map(m => `P${m.player.value} mana=${m.mana}`).join(', ');
-  return parts.join(' | ') + (mana ? ' | ' + mana : '');
-}
-
-function renderPanel(panelKey) {
-  const isTrue = panelKey === 'true';
-  const data = isTrue ? cache.trueState : cache.view[panelKey];
-  if (!data) return;
-
-  const idPrefix = isTrue ? 'panel-true' : `panel-p${panelKey}`;
-  if (!document.getElementById(idPrefix)) return; // this page doesn't have this observer's panel
-  const draggableSeat = isTrue ? null : panelKey;
-  const sel = selection[panelKey];
-  const svg = document.querySelector(`#${idPrefix} svg.board`);
-
-  renderMana(document.querySelector(`#${idPrefix} .mana`), data.mana, panelKey);
-  renderBoard(svg, data.cells, data.actors, draggableSeat, panelKey, sel);
-  renderSelectionInfo(document.querySelector(`#${idPrefix} .selection`), data.actors, sel, data.mana, panelKey);
-
-  if (isTrue) {
-    renderTrueHands(document.querySelector(`#${idPrefix} .hand`), cache.trueState.zones);
-    renderCombatInfo(document.querySelector(`#${idPrefix} .combat-info`), cache.trueState);
-  } else {
-    renderHand(document.querySelector(`#${idPrefix} .hand`), data.hands, panelKey, sel);
-    const filtered = filterForSelection(cache.legal[panelKey], sel, data.actors, panelKey);
-    renderActions(document.querySelector(`#${idPrefix} .actions`), panelKey, filtered, submitAction, data.actors, svg);
-
-    // Whoever currently has legal commands needs input right now — the active player on
-    // their own turn, or the other seat mid-combat-decision (declare defenders, etc.).
-    document.getElementById(idPrefix).classList.toggle('needs-input', (cache.legal[panelKey]?.length ?? 0) > 0);
-  }
-}
-
-/// Normalizes View's {libraries,hands,discards} (per-observer, redacted) and DebugStateDto's
-/// {zones:[{player,library,hand,discard}]} (true state, unredacted) into one shape so the Mind
-/// panel renderer doesn't care which source it's looking at.
-function mindZonesFrom(data, isTrue) {
-  if (isTrue) {
-    return data.zones.map(z => ({
-      player: z.player, libraryCount: z.library.length, libraryCards: z.library,
-      handCount: z.hand.length, handCards: z.hand, discard: z.discard,
-    }));
-  }
-  const discardByPlayer = new Map(data.discards.map(d => [d.player.value, d.cards]));
-  return data.libraries.map(lib => ({
-    player: lib.player, libraryCount: lib.count, libraryCards: lib.cards,
-    handCount: data.hands.find(h => h.player.value === lib.player.value)?.count ?? 0,
-    handCards: data.hands.find(h => h.player.value === lib.player.value)?.cards ?? null,
-    discard: discardByPlayer.get(lib.player.value) ?? [],
-  }));
-}
-
-/// One face-up card, card-proportioned (~5:7). `cardId` is a plain CardDefinitionId string.
-function cardFaceEl(cardId, { clickable = false, selected = false, ownerSeat = null } = {}) {
-  const def = cardById(cardId);
-  const el = document.createElement('div');
-  el.className = 'card-face' + (clickable ? ' clickable' : '') + (selected ? ' selected' : '') + (ownerSeat ? ` owner-${ownerSeat}` : '');
-  el.title = def ? `${def.name} — ${describeCardEffect(def)}` : cardId;
-  const name = document.createElement('div');
-  name.className = 'card-name';
-  name.textContent = def ? def.name : cardId;
-  const detail = document.createElement('div');
-  detail.className = 'card-detail';
-  detail.textContent = def ? describeCardEffect(def) : '';
-  el.append(name, detail);
-  return el;
-}
-
-/// A face-down card — the back of the Library's top card (with a count) or an opponent's
-/// unknown-order hand (blank, one per card).
-function cardBackEl(label = '') {
-  const el = document.createElement('div');
-  el.className = 'card-back';
-  if (label !== '') {
-    const num = document.createElement('div');
-    num.className = 'card-back-count';
-    num.textContent = String(label);
-    el.appendChild(num);
-  }
-  return el;
-}
-
-/// Discard: only the top (most recently discarded) card shows face-up; hovering reveals the
-/// whole pile. Library: always a card-back + remaining count (D37/2026-09-14 — the owner knows
-/// which cards are in it, never their order, so even the owner's own Library never shows a
-/// face-up stack) — but if the caller has the (order-less, or true-order on the True panel) card
-/// list at all, hovering still reveals that known set via the same popup mechanism.
-function hoverStackEl(faceEl, allCards, emptyText) {
-  const wrap = document.createElement('div');
-  if (!allCards || allCards.length === 0) {
-    wrap.appendChild(faceEl ?? cardBackEl());
-    if (emptyText) wrap.title = emptyText;
-    return wrap;
-  }
-  wrap.className = 'hover-stack';
-  wrap.appendChild(faceEl);
-  const popup = document.createElement('div');
-  popup.className = 'hover-popup';
-  for (const c of allCards) popup.appendChild(cardFaceEl(c.value ?? c));
-  wrap.appendChild(popup);
-  return wrap;
-}
-
-function discardWidgetEl(discard) {
-  if (!discard || discard.length === 0) return hoverStackEl(null, null, 'empty');
-  const topId = discard[discard.length - 1];
-  return hoverStackEl(cardFaceEl(topId.value ?? topId), discard, null);
-}
-
-function libraryWidgetEl(count, cards) {
-  return hoverStackEl(cardBackEl(count), cards, null);
-}
-
-/// Own hand: clickable face-up cards (casting UX, same `selection` the Island panel's hand
-/// already drives). Opponent's hand: blank face-down backs, one per card, count only — D7.
-function handRowEl(count, cards, seat, sel, clickable) {
-  const row = document.createElement('div');
-  row.className = 'card-row';
-  if (cards) {
-    for (const c of cards) {
-      const id = c.value ?? c;
-      const isSelected = clickable && sel?.type === 'card' && sel.id === id;
-      const el = cardFaceEl(id, { clickable, selected: isSelected, ownerSeat: seat });
-      if (clickable) el.onclick = () => { selection[seat] = { type: 'card', id }; renderAllPanels(); };
-      row.appendChild(el);
-    }
-  } else {
-    for (let i = 0; i < count; i++) row.appendChild(cardBackEl());
-  }
-  return row;
-}
-
-function mindZoneEl(title, count, contentEl) {
-  const zone = document.createElement('div');
-  zone.className = 'mind-zone';
-  const label = document.createElement('div');
-  label.className = 'mind-zone-title';
-  label.textContent = `${title} (${count})`;
-  zone.append(label, contentEl);
-  return zone;
-}
-
-/// Mind domain (Hand/Library/Discard, D37): one row per player, Discard | Hand | Library —
-/// Library never shows a face-up stack, even the owner's own (2026-09-14: known cards, unknown
-/// order); Discard is fully public; Hand follows D7 (own cards face-up and clickable, opponent's
-/// face-down backs, count only).
-function renderMindPanel(panelKey) {
-  const isTrue = panelKey === 'true';
-  const data = isTrue ? cache.trueState : cache.view[panelKey];
-  if (!data) return;
-  const idPrefix = isTrue ? 'mind-true' : `mind-p${panelKey}`;
-  const container = document.querySelector(`#${idPrefix} .mind-zones`);
-  if (!container) return;
-
-  const zones = mindZonesFrom(data, isTrue);
-  const sel = isTrue ? null : selection[panelKey];
-
-  container.innerHTML = '';
-  for (const z of zones) {
-    const row = document.createElement('div');
-    row.className = 'mind-row';
-
-    const label = document.createElement('div');
-    label.className = 'mind-row-label';
-    label.textContent = `P${z.player.value}`;
-    row.appendChild(label);
-
-    row.appendChild(mindZoneEl('Discard', z.discard.length, discardWidgetEl(z.discard)));
-    row.appendChild(mindZoneEl('Hand', z.handCount, handRowEl(z.handCount, z.handCards, z.player.value, sel, !isTrue)));
-    row.appendChild(mindZoneEl('Library', z.libraryCount, libraryWidgetEl(z.libraryCount, z.libraryCards)));
-
-    container.appendChild(row);
-  }
-}
-
-function traceTokenEl(t, fadeNote) {
-  const el = document.createElement('div');
-  el.className = 'trace-token';
-  el.innerHTML =
-    `<div><span class="trace-controller">P${t.controller.value}:</span> ${t.description}` +
-    (fadeNote ? `<span class="trace-fade">${fadeNote}</span>` : '') +
-    `</div>`;
-  return el;
-}
-
-function aetherZoneEl(title, traces, fadeNoteFor) {
-  const zone = document.createElement('div');
-  zone.className = 'aether-zone ' + title.toLowerCase();
-  const label = document.createElement('div');
-  label.className = 'aether-zone-title';
-  label.textContent = title;
-  zone.appendChild(label);
-
-  const tokens = document.createElement('div');
-  tokens.className = 'aether-zone-tokens';
-  if (traces.length === 0) {
-    const empty = document.createElement('div');
-    empty.className = 'empty';
-    empty.textContent = '—';
-    tokens.appendChild(empty);
-  } else {
-    for (const t of traces) tokens.appendChild(traceTokenEl(t, fadeNoteFor?.(t)));
-  }
-  zone.appendChild(tokens);
-  return zone;
-}
-
-/// Aether domain (Past/Pending/Future, D38): one shared horizontal timeline, not per-player —
-/// Now is a vertical line between Past and Pending, not a zone of its own. Fully public in M1
-/// (nothing hidden, e.g. a Trap, exists yet), so all three sub-panels show the same content
-/// today; per-observer redaction is a future concern once hidden trace content exists.
-function renderAetherPanel(panelKey) {
-  const isTrue = panelKey === 'true';
-  const data = isTrue ? cache.trueState : cache.view[panelKey];
-  if (!data) return;
-  const idPrefix = isTrue ? 'aether-true' : `aether-p${panelKey}`;
-  const el = document.querySelector(`#${idPrefix} .aether-timeline`);
-  if (!el) return;
-
-  // No client-side ordering logic at all, by construction rather than by sorting: TrueState.Past
-  // is a plain List<PastTrace> that only ever gets appended to (AetherPipeline.ResolveTopOfPending)
-  // and filtered in place as entries fade (ExpireFadedTracesEffect), never reordered — so the API
-  // already hands it over oldest-first, and rendering it directly (oldest left, newest right,
-  // right = nearest Now) needs nothing further. A previous version sorted by createdAtRound
-  // client-side to get this same order, which added a real bug (round-granularity ties broke
-  // unpredictably) for zero benefit over just trusting the server's own order.
-  const past = data.past;
-  // Top of Pending (next to resolve) is nearest Now, deeper entries extend rightward — Pending
-  // is itself append-only (Push) but its *most*-recent entry is what sits nearest Now here
-  // (opposite of Past), so this one direction genuinely does need reversing, not sorting.
-  const pending = [...data.pending].reverse();
-
-  const fadeNote = t => ` (r${t.createdAtRound}, fades r${t.fadesAtRound})`;
-
-  el.innerHTML = '';
-  el.appendChild(aetherZoneEl('Past', past, fadeNote));
-  const nowLine = document.createElement('div');
-  nowLine.className = 'now-line';
-  el.appendChild(nowLine);
-  el.appendChild(aetherZoneEl('Pending', pending));
-  el.appendChild(aetherZoneEl('Future', data.future));
-}
-
-/// Each tab only has the DOM for its own observer (VIEW) — the hub tab has none of it and
-/// VIEW is null there, so this is a no-op on that page.
-function renderAllPanels() {
-  if (VIEW == null) return;
-  renderPanel(VIEW);
-  renderMindPanel(VIEW);
-  renderAetherPanel(VIEW);
-}
-
-async function refreshAll() {
-  const status = document.getElementById('status-line');
+// ---------------------------------------------------------------------------- data
+
+async function refresh() {
+  if (SEAT === null || ui.busy) return;
+  ui.busy = true;
   try {
-    const [view1, view2, trueState] = await Promise.all([
-      api('/api/view/1'),
-      api('/api/view/2'),
-      api('/api/truestate'),
-    ]);
-    const [legal1, legal2] = await Promise.all([api('/api/legal/1'), api('/api/legal/2')]);
-
-    cache.view[1] = view1;
-    cache.view[2] = view2;
-    cache.trueState = trueState;
-    cache.legal[1] = legal1;
-    cache.legal[2] = legal2;
-    cache.cards = trueState.cards ?? [];
-
-    // Drop a selection that's gone stale: its actor died (or a new scenario was loaded), or
-    // its card left hand (cast, or a new scenario was loaded).
-    for (const key of [1, 2, 'true']) {
-      const sel = selection[key];
-      if (!sel) continue;
-      const actors = key === 'true' ? trueState.actors : cache.view[key].actors;
-      if (sel.type === 'actor' && !actors.some(a => a.id.value === sel.id)) selection[key] = null;
-      if (sel.type === 'card') {
-        const hand = key === 'true' ? null : cache.view[key].hands.find(h => h.player.value === key)?.cards;
-        if (!hand?.some(c => c.value === sel.id)) selection[key] = null;
-      }
-    }
-
-    // Default to this seat's own Champion whenever nothing else is selected — covers initial
-    // load, a scenario reload, and the turn passing to the other seat, without ever
-    // overriding a real (still-valid) selection or a deliberate deselect-to-null mid-turn
-    // (this only fires from a fresh server round-trip, not from the plain-click deselect path).
-    for (const seat of [1, 2]) {
-      if (selection[seat] != null) continue;
-      const champion = cache.view[seat].actors.find(a => a.kind === 'Champion' && a.owner.value === seat);
-      if (champion) selection[seat] = { type: 'actor', id: champion.id.value };
-    }
-
-    renderAllPanels();
-    renderPhaseStepper(trueState.currentPhase);
-
-    // Each tab's status line reflects its own observer — P1/P2's redacted view (their own
-    // mana, "awaiting YOUR priority"), the hub and True-state tab get the unredacted version.
-    status.textContent = VIEW === 1 ? statusLine(view1) : VIEW === 2 ? statusLine(view2) : trueStatusLine(trueState);
-    status.className = trueState.winner ? 'winner-banner' : '';
+    const data = await api(`/api/view/${SEAT}`);
+    ui.view = data.view;
+    ui.scenario = data.scenario;
+    ui.autoPass = data.autoPass;
+    ui.legal = SEAT === 0 ? [] : await api(`/api/legal/${SEAT}`);
+    validateUiState();
+    render();
   } catch (err) {
-    status.textContent = String(err);
+    document.getElementById('banner').textContent = String(err.message || err);
+    document.getElementById('banner').className = 'banner waiting';
+  } finally {
+    ui.busy = false;
   }
 }
 
-function renderCombatInfo(container, trueState) {
-  if (trueState.activeCombats.length === 0 && !trueState.activeWindow) {
-    container.textContent = '';
+function validateUiState() {
+  if (ui.selection?.type === 'perm' && !permById(ui.selection.id)) ui.selection = null;
+  if (ui.selection?.type === 'card' && !myHand().some(c => c.id === ui.selection.id)) ui.selection = null;
+  if (ui.wizard && matching().length === 0) ui.wizard = null;
+}
+
+async function submit(index) {
+  ui.error = null;
+  try {
+    const res = await api('/api/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ seat: SEAT, index }) });
+    if (!res.accepted) ui.error = res.error;
+  } catch (err) {
+    ui.error = String(err.message || err);
+  }
+  ui.wizard = null;
+  await refresh();
+}
+
+// ---------------------------------------------------------------------------- wizard
+
+function activations() { return ui.legal.filter(c => c.kind === 'Activate'); }
+
+function matching() {
+  const w = ui.wizard;
+  if (!w) return [];
+  return activations().filter(c => c.source === w.source && c.ability === w.ability
+    && w.chosen.every((k, i) => targetKey(c.targets[i]) === k));
+}
+
+function wizardStep() {
+  const cmds = matching();
+  if (cmds.length === 0) return null;
+  const step = ui.wizard.chosen.length;
+  const total = cmds[0].targets.length;
+  if (step >= total) return { done: true, command: cmds[0] };
+  const options = new Map();
+  for (const c of cmds) {
+    const k = targetKey(c.targets[step]);
+    if (!options.has(k)) options.set(k, c.targets[step]);
+  }
+  return { done: false, step, total, options: [...options.entries()].map(([key, list]) => ({ key, list })) };
+}
+
+function startWizard(source, ability) {
+  ui.wizard = { source, ability, chosen: [], focusHex: null };
+  advanceTrivialSteps();
+  render();
+}
+
+function choose(key) {
+  ui.wizard.chosen.push(key);
+  ui.wizard.focusHex = null;
+  advanceTrivialSteps();
+  render();
+}
+
+/// A target selection with exactly one option still needs the player to see it — but a
+/// selection whose single option is "nothing" (an up-to-zero target with no candidates) is skipped.
+function advanceTrivialSteps() {
+  for (let guard = 0; guard < 10; guard++) {
+    const s = wizardStep();
+    if (!s || s.done) return;
+    if (s.options.length === 1 && s.options[0].list.length === 0) ui.wizard.chosen.push(s.options[0].key);
+    else return;
+  }
+}
+
+/// Candidates of the current step that are a single object or a single location, for board
+/// highlighting and click-to-pick.
+function stepCandidates() {
+  const s = ui.wizard ? wizardStep() : null;
+  const result = { objects: new Map(), hexes: new Map() };
+  if (!s || s.done) return result;
+  for (const o of s.options) {
+    if (o.list.length !== 1) continue;
+    const t = o.list[0];
+    if (t.object != null) result.objects.set(t.object, o.key);
+    else if (t.hex) {
+      const k = hexKey(t.hex);
+      if (!result.hexes.has(k)) result.hexes.set(k, []);
+      result.hexes.get(k).push(o);
+    }
+  }
+  return result;
+}
+
+// ---------------------------------------------------------------------------- render
+
+function render() {
+  if (!ui.view) return;
+  renderHeader();
+  renderBanner();
+  renderBoard();
+  renderPrompt();
+  renderDetails();
+  renderHand();
+  renderAether();
+  renderMind();
+  renderLog();
+}
+
+function renderHeader() {
+  const v = ui.view;
+  const info = document.getElementById('turn-info');
+  info.replaceChildren(
+    el('span', {}, `${ui.scenario ?? ''} · Round ${v.round} · `),
+    el('span', { class: 'seat' }, `${v.activeSeat}'s turn`),
+    ...PHASES.slice(1).map(p => el('span', { class: 'phase' + (p === v.phase ? ' current' : '') }, p)),
+  );
+  const ap = document.getElementById('autopass');
+  if (ap) {
+    if (SEAT === 0) ap.parentElement.style.display = 'none';
+    else ap.checked = ui.autoPass[SEAT - 1];
+  }
+}
+
+function renderBanner() {
+  const v = ui.view;
+  const b = document.getElementById('banner');
+  if (v.winner || v.isDraw) {
+    b.className = 'banner over';
+    b.textContent = v.isDraw ? 'The match is a draw — both Champions fell from the same instruction.' : `Champion ${v.winner} wins!`;
     return;
   }
-  const lines = trueState.activeCombats.map(c =>
-    `Combat ${c.id.value}: A${c.attacker.value} -> (${c.targetHex.q},${c.targetHex.r}) [${c.phase}]` +
-    (c.defenders.length ? ` defenders=${c.defenders.map(d => 'A' + d.value).join(',')}` : ''));
-  if (trueState.activeWindow) {
-    const w = trueState.activeWindow;
-    lines.push(`Priority window (${w.kind}): current=P${w.currentPriority.value}, order=${w.order.map(p => 'P' + p.value).join('>')}`);
+  if (v.decision) {
+    b.className = 'banner decision';
+    b.textContent = v.yourDecision ? `Your decision: ${v.decision.text}` : `Waiting for Champion ${v.decision.decider}'s decision: ${v.decision.text}`;
+    return;
   }
-  container.textContent = lines.join('\n');
+  if (SEAT === 0) {
+    b.className = 'banner waiting';
+    b.textContent = `True state — priority: ${v.priorityHolder ? 'Champion ' + v.priorityHolder : 'nobody'}${v.pending.length ? ` · ${v.pending.length} in Pending` : ''}`;
+    return;
+  }
+  if (v.yourPriority) {
+    b.className = 'banner yours';
+    const own = v.activeSeat === `Champion ${ME}`;
+    b.textContent = v.pending.length
+      ? `Your priority — respond (Quick/Reactive/Instant), or pass to let the top of Pending resolve.`
+      : own ? 'Your priority — your Action phase: act, or end it.' : 'Your priority — Pending is empty: play something Quick/Reactive/Instant, or pass.';
+  } else {
+    b.className = 'banner waiting';
+    b.textContent = v.priorityHolder ? `Waiting for Champion ${v.priorityHolder}…` : `${v.phase}…`;
+  }
 }
 
-async function submitAction(seat, index, options = {}) {
-  const status = document.getElementById('status-line');
-  try {
-    const result = await api('/api/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ seat, index }),
+function renderBoard() {
+  const board = document.getElementById('board');
+  const v = ui.view;
+  board.replaceChildren();
+  const centers = v.hexes.map(h => center(h.coord.q, h.coord.r));
+  const xs = centers.map(c => c.x), ys = centers.map(c => c.y);
+  const pad = HEX * 1.1;
+  board.setAttribute('viewBox', `${Math.min(...xs) - pad} ${Math.min(...ys) - pad} ${Math.max(...xs) - Math.min(...xs) + 2 * pad} ${Math.max(...ys) - Math.min(...ys) + 2 * pad}`);
+
+  const cand = stepCandidates();
+  const attacked = new Set(v.pending.filter(t => t.attack).map(t => hexKey(t.attack.hex)));
+  const byHex = new Map(v.hexes.map(h => [hexKey(h.coord), h]));
+  const root = ui.layer === 'root';
+
+  const gHex = svg('g'), gLines = svg('g'), gMarks = svg('g'), gTokens = svg('g');
+  board.append(gHex, gLines, gMarks, gTokens);
+
+  for (const h of v.hexes) {
+    const { x, y } = center(h.coord.q, h.coord.r);
+    const k = hexKey(h.coord);
+    const bonder = h.bondedBy != null ? permById(h.bondedBy) : null;
+    const classes = ['hex'];
+    if (h.isVoid) classes.push('void');
+    if (h.bondedByChampion) classes.push('bond-' + h.bondedByChampion);
+    if (bonder && bonder.kind === 'Companion') classes.push('companion-bond');
+    if (ui.selection?.type === 'hex' && ui.selection.q === h.coord.q && ui.selection.r === h.coord.r) classes.push('selected');
+    if (cand.hexes.has(k)) classes.push('candidate');
+    if (attacked.has(k)) classes.push('attacked');
+    const poly = svg('polygon', { points: hexCorners(x, y, HEX - 1.5), class: classes.join(' '), fill: terrainFill(h) });
+    poly.append(svg('title', {}, hexTooltip(h)));
+    poly.addEventListener('click', () => onHexClick(h));
+    gHex.append(poly);
+    if (root && !h.isVoid) gHex.append(svg('polygon', { points: hexCorners(x, y, HEX - 1.5), class: 'root-shade' }));
+
+    if (!h.isVoid) {
+      const letters = h.produces.map(e => ELEMENT_LETTER[e]).join('') || '·';
+      gMarks.append(svg('text', { x, y: y - HEX * 0.08, class: 'terrain-label', 'text-anchor': 'middle' }, letters + (h.moveCost > 1 ? ` ⛰${h.moveCost}` : '')));
+      if (h.hasAbilities) gMarks.append(svg('text', { x: x + 12, y: y - HEX * 0.3, class: 'badge' }, '✦'));
+      // Leyline node: green = drawn this cycle, red = paused and undrawn (D77).
+      if (h.bondedBy != null) {
+        const cls = h.drawn ? 'drawn' : h.paused || !h.flowing ? 'undrawn' : 'open';
+        gMarks.append(svg('circle', { cx: x, cy: y + HEX * 0.08, r: 4, class: 'node ' + cls }));
+      }
+      if (h.homeOf) gMarks.append(svg('text', { x, y: y + HEX * 0.82, class: 'slot-mark', 'text-anchor': 'middle' }, `home ${h.homeOf}`));
+      if (!root) {
+        for (const [i, label] of [[G_CORNERS[0], 'G'], [S_CORNERS[0], 'S']]) {
+          const p = cornerPos(x, y, i, 0.86);
+          gMarks.append(svg('text', { x: p.x, y: p.y + 3, class: 'slot-mark', 'text-anchor': 'middle' }, label));
+        }
+      }
+    }
+    // Leylines between neighbouring terrain bonded by the same root.
+    if (h.bondedBy != null) {
+      for (const [dq, dr] of [[1, 0], [0, 1], [-1, 1]]) {
+        const n = byHex.get(`${h.coord.q + dq},${h.coord.r + dr}`);
+        if (!n || n.bondedBy !== h.bondedBy) continue;
+        const c2 = center(n.coord.q, n.coord.r);
+        const ok = h.flowing && n.flowing;
+        gLines.append(svg('line', { x1: x, y1: y + HEX * 0.08, x2: c2.x, y2: c2.y + HEX * 0.08, class: 'leyline ' + (ok ? 'flow' : 'paused') }));
+      }
+    }
+  }
+
+  // Tokens.
+  const loose = (p) => p.carrier == null;
+  for (const h of v.hexes) {
+    const { x, y } = center(h.coord.q, h.coord.r);
+    const here = v.permanents.filter(p => loose(p) && p.hex.q === h.coord.q && p.hex.r === h.coord.r);
+    const creaturesIn = (slice) => here.filter(p => ['Creature', 'Companion', 'Champion'].includes(p.kind) && p.slice === slice);
+    const layerSlice = root ? 'Root' : 'Ground';
+    creaturesIn(layerSlice).forEach((p, i) => drawToken(gTokens, p, cornerPos(x, y, G_CORNERS[i % 3]), cand));
+    if (!root) creaturesIn('Sky').forEach((p, i) => drawToken(gTokens, p, cornerPos(x, y, S_CORNERS[i % 3]), cand));
+    const structure = here.find(p => p.kind === 'Structure' && p.slice === layerSlice);
+    if (structure) drawToken(gTokens, structure, { x, y: y + HEX * 0.08 }, cand);
+    here.filter(p => p.kind === 'Remnant' && p.slice === layerSlice)
+      .forEach((p, i) => drawToken(gTokens, p, { x: x - HEX * 0.5, y: y - 6 + i * 11 }, cand));
+    here.filter(p => p.kind === 'Item' && p.slice === layerSlice)
+      .forEach((p, i) => drawToken(gTokens, p, { x: x + HEX * 0.5, y: y - 6 + i * 11 }, cand));
+  }
+}
+
+function terrainFill(h) {
+  if (h.isVoid) return '#0c0c10';
+  const colors = h.produces.map(e => ELEMENT_COLORS[e]);
+  return colors[0] ?? '#666';
+}
+
+function hexTooltip(h) {
+  const lines = [`(${h.coord.q},${h.coord.r}) ${h.terrainName}${h.terrainType ? ' — ' + h.terrainType : ''}`];
+  if (h.isVoid) return lines[0] + '\nVoid: can\'t be entered or bonded.';
+  lines.push(`Produces: ${h.produces.join(', ') || 'nothing'} · move cost ${h.moveCost}`);
+  if (h.bondedBy != null) lines.push(`Bonded by #${h.bondedBy} (Champion ${h.bondedByChampion}) — ${h.flowing ? 'flowing' : h.paused ? 'PAUSED by a knot' : 'not connected'}${h.drawn ? ', drawn this cycle' : ''}`);
+  else lines.push('Unbonded');
+  if (h.homeOf) lines.push(`Home ground of Champion ${h.homeOf}`);
+  return lines.join('\n');
+}
+
+function drawToken(layer, p, pos, cand) {
+  const kind = p.kind.toLowerCase();
+  const classes = ['token', 'ctrl-' + p.controller, kind];
+  if (p.locked) classes.push('locked');
+  if (p.inRoot && SEAT === 0) classes.push('hidden-to-others');
+  if (ui.selection?.type === 'perm' && ui.selection.id === p.id) classes.push('selected');
+  if (cand.objects.has(p.id)) classes.push('candidate');
+  const g = svg('g', { class: classes.join(' '), transform: `translate(${pos.x},${pos.y})` });
+  let size;
+  if (p.kind === 'Structure') {
+    size = 13;
+    g.append(svg('rect', { x: -size, y: -size, width: 2 * size, height: 2 * size, rx: 4, class: 'body' }));
+  } else if (p.kind === 'Item') {
+    size = 7;
+    g.append(svg('polygon', { points: `0,${-size} ${size},0 0,${size} ${-size},0`, class: 'body' }));
+  } else if (p.kind === 'Remnant') {
+    size = 6;
+    g.append(svg('rect', { x: -size, y: -size, width: 2 * size, height: 2 * size, class: 'body', fill: '#777', style: 'fill:#777' }));
+  } else {
+    size = p.kind === 'Champion' ? 15 : 12.5;
+    g.append(svg('circle', { r: size, class: 'body' }));
+  }
+  if (p.kind !== 'Item' && p.kind !== 'Remnant') {
+    g.append(svg('text', { y: 3.5, class: 'initials' }, initials(p.name)));
+    const stats = p.kind === 'Structure' ? `♥${p.life} ·${p.ap}` : `${p.attack}/${p.life} ·${p.ap}`;
+    g.append(svg('text', { y: size + 9, class: 'stats' }, stats));
+  }
+  const carried = ui.view.permanents.filter(q => q.carrier === p.id);
+  if (carried.length) g.append(svg('text', { x: size - 1, y: -size + 4, class: 'badge' }, '⚔'));
+  g.append(svg('title', {}, tokenTooltip(p, carried)));
+  g.addEventListener('click', (e) => { e.stopPropagation(); onTokenClick(p); });
+  layer.append(g);
+}
+
+function tokenTooltip(p, carried) {
+  const lines = [`${p.name} #${p.id} — ${p.kind}, ${p.controller === 'Neutral' ? 'Neutral' : 'Champion ' + p.controller}`];
+  if (['Creature', 'Companion', 'Champion'].includes(p.kind)) lines.push(`Attack ${p.attack} · Life ${p.life}/${p.maxLife} · AP ${p.ap}/${p.maxAp}`);
+  else if (p.kind === 'Structure') lines.push(`Life ${p.life}/${p.maxLife} · AP ${p.ap}/${p.maxAp}`);
+  if (p.keywords.length) lines.push(p.keywords.join(', '));
+  if (p.locked) lines.push('Done for this turn (~)');
+  if (p.behavior) lines.push(`Behavior: ${p.behavior}`);
+  if (carried.length) lines.push('Carries: ' + carried.map(c => c.name).join(', '));
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------- board clicks
+
+function onTokenClick(p) {
+  const cand = stepCandidates();
+  if (cand.objects.has(p.id)) { choose(cand.objects.get(p.id)); return; }
+  ui.selection = { type: 'perm', id: p.id };
+  if (ui.wizard && ui.wizard.source !== p.id) ui.wizard = null;
+  render();
+}
+
+function onHexClick(h) {
+  const cand = stepCandidates();
+  const options = cand.hexes.get(hexKey(h.coord));
+  if (options) {
+    if (options.length === 1) { choose(options[0].key); return; }
+    ui.wizard.focusHex = hexKey(h.coord);
+    render();
+    return;
+  }
+  ui.selection = { type: 'hex', q: h.coord.q, r: h.coord.r };
+  ui.wizard = null;
+  render();
+}
+
+// ---------------------------------------------------------------------------- side panels
+
+function abilityGroups(sourceId) {
+  const groups = new Map();
+  for (const c of activations().filter(c => c.source === sourceId)) {
+    if (!groups.has(c.ability)) groups.set(c.ability, []);
+    groups.get(c.ability).push(c);
+  }
+  return groups;
+}
+
+function renderPrompt() {
+  const box = document.getElementById('prompt');
+  box.replaceChildren();
+  if (SEAT === 0) {
+    box.append(el('div', { class: 'hint' }, 'The true-state view is read-only. It shows hidden permanents (dashed outline) and both hands.'));
+    return;
+  }
+  if (ui.error) box.append(el('div', { style: 'color: var(--bad)' }, `Rejected: ${ui.error}`));
+
+  // Decisions first.
+  const decisions = ui.legal.filter(c => ['SplitDamage', 'Redirect', 'CancelRedirect'].includes(c.kind));
+  if (decisions.length) {
+    box.append(el('h2', {}, 'Decision'));
+    box.append(el('div', { class: 'row' }, decisions.map(c => el('button', { class: 'choice', onclick: () => submit(c.index) }, c.label))));
+    return;
+  }
+
+  if (ui.wizard) {
+    renderWizard(box);
+    return;
+  }
+
+  const pass = ui.legal.find(c => c.kind === 'Pass');
+  const sel = ui.selection;
+  if (sel && (sel.type === 'perm' || sel.type === 'card')) {
+    const groups = abilityGroups(sel.id);
+    const perm = sel.type === 'perm' ? permById(sel.id) : null;
+    box.append(el('h2', {}, perm ? `Abilities of ${perm.name}` : 'Cast'));
+    if (groups.size === 0) box.append(el('div', { class: 'hint' }, ui.view.yourPriority ? 'Nothing it can do right now.' : 'You don\'t have priority.'));
+    const shown = new Set();
+    for (const [ability, cmds] of groups) {
+      shown.add(ability);
+      const first = cmds[0];
+      const name = first.label.split(' → ')[0];
+      box.append(el('button', { class: 'ability', onclick: () => startWizard(sel.id, ability) },
+        el('span', {}, name), el('span', { class: 'meta' }, `${first.cost ?? ''} · ${first.speed ?? ''}${cmds.length > 1 ? ` · ${cmds.length} options` : ''}`)));
+    }
+    if (perm && perm.controller === ME) {
+      for (const a of perm.abilities.filter(a => !a.trigger && !shown.has(a.id))) {
+        box.append(el('button', { class: 'ability', disabled: true },
+          el('span', {}, a.name), el('span', { class: 'meta' }, `${a.cost} · ${a.speed} · not now`)));
+      }
+    }
+  } else if (ui.view.yourPriority) {
+    box.append(el('div', { class: 'hint' }, 'Select one of your permanents or a card in your hand to see what it can do.'));
+  }
+
+  // Quick Defend shortcuts for attacks in Pending.
+  const defends = activations().filter(c => c.ability === 'defend');
+  if (defends.length) {
+    box.append(el('h2', { style: 'margin-top:10px' }, 'Defend'));
+    box.append(el('div', { class: 'row' }, defends.map(c => el('button', { class: 'choice', onclick: () => submit(c.index) }, `${permById(c.source)?.name ?? '#' + c.source} defends (${c.cost})`))));
+  }
+
+  if (pass) box.append(el('div', { class: 'row', style: 'margin-top:10px' }, el('button', { class: 'primary', onclick: () => submit(pass.index) }, pass.label)));
+}
+
+function renderWizard(box) {
+  const w = ui.wizard;
+  const s = wizardStep();
+  const any = matching()[0];
+  if (!s || !any) { ui.wizard = null; return; }
+  const title = any.label.split(' → ')[0];
+  box.append(el('h2', {}, `${title} — ${any.cost ?? ''} · ${any.speed ?? ''}`));
+  box.append(el('div', { class: 'hint' }, 'Pay → target → Pending. Nothing is paid until you confirm; abort any time.'));
+  w.chosen.forEach((k, i) => {
+    const label = matching()[0].targets[i].map(t => t.label).join(' + ') || 'nothing';
+    box.append(el('div', {}, `Target ${i + 1}: ${label}`));
+  });
+  if (s.done) {
+    box.append(el('div', { class: 'row' },
+      el('button', { class: 'primary', onclick: () => submit(s.command.index) }, `Confirm: ${s.command.label}`),
+      el('button', { class: 'danger', onclick: () => { ui.wizard = null; render(); } }, 'Abort')));
+    return;
+  }
+  box.append(el('div', { class: 'step' }, `Choose target ${s.step + 1} of ${s.total} (highlighted on the board, or below):`));
+  let options = s.options;
+  if (w.focusHex) options = options.filter(o => o.list.length === 1 && o.list[0].hex && hexKey(o.list[0].hex) === w.focusHex);
+  box.append(el('div', { class: 'row' }, options.map(o =>
+    el('button', { class: 'choice', onclick: () => choose(o.key) }, o.list.map(t => t.label).join(' + ') || 'nothing'))));
+  box.append(el('div', { class: 'row' }, el('button', { class: 'danger', onclick: () => { ui.wizard = null; render(); } }, 'Abort')));
+}
+
+function renderDetails() {
+  const box = document.getElementById('details');
+  box.replaceChildren();
+  const sel = ui.selection;
+  if (!sel) { box.append(el('div', { class: 'hint' }, 'Nothing selected.')); return; }
+  if (sel.type === 'hex') {
+    const h = ui.view.hexes.find(x => x.coord.q === sel.q && x.coord.r === sel.r);
+    if (!h) return;
+    box.append(el('h2', {}, `Terrain (${h.coord.q},${h.coord.r})`));
+    box.append(el('pre', { style: 'white-space:pre-wrap;margin:0' }, hexTooltip(h)));
+    const here = ui.view.permanents.filter(p => p.carrier == null && p.hex.q === h.coord.q && p.hex.r === h.coord.r);
+    for (const slice of ['Sky', 'Ground', 'Root']) {
+      const list = here.filter(p => p.slice === slice);
+      box.append(el('div', {}, `${slice}: ${list.map(p => `${p.name} (${p.kind}, ${p.controller})`).join(', ') || '—'}`));
+    }
+    const info = cardInfo(h.terrainCard);
+    if (info?.text) box.append(el('div', { class: 'hint' }, info.text));
+    return;
+  }
+  if (sel.type === 'card') {
+    const card = myHand().find(c => c.id === sel.id);
+    const info = card && cardInfo(card.card);
+    if (info) box.append(cardDetails(info));
+    return;
+  }
+  const p = permById(sel.id);
+  if (!p) return;
+  box.append(el('h2', {}, `${p.name} #${p.id}`));
+  const dl = el('dl', {},
+    el('dt', {}, 'Kind'), el('dd', {}, `${p.kind}${p.inRoot ? ' (hidden Root)' : ''}`),
+    el('dt', {}, 'Controller'), el('dd', {}, p.controller === 'Neutral' ? 'Neutral' : `Champion ${p.controller}`),
+    el('dt', {}, 'Location'), el('dd', {}, p.carrier != null ? `carried by #${p.carrier}` : `(${p.hex.q},${p.hex.r}) ${p.slice}`));
+  box.append(dl);
+  if (['Creature', 'Companion', 'Champion'].includes(p.kind)) box.append(el('div', { class: 'stats' }, `⚔ ${p.attack}   ♥ ${p.life}/${p.maxLife}   AP ${p.ap}/${p.maxAp}`));
+  else if (p.kind === 'Structure') box.append(el('div', { class: 'stats' }, `♥ ${p.life}/${p.maxLife}   AP ${p.ap}/${p.maxAp}`));
+  const extra = [];
+  if (p.keywords.length) extra.push(p.keywords.join(', '));
+  if (p.locked) extra.push('done for this turn (~)');
+  if (p.usedThisCycle.length) extra.push(`used this cycle: ${p.usedThisCycle.join(', ')}`);
+  if (p.behavior) extra.push(`Behavior: ${p.behavior}`);
+  if (p.kind === 'Champion' || p.kind === 'Companion') extra.push(p.rootConnected ? 'network: connected (realm lock / doubled costs)' : 'network: disconnected');
+  if (p.pool) extra.push(`mana pool: ${fmtPool(p.pool)}`);
+  const carried = ui.view.permanents.filter(q => q.carrier === p.id);
+  if (carried.length) extra.push(`carries: ${carried.map(c => c.name).join(', ')}`);
+  for (const e of extra) box.append(el('div', {}, e));
+  if (p.abilities.length) {
+    box.append(el('div', { class: 'abilities' }, p.abilities.map(a =>
+      el('div', {}, el('b', {}, a.name), ' ', el('span', { class: 'meta' }, `${a.trigger ? 'when ' + a.trigger : a.cost} · ${a.speed}${a.physical ? ' · physical' : ''}`), a.text ? ` — ${a.text}` : ''))));
+  }
+  const info = cardInfo(p.card);
+  if (info?.text) box.append(el('div', { class: 'hint' }, info.text));
+}
+
+function cardDetails(info) {
+  const box = el('div', {});
+  box.append(el('h2', {}, info.name));
+  box.append(el('div', {}, `${info.type}${info.subtypes.length ? ' — ' + info.subtypes.join(' ') : ''} · cost ${info.cost} · ${info.speed}`));
+  if (['Creature', 'Companion'].includes(info.type)) box.append(el('div', { class: 'stats' }, `⚔ ${info.attack}   ♥ ${info.life}   AP ${info.ap}`));
+  if (['Structure'].includes(info.type)) box.append(el('div', { class: 'stats' }, `♥ ${info.life}   AP ${info.ap}`));
+  if (info.keywords.length) box.append(el('div', {}, info.keywords.join(', ')));
+  if (info.instructions.length) box.append(el('div', {}, info.instructions.join(' ')));
+  for (const a of info.abilities.filter(a => !['move', 'attack', 'defend', 'equip', 'unequip', 'bond', 'draw', 'collapse', 'ascend', 'descend'].includes(a.id)))
+    box.append(el('div', {}, el('b', {}, a.name), ` (${a.trigger ? 'when ' + a.trigger : a.cost}) ${a.text}`));
+  if (info.text) box.append(el('div', { class: 'hint' }, info.text));
+  return box;
+}
+
+function fmtPool(pool) {
+  const entries = Object.entries(pool);
+  return entries.length ? entries.map(([e, n]) => `${n} ${e}`).join(', ') : 'empty';
+}
+
+function myHand() {
+  if (!ui.view || !ME) return [];
+  return ui.view.players.find(p => p.player === ME)?.hand ?? [];
+}
+
+function cardEl(cardId, objId, opts = {}) {
+  const info = cardInfo(cardId);
+  const playable = objId != null && activations().some(c => c.source === objId);
+  const selected = ui.selection?.type === 'card' && ui.selection.id === objId;
+  const e = el('div', { class: `card${playable ? ' playable' : ''}${selected ? ' selected' : ''}`, title: info?.text ?? '' },
+    el('div', { class: 'name' }, info?.name ?? cardId),
+    el('div', { class: 'cost' }, `${info?.cost ?? ''} · ${info?.speed ?? ''}`),
+    el('div', { class: 'type' }, info?.type ?? ''),
+    info && ['Creature', 'Companion'].includes(info.type) ? el('div', {}, `${info.attack}/${info.life} · AP ${info.ap}`) : null,
+    info?.instructions?.length ? el('div', { class: 'text' }, info.instructions.join(' ')) : null,
+    info?.keywords?.length ? el('div', { class: 'text' }, info.keywords.join(', ')) : null);
+  if (opts.clickable) e.addEventListener('click', () => { ui.selection = { type: 'card', id: objId }; ui.wizard = null; render(); });
+  return e;
+}
+
+function renderHand() {
+  const box = document.getElementById('hand');
+  box.replaceChildren();
+  if (SEAT === 0) {
+    for (const pl of ui.view.players) {
+      box.append(el('h2', {}, `Champion ${pl.player}'s hand (${pl.handCount})`));
+      box.append(el('div', { class: 'cards' }, (pl.hand ?? []).map(c => cardEl(c.card, null))));
+    }
+    return;
+  }
+  const hand = myHand();
+  box.append(el('h2', {}, `Your hand (${hand.length})`));
+  box.append(el('div', { class: 'cards' }, hand.map(c => cardEl(c.card, c.id, { clickable: true }))));
+}
+
+function traceEl(t, opts = {}) {
+  const cls = ['trace', 'ctrl-' + t.controller];
+  if (opts.top) cls.push('top');
+  if (opts.resolving) cls.push('resolving');
+  if (t.hidden) cls.push('hidden');
+  const e = el('div', { class: cls.join(' ') },
+    el('div', { class: 'title' }, t.text),
+    el('div', { class: 'tags' },
+      el('span', { class: 'tag' }, t.kind),
+      el('span', { class: 'tag' + (t.speed === 'Instant' ? ' instant' : '') }, t.speed),
+      t.physical ? el('span', { class: 'tag physical' }, 'physical') : null,
+      t.controller ? el('span', { class: 'tag' }, t.controller === 'Neutral' ? 'Neutral' : 'Champion ' + t.controller) : null,
+      t.paidCost ? el('span', { class: 'tag' }, 'paid ' + t.paidCost) : null,
+      t.fadesAtRound ? el('span', { class: 'tag' }, 'fades r' + t.fadesAtRound) : null));
+  if (t.attack) {
+    const defenders = t.attack.defenders.map(d => permById(d)?.name ?? '#' + d).join(', ') || 'none yet';
+    e.append(el('div', { class: 'attack' }, `⚔ (${t.attack.hex.q},${t.attack.hex.r}) ${t.attack.slice} vs ${t.attack.entity === 'Neutral' ? 'Neutral' : 'Champion ' + t.attack.entity} — defenders: ${defenders}`));
+  }
+  if (t.targets.length) e.append(el('ul', {}, t.targets.map(x => el('li', {}, x))));
+  if (t.instructions.length) e.append(el('ul', {}, t.instructions.map(x => el('li', {}, x))));
+  if (t.notes.length) e.append(el('div', { class: 'notes' }, t.notes.join(' · ')));
+  if (SEAT !== 0) {
+    for (const c of activations().filter(c => c.ability === 'defend' && c.targets[0]?.[0]?.object === t.id))
+      e.append(el('button', { onclick: () => submit(c.index) }, `Defend with ${permById(c.source)?.name ?? '#' + c.source} (${c.cost})`));
+  }
+  if (t.actingPermanent != null) e.addEventListener('mouseenter', () => highlightPerm(t.actingPermanent, true));
+  if (t.actingPermanent != null) e.addEventListener('mouseleave', () => highlightPerm(t.actingPermanent, false));
+  return e;
+}
+
+function highlightPerm(id, on) {
+  for (const g of document.querySelectorAll('.token')) {
+    if (g.querySelector('title')?.textContent.includes(`#${id} `)) g.classList.toggle('candidate', on);
+  }
+}
+
+function renderAether() {
+  const box = document.getElementById('aether');
+  box.replaceChildren();
+  const v = ui.view;
+  const past = el('div', { class: 'aether-zone' }, el('div', { class: 'zone-label' }, 'Past'),
+    v.past.length ? v.past.slice(-8).map(t => traceEl(t)) : el('div', { class: 'empty' }, '—'));
+  const pendingTop = [...v.pending].reverse();
+  const pending = el('div', { class: 'aether-zone' }, el('div', { class: 'zone-label' }, 'Pending (top first)'),
+    v.resolving ? traceEl(v.resolving, { resolving: true }) : null,
+    pendingTop.length ? pendingTop.map((t, i) => traceEl(t, { top: i === 0 })) : (v.resolving ? null : el('div', { class: 'empty' }, 'empty')));
+  box.append(past, el('div', { class: 'now-line', title: 'Now' }), pending);
+}
+
+function renderMind() {
+  const box = document.getElementById('mind');
+  box.replaceChildren();
+  for (const pl of ui.view.players) {
+    const names = (list) => list ? list.map(c => cardInfo(c.card)?.name ?? c.card).join(', ') || '—' : 'hidden';
+    box.append(el('div', { class: 'player' },
+      el('b', {}, `Champion ${pl.player}`), pl.pool ? el('span', { class: 'pool' }, `  ·  mana: ${fmtPool(pl.pool)}`) : null,
+      el('div', { class: 'zones' },
+        el('div', { class: 'zone' }, el('div', { class: 'label' }, `Hand (${pl.handCount})`), names(pl.hand)),
+        el('div', { class: 'zone', title: 'You know which cards remain, never their order (D71).' }, el('div', { class: 'label' }, `Library (${pl.libraryCount})`), names(pl.library)),
+        el('div', { class: 'zone' }, el('div', { class: 'label' }, `Discard (${pl.discardCount})`), names(pl.discard)))));
+  }
+}
+
+function renderLog() {
+  const box = document.getElementById('log');
+  const atBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 20;
+  box.replaceChildren(...ui.view.log.map(l => el('div', { class: l.text.startsWith('—') ? 'round' : '' }, l.text)));
+  if (atBottom) box.scrollTop = box.scrollHeight;
+}
+
+// ---------------------------------------------------------------------------- wiring
+
+function wireSeatPage() {
+  // ?layer=root and ?select=<permanent id> open the page in that state (handy for links and headless screenshots).
+  const params = new URLSearchParams(location.search);
+  if (params.get('layer') === 'root') {
+    ui.layer = 'root';
+    for (const x of document.querySelectorAll('.view-toggle button')) x.classList.toggle('active', x.dataset.layer === 'root');
+  }
+  if (params.get('select')) ui.selection = { type: 'perm', id: Number(params.get('select')) };
+  for (const b of document.querySelectorAll('.view-toggle button')) {
+    b.addEventListener('click', () => {
+      ui.layer = b.dataset.layer;
+      for (const x of document.querySelectorAll('.view-toggle button')) x.classList.toggle('active', x === b);
+      render();
     });
-    if (!result.accepted) status.textContent = `Rejected: ${result.rejectionReason}`;
-  } catch (err) {
-    status.textContent = String(err);
   }
-  if (!options.skipRefresh) await refreshAll();
+  document.getElementById('autopass')?.addEventListener('change', async (e) => {
+    await api('/api/autopass', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ seat: SEAT, enabled: e.target.checked }) });
+    await refresh();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && ui.wizard) { ui.wizard = null; render(); }
+  });
+  refresh();
+  setInterval(refresh, 1500);
 }
 
-async function loadScenarioList() {
+async function wireHub() {
   const select = document.getElementById('scenario-select');
+  const status = document.getElementById('hub-status');
   const names = await api('/api/scenarios');
-  select.innerHTML = '';
-  for (const name of names) {
-    const opt = document.createElement('option');
-    opt.value = name;
-    opt.textContent = name;
-    select.appendChild(opt);
-  }
+  select.replaceChildren(...names.map(n => el('option', { value: n }, n)));
+  document.getElementById('load-button').addEventListener('click', async () => {
+    try {
+      await api(`/api/scenarios/${encodeURIComponent(select.value)}/load`, { method: 'POST' });
+      status.textContent = `Loaded "${select.value}". Open the seat tabs.`;
+    } catch (err) {
+      status.textContent = String(err.message || err);
+    }
+  });
 }
 
-async function loadSelectedScenario() {
-  const select = document.getElementById('scenario-select');
-  if (!select.value) return;
-  await api(`/api/scenarios/${encodeURIComponent(select.value)}/load`, { method: 'POST' });
-  selection[1] = null;
-  selection[2] = null;
-  selection.true = null;
-  await refreshAll();
-}
-
-document.getElementById('load-button')?.addEventListener('click', loadSelectedScenario);
-
-/// The hub (index.html) owns scenario loading — a view tab (p1/p2/true.html) must never load or
-/// reset a scenario just from being opened or refreshed, since the whole point of splitting into
-/// tabs is that they share one live match. It only ever fetches and renders current state.
-(async function init() {
-  const hasScenarioControls = document.getElementById('load-button') != null;
-  if (hasScenarioControls) {
-    await loadScenarioList();
-    await loadSelectedScenario();
-  } else {
-    await refreshAll();
-  }
-
-  // Cross-tab sync: an action taken in one tab (e.g. P1 moving a creature) has to reach the
-  // others somehow, since each tab is now its own page with its own JS state. Skipped mid-drag
-  // so a poll landing between pointerdown and pointerup can't yank the board out from under it.
-  setInterval(() => { if (!dragState) refreshAll(); }, 2000);
-})();
+if (SEAT === null) wireHub();
+else wireSeatPage();
