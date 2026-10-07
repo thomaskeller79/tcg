@@ -472,6 +472,8 @@ function renderPrompt() {
     }
   } else if (ui.view.yourPriority) {
     box.append(el('div', { class: 'hint' }, 'Select one of your permanents or a card in your hand to see what it can do.'));
+  } else {
+    box.append(el('div', { class: 'hint' }, ui.view.priorityHolder ? `Waiting for Champion ${ui.view.priorityHolder}. You can still inspect anything.` : 'Waiting…'));
   }
 
   // Quick Defend shortcuts for attacks in Pending.

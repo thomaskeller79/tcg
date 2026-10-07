@@ -39,7 +39,7 @@ Meta-progression (outside the match core; touches it only via a resolved Loadout
 ## 2. Components — responsibility, boundary, interface
 
 ### 2.1 Rules Core
-The sole authoritative simulator: state, event pipeline (intent → pipeline → event), query/modifier layer, replacement effects, legal-move generation, combat, win-check, zones. Base rules are themselves low-priority effects in this pipeline (pillar 5). Reads the Card Data Content Repository as static input; never touches Meta-progression (consumes a resolved Loadout only, D1); never references an engine, sockets, or a serialization format.
+The sole authoritative simulator: state (Card/Trace/Permanent objects in their zones), the activation procedure and Pending/priority, per-instruction resolution with immediate consequences, triggers, the query/modifier layer, legal-command generation, combat, the terrain network, win-check (`src/Leyline.RulesCore/Rules/`). Base rules are written as default abilities on the cards (pillar 5); only their verbs are built in. No replacement-effect hook exists yet (`continuous-effects.md`). Reads the Card Data Content Repository as static input; never touches Meta-progression (consumes a resolved Loadout only, D1); never references an engine, sockets, or a serialization format.
 **In:** validated Commands from a Host. **Out:** True State + true Events, to Perception only (or to the Test/Sim harness).
 
 ### 2.2 Perception layer
@@ -72,7 +72,7 @@ Renders the Human seat-controller's current View, captures input, runs no shadow
 ### 2.9 Test/Simulation harness
 The one sanctioned bypass of Host, for unit tests, batch simulation/fuzzing, replay-and-verify, balance analysis. The only place licensed to read True State freely. Must never ship in player-facing binaries. Should also gain a mode that drives Rules Core through a real Local Host + Perception, since Perception is otherwise the least-tested path in the whole design.
 
-**Second sanctioned exception: the debug UI's `/api/truestate` endpoint** (`tools/Leyline.DebugUi`). Deliberately reads `TrueState` directly, bypassing Perception, so perceived-vs-true state can be eyeballed side-by-side during development. Same rule as the Test/Simulation harness applies, stated explicitly because a *web endpoint* is a much easier thing to accidentally leave reachable than a CLI tool: **`Leyline.DebugUi` in general, and `/api/truestate` specifically, must never ship or be reachable in any player-facing build.** See risk §5.9.
+**Second sanctioned exception: the debug UI's omniscient view endpoint, `/api/view/0`** (`tools/Leyline.DebugUi`). Deliberately projects `TrueState` with the omniscient flag, bypassing redaction, so perceived-vs-true state can be eyeballed side-by-side during development. Same rule as the Test/Simulation harness applies, stated explicitly because a *web endpoint* is a much easier thing to accidentally leave reachable than a CLI tool: **`Leyline.DebugUi` in general, and `/api/view/0` specifically, must never ship or be reachable in any player-facing build.** See risk §5.9.
 
 ### 2.10 Card Data & Content Pipeline
 See `card-data-and-editor.md` for the full writeup. Summary: a schema + plain JSON data files + a Content Repository Rules Core queries at startup, plus a separate Card Editor authoring tool. Kept engine-agnostic on purpose (ties to portability, §6/A5) and kept distinct from Meta-progression (this component answers "which cards exist"; Meta-progression answers "which cards this player may currently use").

@@ -26,7 +26,7 @@
 | Remnants | Fallen Creature/Companion leaves a Remnant (D110); Structure leaves nothing (D111); draw on simultaneous Champion fall (D113) | Actor removed |
 | Perception | Root hidden except controller and D67 proximity; Hand and Discard private (D71); live mana hidden | Underground hidden + "Located" flag; Discard public |
 | Neutral | Behavior, neutral seats acting (D56–D65, D82–D84) | Neutral turns pass immediately |
-| Debug UI | Two map views (Root; Ground+Sky, Track B item 5), Mind/Aether panels | One small-hex board, no Slices drawn |
+| Debug UI | Two map views (Root; Ground+Sky with the agreed layout: Ground creatures on three alternating corners, Sky on the other three, the Ground-slot Structure in the centre, Remnants and Items on the ring, a mark for terrain with abilities), Mind/Aether panels | One small-hex board, no Slices drawn |
 
 ## 2. Build order
 
@@ -43,7 +43,7 @@ Each phase ends with its own tests passing and a commit. The engine is rebuilt a
 | **P7 — Setup & maps** | Map format (layout, start tiles, home/neutral ground, void), terrain decks, Setup S1–S9, shuffle, opening hand | setup test, deterministic replay |
 | **P8 — Neutral** | Neutral turns refresh/act; Behavior `Aggressive toward X`; Companion-loss cascade assigns it | neutral-turn tests |
 | **P9 — Perception & Host** | View rewrite (per-observer), legal commands enumerated against the actor's own view, trace redaction | perception tests, Host tests |
-| **P10 — Debug UI** | Large hexes with the Ground+Sky layout (item 5) and a Root view; Mind/Aether panels; step-by-step activation (pay → target → confirm/abort); priority/pass; decisions (damage split, redirect); content library + demo match | API smoke tests + driving the UI in a browser |
+| **P10 — Debug UI** | Large hexes with the Ground+Sky layout and a Root view; Mind/Aether panels; step-by-step activation (pay → target → confirm/abort); priority/pass; decisions (damage split, redirect); content library + demo match | API smoke tests + driving the UI in a browser |
 | **P11 — Harness & docs** | SimHarness random policy on the new engine; `architecture.md`, `continuous-effects.md`, `scenario-format.md` brought in sync; PLAN.md Track B items 1–4 removed as done | full test suite, sim run |
 
 ## 3. Educated guesses
@@ -58,7 +58,7 @@ Made where the rules leave a gap. Each is the simplest reading that keeps a matc
 - **G6 — Defend eligibility includes the Champion and Companions** (creature-type permanents); Structures never defend (D107: a Structure never fights).
 - **G7 — Ranged N (item 45).** A Ranged attack names terrain + Slice + entity like any attack, within distance N (0 allowed); it can be defended; nobody deals damage back to a Ranged attacker.
 - **G8 — Structure as attack target.** A Ground-slot Structure counts as being in the Ground Slice (and is reachable by Sky → Ground); a Root-slot Structure is in Root.
-- **G9 — Move cost.** A Move costs the destination terrain's move cost (base 1). A Champion or Companion whose own tile is bonded by itself pays double (D9's `2AP`).
+- **G9 — Move cost.** A Move costs the destination terrain's move cost (base 1). A Champion or Companion pays double while it stays connected — onto terrain it bonded itself, while its own tile is bonded (D9's `2AP`). A connected Champion can only move onto such terrain anyway (realm lock).
 - **G10 — Companion movement (item 38).** No Collapse Network for a Companion: moving onto a hex it has bonded costs double; moving elsewhere costs the plain cost, and the move itself cuts its network (D122's cut rule — its own tile is no longer bonded), which matches `companions.md`'s table.
 - **G11 — Bond reachability.** A root may bond its own tile if it isn't bonded by itself; otherwise a terrain adjacent to its own tile or to any terrain it bonded that has an unknotted path to it. The target must be unbonded, or bonded by an enemy root and currently paused by a knot (theft).
 - **G12 — Summon target.** A permanent card may be cast onto a terrain the caster controls (bonded by the Champion or one of its Companions, with an unknotted path), into the Slice its Slice filter names, with room.
@@ -70,6 +70,12 @@ Made where the rules leave a gap. Each is the simplest reading that keeps a matc
 - **G18 — Opening hand 5, Champion AP at Setup 4, Trace Duration 5** (the documented placeholders).
 - **G19 — Behavior `Aggressive toward X`.** Each Neutral creature with it, in its neutral turn: attack a visible permanent of X if one is in reach (lowest Life, then lowest ID); otherwise move one hex closer to the nearest visible permanent of X. It defends when it can.
 - **G20 — Trace parent for a Companion's own ability** is the Companion (the payment walk from it stops at itself for mana).
+- **G21 — Healing** stops at max-Life; a permanent Life buff raises max- and current-Life together.
+- **G22 — Drawing from an empty Library** does nothing (no decking loss).
+- **G23 — Which side a Knotting permanent is on.** For deciding whom it knots, a Structure's side is read through its terrain's bond record even while that terrain is paused (the live controller would depend on the knot itself).
+- **G24 — "Target creature"** means any creature-type permanent: Creature, Companion or Champion. A card can still be written Creature-only later.
+- **G25 — Triggered abilities take no targets** in this build: every prototype trigger is targetless ("draw a card"). A targeted trigger needs a "choose its targets as it enters Pending" step.
+- **G26 — Refresh and the `~` lock.** A Champion-controlled permanent refreshes its AP and `*` uses in its controller's Beginning, a Neutral one in its neutral seat's Beginning; every `~` lock ends at the end of each turn.
 
 ## 4. Questions for the user
 
@@ -77,9 +83,22 @@ Collected while building; nothing below blocks the build (each has a guess above
 
 - **Q1** — G2/G4: is MTG's priority order (actor first; active player after a resolution; a pass round at the end of each Action phase) what you want? It costs the non-active Champion one pass per turn.
 - **Q2** — G3: should Quick be playable with Pending empty?
+- **Q3** — G1: is per-Element mana with generic pips the color-cost model to try first (item 37)? Generic pips are auto-paid from the largest pile.
+- **Q4** — G10: a Companion pays double to move inside its own network and loses the network by stepping off. Keep, or give it the Champion's Collapse Network and realm lock (item 38)?
+- **Q5** — Root view layout (only the Ground+Sky one was agreed): Root creatures on the three G corners, the Root Structure in the centre, Remnants and Items on the left and right of the ring. OK?
+- **Q6** — G7: a Ranged attack can be defended but takes no damage back. Or should it be undefendable (item 45)?
 
-## 5. Paused features
+## 5. Paused features and gaps
 
-Features started and paused because no educated guess was good enough. Each gets a `PLAN.md` item when the build finishes.
+Nothing had to be paused for lack of a guess. Not built in this pass because no prototype card needs them yet; each is filed as a `PLAN.md` Track B item:
 
-*(none yet)*
+- **Deception (D18):** faces, claims, Mimic, collapse; concealment effects beyond the Root default (Mist, Submerged, D118).
+- **History track (D98)** and card text reading it ("attacked this turn").
+- **Remand, un-summon, Future-zone delays** (D69, D16, D38).
+- **The effect form outside the prototype scope (D104):** targeted triggers (G25), choices at resolution, modes, `X` costs, cost branches.
+- **Mulligans** (G13), and Structures a terrain card brings at Setup (`resources-terrain.md` Open question 3).
+- **Behaviors beyond `Aggressive toward X`.**
+
+## 6. Status
+
+P1–P11 are built and tested: 86 RulesCore tests (including random-play fuzzing over 8 seeds and a deterministic-replay test), 3 Host tests, 4 scenario/content tests, and a headless-browser test of the activation wizard (`tools/Leyline.DebugUi/wwwroot/uitest.html`). Run the debug UI with `tools/Leyline.DebugUi/start.ps1` and load `demo-match` at http://localhost:5299.

@@ -1,67 +1,72 @@
 # Scenario text format
 
-A scenario file is plain text, one declaration per line. Blank lines and lines starting with
-`#` are ignored. Each line's first word is a keyword; the rest are space-separated tokens.
-Wrap a token in `"double quotes"` to include spaces (e.g. a card name). Tuning fields use
-`key=value` pairs (no spaces around `=`); a comma-separated `key=a,b,c` list has no spaces
-either. Unknown keywords or malformed lines fail to load with a `line N: ...` message —
-authoring mistakes are meant to be caught immediately, not silently ignored.
+A scenario file describes a Map and both players' components; loading it runs the real Setup
+(`docs/rules/setup.md`, D114) and then applies optional **debug edits** on top. Plain text, one
+declaration per line; blank lines and lines starting with `#` are ignored. Tokens are separated
+by spaces; wrap a token in `"double quotes"` to include spaces. `card*3` means three copies.
+Unknown keywords or malformed lines fail with a `line N: ...` message.
 
-Two players only, always named `P1`/`P2` (a codebase-wide assumption — see `PlayerId`).
+Cards are referenced by id from the card library in `content/cards/` (format:
+`docs/tools/card-format.md`). Players are `A` and `B`. Coordinates are axial `q,r`.
 
-## Declarations
+## The match
 
 ```
-seed <int>                                  # default 0
-board <width>x<height>                      # default 4x4, a plain rectangle
-terrain <q>,<r> <name> [moveCost=<int>]     # tags one cell; default moveCost=1 (see note below)
-card <id> <Creature|Champion|Spell> "<name>" [attack=N] [life=N] [ap=N] [mana=N]
-     [abilities=a,b,c] [effect=damage|heal] [amount=N]
-champion <owner> <cardId> <q>,<r>
-creature <owner> <cardId> <q>,<r> [level=Surface|Air|Underground]   # default Surface
-bond <owner> <q>,<r>                        # terrain already bonded at match start
-library <owner> <cardId>[,<cardId>...]      # repeatable per player; appends
-hand <owner> <cardId>[,<cardId>...]         # repeatable per player; appends
+name <text>                       # shown in the UI
+seed <int>                        # default 0; drives every shuffle and random deal
+map hexagon <radius>              # Layout: a hexagon around (0,0)
+map rect <width> <height>         #   or a rectangle
+void <q,r> ...                    # holes: Void terrain (can't be entered or bonded)
+type <TerrainType> <q,r> ...      # flavour Terrain Type per hex (D52)
+start <A|B> <q,r>                 # home tile
+home <A|B> radius=<n>             # home ground = hexes within n of the start (Void excluded)
+home <A|B> <q,r> ...              #   or an explicit list
+neutral random <card> ...         # neutral ground: uniform random from this pool (with replacement)
+neutral fixed <q,r>=<card> ...    #   or fixed per hex
+neutral fill <card>               #   or one card everywhere not otherwise set
+champion <A|B> <card>
+terraindeck <A|B> <card> ...      # must be exactly as large as that home ground (D11)
+deck <A|B> <card> ...             # main deck; top of the Library = first listed when unshuffled
+noshuffle                         # keep deck order as written (tests)
+openinghand <n>                   # default 5
+startap <n>                       # Champions' AP at Setup: max(current, n), default 4
+neutralpermanent <card> <q,r> behavior=Aggressive:<A|B> seat=<NeutralA|NeutralB> [slice=<Root|Ground|Sky>]
 ```
 
-`attack`/`life`/`ap`/`mana`/`amount` default to 0 when omitted; `abilities` defaults to none.
-A `Spell` card's `attack`/`life`/`ap` are meaningless (it's never a board actor) — leave them
-out. `effect`/`amount` are meaningless for `Creature`/`Champion` — leave them out.
+`neutralpermanent` places a Map-placed Neutral permanent at Setup S8; the scenario must state its
+Behavior and neutral turn (D82). Mulligans are not implemented: every player keeps
+(`docs/architecture/implementation-plan.md` G13).
 
-`library` order is the draw order (first-listed = top = next card drawn) and is never
-shuffled — for a testing tool, "draw exactly this card next" beats realism.
+## Debug edits (applied after Setup, not part of the rules)
 
-**`terrain` no longer restricts bonding (D8, revised 2026-08-08).** A Champion may bond *any*
-hex, tagged or not — `terrain` is now purely cosmetic/flavor data (a placeholder for a future
-terrain-type/color system) and carries no legality effect today. It's still useful for
-`moveCost` overrides on a specific cell, just not for marking "bondable" cells anymore.
+```
+place <A|B> <card> <q,r> [slice=<Root|Ground|Sky>] [ap=<n>] [life=<n>]
+bond <A|B> <q,r> ...              # bond terrain directly to that Champion (cut rules still apply)
+mana <A|B> <Element> <n>          # add mana to the Champion's pool (resets at its next Beginning)
+handcard <A|B> <card> ...         # put cards straight into the hand
+```
 
-`bond` pre-bonds a terrain node **at match setup**, before any legality check runs — the same
-"setup, not gameplay" footing as initial placement, so unlike a live in-match Bond command it is
-**not** restricted to the Champion's own tile. It only affects the *bond*, not the mana that
-flows from it — a bonded-but-disconnected node (e.g. no path to the Champion) still produces
-nothing, same as an ordinary in-match bond. In actual play, a Champion's **first live Bond is
-always its own current tile** (D8) — every current scenario pre-bonds each Champion to its home
-hex with `bond` for exactly this reason (1 mana live from turn 1), except `terrain-bonding.scenario`,
-which is deliberately left unbonded to exercise that first live Bond directly.
+`place` creates a permanent controlled by that Champion with full Activation Points unless `ap=`
+says otherwise; its "enters the Island" triggers resolve immediately. A `bond` that has no path
+back to the Champion's tile is cut at once (D122), so list a connected chain.
 
 ## Example
 
 ```
-seed 6
-board 4x4
-
-card test.champion Champion "Champion" attack=2 life=15 ap=7 abilities=core.move,core.attack,champion.bond,champion.draw,champion.collapse
-card test.grunt Creature "Grunt" attack=3 life=5 ap=3 mana=2 abilities=core.move,core.attack
-card test.firebolt Spell "Firebolt" mana=1 effect=damage amount=3
-
-champion P1 test.champion 0,0
-champion P2 test.champion 3,3
-creature P1 test.grunt 1,1
-
-bond P1 0,0
-bond P2 3,3
-
-library P1 test.grunt,test.grunt,test.firebolt
-hand P1 test.firebolt
+name Combat lab
+map hexagon 3
+start A 0,3
+start B 0,-3
+home A radius=0
+home B radius=0
+neutral fill terrain.fire
+champion A champion.pyra
+champion B champion.thorn
+terraindeck A terrain.fire
+terraindeck B terrain.earth
+openinghand 0
+place A creature.fire-warrior 0,1
+place B creature.stone-brute 0,0
+handcard A spell.flame-dart
+mana A Fire 2
 ```
