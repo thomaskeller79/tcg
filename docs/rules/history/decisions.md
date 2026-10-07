@@ -6,6 +6,41 @@
 
 ---
 
+### D122 — A knot pauses, a gap cuts; knotted terrain can be stolen
+
+Closes item 28 (can the opponent bond a terrain whose path is merely blocked?). Before: a bond lasted until an explicit unbond; a terrain whose path was broken — by a knot or by a missing bonded hex — kept its record and sat paused; whether the opponent could bond it was undecided.
+
+**Adopted (user, flavor first):** a knot still lets the connection through — it only stops the flow; a gap cuts it.
+- **Paths:** a bonded terrain's path runs through terrain bonded by the same root, back to the root's current tile, which must itself be bonded.
+- **Knot:** knotted terrain stays connected and keeps its bond record; it and everything behind it are paused.
+- **Cut:** a bonded terrain with no such path at all, counting knotted terrain as a path, loses its bond record immediately. So an unbond in the middle of a network costs its owner everything behind it, not just one Bond to repair.
+- **Theft:** terrain paused by an enemy knot — the knotted hex and everything behind it — can be bonded by the opponent with an ordinary Bond, if reachable from their network; the new bond replaces the record. Stealing a chokepoint cuts the rest of the branch. The user: the networks must already meet, so mana is usually plentiful and the hex matters mostly tactically; it can be stolen with no special card beyond a Knotting creature; and narrow branches reaching toward the enemy are fast but exposed — wanted.
+- **Realm lock:** "connected" uses the cut check, so a fully knotted Champion stays confined; the only way out of the realm is Collapse Network. (Before: a fully knotted Champion counted as having no network and could walk off.)
+
+**Root tile must be bonded — no special rule (user).** An unbond effect on the hex the Champion stands on therefore cuts its whole network, like Collapse Network. Claude proposed letting the Champion's own tile always count as part of a path; rejected — instead, cards that unbond must avoid targeting the root's tile, or be priced for it (Track C item 4).
+
+**Considered:** a theft that takes only the stolen hex and leaves the rest paused (Claude) — not needed once a cut unbonds. D8's rejection of permanent severing "from mere positional blocking" still holds: a knot alone only pauses; a permanent loss needs the opponent's Bond and a network that reaches the branch.
+
+→ `resources-terrain.md` §Severing behavior, `ancestry.md`, `champions.md` (realm constraint), `companions.md`, `glossary.md`, `overview.md` §5, `structures-items.md`, `PLAN.md` items 28 (closed), 38, Track B 4, Track C 4.
+
+---
+
+### D121 — Only permanents with Knotting block mana paths
+
+Closes item 26 and the D8 row of the pessimistic-default audit. Before: any enemy creature on a path node paused the mana behind it (D8), in any Slice (D86). Two problems followed: a hidden creature in the Root Slice paused the opponent's mana and the red leylines gave away roughly where it stood, and flyers parked over your terrain paused your mana while your Ground creatures couldn't attack them (D115, D119).
+
+**Adopted (user):** blocking mana paths is a keyword, **Knotting**. A terrain is knotted for a side while an enemy permanent with Knotting stands on it, in any Slice; a path is clear while none of its terrains is knotted. Nothing else blocks, whatever its type — Creature, Companion, Champion, Structure alike (a Structure with Knotting is a wall). A Neutral permanent with Knotting is an enemy to both sides.
+
+**No special rule for concealment or Slices (user):** a hidden permanent with Knotting still knots, and the paused leylines reveal roughly where it is — the controller's own tradeoff. Flying plus Knotting is a strong pair, but no rule is needed: like Flying in MTG, both keywords are expected to be common, so the answers are common too.
+
+**Considered and rejected:** keep blocking as a default for Ground creatures only, with keywords for Root and Sky (Claude) — argued that denial is the reason D8's economy is positional (pillar 2) and shouldn't depend on a keyword. The user: then print the keyword often, like Flying; its frequency per Element also gives Elements identity. And "Root creature" is no category — Subterranean creatures change Slices.
+
+**Name:** Knotting — a knot in the leyline holds the flow back until it comes loose, matching the reversible pause. Rejected: Blockade (too technical), Dam (watery), Choke, Leybreaker ("break" suggests permanent). Provisional until item 39.
+
+→ `resources-terrain.md` §Severing behavior, `ancestry.md`, `champions.md`, `companions.md`, `glossary.md`, `overview.md` §5, `structures-items.md`, `history/pessimistic-default-audit.md`, `PLAN.md` items 14, 26 (closed), 39, Track B 4.
+
+---
+
 ### D120 — Melee is distance ≤ 1, so creatures on the same hex can fight
 
 Closes item 25. Before: "Melee = adjacent", which left attacks within a hex unstated — though they are ordinary, since a flyer may enter a hex with enemies on the Ground (D119), and a Slice can become mixed through a control change (D86). **Adopted (user):** Melee means distance ≤ 1 — the same hex or an adjacent one. Same-hex attacks follow the Slice tables like any other (D115): Sky → Ground on the same hex, and co-located enemies in a mixed Slice (the user wants them able to fight, flavor). Ranged at distance 0 moved to item 45. Whether creatures sharing a hex *and* a Slice need any special rule (moving away, defending, capacity) is item 46, with the user's caveat to keep the default rules' complexity in mind for so rare a case.

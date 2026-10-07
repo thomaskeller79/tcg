@@ -9,7 +9,7 @@
 ## Candidates found so far
 | Current default | Concern | Recommendation |
 |---|---|---|
-| **D8 — any creature on a network node blocks/pauses mana** | **Generous.** Every body is a free mana-denier; a fast scout is accidentally oppressive and would need a *negative* line ("doesn't block mana") to fix. | **Flip:** default = does **not** block mana; **"Blockade"** = a **positive keyword** on units meant to deny. Also makes denial-density a per-format **tuning knob** (addresses D8's denial knife-edge). *(Strong change — recommend adopting.)* |
+| **D8 — any creature on a network node blocks/pauses mana** | **Generous.** Every body is a free mana-denier; a fast scout is accidentally oppressive and would need a *negative* line ("doesn't block mana") to fix. | **Flip:** default = does **not** block mana; **"Blockade"** = a **positive keyword** on units meant to deny. Also makes denial-density a per-format **tuning knob** (addresses D8's denial knife-edge). *(Strong change — recommend adopting.)* **Adopted as D121**, keyword named **Knotting**. |
 
 ## Considered and intentionally KEPT (not violations)
 | Default | Why it stays |
