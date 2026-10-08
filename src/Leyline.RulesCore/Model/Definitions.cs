@@ -116,9 +116,9 @@ public sealed record AbilityDefinition
     public bool IsTriggered => Trigger is not null;
 }
 
-/// <summary>A static keyword (D10: range is a keyword). Value carries N for Ranged N, X for
-/// Haste X (0 = plain Haste: enters with its max).</summary>
-public sealed record Keyword(string Name, int Value = 0)
+/// <summary>A static keyword (D10: range is a keyword). Value carries X for Haste X (0 = plain
+/// Haste: enters with its max); Ranged a-b carries a in Value and b in To (D127).</summary>
+public sealed record Keyword(string Name, int Value = 0, int? To = null)
 {
     public const string Flying = "Flying";
     public const string Subterranean = "Subterranean";
@@ -127,7 +127,7 @@ public sealed record Keyword(string Name, int Value = 0)
     public const string Haste = "Haste";
     public const string Ranged = "Ranged";
 
-    public override string ToString() => Value > 0 ? $"{Name} {Value}" : Name;
+    public override string ToString() => To is { } to ? $"{Name} {Value}-{to}" : Value > 0 ? $"{Name} {Value}" : Name;
 }
 
 /// <summary>A card definition — the printed card a name refers to (D99). Champion and Terrain

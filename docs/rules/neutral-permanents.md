@@ -47,7 +47,7 @@ A permanent's assigned neutral turn is chosen by whatever effect made it Neutral
 
 ## Behavior
 
-A Neutral permanent carrying a Behavior, and capable of acting — it holds its own Activation Points (`economy.md`) and has at least one legal action available to it — follows that **Behavior**: a named keyword (e.g. `Aggressive toward X`) that expands to a fixed, deterministic decision policy, the same way any other keyword (Flying, Ranged N) expands to fixed rules text. This is card-text vocabulary only, never exposed as such.
+A Neutral permanent carrying a Behavior, and capable of acting — it holds its own Activation Points (`economy.md`) and has at least one legal action available to it — follows that **Behavior**: a named keyword (e.g. `Aggressive toward X`) that expands to a fixed, deterministic decision policy, the same way any other keyword (Flying, Ranged a-b) expands to fixed rules text. This is card-text vocabulary only, never exposed as such.
 
 ### Scope
 

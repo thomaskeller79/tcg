@@ -1,6 +1,6 @@
 # Implementation Plan — Rules Sync (2026-10)
 
-*Brings the engine and the debug UI up to the current ruleset (`docs/rules/`, D1–D122) so a full match can actually be played. Working doc for Track B (`PLAN.md` Track B item 7): what is missing, the order it gets built in, and every educated guess made where the rules leave a gap. Guesses and questions are labelled (G1, Q1, …) so they can be answered by label.*
+*Brings the engine and the debug UI up to the current ruleset (`docs/rules/`, D1–D122; the guess review added D123–D127) so a full match can actually be played. Working doc for Track B (`PLAN.md` Track B item 7): what is missing, the order it gets built in, and every educated guess made where the rules leave a gap. Guesses and questions are labelled (G1, Q1, …) so they can be answered by label.*
 
 **Branch:** `track-b-rules-sync` · **Started:** 2026-10-08
 
@@ -26,7 +26,7 @@
 | Remnants | Fallen Creature/Companion leaves a Remnant (D110); Structure leaves nothing (D111); draw on simultaneous Champion fall (D113) | Actor removed |
 | Perception | Root hidden except controller and D67 proximity; Hand and Discard private (D71); live mana hidden | Underground hidden + "Located" flag; Discard public |
 | Neutral | Behavior, neutral seats acting (D56–D65, D82–D84) | Neutral turns pass immediately |
-| Debug UI | Two map views (Root; Ground+Sky with the agreed layout: Ground creatures on three alternating corners, Sky on the other three, the Ground-slot Structure in the centre, Remnants and Items on the ring, a mark for terrain with abilities), Mind/Aether panels | One small-hex board, no Slices drawn |
+| Debug UI | Two map views, both layouts agreed (Root: Root creatures on the three G corners, the Root Structure in the centre, Remnants and Items on the left and right of the ring; Ground+Sky: Ground creatures on three alternating corners, Sky on the other three, the Ground-slot Structure in the centre, Remnants and Items on the ring, a mark for terrain with abilities), Mind/Aether panels | One small-hex board, no Slices drawn |
 
 ## 2. Build order
 
@@ -56,10 +56,10 @@ Made where the rules leave a gap. Each is the simplest reading that keeps a matc
 - **G4 — Priority with empty Pending.** Confirmed as part of D123 (`interaction-stack.md` §The primitive).
 - **G5 — Beginning/End triggers** resolve without priority, like Setup's S9 (overview §3: "no priority this phase to start").
 - **G6 — Defend eligibility includes the Champion and Companions** (creature-type permanents); Structures never defend (D107: a Structure never fights).
-- **G7 — Ranged N (item 45).** A Ranged attack names terrain + Slice + entity like any attack, within distance N (0 allowed); it can be defended; nobody deals damage back to a Ranged attacker.
+- **G7 — Ranged N (item 45).** Replaced by D127: Ranged a-b, and a defender must reach its attacker.
 - **G8 — Structure as attack target.** A Ground-slot Structure counts as being in the Ground Slice (and is reachable by Sky → Ground); a Root-slot Structure is in Root.
 - **G9 — Move cost.** A Move costs the destination terrain's move cost (base 1). A Champion or Companion pays double while it stays connected — onto terrain it bonded itself, while its own tile is bonded (D9's `2AP`). A connected Champion can only move onto such terrain anyway (realm lock).
-- **G10 — Companion movement (item 38).** No Collapse Network for a Companion: moving onto a hex it has bonded costs double; moving elsewhere costs the plain cost, and the move itself cuts its network (D122's cut rule — its own tile is no longer bonded), which matches `companions.md`'s table.
+- **G10 — Companion movement (item 38).** Replaced by D126: a Companion has Collapse Network and the realm lock, like the Champion.
 - **G11 — Bond reachability.** A root may bond its own tile if it isn't bonded by itself; otherwise a terrain adjacent to its own tile or to any terrain it bonded that has an unknotted path to it. The target must be unbonded, or bonded by an enemy root and currently paused by a knot (theft).
 - **G12 — Summon target.** A permanent card may be cast onto a terrain the caster controls (bonded by the Champion or one of its Companions, with an unknotted path), into the Slice its Slice filter names, with room.
 - **G13 — Mulligans (setup.md Open question 2).** Not implemented: every player keeps. Setup otherwise follows S1–S9.
@@ -81,9 +81,7 @@ Made where the rules leave a gap. Each is the simplest reading that keeps a matc
 
 Collected while building; nothing below blocks the build (each has a guess above or is parked).
 
-- **Q4** — G10: a Companion pays double to move inside its own network and loses the network by stepping off. Keep, or give it the Champion's Collapse Network and realm lock (item 38)?
-- **Q5** — Root view layout (only the Ground+Sky one was agreed): Root creatures on the three G corners, the Root Structure in the centre, Remnants and Items on the left and right of the ring. OK?
-- **Q6** — G7: a Ranged attack can be defended but takes no damage back. Or should it be undefendable (item 45)?
+All six are answered (D123–D127, and the Root view layout in §1). The remaining guesses in §3 are reviewed one by one (`PLAN.md` Track B item 7).
 
 ## 5. Paused features and gaps
 
@@ -98,4 +96,4 @@ Nothing had to be paused for lack of a guess. Not built in this pass because no 
 
 ## 6. Status
 
-P1–P11 are built and tested: 86 RulesCore tests (including random-play fuzzing over 8 seeds and a deterministic-replay test), 3 Host tests, 4 scenario/content tests, and a headless-browser test of the activation wizard (`tools/Leyline.DebugUi/wwwroot/uitest.html`). Run the debug UI with `tools/Leyline.DebugUi/start.ps1` and load `demo-match` at http://localhost:5299.
+P1–P11 are built and tested, plus the follow-ups D123–D127 from the guess review: 97 RulesCore tests (including random-play fuzzing over 8 seeds and a deterministic-replay test), 3 Host tests, 4 scenario/content tests, and a headless-browser test of the activation wizard (`tools/Leyline.DebugUi/wwwroot/uitest.html`). Run the debug UI with `tools/Leyline.DebugUi/start.ps1` and load `demo-match` at http://localhost:5299.

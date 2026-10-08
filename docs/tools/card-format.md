@@ -15,7 +15,7 @@ rules text is a list of targets plus a sequence of instructions.
 | `cost` | castable cards | Compact cost, below. |
 | `speed` | castable cards | `Slow` (default), `Quick`, `Reactive`, `Instant` (D45). |
 | `attack`, `life`, `ap` | Actors | Printed max stats. A Structure has no Attack. |
-| `keywords` | permanents | `Flying`, `Subterranean`, `Knotting`, `Defender`, `Haste`, `Haste 2`, `Ranged 2`. |
+| `keywords` | permanents | `Flying`, `Subterranean`, `Knotting`, `Defender`, `Haste`, `Haste 2`, `Ranged 1-2` (distances 1 to 2, D127). |
 | `abilities` | permanents | Printed activated and triggered abilities, below. |
 | `removedDefaults` | permanents | Default abilities this card lacks, e.g. `["equip"]`. |
 | `targets`, `instructions`, `duration` | Spell | Rules text; Duration defaults to 5 (D50). |
@@ -25,8 +25,9 @@ rules text is a list of targets plus a sequence of instructions.
 | `bondAp` | Companion | Its Bond cost, default 3 (`3*AP`). |
 | `text` | all | Reminder text for the UI. |
 
-Default abilities (Move, Attack, Defend, Equip, Un-equip, Ascend/Descend for Subterranean, Bond,
-Draw, Collapse Network for the Champion) are added by type and need no entry.
+Default abilities (Move, Attack, Defend, Equip, Un-equip, Ascend/Descend for Subterranean, Bond and
+Collapse Network for the Champion and Companions, Draw for the Champion) are added by type and need
+no entry.
 
 ## Cost syntax
 

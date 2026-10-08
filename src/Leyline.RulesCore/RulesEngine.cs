@@ -134,7 +134,7 @@ public static class RulesEngine
         var target = choice.Hex!.Value;
         if (!state.IsOnBoard(target) || target.DistanceTo(p.Hex) != 1 || state.IsVoid(target))
             return false;
-        if (p.Kind == PermanentKind.Champion && Network.IsRootConnected(state, p) && state.TerrainOf(target).Parent != p.Id)
+        if (p.Kind.IsRoot() && Network.IsRootConnected(state, p) && state.TerrainOf(target).Parent != p.Id)
             return false;
         return Entry.CanCreatureEnter(state, state.Controller(p), target, p.Slice, p.Id, trueState: false, draft.Actor);
     }

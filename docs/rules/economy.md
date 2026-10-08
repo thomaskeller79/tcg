@@ -30,7 +30,7 @@ Abilities **bridge the two economies**: a creature ability can cost `X mana + Y 
 ## Creatures are three numbers: Attack / Life / Activation Points (D10)
 AP **subsumes** the old separate stats rather than adding to them:
 - **Movement stat is gone** → moving costs AP; a creature's "speed" *is* its AP.
-- **Range demotes to a keyword** (`Ranged N`); most creatures are melee. The three *defining* numbers stay Attack / Life / AP.
+- **Range demotes to a keyword** (`Ranged a-b`, D127); most creatures are melee (reach 0–1). The three *defining* numbers stay Attack / Life / AP.
 
 ## Move, attack and defend are default *abilities*, not rules (D10, D116)
 There is no hardcoded move/attack logic. Every creature carries three **default abilities**, each **replaceable** by a creature-specific version:

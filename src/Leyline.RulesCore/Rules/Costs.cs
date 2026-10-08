@@ -16,9 +16,8 @@ public static class Costs
         {
             case BuiltinAbility.Move:
             {
-                // G9: the destination terrain's move cost. A bonded Champion or Companion pays
-                // double while it stays connected — i.e. onto terrain it bonded itself (D9,
-                // companions.md); a Companion stepping off its network pays the plain cost (G10).
+                // G9: the destination terrain's move cost. A connected Champion or Companion pays
+                // double — it can only move onto terrain it bonded itself (D9, D126 realm lock).
                 var dest = targets.Count > 0 && targets[0].Count > 0 ? targets[0][0].Hex : null;
                 var onBoard = dest is { } d && state.IsOnBoard(d);
                 var moveCost = onBoard ? state.Def(state.TerrainOf(dest!.Value)).MoveCost : cost.Ap;

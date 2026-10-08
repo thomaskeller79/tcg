@@ -103,7 +103,7 @@ public static class DefaultAbilities
                 defaults.AddRange([DrawAbility, BondAbility(2), MoveAbility, CollapseAbility, AttackAbility, DefendAbility, EquipAbility, UnequipAbility]);
                 break;
             case CardType.Companion:
-                defaults.AddRange([MoveAbility, AttackAbility, DefendAbility, BondAbility(def.BondAp), EquipAbility, UnequipAbility]);
+                defaults.AddRange([BondAbility(def.BondAp), MoveAbility, CollapseAbility, AttackAbility, DefendAbility, EquipAbility, UnequipAbility]);
                 break;
             case CardType.Creature:
                 defaults.AddRange([MoveAbility, AttackAbility, DefendAbility, EquipAbility, UnequipAbility]);

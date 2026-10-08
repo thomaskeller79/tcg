@@ -213,9 +213,9 @@ public static class Activation
                     return ("A move stays in its Slice.", null);
                 if (!state.IsOnBoard(hex) || hex.DistanceTo(p.Hex) != 1 || state.IsVoid(hex))
                     return ("Not an adjacent terrain.", null);
-                // D9/D122 realm lock: a connected Champion moves only onto terrain it bonded.
-                if (p.Kind == PermanentKind.Champion && Network.IsRootConnected(state, p) && state.TerrainOf(hex).Parent != p.Id)
-                    return ("Your Champion is confined to its own bonded terrain — collapse the network first.", null);
+                // D9/D122/D126 realm lock: a connected Champion or Companion moves only onto terrain it bonded.
+                if (p.Kind.IsRoot() && Network.IsRootConnected(state, p) && state.TerrainOf(hex).Parent != p.Id)
+                    return ("It is confined to its own bonded terrain — collapse the network first.", null);
                 if (!Entry.CanCreatureEnter(state, controller, hex, p.Slice, p.Id, trueState: false, observer))
                     return ("You can't enter that Slice.", null);
                 return (null, Entry.CanCreatureEnter(state, controller, hex, p.Slice, p.Id, trueState: true) ? null : 0);

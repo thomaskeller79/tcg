@@ -7,7 +7,8 @@ namespace Leyline.RulesCore.Rules;
 /// Combat (D13, D115–D120; interaction-stack.md §Combat integration). An Attack is a Physical
 /// Trace naming a terrain, a Slice and an entity. Defend is a Quick ability whose trace adds its
 /// creature to the Attack. When the Attack resolves it checks whether it still has a defender:
-/// defended → the attacker splits its Attack among the defenders and each deals its Attack back;
+/// defended → the attacker splits its Attack among the defenders and each deals its Attack back
+/// (D127: a defender must reach the attacker, so every defender can hit back);
 /// undefended → the attacker splits among the entity's permanents there, no retaliation.
 /// </summary>
 public static class Combat
@@ -32,14 +33,15 @@ public static class Combat
     /// <summary>Legal attack targets for <paramref name="attacker"/>, in the view of
     /// <paramref name="observer"/> (D115: at least one permanent of the attacked entity must be
     /// visible in the attacked Slice of that terrain — so an attack can't probe for hidden ones).
-    /// Melee reaches distance ≤ 1 (D120), Ranged N within N (G7).</summary>
+    /// Melee reaches distance 0–1 (D120), Ranged a-b from a to b (D127).</summary>
     public static IReadOnlyList<TargetChoice> AttackCandidates(TrueState state, Permanent attacker, PlayerId? observer)
     {
         if (!attacker.Kind.IsCreatureType() || attacker.Carrier is not null)
             return [];
         var own = state.Controller(attacker);
         var result = new List<TargetChoice>();
-        foreach (var hex in state.WithinDistance(attacker.Hex, state.Range(attacker)))
+        var (min, max) = state.Reach(attacker);
+        foreach (var hex in state.WithinDistance(attacker.Hex, max).Where(h => h.DistanceTo(attacker.Hex) >= min))
         {
             foreach (var slice in AttackableSlices(attacker.Slice))
             {
@@ -56,14 +58,22 @@ public static class Combat
     }
 
     /// <summary>D115/D117: who may defend — a creature-type permanent of the attacked entity on
-    /// the attacked terrain, in the attacked Slice (Sky creatures also defend Ground).</summary>
+    /// the attacked terrain, in the attacked Slice (Sky creatures also defend Ground). D127: and
+    /// the attacker must be within the defender's own attack reach — distance only, no Slice,
+    /// AP or "can attack" check.</summary>
     public static bool IsEligibleDefender(TrueState state, Permanent defender, AttackInfo attack, ObjectId attacker)
     {
         if (!defender.Kind.IsCreatureType() || defender.Carrier is not null || defender.Id == attacker)
             return false;
         if (defender.Hex != attack.Hex || state.Controller(defender) != attack.Entity)
             return false;
-        return defender.Slice == attack.Slice || (attack.Slice == Slice.Ground && defender.Slice == Slice.Sky);
+        if (defender.Slice != attack.Slice && !(attack.Slice == Slice.Ground && defender.Slice == Slice.Sky))
+            return false;
+        if (state.Find<Permanent>(attacker) is not { } attackerPermanent)
+            return false;
+        var (min, max) = state.Reach(defender);
+        var distance = state.PositionOf(attackerPermanent).DistanceTo(defender.Hex);
+        return distance >= min && distance <= max;
     }
 
     public static bool CanDefend(TrueState state, Permanent defender, TraceObject attackTrace) =>
@@ -140,7 +150,7 @@ public static class Combat
     }
 
     /// <summary>D13: all of a Combat's damage is computed from the pre-combat state and dealt in
-    /// one instruction, so both sides can fall. Defenders retaliate unless the attacker is Ranged.</summary>
+    /// one instruction, so both sides can fall. Every defender deals its Attack back (D127).</summary>
     public static void Apply(TrueState state, TraceObject trace, IReadOnlyDictionary<ObjectId, int> split)
     {
         var attack = trace.Attack!;
@@ -157,7 +167,7 @@ public static class Combat
             .Where(d => d is not null && IsEligibleDefender(state, d, attack, attacker.Id))
             .Select(d => d!)
             .ToList();
-        if (defenders.Count > 0 && !state.HasKeyword(attacker, Keyword.Ranged))
+        if (defenders.Count > 0)
         {
             foreach (var d in defenders)
                 damage[attacker.Id] = damage.GetValueOrDefault(attacker.Id) + state.Attack(d);

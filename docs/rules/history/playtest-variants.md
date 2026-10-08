@@ -309,3 +309,34 @@ solvable with the Aether.
 The Attack trace survives one round of passing priority, defenders are declared, then it resolves
 after the second. Gives both windows, but is a special rule for Attack traces — exactly what the
 user ruled out ("use the Aether as intended or not at all").
+
+## Ranged attacks (D127)
+
+**Current rule:** `Ranged a-b` reaches distances a to b (Melee: 0–1); a creature may Defend only if
+the attacker is within its own attack reach (distance only); every defender hits back. The attack
+target keeps its Slice. **Playtest point:** the user isn't sure this is intuitive — in particular a
+melee defender that can't step in against an archer 2 hexes away, and a Ground archer that hurts a
+flyer only by defending.
+
+### Variant — defendable, no retaliation (guess G7) · NOT ADOPTED
+Anyone eligible may defend a Ranged attack and absorb it, but nobody hits back. Kept one combat
+procedure, but needed Ranged as an exception to universal retaliation.
+
+### Variant — undefendable · NOT ADOPTED
+A Ranged attack hits its target directly. A sniper keyword: picks off pieces behind a wall of
+defenders, and would want a specific target creature instead of terrain + Slice + entity.
+
+### Variant — "the defender could attack the attacker" · REJECTED
+The user's first formulation. Read literally it also checks Slices and "can't attack": Ground
+creatures could no longer defend against a diving flyer (Ground can't attack Sky), and a creature
+with "can't attack" could never defend — both unwanted. Narrowed to distance only.
+
+### Variant — no Slice in the attack target · REJECTED
+Claude: an attack names terrain + entity; a flyer's attack reaches Ground and Sky, the damage split
+among both. Removes the one Slice choice, but a flyer could no longer fight enemy flyers only —
+Ground creatures could always step in.
+
+### Variant — derive the Slice, "Sky first" · NOT ADOPTED
+A flyer attacks the Sky while the enemy has a flyer on that hex, and dives only once the air is
+clear. No choice at all, but an extra rule, and no diving past enemy flyers. Kept the rare Slice
+choice instead.

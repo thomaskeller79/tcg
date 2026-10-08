@@ -1,7 +1,7 @@
 # Combat lab: armies already in contact, every creature ready to act (debug placements on top
 # of a normal Setup). Try: attack (3~AP), respond with Defend (Quick, 1~AP) bit by bit, play
-# Flame Dart / Battle Surge / Quicken as tricks, split damage between two defenders, a Ranged
-# archer (no retaliation), flyers attacking Ground (Sky → Ground), Defender on the Iron Golem.
+# Flame Dart / Battle Surge / Quicken as tricks, split damage between two defenders, a Ranged 1-2
+# archer (melee creatures can't defend at distance 2), flyers attacking Ground (Sky → Ground), Defender on the Iron Golem.
 name Combat lab
 seed 5
 map hexagon 3

@@ -145,16 +145,20 @@ public class NetworkTests
     }
 
     [Fact]
-    public void A_Companion_leaving_its_bonded_tile_cuts_its_network()
+    public void A_connected_Companion_is_confined_to_its_realm_like_a_Champion()
     {
         var g = Load("place A companion.ash 0,1");
         var ash = g.P("companion.ash");
         g.Ok(g.Act(A, ash, DefaultAbilities.Bond, At(0, 1)));
         g.ResolveAll();
-        g.Ok(g.Act(A, ash, DefaultAbilities.Move, At(1, 0)));
+        Assert.False(g.Act(A, ash, DefaultAbilities.Move, At(1, 0)).Accepted); // D126: realm lock
+
+        g.Ok(g.Act(A, ash, DefaultAbilities.Collapse));
         g.ResolveAll();
         Assert.Null(g.Terrain(0, 1).Parent);
-        Assert.Equal(1, ash.CurrentAp); // 2 - 1: an unbonded destination costs the plain price (G10)
+        g.Ok(g.Act(A, ash, DefaultAbilities.Move, At(1, 0)));
+        g.ResolveAll();
+        Assert.Equal(1, ash.CurrentAp); // 5 - 3 (bond) - 0 (collapse) - 1 (disconnected move)
     }
 
     [Fact]

@@ -37,8 +37,13 @@ public static class Stats
     public static IReadOnlyList<AbilityDefinition> Abilities(this TrueState state, Permanent p) =>
         p.Kind == PermanentKind.Remnant ? [] : DefaultAbilities.For(state.Def(p));
 
-    public static int Range(this TrueState state, Permanent p) =>
-        state.HasKeyword(p, Keyword.Ranged) ? Math.Max(0, state.KeywordValue(p, Keyword.Ranged)) : 1;
+    /// <summary>D127: the distances its attack reaches — Melee 0–1 (D120), Ranged a-b from a to b.</summary>
+    public static (int Min, int Max) Reach(this TrueState state, Permanent p)
+    {
+        if (p.Kind == PermanentKind.Remnant || state.Def(p).Keywords.FirstOrDefault(k => k.Name == Keyword.Ranged) is not { } ranged)
+            return (0, 1);
+        return (ranged.Value, ranged.To ?? ranged.Value);
+    }
 
     private static int Fold(TrueState state, ObjectId subject, string stat, int baseline)
     {

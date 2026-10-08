@@ -2,7 +2,7 @@
 
 *A Champion's signature "friend": a card that sits mechanically **between Creature and Champion**. Introduces the game's channeling hierarchy explicitly: **Creature spends mana it can't draw; Companion draws mana it can't share; Champion draws and shares.***
 
-**Decisions:** D22, D26, D49, D54–D55, D107, D116, D117 (`history/decisions.md`)
+**Decisions:** D22, D26, D49, D54–D55, D107, D116, D117, D126 (`history/decisions.md`)
 
 ---
 
@@ -20,6 +20,7 @@
 ## In-match: what a Companion is
 
 - A real card in the maindeck: drawn to Hand, **summoned like a Creature** (D20 — paid in mana from the Champion's pool, onto a bonded terrain cell in the Champion's realm, subject to Slice capacity and summoning sickness).
+- **Default abilities: the Champion's, minus Draw (D126)** — a Companion has no Mind zones (no Hand or Library of its own); in everything else it acts like a Champion: Bond, Move with the realm lock, Collapse Network, Attack, Defend, Equip, Un-equip. Its pool still never shares (above).
 - **Stats: Attack / Life / AP**, the same three numbers as a Creature (D10) — it occupies a board slot and is attackable. It moves, fights, and bonds using the network-dependent cost shape below (shared logic with the Champion, D9), not a Creature's flat defaults.
 - Losing a Companion is a real, permanent loss (Life → 0 → it falls, leaving a Remnant, D14, D110) — it doesn't end the match, but it **un-bonds the terrain it personally bonded** (see Terrain network, below) and its printed abilities go with it.
 
@@ -40,9 +41,10 @@ No new resource. Mana + AP are the only two things that keep the world ticking �
 
 | Action | Cost | Notes |
 |---|---|---|
-| **Move** | `1AP` if its network collapses · `2AP` if it stays connected | Same differential as the Champion (D9) — a Companion is its own root, so its own connection is what's at stake when it moves. |
-| **Attack** | `3~AP` if its network collapses · `6~AP` if it stays connected | The generic Actor default (D49, D116): `3~AP` base, doubled while bonded. No more abilities this turn (`~`) in both cases, same as the Champion's own Attack and a Creature's default. |
-| **Defend** | `1~AP` if its network collapses · `2~AP` if it stays connected | The generic default (D116, D117), doubled while bonded like Move and Attack. Once per opponent turn while it has AP. |
+| **Move** | `1AP` while disconnected · `2AP` while connected | Exactly the Champion's rule (D9, D126). **Connected** = the terrain it stands on is bonded by itself, knotted or not (D122) — nothing else is checked. While connected it may only move onto terrain it bonded itself (the realm lock). |
+| **Collapse Network** | `0AP` | Exactly the Champion's ability (D126): drops every bond of this Companion outright, so it is disconnected. |
+| **Attack** | `3~AP` while disconnected · `6~AP` while connected | The generic Actor default (D49, D116): `3~AP` base, doubled while bonded. No more abilities this turn (`~`) in both cases, same as the Champion's own Attack and a Creature's default. |
+| **Defend** | `1~AP` while disconnected · `2~AP` while connected | The generic default (D116, D117), doubled while bonded like Move and Attack. Once per opponent turn while it has AP. |
 | **Bond** | `3*AP` *(tuning example)* | Once/turn (the `*` flavor, D9 / `economy.md`); priced high against a small total AP pool so it crowds out most of the rest of the turn. |
 | **Its own printed abilities** | card-specific `mana + AP` | Typically pricier than an equivalent Champion ability — a Companion is a narrower, less efficient channeler, not a second Champion. |
 

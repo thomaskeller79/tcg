@@ -6,6 +6,30 @@
 
 ---
 
+### D127 — Ranged a-b, and a defender must reach its attacker
+
+Closes item 45 and rules-sync guess G7 (`architecture/implementation-plan.md` Q6). Before: `Ranged N` attacked within distance N (0 included) and was the sole exception to universal retaliation (D19); whether it could be defended was open, and the build let anyone defend it without hitting back.
+
+**Adopted (user):** **Ranged a-b** is a keyword with two values: the attack reaches distances a to b — Ranged 1-3 reaches 1, 2 or 3, not 0 or 4+. Melee is the default reach 0–1 (D120). **A creature may Defend only if the attacker is within its own attack reach** — distance only, no Slice, AP or "can attack" check. Retaliation then has no exception: every defender hits back, Ranged attackers included. Everything else stays: an attack still names a terrain, a Slice and an entity (D115), flyers still attack Sky or Ground, Sky creatures still help defend Ground, defenders still stand on the attacked terrain.
+
+**Why:** the research (Duelyst, Fire Emblem, Wesnoth, Advance Wars, Gloomhaven, HoMM) mostly ties hitting back to reach; folding reach into who may defend makes it one structural rule instead of a Ranged exception. **Consequences accepted:** a melee creature can't defend against a Ranged attack from 2 away, which hits directly; a Ranged 2-3 creature can't defend against melee; a Ground archer damages a flyer only by defending. The user isn't sure this is intuitive — a playtest point.
+
+**Considered and rejected** (`history/playtest-variants.md` §Ranged attacks): defendable without retaliation (G7); undefendable; "the defender could attack the attacker" with Slice and "can't attack" included (Ground could no longer defend against a diving flyer, and a "can't attack" creature could never defend); an attack target without a Slice (Claude — a flyer could no longer fight flyers only); deriving the Slice as "Sky first".
+
+→ `overview.md` §4, `interaction-stack.md` §Combat integration, `glossary.md`, `economy.md`, `object-properties.md` §5, `tools/card-format.md`.
+
+---
+
+### D126 — A Companion moves and collapses exactly like a Champion
+
+Closes item 38 and rules-sync guess G10 (`architecture/implementation-plan.md` Q4). Before: `companions.md` priced a Companion's move `1AP` "if its network collapses" and `2AP` "if it stays connected" — a collapse as a side effect of stepping off, with no Collapse Network ability and no realm lock; the build followed that (a move off its bonded terrain cut its network).
+
+**Adopted (user):** "a Companion is exactly like a Champion, with the exception of the Mind zone." It gets **Collapse Network** (`0AP`) and the **realm lock**: while connected it moves only onto terrain it bonded itself (`2AP`); while disconnected it moves freely (`1AP`). **Connected is a state check (user):** the terrain it stands on is bonded by itself, knotted or not (D122) — not whether it ever used Collapse Network. Losing that bond any other way (a theft, an unbond) disconnects it just the same, and cuts the rest of its network (D122). Its default abilities are the Champion's minus Draw. **Why:** one mechanism for one idea, instead of two. **Not changed:** its pool never shares (D22); Collapse Network may still be removed for everyone (Track C item 4).
+
+→ `companions.md`, `glossary.md`, `object-properties.md` §5, `tools/card-format.md`.
+
+---
+
 ### D125 — Mana: disjunctive pips and pool mana, paid by domination
 
 Closes rules-sync guess G1 (`architecture/implementation-plan.md` Q3) and the cost-model half of item 37. Before: the build kept an Element-keyed pool, and paid generic pips automatically from the largest pile — which could spend the Element a later card needed.

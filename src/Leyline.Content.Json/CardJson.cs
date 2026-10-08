@@ -96,14 +96,17 @@ public static class CardJson
     private static Instruction ToInstruction(InstructionDto i) =>
         new(i.Verb ?? throw new InvalidDataException("An instruction needs a verb."), i.Target, i.Amount, i.Card, i.Stat, i.UntilEndOfTurn);
 
-    /// <summary>"Ranged 2", "Haste", "Haste 1", "Flying".</summary>
+    /// <summary>"Ranged 1-3", "Haste", "Haste 1", "Flying".</summary>
     public static Keyword ParseKeyword(string text)
     {
         var parts = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var range = parts.Length == 2 ? parts[1].Split('-') : [];
         return parts.Length switch
         {
             1 => new Keyword(parts[0]),
             2 when int.TryParse(parts[1], out var v) => new Keyword(parts[0], v),
+            2 when range.Length == 2 && int.TryParse(range[0], out var from) && int.TryParse(range[1], out var to) && from <= to
+                => new Keyword(parts[0], from, to),
             _ => throw new FormatException($"Bad keyword '{text}'."),
         };
     }

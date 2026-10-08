@@ -137,7 +137,22 @@ public class CombatTests
     }
 
     [Fact]
-    public void A_Ranged_attacker_reaches_2_and_takes_no_retaliation_even_when_defended()
+    public void Ranged_1_2_reaches_distance_1_and_2_but_not_3()
+    {
+        var g = Load("""
+            place A creature.flame-archer 0,2
+            place B test.grunt 0,1
+            place B test.grunt 0,0
+            place B test.grunt 0,-1
+            """);
+        var reached = Combat.AttackCandidates(g.State, g.P("creature.flame-archer"), A).Select(c => c.Hex).ToList();
+        Assert.Contains(H(0, 1), reached);
+        Assert.Contains(H(0, 0), reached);
+        Assert.DoesNotContain(H(0, -1), reached);
+    }
+
+    [Fact]
+    public void A_melee_creature_cannot_defend_against_an_attacker_beyond_its_reach()
     {
         var g = Load("""
             place A creature.flame-archer 0,2
@@ -146,10 +161,27 @@ public class CombatTests
         var archer = g.P("creature.flame-archer");
         g.Ok(g.Act(A, archer, DefaultAbilities.Attack, AttackAt(0, 0, Slice.Ground, B)));
         g.Pass(A);
-        g.Ok(g.Act(B, g.P("test.grunt"), DefaultAbilities.Defend, Obj(TopTrace(g))));
+        Assert.False(g.Act(B, g.P("test.grunt"), DefaultAbilities.Defend, Obj(TopTrace(g))).Accepted); // D127: distance 2 > reach 1
         g.ResolveAll();
         Assert.Equal(3, g.P("test.grunt").CurrentLife);
         Assert.Equal(2, archer.CurrentLife);
+    }
+
+    [Fact]
+    public void A_Ranged_defender_in_reach_defends_and_hits_back()
+    {
+        var g = Load("""
+            place A creature.flame-archer 0,2
+            place B creature.flame-archer 0,0
+            """);
+        var mine = g.P("creature.flame-archer");
+        var theirs = g.P("creature.flame-archer", 1);
+        g.Ok(g.Act(A, mine, DefaultAbilities.Attack, AttackAt(0, 0, Slice.Ground, B)));
+        g.Pass(A);
+        g.Ok(g.Act(B, theirs, DefaultAbilities.Defend, Obj(TopTrace(g))));
+        g.ResolveAll();
+        Assert.Null(g.Find("creature.flame-archer")); // both fell: every defender deals its Attack back (D127)
+        Assert.Null(g.Find("creature.flame-archer", 1));
     }
 
     [Fact]
