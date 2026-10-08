@@ -29,7 +29,7 @@ public static class ViewProjector
             var def = state.Def(t);
             var bonder = Network.BonderOf(state, t);
             return new HexView(
-                hex, t.Id.Value, def.Id, def.Name, t.TerrainType, def.Produces, def.IsVoid, def.MoveCost,
+                hex, t.Id.Value, def.Id, def.Name, t.TerrainType, def.Produces.Select(u => u.ToString()).ToList(), def.IsVoid, def.MoveCost,
                 bonder?.Id.Value,
                 bonder is null ? null : ControllerName(state.Controller(bonder)),
                 Network.IsFlowing(state, t),
@@ -148,7 +148,7 @@ public static class ViewProjector
             d.Keywords.Select(k => k.ToString()).ToList(),
             (d.Type is CardType.Spell or CardType.Terrain ? d.Abilities : DefaultAbilities.For(d)).Select(AbilityOf).ToList(),
             d.Instructions.Select(i => InstructionText(i, name => d.Targets.FirstOrDefault(t => t.Name == name) is { } spec ? SpecText(spec) : null)).ToList(),
-            d.Produces, d.Elements, d.Text);
+            d.Produces.Select(u => u.ToString()).ToList(), d.Elements, d.Text);
 
     private static TraceView Trace(TrueState state, TraceObject t, PlayerId? observer, bool omniscient)
     {

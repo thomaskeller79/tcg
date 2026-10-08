@@ -88,16 +88,24 @@ public sealed class Game
 
     /// <summary>Activates an ability; each target is its own one-element selection.</summary>
     public CommandResult Act(PlayerId actor, Permanent source, string ability, params TargetChoice[] targets) =>
-        Apply(new ActivateCommand(actor, source.Id, ability, targets.Select(t => (IReadOnlyList<TargetChoice>)[t]).ToList()));
+        Activate(actor, source.Id, ability, targets.Select(t => (IReadOnlyList<TargetChoice>)[t]).ToList());
 
     public CommandResult ActRaw(PlayerId actor, GameObject source, string ability, IReadOnlyList<IReadOnlyList<TargetChoice>> targets) =>
-        Apply(new ActivateCommand(actor, source.Id, ability, targets));
+        Activate(actor, source.Id, ability, targets);
 
     public CommandResult Cast(PlayerId actor, string card, params TargetChoice[] targets) =>
-        Act(actor, HandCard(actor, card), targets);
+        Activate(actor, HandCard(actor, card).Id, DefaultAbilities.Cast, targets.Select(t => (IReadOnlyList<TargetChoice>)[t]).ToList());
 
-    private CommandResult Act(PlayerId actor, CardObject card, TargetChoice[] targets) =>
-        Apply(new ActivateCommand(actor, card.Id, DefaultAbilities.Cast, targets.Select(t => (IReadOnlyList<TargetChoice>)[t]).ToList()));
+    /// <summary>Where the payment needs a choice (D125), takes the first open one — tests that
+    /// aren't about payment don't spell it out.</summary>
+    private CommandResult Activate(PlayerId actor, ObjectId source, string ability, IReadOnlyList<IReadOnlyList<TargetChoice>> targets)
+    {
+        var command = new ActivateCommand(actor, source, ability, targets);
+        if (Activation.Build(State, new ActivationRequest(actor, source, ability, targets)).Error != "Choose how to pay.")
+            return Apply(command);
+        var open = RulesEngine.LegalCommands(State, actor).OfType<ActivateCommand>().First(c => c.Source == source && c.Ability == ability);
+        return Apply(command with { Mana = open.Mana });
+    }
 
     public void Ok(CommandResult result)
     {
@@ -144,28 +152,28 @@ public static class TestCards
 {
     public static readonly CardDefinition Grunt = new()
     {
-        Id = "test.grunt", Name = "Grunt", Type = CardType.Creature, Cost = new Cost([null]), Attack = 3, Life = 5, Ap = 4,
+        Id = "test.grunt", Name = "Grunt", Type = CardType.Creature, Cost = new Cost([ManaPip.Generic]), Attack = 3, Life = 5, Ap = 4,
     };
 
     public static readonly CardDefinition Mirror = new()
     {
-        Id = "test.mirror", Name = "Mirror Knight", Type = CardType.Creature, Cost = new Cost([null]), Attack = 3, Life = 5, Ap = 4,
+        Id = "test.mirror", Name = "Mirror Knight", Type = CardType.Creature, Cost = new Cost([ManaPip.Generic]), Attack = 3, Life = 5, Ap = 4,
     };
 
     public static readonly CardDefinition Brute = new()
     {
-        Id = "test.brute", Name = "Test Brute", Type = CardType.Creature, Cost = new Cost([null]), Attack = 3, Life = 7, Ap = 4,
+        Id = "test.brute", Name = "Test Brute", Type = CardType.Creature, Cost = new Cost([ManaPip.Generic]), Attack = 3, Life = 7, Ap = 4,
     };
 
     public static readonly CardDefinition Mole = new()
     {
-        Id = "test.mole", Name = "Test Mole", Type = CardType.Creature, Cost = new Cost([null]), Attack = 1, Life = 3, Ap = 6,
+        Id = "test.mole", Name = "Test Mole", Type = CardType.Creature, Cost = new Cost([ManaPip.Generic]), Attack = 1, Life = 3, Ap = 6,
         Keywords = [new Keyword(Keyword.Subterranean)],
     };
 
     public static readonly CardDefinition Knotter = new()
     {
-        Id = "test.knotter", Name = "Knotter", Type = CardType.Creature, Cost = new Cost([null]), Attack = 1, Life = 3, Ap = 4,
+        Id = "test.knotter", Name = "Knotter", Type = CardType.Creature, Cost = new Cost([ManaPip.Generic]), Attack = 1, Life = 3, Ap = 4,
         Keywords = [new Keyword(Keyword.Knotting)],
     };
 
@@ -173,7 +181,7 @@ public static class TestCards
     /// meet a hidden occupant (D68).</summary>
     public static readonly CardDefinition Digger = new()
     {
-        Id = "test.digger", Name = "Digger", Type = CardType.Creature, Cost = new Cost([null]), Attack = 1, Life = 2, Ap = 3,
+        Id = "test.digger", Name = "Digger", Type = CardType.Creature, Cost = new Cost([ManaPip.Generic]), Attack = 1, Life = 2, Ap = 3,
         Keywords = [new Keyword(Keyword.Subterranean)], EntersSlice = Slice.Root,
     };
 

@@ -58,7 +58,7 @@ public class ScenarioLoaderTests
     {
         var cost = CardJson.ParseCost("2FW 3~AP 1Life");
         Assert.Equal(4, cost.Mana.Count);
-        Assert.Equal(2, cost.Mana.Count(m => m is null));
+        Assert.Equal(2, cost.Mana.Count(m => m.IsGeneric));
         Assert.Equal(3, cost.Ap);
         Assert.Equal(ApFlavor.Done, cost.Flavor);
         Assert.Equal(1, cost.Life);

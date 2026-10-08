@@ -21,7 +21,7 @@ public static class RulesEngine
             return [];
 
         var commands = new List<Command> { new PassCommand(actor) };
-        commands.AddRange(Activation.LegalFor(state, actor).Select(r => new ActivateCommand(actor, r.Source, r.AbilityId, r.Targets)));
+        commands.AddRange(Activation.LegalFor(state, actor).Select(r => new ActivateCommand(actor, r.Source, r.AbilityId, r.Targets, r.Mana)));
         return commands;
     }
 
@@ -60,7 +60,7 @@ public static class RulesEngine
 
     private static CommandResult ApplyActivate(TrueState state, ActivateCommand cmd)
     {
-        var result = Activation.Build(state, new ActivationRequest(cmd.Actor, cmd.Source, cmd.Ability, cmd.Targets));
+        var result = Activation.Build(state, new ActivationRequest(cmd.Actor, cmd.Source, cmd.Ability, cmd.Targets, cmd.Mana));
         if (result.Error is { } error)
             return CommandResult.Reject(error);
         var draft = result.Draft!;

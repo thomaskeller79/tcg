@@ -143,6 +143,6 @@ public class AetherTests
         Assert.Null(g.Terrain(0, 1).Parent);
         g.ResolveAll();
         Assert.Equal(champion.Id, g.Terrain(0, 1).Parent);
-        Assert.Equal(2, champion.Pool!.Amounts[Element.Fire]); // credited live (D77)
+        Assert.Equal(2, champion.Pool!.Amounts[ManaUnit.Of(Element.Fire)]); // credited live (D77)
     }
 }

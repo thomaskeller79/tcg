@@ -54,7 +54,7 @@ public sealed class ActivationDraft
     public required CardDefinition? Card { get; init; }
     public required List<List<TargetChoice>> Targets { get; init; }
     public required Cost Cost { get; init; }
-    public required IReadOnlyList<Element> ManaPlan { get; init; }
+    public required IReadOnlyList<ManaUnit> ManaPlan { get; init; }
     public required ObjectId? ManaPayer { get; init; }
     public required ObjectId? ApPayer { get; init; }
     public required ObjectId? Parent { get; init; }

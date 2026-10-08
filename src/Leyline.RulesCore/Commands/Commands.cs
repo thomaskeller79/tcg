@@ -7,8 +7,9 @@ namespace Leyline.RulesCore.Commands;
 public abstract record Command(PlayerId Actor);
 
 /// <summary>Cast a card from Hand (<c>Ability</c> = "cast") or activate a permanent's ability,
-/// with one choice list per target selection, in order.</summary>
-public sealed record ActivateCommand(PlayerId Actor, ObjectId Source, string Ability, IReadOnlyList<IReadOnlyList<TargetChoice>> Targets) : Command(Actor);
+/// with one choice list per target selection, in order, and the mana it spends (D125) — null
+/// when the payment is fully automatic.</summary>
+public sealed record ActivateCommand(PlayerId Actor, ObjectId Source, string Ability, IReadOnlyList<IReadOnlyList<TargetChoice>> Targets, IReadOnlyList<ManaUnit>? Mana = null) : Command(Actor);
 
 /// <summary>Pass priority (also how an Action phase ends, G4).</summary>
 public sealed record PassCommand(PlayerId Actor) : Command(Actor);

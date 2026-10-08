@@ -28,8 +28,8 @@ public class SetupTests
         Assert.Equal(a.Id, g.Terrain(0, 2).Parent);
         Assert.Equal(4, a.CurrentAp);
         Assert.Equal(4, g.Champion(B).CurrentAp);
-        Assert.Equal(1, a.Pool!.Amounts[Element.Fire]);
-        Assert.Equal(1, g.Champion(B).Pool!.Amounts[Element.Earth]);
+        Assert.Equal(1, a.Pool!.Amounts[ManaUnit.Of(Element.Fire)]);
+        Assert.Equal(1, g.Champion(B).Pool!.Amounts[ManaUnit.Of(Element.Earth)]);
         Assert.True(g.Terrain(0, 2).Drawn);
     }
 

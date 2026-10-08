@@ -19,7 +19,7 @@ rules text is a list of targets plus a sequence of instructions.
 | `abilities` | permanents | Printed activated and triggered abilities, below. |
 | `removedDefaults` | permanents | Default abilities this card lacks, e.g. `["equip"]`. |
 | `targets`, `instructions`, `duration` | Spell | Rules text; Duration defaults to 5 (D50). |
-| `produces`, `moveCost` | Terrain | Mana per draw (one Element per entry); move cost, default 1. |
+| `produces`, `moveCost` | Terrain | Mana per draw, one entry per mana: an Element (`"Fire"`), Elements joined by `/` for mana spendable as any of them (`"Fire/Metal"`), or `"Colorless"` (D125); move cost, default 1. |
 | `carrierAttack`, `carrierLife` | Item | Static bonus to the carrier. |
 | `entersSlice` | permanents | Overrides the Slice filter (default: Flying → Sky, else Ground; a Structure takes the Ground or Root slot). |
 | `bondAp` | Companion | Its Bond cost, default 3 (`3*AP`). |
@@ -32,7 +32,8 @@ Draw, Collapse Network for the Champion) are added by type and need no entry.
 
 Tokens separated by spaces or `+`:
 - **mana:** digits for generic, then Element letters — `L` Light, `F` Fire, `M` Metal, `E` Earth,
-  `D` Darkness, `I` Ice, `W` Water, `A` Air. `2FF` = two generic and two Fire.
+  `D` Darkness, `I` Ice, `W` Water, `A` Air. `2FF` = two generic and two Fire. Letters joined by
+  `/` are one pip any of them pays (D125): `1F/AW` = one generic, one Fire-or-Air, one Water.
 - **Activation Points:** `3AP`, `3~AP` (done for this turn), `2!AP` (exhaust), `5*AP` (once per cycle) — D116.
 - **Life:** `2Life`.
 

@@ -10,7 +10,7 @@ public sealed record HexView(
     string TerrainCard,
     string TerrainName,
     string? TerrainType,
-    IReadOnlyList<Element> Produces,
+    IReadOnlyList<string> Produces,
     bool IsVoid,
     int MoveCost,
     int? BondedBy,
@@ -98,7 +98,7 @@ public sealed record CardInfo(
     IReadOnlyList<string> Keywords,
     IReadOnlyList<AbilityView> Abilities,
     IReadOnlyList<string> Instructions,
-    IReadOnlyList<Element> Produces,
+    IReadOnlyList<string> Produces,
     IReadOnlyList<Element> Elements,
     string Text);
 

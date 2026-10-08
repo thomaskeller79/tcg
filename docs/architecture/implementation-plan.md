@@ -50,10 +50,10 @@ Each phase ends with its own tests passing and a commit. The engine is rebuilt a
 
 Made where the rules leave a gap. Each is the simplest reading that keeps a match playable; all are easy to change.
 
-- **G1 — Mana colors (item 37).** Terrain produces mana of its Element into an Element-keyed pool. A cost is a list of pips: an Element pip needs that Element, a Generic pip takes any. Generic pips are paid automatically from the Element with the most mana left (ties: Element order). Basics produce 1 of their Element.
-- **G2 — Priority order.** After a trace enters Pending, the Champion who put it there gets priority first (MTG 117.3c); after a resolution, the active seat's Champion (in a neutral turn: the next Champion in turn order). `Now` advances once every Champion has passed in succession.
-- **G3 — Quick with empty Pending.** "Only Physical Traces in Pending" is read as "no non-physical trace in Pending", so Quick is also playable while Pending is empty (whenever its controller has priority). The speeds then nest: Slow ⊂ Quick ⊂ Reactive ⊂ Instant.
-- **G4 — Priority with empty Pending.** The active Champion acts freely in its Action phase. Ending it is a pass; then every other Champion gets priority once with Pending empty (Reactive/Instant/Quick play on the opponent's turn). The phase ends when all have passed in succession. In a neutral turn's Action phase, the same pass round runs after the Behaviors are done.
+- **G1 — Mana colors (item 37).** Replaced by D125 (`resources-terrain.md` §Mana costs and payment). Basics produce 1 of their Element.
+- **G2 — Priority order.** Confirmed as D123 (`interaction-stack.md` §The primitive).
+- **G3 — Quick with empty Pending.** Confirmed as D124 (`interaction-stack.md` §The primitive).
+- **G4 — Priority with empty Pending.** Confirmed as part of D123 (`interaction-stack.md` §The primitive).
 - **G5 — Beginning/End triggers** resolve without priority, like Setup's S9 (overview §3: "no priority this phase to start").
 - **G6 — Defend eligibility includes the Champion and Companions** (creature-type permanents); Structures never defend (D107: a Structure never fights).
 - **G7 — Ranged N (item 45).** A Ranged attack names terrain + Slice + entity like any attack, within distance N (0 allowed); it can be defended; nobody deals damage back to a Ranged attacker.
@@ -81,9 +81,6 @@ Made where the rules leave a gap. Each is the simplest reading that keeps a matc
 
 Collected while building; nothing below blocks the build (each has a guess above or is parked).
 
-- **Q1** — G2/G4: is MTG's priority order (actor first; active player after a resolution; a pass round at the end of each Action phase) what you want? It costs the non-active Champion one pass per turn.
-- **Q2** — G3: should Quick be playable with Pending empty?
-- **Q3** — G1: is per-Element mana with generic pips the color-cost model to try first (item 37)? Generic pips are auto-paid from the largest pile.
 - **Q4** — G10: a Companion pays double to move inside its own network and loses the network by stepping off. Keep, or give it the Champion's Collapse Network and realm lock (item 38)?
 - **Q5** — Root view layout (only the Ground+Sky one was agreed): Root creatures on the three G corners, the Root Structure in the centre, Remnants and Items on the left and right of the ring. OK?
 - **Q6** — G7: a Ranged attack can be defended but takes no damage back. Or should it be undefendable (item 45)?

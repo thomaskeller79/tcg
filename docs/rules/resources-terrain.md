@@ -2,7 +2,7 @@
 
 *The signature economy: a separate terrain deck laid out on the board, connected outward from the Champion turn by turn. Goal — keep lands powerful and thought-after (MTG's best quality) while eliminating mana/color screw *except* as a deliberate opponent strategy.*
 
-**Decisions:** D8, D11, D22, D24, D27, D28, D47, D51, D54, D57, D58, D77, D87, D88, D100 (`history/decisions.md`)
+**Decisions:** D8, D11, D22, D24, D27, D28, D47, D51, D54, D57, D58, D77, D87, D88, D100, D125 (`history/decisions.md`)
 
 ---
 
@@ -23,6 +23,12 @@
 - **Terrain abilities (D87):** a terrain card may carry **static** and **triggered** abilities beyond mana production — static buffs to occupants, movement-cost modifiers, "whenever a creature enters this…" triggers — using the same effect/query system as any other card (pillar 5); cell properties are already queryable/mutable data (`overview.md` §2). **Terrain has no activated abilities and holds no Activation Points.** A terrain card that wants activated power brings a **Structure** with it (a real card, D88), which carries that ability under the ordinary Structure rules (`structures-items.md`) and can be attacked and felled, leaving the plain terrain behind. How that Structure arrives at Setup is open (Open question 3).
 - **Terrain funding:** a cost printed on a terrain's triggered ability ("…you may pay 1 AP; if you do…") is paid by whoever the terrain is currently **bonded** to (Champion or Companion, D22), mana and Activation Points alike — the ordinary Payment walk (`ancestry.md`), which climbs past the terrain because it holds neither resource. This is the *payment* relationship, not necessarily the terrain's strict **controller**: a Companion-bonded terrain's costs come from that Companion's own pool and AP, but its controller (for "you" and "you control" card text) is that Companion's own Champion. A Neutral terrain (unbonded, or bonded-but-path-blocked, D54) has neither payer nor controller: it is **dormant** (`neutral-permanents.md`) — its triggered abilities that need a choice or a payment don't happen, while its static abilities and choiceless triggers still apply (an unbonded swamp on neutral ground slows everyone). A once-per-round limit on a trigger is printed on the card where wanted. See `docs/cards/card-ideas.md` for examples.
 - **Readability (D87):** the GUI marks only terrain that has static or triggered abilities, so basics stay visually quiet, and shows a static's effect where it lands (movement preview, affected creature's stats). The mark follows each observer's belief: a Mimic terrain presenting as a basic shows no mark to an observer who believes it basic.
+
+## Mana costs and payment (D125)
+- **Cost pips.** A mana cost is a list of pips of two kinds: **generic** (any mana pays it) and **colored** — a disjunction over Elements, paid by mana of any one of them. One Element is ordinary colored mana, two is hybrid, and so on.
+- **Pool mana.** A mana in a pool is **colorless** or **colored** — again a disjunction over Elements, spendable as any one of them. Colorless pays only generic pips. A terrain's card says what it produces.
+- **Domination.** One mana dominates another if it pays every pip the other pays — a colored mana dominates a mana whose Elements it includes, and every mana dominates colorless.
+- **Semi-automatic payment.** Pips are paid from the most constrained to the least: one-Element pips first, then two-Element, …, generic last. Each pip takes the mana that every other mana able to pay it dominates; when no such mana exists, the paying player chooses among the tied ones. Identical mana is never a choice. Consequences: colorless always pays generic; a one-Element pool pays everything automatically; with two Elements, the only choice is which one pays a generic pip.
 
 ## Why it avoids screw
 - The Champion starts with ~6 neighbor hexes; the connectable **frontier grows for many turns**, so early color/mana screw is unlikely (though enough spatial variance that running all 8 colors is impractical — a good tension).
@@ -62,7 +68,7 @@ Consequences of the pause rule specifically:
 *(Resolved questions are cut once closed — the rule lives in the sections above and, for decision-grade calls, in `history/decisions.md`. Only genuinely open items stay here.)*
 
 ## Open questions
-1. **Color-cost model** — do card costs demand specific colored pips (MTG-style), generic + color requirements, or something else? *(Lean: colored pips — open for a fuller pros/cons discussion before locking in.)* Tracked at `PLAN.md` Track A item 37.
+1. **Generic mana** — the cost model above (D125) supports generic pips; whether any card should carry them is open (dropping generic would make nearly every payment automatic). Tracked at `PLAN.md` Track A item 37.
 2. **Denial balance** *(tuning)* — how much economic damage should one blocker be able to inflict relative to its own cost, and how reroute-friendly do boards need to be by default so a single chokepoint isn't a hard lock (links to the still-open board-size question, `overview.md` §Open questions)? A numeric/playtest question, not a structural one — distinct from the terrain-*ability* design space above (what a terrain card can print), which is separately captured in `docs/cards/card-ideas.md`.
 3. **How a terrain's Structure arrives at Setup (D87).** Setup-placed permanents enter the Island like any other (D114, `setup.md`), so a terrain can bring its Structure with an ordinary "when this enters the Island, create …" trigger, resolved in Setup's trigger step; the Structure enters with 0 Activation Points unless it has Haste. Still open: which slot it takes and its creation triple (`object-properties.md` Open questions).
 

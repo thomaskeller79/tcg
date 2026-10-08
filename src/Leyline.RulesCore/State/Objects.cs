@@ -33,62 +33,43 @@ public sealed record BehaviorAssignment(string Behavior, PlayerId? Toward, Seat 
         Toward is { } t ? $"{Behavior} toward Champion {t} ({NeutralSeat})" : $"{Behavior} ({NeutralSeat})";
 }
 
-/// <summary>D51/D77/G1: a mana pool keyed by Element. Held by a Champion and by each Companion.</summary>
+/// <summary>D51/D77/D125: a mana pool — how many of each mana type (colorless, or a disjunction
+/// over Elements). Held by a Champion and by each Companion.</summary>
 public sealed class ManaPool
 {
-    private readonly SortedDictionary<Element, int> _amounts = new();
+    private readonly Dictionary<ManaUnit, int> _amounts = new();
 
-    public IReadOnlyDictionary<Element, int> Amounts => _amounts;
+    public IReadOnlyDictionary<ManaUnit, int> Amounts => _amounts;
     public int Total => _amounts.Values.Sum();
 
-    public void Add(Element element, int amount)
+    public void Add(ManaUnit unit, int amount)
     {
-        _amounts[element] = _amounts.GetValueOrDefault(element) + amount;
+        _amounts[unit] = _amounts.GetValueOrDefault(unit) + amount;
     }
+
+    public void Add(Element element, int amount) => Add(ManaUnit.Of(element), amount);
 
     public void Clear() => _amounts.Clear();
 
-    /// <summary>The Elements that pay for the pips, or null if the pool can't. Colored pips
-    /// first; each generic pip from the Element with the most mana left, ties by Element order (G1).</summary>
-    public IReadOnlyList<Element>? PlanPayment(IReadOnlyList<Element?> pips)
-    {
-        var left = new SortedDictionary<Element, int>(_amounts);
-        var plan = new List<Element>();
-        foreach (var pip in pips.Where(p => p is not null))
-        {
-            var e = pip!.Value;
-            if (left.GetValueOrDefault(e) <= 0)
-                return null;
-            left[e]--;
-            plan.Add(e);
-        }
-        foreach (var _ in pips.Where(p => p is null))
-        {
-            var best = left.Where(kv => kv.Value > 0).OrderByDescending(kv => kv.Value).ThenBy(kv => kv.Key).Select(kv => (Element?)kv.Key).FirstOrDefault();
-            if (best is null)
-                return null;
-            left[best.Value]--;
-            plan.Add(best.Value);
-        }
-        return plan;
-    }
+    /// <summary>The payments the semi-automatic rule leaves open (D125); empty if it can't pay.</summary>
+    public IReadOnlyList<IReadOnlyList<ManaUnit>> PaymentOptions(IReadOnlyList<ManaPip> pips) => ManaPayment.Options(_amounts, pips);
 
-    public void Spend(IEnumerable<Element> elements)
+    public void Spend(IEnumerable<ManaUnit> units)
     {
-        foreach (var e in elements)
+        foreach (var u in units)
         {
-            var have = _amounts.GetValueOrDefault(e);
+            var have = _amounts.GetValueOrDefault(u);
             if (have <= 0)
-                throw new InvalidOperationException($"Pool has no {e} mana to spend.");
+                throw new InvalidOperationException($"Pool has no {u} mana to spend.");
             if (have == 1)
-                _amounts.Remove(e);
+                _amounts.Remove(u);
             else
-                _amounts[e] = have - 1;
+                _amounts[u] = have - 1;
         }
     }
 
     public override string ToString() =>
-        _amounts.Count == 0 ? "empty" : string.Join(" ", _amounts.Select(kv => $"{kv.Key}:{kv.Value}"));
+        _amounts.Count == 0 ? "empty" : string.Join(" ", _amounts.OrderBy(kv => (int)kv.Key.Colors).Select(kv => $"{kv.Key}:{kv.Value}"));
 }
 
 /// <summary>

@@ -5,8 +5,9 @@ namespace Leyline.RulesCore.Rules;
 
 /// <summary>A complete cast or activation as the player decides it: the source (a card in Hand,
 /// or a permanent), the ability (<see cref="DefaultAbilities.Cast"/> for a card), and one choice
-/// list per target selection, in order. <see cref="Actor"/> null = a Neutral permanent's Behavior.</summary>
-public sealed record ActivationRequest(PlayerId? Actor, ObjectId Source, string AbilityId, IReadOnlyList<IReadOnlyList<TargetChoice>> Targets);
+/// list per target selection, in order, and the mana it spends (D125; null = the payment is fully
+/// automatic). <see cref="Actor"/> null = a Neutral permanent's Behavior.</summary>
+public sealed record ActivationRequest(PlayerId? Actor, ObjectId Source, string AbilityId, IReadOnlyList<IReadOnlyList<TargetChoice>> Targets, IReadOnlyList<ManaUnit>? Mana = null);
 
 /// <summary>The outcome of checking a request: a draft ready to commit, an error, or — D68 — a
 /// location target that is legal in the actor's view but not in true state.</summary>
@@ -51,8 +52,8 @@ public static class Activation
         if (state.ChampionOf(actor) is not { } champion || champion.Pool is null)
             return BuildResult.Fail("You have no Champion.");
         // Casting is paid from the Champion's pool only (D20, D22).
-        if (champion.Pool.PlanPayment(def.Cost.Mana) is not { } plan)
-            return BuildResult.Fail("Not enough mana.");
+        if (ChoosePayment(champion.Pool, def.Cost.Mana, req.Mana, out var plan) is { } payError)
+            return BuildResult.Fail(payError);
 
         int? redirect = null;
         if (def.Type.IsPermanentCard())
@@ -90,6 +91,30 @@ public static class Activation
             Behavior = null,
         };
         return new BuildResult(draft, null, redirect);
+    }
+
+    /// <summary>D125: the payment a request names must be one the semi-automatic rule leaves
+    /// open; a request may leave it out only when that rule leaves exactly one.</summary>
+    private static string? ChoosePayment(ManaPool pool, IReadOnlyList<ManaPip> pips, IReadOnlyList<ManaUnit>? chosen, out IReadOnlyList<ManaUnit> plan)
+    {
+        plan = [];
+        if (pips.Count == 0)
+            return null;
+        var options = pool.PaymentOptions(pips);
+        if (options.Count == 0)
+            return "Not enough mana.";
+        if (chosen is null)
+        {
+            if (options.Count > 1)
+                return "Choose how to pay.";
+            plan = options[0];
+            return null;
+        }
+        var key = chosen.OrderBy(u => (int)u.Colors).ToList();
+        if (options.FirstOrDefault(o => o.SequenceEqual(key)) is not { } match)
+            return "That payment isn't open.";
+        plan = match;
+        return null;
     }
 
     /// <summary>The Slice filter (D32, D110): Flying → Sky, otherwise Ground; a Structure takes
@@ -137,14 +162,15 @@ public static class Activation
             return BuildResult.Fail(error);
 
         var cost = Costs.Effective(state, p, ability, req.Targets);
-        IReadOnlyList<Element> plan = [];
+        IReadOnlyList<ManaUnit> plan = [];
         Permanent? manaPayer = null;
         if (cost.Mana.Count > 0)
         {
             manaPayer = state.ManaPayer(p);
-            if (manaPayer?.Pool?.PlanPayment(cost.Mana) is not { } manaPlan)
+            if (manaPayer?.Pool is null)
                 return BuildResult.Fail("Not enough mana.");
-            plan = manaPlan;
+            if (ChoosePayment(manaPayer.Pool, cost.Mana, req.Mana, out plan) is { } payError)
+                return BuildResult.Fail(payError);
         }
         if (!Costs.CanPayAp(apPayer, cost, ability.Id))
             return BuildResult.Fail(cost.Flavor == ApFlavor.OncePerCycle && apPayer.UsedThisCycle.Contains(ability.Id)
@@ -402,7 +428,10 @@ public static class Activation
             var def = state.Def(card);
             if (!Speeds.Allows(state, actor.SeatOf(), def.Speed))
                 continue;
-            if (state.ChampionOf(actor)?.Pool?.PlanPayment(def.Cost.Mana) is null)
+            if (state.ChampionOf(actor)?.Pool is not { } pool)
+                continue;
+            var payments = Payments(pool.PaymentOptions(def.Cost.Mana), def.Cost.Mana);
+            if (payments.Count == 0)
                 continue;
 
             IEnumerable<IReadOnlyList<IReadOnlyList<TargetChoice>>> options;
@@ -423,8 +452,9 @@ public static class Activation
             }
 
             foreach (var targets in options)
+            foreach (var mana in payments)
             {
-                var req = new ActivationRequest(actor, cardId, DefaultAbilities.Cast, targets);
+                var req = new ActivationRequest(actor, cardId, DefaultAbilities.Cast, targets, mana);
                 if (Build(state, req).Error is null)
                     yield return req;
             }
@@ -455,9 +485,16 @@ public static class Activation
                 continue;
             foreach (var targets in BuiltinOptions(state, actor, p, ability))
             {
-                var req = new ActivationRequest(actor, p.Id, ability.Id, targets);
-                if (Build(state, req).Error is null)
-                    yield return req;
+                var cost = Costs.Effective(state, p, ability, targets);
+                var payments = cost.Mana.Count == 0 || state.ManaPayer(p)?.Pool is not { } pool
+                    ? Automatic
+                    : Payments(pool.PaymentOptions(cost.Mana), cost.Mana);
+                foreach (var mana in payments)
+                {
+                    var req = new ActivationRequest(actor, p.Id, ability.Id, targets, mana);
+                    if (Build(state, req).Error is null)
+                        yield return req;
+                }
             }
         }
     }
@@ -489,6 +526,13 @@ public static class Activation
     }
 
     private static IReadOnlyList<IReadOnlyList<TargetChoice>> One(TargetChoice c) => [[c]];
+
+    /// <summary>The payment field of each enumerated request: null when the payment is automatic
+    /// (or there is no mana cost), else one request per open payment (D125).</summary>
+    private static IReadOnlyList<IReadOnlyList<ManaUnit>?> Payments(IReadOnlyList<IReadOnlyList<ManaUnit>> options, IReadOnlyList<ManaPip> pips) =>
+        pips.Count == 0 || options.Count == 1 ? Automatic : options;
+
+    private static readonly IReadOnlyList<IReadOnlyList<ManaUnit>?> Automatic = [null];
 
     private static IEnumerable<IReadOnlyList<IReadOnlyList<TargetChoice>>> PrintedOptions(TrueState state, PlayerId? you, Permanent? source, IReadOnlyList<TargetSpec> specs)
     {

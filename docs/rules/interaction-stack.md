@@ -2,7 +2,7 @@
 
 *Players can act on the opponent's turn (MTG-style instants). One primitive covers instants, combat tricks, and traps: a **Speed** tag per card/ability, checked live against what's sitting in **Pending**, the Aether's next-to-resolve zone.*
 
-**Decisions:** D6, D16, D35, D38, D45, D46, D68, D70, D75, D83, D85, D91, D92, D94, D95, D100, D115, D116, D117, D118 (`history/decisions.md`)
+**Decisions:** D6, D16, D35, D38, D45, D46, D68, D70, D75, D83, D85, D91, D92, D94, D95, D100, D115, D116, D117, D118, D123, D124 (`history/decisions.md`)
 
 ---
 
@@ -12,13 +12,15 @@
 | Speed | Playable whenever… | What happens after |
 |---|---|---|
 | **Slow** | it's the controller's main phase, and Pending is empty. | Enters Pending, waits its turn, resolves and fades normally. |
-| **Quick** | only **Physical Traces** are in Pending — the trace left by Move, Attack, Ascend, Descend, or Defend. | Same as Slow. |
+| **Quick** | only **Physical Traces** are in Pending — the trace left by Move, Attack, Ascend, Descend, or Defend — including when Pending is empty (D124). | Same as Slow. |
 | **Reactive** | no **Instant Trace** is in Pending. | Same as Slow — a normal Pending entry, respondable by anything whose Speed currently permits it. |
 | **Instant** | no **Instant Trace** is in Pending. | **Blocks all active play until it has resolved**: while it sits in Pending, nothing can be actively put into the Aether (no cast, no activation — **no response window for anyone, not even another Instant**) and `Now` advances automatically. Triggers are still added and resolve normally. |
 
 **Move/Attack/Ascend/Descend are Slow (D75), not Quick** — Quick describes what *other* cards can play while a Physical Trace already sits in Pending (combat tricks, below), not the physical action's own speed. Being Slow means such an action can't be declared while Pending is non-empty, so **at most one Slow physical action ever sits in Pending at a time** — an actual enforced consequence of the Speed system, not merely how things happen to play out. **Defend is the one Quick physical action (D117):** its traces stack on top of the Attack they answer.
 
 Pending is the zone just ahead of `Now` — `Now` itself is **not a zone**, just the moving point dividing Pending from Past. **`Now` advances past whatever's next in Pending when both Champions pass priority in succession** (neither has anything they want to play). The sole exception is an Instant: while one is in Pending, `Now` advances automatically, never waiting for both Champions to pass, until the Instant has resolved. As things resolve they cross `Now` and become past **traces**, which then fade (except Physical Traces, which get zero Past residency at all).
+
+**Priority (D123):** a Champion with priority may act as often as they wish; acting never passes priority, only passing does. A pass hands priority to the next Champion in turn order (APNAP). After a trace resolves, the active Champion gets priority — in a neutral turn, the next Champion in turn order. An Action phase ends only when every Champion has passed in succession with Pending empty: the active Champion ending its phase is a pass, and every other Champion then gets priority once with Pending empty, so Reactive, Instant and Quick cards can be played on the opponent's turn even when nothing is in Pending. In a neutral turn, this pass round runs once the Behaviors are done.
 
 ## Kept tame
 1. **Nothing can respond to an Instant**, not even another Instant.

@@ -130,7 +130,8 @@ function matching() {
   const w = ui.wizard;
   if (!w) return [];
   return activations().filter(c => c.source === w.source && c.ability === w.ability
-    && w.chosen.every((k, i) => targetKey(c.targets[i]) === k));
+    && w.chosen.every((k, i) => targetKey(c.targets[i]) === k)
+    && (w.payment == null || c.payment === w.payment));
 }
 
 function wizardStep() {
@@ -138,7 +139,12 @@ function wizardStep() {
   if (cmds.length === 0) return null;
   const step = ui.wizard.chosen.length;
   const total = cmds[0].targets.length;
-  if (step >= total) return { done: true, command: cmds[0] };
+  if (step >= total) {
+    // D125: the payment, once the targets are chosen — asked only when it needs a choice.
+    const payments = [...new Set(cmds.map(c => c.payment).filter(p => p != null))];
+    if (payments.length > 1) return { done: false, payment: true, options: payments };
+    return { done: true, command: cmds[0] };
+  }
   const options = new Map();
   for (const c of cmds) {
     const k = targetKey(c.targets[step]);
@@ -148,7 +154,7 @@ function wizardStep() {
 }
 
 function startWizard(source, ability) {
-  ui.wizard = { source, ability, chosen: [], focusHex: null };
+  ui.wizard = { source, ability, chosen: [], focusHex: null, payment: null };
   advanceTrivialSteps();
   render();
 }
@@ -165,7 +171,7 @@ function choose(key) {
 function advanceTrivialSteps() {
   for (let guard = 0; guard < 10; guard++) {
     const s = wizardStep();
-    if (!s || s.done) return;
+    if (!s || s.done || s.payment) return;
     if (s.options.length === 1 && s.options[0].list.length === 0) ui.wizard.chosen.push(s.options[0].key);
     else return;
   }
@@ -176,7 +182,7 @@ function advanceTrivialSteps() {
 function stepCandidates() {
   const s = ui.wizard ? wizardStep() : null;
   const result = { objects: new Map(), hexes: new Map() };
-  if (!s || s.done) return result;
+  if (!s || s.done || s.payment) return result;
   for (const o of s.options) {
     if (o.list.length !== 1) continue;
     const t = o.list[0];
@@ -502,6 +508,13 @@ function renderWizard(box) {
     box.append(el('div', { class: 'row' },
       el('button', { class: 'primary', onclick: () => submit(s.command.index) }, `Confirm: ${s.command.label}`),
       el('button', { class: 'danger', onclick: () => { ui.wizard = null; render(); } }, 'Abort')));
+    return;
+  }
+  if (s.payment) {
+    box.append(el('div', { class: 'step' }, 'Choose how to pay:'));
+    box.append(el('div', { class: 'row' }, s.options.map(p =>
+      el('button', { class: 'choice', onclick: () => { w.payment = p; render(); } }, p))));
+    box.append(el('div', { class: 'row' }, el('button', { class: 'danger', onclick: () => { ui.wizard = null; render(); } }, 'Abort')));
     return;
   }
   box.append(el('div', { class: 'step' }, `Choose target ${s.step + 1} of ${s.total} (highlighted on the board, or below):`));

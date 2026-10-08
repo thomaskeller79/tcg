@@ -28,14 +28,14 @@ public class NetworkTests
         Assert.True(Network.IsPaused(g.State, g.Terrain(0, 0)));
         Assert.True(Network.IsFlowing(g.State, g.Terrain(0, 2)));
         Assert.Null(g.State.Controller(g.Terrain(0, 0)));
-        Assert.Equal(1, g.Champion(A).Pool!.Amounts[Element.Fire]); // the paused ones didn't credit
+        Assert.Equal(1, g.Champion(A).Pool!.Amounts[ManaUnit.Of(Element.Fire)]); // the paused ones didn't credit
 
         var plain = Load("""
             bond A 0,1 0,0
             place B creature.fire-warrior 0,1
             """);
         Assert.True(Network.IsFlowing(plain.State, plain.Terrain(0, 0)));
-        Assert.Equal(3, plain.Champion(A).Pool!.Amounts[Element.Fire]);
+        Assert.Equal(3, plain.Champion(A).Pool!.Amounts[ManaUnit.Of(Element.Fire)]);
     }
 
     [Fact]
@@ -138,8 +138,8 @@ public class NetworkTests
         g.Ok(g.Act(A, ash, DefaultAbilities.Bond, At(0, 1)));
         g.ResolveAll();
         Assert.Equal(ash.Id, g.Terrain(0, 1).Parent);
-        Assert.Equal(1, ash.Pool!.Amounts[Element.Fire]);
-        Assert.Equal(1, g.Champion(A).Pool!.Amounts[Element.Fire]); // the Champion's pool is untouched
+        Assert.Equal(1, ash.Pool!.Amounts[ManaUnit.Of(Element.Fire)]);
+        Assert.Equal(1, g.Champion(A).Pool!.Amounts[ManaUnit.Of(Element.Fire)]); // the Champion's pool is untouched
         Assert.Equal(A, g.State.Controller(g.Terrain(0, 1))); // controller: the Companion's Champion
         Assert.Equal(2, ash.CurrentAp);
     }

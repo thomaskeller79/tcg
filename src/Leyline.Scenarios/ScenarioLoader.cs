@@ -221,9 +221,9 @@ public static class ScenarioLoader
             case "mana":
             {
                 var player = Player(t[1]);
-                var element = Enum.Parse<Element>(t[2], true);
+                var unit = ManaUnit.Parse(t[2]);
                 var amount = int.Parse(t[3]);
-                s.Edits.Add(state => state.ChampionOf(player)!.Pool!.Add(element, amount));
+                s.Edits.Add(state => state.ChampionOf(player)!.Pool!.Add(unit, amount));
                 break;
             }
             case "handcard":

@@ -65,7 +65,7 @@ public static class CardJson
             Targets = (d.Targets ?? []).Select(ToTarget).ToList(),
             Instructions = (d.Instructions ?? []).Select(ToInstruction).ToList(),
             Duration = d.Duration ?? 5,
-            Produces = d.Produces ?? [],
+            Produces = (d.Produces ?? []).Select(ManaUnit.Parse).ToList(),
             MoveCost = d.MoveCost ?? 1,
             IsVoid = d.IsVoid,
             CarrierAttack = d.CarrierAttack,
@@ -111,14 +111,15 @@ public static class CardJson
     /// <summary>
     /// Compact cost syntax, tokens separated by spaces or '+':
     /// a mana token is digits (generic) and Element letters — L Light, F Fire, M Metal, E Earth,
-    /// D Darkness, I Ice, W Water, A Air — e.g. "2FF"; an AP token ends in "AP" with an optional
+    /// D Darkness, I Ice, W Water, A Air — e.g. "2FF"; letters joined by '/' are one pip that
+    /// any of them pays (D125), e.g. "1F/AW" = {1}{Fire/Air}{Water}; an AP token ends in "AP" with an optional
     /// flavor mark: "3AP", "3~AP", "2!AP", "5*AP"; a Life token is "2Life". Empty or "0" = free.
     /// </summary>
     public static Cost ParseCost(string? text)
     {
         if (string.IsNullOrWhiteSpace(text) || text.Trim() == "0")
             return Cost.Free;
-        var mana = new List<Element?>();
+        var mana = new List<ManaPip>();
         int ap = 0, life = 0;
         var flavor = ApFlavor.Plain;
         foreach (var token in text.Split([' ', '+'], StringSplitOptions.RemoveEmptyEntries))
@@ -141,9 +142,18 @@ public static class CardJson
             }
             var digits = new string(token.TakeWhile(char.IsDigit).ToArray());
             if (digits.Length > 0)
-                mana.AddRange(Enumerable.Repeat<Element?>(null, int.Parse(digits)));
-            foreach (var ch in token[digits.Length..])
-                mana.Add(ElementOf(ch));
+                mana.AddRange(Enumerable.Repeat(ManaPip.Generic, int.Parse(digits)));
+            var rest = token[digits.Length..];
+            for (var i = 0; i < rest.Length; i++)
+            {
+                var pip = new List<Element> { ElementOf(rest[i]) };
+                while (i + 2 < rest.Length && rest[i + 1] == '/')
+                {
+                    pip.Add(ElementOf(rest[i + 2]));
+                    i += 2;
+                }
+                mana.Add(ManaPip.Of(pip.ToArray()));
+            }
         }
         return new Cost(mana, ap, flavor, life);
     }
@@ -178,7 +188,7 @@ public static class CardJson
         public List<TargetDto>? Targets { get; set; }
         public List<InstructionDto>? Instructions { get; set; }
         public int? Duration { get; set; }
-        public List<Element>? Produces { get; set; }
+        public List<string>? Produces { get; set; }
         public int? MoveCost { get; set; }
         public bool IsVoid { get; set; }
         public int CarrierAttack { get; set; }

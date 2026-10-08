@@ -6,6 +6,42 @@
 
 ---
 
+### D125 — Mana: disjunctive pips and pool mana, paid by domination
+
+Closes rules-sync guess G1 (`architecture/implementation-plan.md` Q3) and the cost-model half of item 37. Before: the build kept an Element-keyed pool, and paid generic pips automatically from the largest pile — which could spend the Element a later card needed.
+
+**Adopted (user):** a cost pip is **generic** or **colored**, a disjunction over Elements (one Element = colored, two = hybrid, …); nothing else exists. A pool mana is **colorless** or **colored**, likewise a disjunction. A mana **dominates** another if it pays every pip the other pays. Pips are paid **from the most constrained to the least** (one Element, two, …, generic last); each takes the mana every other candidate dominates, and when the candidates tie, the player chooses. **Why:** the automatic picks are exactly the safe ones — no player could do better by choosing — and most payments need no choice: colorless always pays generic, a one-Element pool never chooses, a two-Element pool only chooses which Element pays generic. **Considered and not adopted:** looking ahead across the whole cost to remove choices that lead to a dead end (Claude) — the user keeps the obvious algorithm first; a smarter one may come later. (The engine lists only complete payments, so a dead-end choice is never offered anyway.)
+
+**Still open (item 37):** whether generic pips exist at all — dropping them would make nearly every payment automatic.
+
+→ `resources-terrain.md` §Mana costs and payment, `object-properties.md` §5, `tools/card-format.md`.
+
+---
+
+### D124 — Quick is playable while Pending is empty
+
+Closes rules-sync guess G3 (`architecture/implementation-plan.md` Q2). Before: Quick was playable when "only Physical Traces are in Pending" (D45), and it was open whether that holds with Pending empty.
+
+**Adopted (user):** yes. "Every trace in Pending is physical" is a for-all over an empty set, so it is true. The speeds nest: Slow ⊂ Quick ⊂ Reactive ⊂ Instant, and Quick reads as "can't respond to spells". A Quick card can be played in the end-of-phase pass round (D123). **Rejected:** Quick needs a Physical Trace in Pending, i.e. combat-trick speed only — no case was found that it protects against.
+
+→ `interaction-stack.md` §The primitive.
+
+---
+
+### D123 — Acting keeps priority; passing goes around in turn order
+
+Closes rules-sync guesses G2 and G4 (`architecture/implementation-plan.md` Q1). Before: the docs said priority follows "the standard multiplayer rule — active-first, then each other participant in turn order" (`neutral-permanents.md`), which left open who gets priority right after a Champion puts something into Pending.
+
+**Adopted (user):** a Champion with priority may act as often as they wish; acting never passes priority, only passing does. A pass hands priority to the next Champion in turn order (APNAP). After a resolution, the active Champion gets priority (in a neutral turn, the next Champion in turn order). This is MTG's CR 117.3b–d.
+
+**The phase ends with a pass round (user, guess G4):** an Action phase ends only when every Champion has passed in succession with Pending empty. Ending one's own phase is a pass; every other Champion then gets one window with Pending empty — MTG's "at end of turn, I cast…". In a neutral turn the round runs after the Behaviors are done. **Cost accepted:** the non-active Champion passes once more per turn. **Rejected:** the phase ends when the active Champion passes, so on the opponent's turn a Champion can only respond to something already in Pending.
+
+**Why:** some rule must say who acts after a cast; "you keep priority until you pass" needs no transfer at all, so it is the simplest one. It also lets a Champion stack a second response on their own trace before the opponent answers. **Considered and rejected:** priority returns to the active Champion whenever something enters Pending — an extra transfer rule, and it interrupts a responding Champion mid-sequence.
+
+→ `interaction-stack.md` §The primitive.
+
+---
+
 ### D122 — A knot pauses, a gap cuts; knotted terrain can be stolen
 
 Closes item 28 (can the opponent bond a terrain whose path is merely blocked?). Before: a bond lasted until an explicit unbond; a terrain whose path was broken — by a knot or by a missing bonded hex — kept its record and sat paused; whether the opponent could bond it was undecided.

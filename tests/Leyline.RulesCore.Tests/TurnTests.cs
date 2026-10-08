@@ -56,8 +56,8 @@ public class TurnTests
     public void Mana_pool_resets_at_the_owners_Beginning_and_credits_again_live()
     {
         var g = Load("mana A Fire 3");
-        Assert.Equal(4, g.Champion(A).Pool!.Amounts[Element.Fire]);
+        Assert.Equal(4, g.Champion(A).Pool!.Amounts[ManaUnit.Of(Element.Fire)]);
         g.NextTurnOf(Seat.ChampionA);
-        Assert.Equal(1, g.Champion(A).Pool!.Amounts[Element.Fire]);
+        Assert.Equal(1, g.Champion(A).Pool!.Amounts[ManaUnit.Of(Element.Fire)]);
     }
 }

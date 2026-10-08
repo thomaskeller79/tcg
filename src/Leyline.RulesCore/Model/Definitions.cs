@@ -1,9 +1,8 @@
 namespace Leyline.RulesCore.Model;
 
 /// <summary>A cost under the prototype scope (D104): a fixed list — mana pips, an AP amount with
-/// its flavor (D116), and Life. A mana pip is an Element or, when null, generic (G1 in
-/// docs/architecture/implementation-plan.md).</summary>
-public sealed record Cost(IReadOnlyList<Element?> Mana, int Ap = 0, ApFlavor Flavor = ApFlavor.Plain, int Life = 0)
+/// its flavor (D116), and Life. Mana pips are generic or a disjunction over Elements (D125).</summary>
+public sealed record Cost(IReadOnlyList<ManaPip> Mana, int Ap = 0, ApFlavor Flavor = ApFlavor.Plain, int Life = 0)
 {
     public static readonly Cost Free = new([]);
 
@@ -14,11 +13,11 @@ public sealed record Cost(IReadOnlyList<Element?> Mana, int Ap = 0, ApFlavor Fla
     public override string ToString()
     {
         var parts = new List<string>();
-        var generic = Mana.Count(m => m is null);
+        var generic = Mana.Count(m => m.IsGeneric);
         if (generic > 0)
             parts.Add($"{{{generic}}}");
-        foreach (var e in Mana.Where(m => m is not null))
-            parts.Add($"{{{e}}}");
+        foreach (var pip in Mana.Where(m => !m.IsGeneric))
+            parts.Add(pip.ToString());
         if (HasAp)
         {
             var mark = Flavor switch { ApFlavor.Exhaust => "!", ApFlavor.Done => "~", ApFlavor.OncePerCycle => "*", _ => "" };
@@ -160,7 +159,7 @@ public sealed record CardDefinition
     public int Duration { get; init; } = 5;
 
     // Terrain
-    public IReadOnlyList<Element> Produces { get; init; } = [];
+    public IReadOnlyList<ManaUnit> Produces { get; init; } = [];
     public int MoveCost { get; init; } = 1;
     public bool IsVoid { get; init; }
 
@@ -184,7 +183,8 @@ public sealed record CardDefinition
 
     /// <summary>D51/D100: Elements are derived — the mana it produces and its cost's pips.</summary>
     public IReadOnlyList<Element> Elements =>
-        Produces.Concat(Cost.Mana.Where(m => m is not null).Select(m => m!.Value)).Distinct().OrderBy(e => e).ToList();
+        Produces.Select(u => u.Colors).Concat(Cost.Mana.Select(m => m.Colors))
+            .SelectMany(set => set.Elements()).Distinct().OrderBy(e => e).ToList();
 }
 
 public interface ICardDefinitionRepository

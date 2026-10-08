@@ -8,8 +8,9 @@ namespace Leyline.DebugUi;
 public sealed record TargetDto(int? Object, HexCoord? Hex, string? Slice, string? Entity, string Label);
 
 /// <summary>One legal command, labelled for the UI. The client walks an activation step by
-/// step — source, ability, then each target selection in order — by filtering this list
-/// (interaction-stack.md: pay → choose → target; not submitting is the abort).</summary>
+/// step — source, ability, each target selection in order, then the payment when it needs a
+/// choice (D125) — by filtering this list (interaction-stack.md: pay → choose → target; not
+/// submitting is the abort). <see cref="Payment"/> is null when the payment is automatic.</summary>
 public sealed record LegalCommandDto(
     int Index,
     string Kind,
@@ -19,7 +20,8 @@ public sealed record LegalCommandDto(
     IReadOnlyList<IReadOnlyList<TargetDto>> Targets,
     string? Cost,
     string? Speed,
-    IReadOnlyDictionary<int, int>? Split);
+    IReadOnlyDictionary<int, int>? Split,
+    string? Payment = null);
 
 public sealed record SubmitRequest(int Seat, int Index);
 public sealed record AutoPassRequest(int Seat, bool Enabled);
@@ -64,7 +66,10 @@ public static class CommandDtos
                 var label = targets.Count == 0
                     ? abilityName
                     : $"{abilityName} → {string.Join("; ", targets.Select(l => l.Count == 0 ? "nothing" : string.Join(" + ", l.Select(t => t.Label))))}";
-                return new(index, "Activate", a.Source.Value, a.Ability, label, targets, cost, speed, null);
+                var payment = a.Mana is { } mana ? string.Join(" + ", mana) : null;
+                if (payment is not null)
+                    label += $" · pay {payment}";
+                return new(index, "Activate", a.Source.Value, a.Ability, label, targets, cost, speed, null, payment);
             }
             default:
                 return new(index, command.GetType().Name, null, null, command.GetType().Name, [], null, null, null);

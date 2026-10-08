@@ -42,7 +42,7 @@ Behavior and neutral turn (D82). Mulligans are not implemented: every player kee
 ```
 place <A|B> <card> <q,r> [slice=<Root|Ground|Sky>] [ap=<n>] [life=<n>]
 bond <A|B> <q,r> ...              # bond terrain directly to that Champion (cut rules still apply)
-mana <A|B> <Element> <n>          # add mana to the Champion's pool (resets at its next Beginning)
+mana <A|B> <mana> <n>             # add mana to the Champion's pool (resets at its next Beginning): Fire, Fire/Metal, Colorless
 handcard <A|B> <card> ...         # put cards straight into the hand
 ```
 

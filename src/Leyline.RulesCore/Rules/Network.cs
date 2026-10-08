@@ -132,8 +132,8 @@ public static class Network
             var flowing = Flowing(state, root);
             foreach (var terrain in BondedBy(state, root.Id).Where(t => !t.Drawn && flowing.Contains(t.Hex)))
             {
-                foreach (var e in state.Def(terrain).Produces)
-                    root.Pool.Add(e, 1);
+                foreach (var unit in state.Def(terrain).Produces)
+                    root.Pool.Add(unit, 1);
                 terrain.Drawn = true;
                 changed = true;
             }
