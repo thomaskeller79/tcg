@@ -1,0 +1,1389 @@
+diff --git a/content/cards/test.champion.json b/content/cards/test.champion.json
+new file mode 100644
+index 0000000..322e5d1
+--- /dev/null
++++ b/content/cards/test.champion.json
+@@ -0,0 +1,18 @@
++{
++  "id": "test.champion",
++  "type": "Champion",
++  "name": "Champion",
++  "stats": {
++    "attack": 2,
++    "life": 15,
++    "ap": 7
++  },
++  "abilities": [
++    "core.move",
++    "core.attack",
++    "champion.bond",
++    "champion.draw",
++    "champion.collapse"
++  ],
++  "comment": ""
++}
+diff --git a/content/cards/test.firebolt.json b/content/cards/test.firebolt.json
+new file mode 100644
+index 0000000..351d847
+--- /dev/null
++++ b/content/cards/test.firebolt.json
+@@ -0,0 +1,9 @@
++{
++  "id": "test.firebolt",
++  "type": "Spell",
++  "name": "Firebolt",
++  "manaCost": 1,
++  "effectId": "spell.damage",
++  "effectAmount": 3,
++  "comment": ""
++}
+diff --git a/content/cards/test.grunt.json b/content/cards/test.grunt.json
+new file mode 100644
+index 0000000..298a2e2
+--- /dev/null
++++ b/content/cards/test.grunt.json
+@@ -0,0 +1,16 @@
++{
++  "id": "test.grunt",
++  "type": "Creature",
++  "name": "Grunt",
++  "manaCost": 2,
++  "stats": {
++    "attack": 3,
++    "life": 5,
++    "ap": 3
++  },
++  "abilities": [
++    "core.move",
++    "core.attack"
++  ],
++  "comment": ""
++}
+diff --git a/content/cards/test.mend.json b/content/cards/test.mend.json
+new file mode 100644
+index 0000000..ea10657
+--- /dev/null
++++ b/content/cards/test.mend.json
+@@ -0,0 +1,9 @@
++{
++  "id": "test.mend",
++  "type": "Spell",
++  "name": "Mend",
++  "manaCost": 1,
++  "effectId": "spell.heal",
++  "effectAmount": 4,
++  "comment": ""
++}
+diff --git a/content/cards/test.soldier.json b/content/cards/test.soldier.json
+new file mode 100644
+index 0000000..1d2fef4
+--- /dev/null
++++ b/content/cards/test.soldier.json
+@@ -0,0 +1,16 @@
++{
++  "id": "test.soldier",
++  "type": "Creature",
++  "name": "Soldier",
++  "manaCost": 1,
++  "stats": {
++    "attack": 2,
++    "life": 3,
++    "ap": 6
++  },
++  "abilities": [
++    "core.move",
++    "core.attack"
++  ],
++  "comment": "Initially designed as a Light creature"
++}
+diff --git a/docs/architecture/card-data-and-editor.md b/docs/architecture/card-data-and-editor.md
+index aaf140d..8dfad25 100644
+--- a/docs/architecture/card-data-and-editor.md
++++ b/docs/architecture/card-data-and-editor.md
+@@ -29,6 +29,8 @@ Loaded by Rules Core at startup; indexes all card/terrain/map/Champion definitio
+ ### Card Editor tool
+ A separate authoring tool, not part of the shipped runtime, that reads/writes the same JSON files. The JSON format is the source of truth; the editor is a convenience layer over it. It must not become the *only* way to produce a valid card file (e.g. by being built as an engine-editor-only plugin with its own serialization) — that would silently reintroduce an engine-specific dependency and undermine the portability constraint (A5) this component exists to protect.
+ 
++**Current state (provisional schema):** the catalog lives in `content/cards/<id>.json`, one file per card. `tools/Leyline.DebugUi/wwwroot/cards.html` is the editor, with read/write going through `Leyline.Content.Json.CardCatalog`. The editor's field schema is the `FIELDS`/`TYPES` table at the top of `cards.js`. Properties the schema doesn't cover are kept untouched on save, so card files survive schema changes. Each card has an editor-only `comment` that the engine ignores. Saving is refused for types the engine can't load yet (Companion, Structure, Item, Map, Terrain).
++
+ ## Open dependency
+ 
+ This component cannot be fully specified until Track A finishes:
+diff --git a/src/Leyline.Content.Json/CardCatalog.cs b/src/Leyline.Content.Json/CardCatalog.cs
+new file mode 100644
+index 0000000..601e27c
+--- /dev/null
++++ b/src/Leyline.Content.Json/CardCatalog.cs
+@@ -0,0 +1,102 @@
++using System.Text.Json;
++using System.Text.Json.Nodes;
++using System.Text.RegularExpressions;
++using Leyline.RulesCore.State;
++
++namespace Leyline.Content.Json;
++
++/// <summary>
++/// Read/write access to a directory of card files (one `&lt;id&gt;.json` per card) for authoring
++/// tools like the DebugUi card editor. Cards are handled as raw JSON objects, not as
++/// CardDefinition, so a property the engine doesn't know yet (the editor-only "comment", or a
++/// field Track A adds before the engine reads it) survives a load/edit/save round trip
++/// untouched. Every save is still checked by parsing it the way the engine does, so the
++/// directory stays loadable by JsonCardDefinitionRepository.LoadFromDirectory.
++/// </summary>
++public sealed partial class CardCatalog(string directory)
++{
++    private static readonly JsonSerializerOptions WriteOptions = new() { WriteIndented = true };
++
++    /// <summary>Types the engine can load today (CardType). Other card types (Companion,
++    /// Structure, Item, Map, Terrain) are refused until the engine supports them.</summary>
++    private static readonly HashSet<string> EngineTypes =
++        Enum.GetNames<CardType>().ToHashSet(StringComparer.OrdinalIgnoreCase);
++
++    public string Directory { get; } = directory;
++
++    /// <summary>All cards, ordered by id.</summary>
++    public IReadOnlyList<JsonObject> List() =>
++        Files().OrderBy(f => f.Id, StringComparer.Ordinal).Select(f => f.Card).ToList();
++
++    /// <summary>Every card file with the id written inside it — files are always found by that
++    /// id, never by file name, since a hand-edited file's name may not match.</summary>
++    private List<(string Path, string? Id, JsonObject Card)> Files() =>
++        System.IO.Directory.EnumerateFiles(Directory, "*.json")
++            .Select(file =>
++            {
++                var card = JsonNode.Parse(File.ReadAllText(file)) as JsonObject
++                    ?? throw new InvalidDataException($"Card file is not a JSON object: {file}");
++                return (file, (string?)card["id"], card);
++            })
++            .ToList();
++
++    /// <summary>Writes a card to `&lt;id&gt;.json`. <paramref name="previousId"/> is the id the card
++    /// was loaded under, or null for a new card (including a copy) — a new card may not
++    /// overwrite an existing one, and an id change moves the file.</summary>
++    public void Save(JsonObject card, string? previousId)
++    {
++        var id = (string?)card["id"] ?? throw new InvalidDataException("A card needs an \"id\".");
++        if (!IdPattern().IsMatch(id))
++            throw new InvalidDataException($"Invalid id '{id}': use letters, digits, '.', '_' or '-', starting with a letter or digit.");
++
++        var type = (string?)card["type"] ?? throw new InvalidDataException("A card needs a \"type\".");
++        if (!EngineTypes.Contains(type))
++            throw new InvalidDataException($"Card type '{type}' is not implemented yet.");
++
++        var json = card.ToJsonString(WriteOptions);
++        try
++        {
++            JsonCardDefinitionRepository.Parse(json, id);
++        }
++        catch (Exception ex) when (ex is JsonException or ArgumentException)
++        {
++            throw new InvalidDataException($"The engine can't read this card: {ex.Message}", ex);
++        }
++
++        // Ids are unique ignoring case — "Test.Grunt" and "test.grunt" would share a file on Windows.
++        var files = Files();
++        var taken = files
++            .Select(f => f.Id)
++            .FirstOrDefault(other => other is not null
++                && string.Equals(other, id, StringComparison.OrdinalIgnoreCase)
++                && !string.Equals(other, previousId, StringComparison.Ordinal));
++        if (taken is not null)
++            throw new InvalidDataException($"A card with id '{taken}' already exists.");
++
++        if (previousId is not null)
++        {
++            var oldPath = files.FirstOrDefault(f => f.Id == previousId).Path
++                ?? throw new InvalidDataException($"Card '{previousId}' no longer exists — it was deleted or renamed elsewhere.");
++            // Removed before writing: after a case-only rename both names are the same file on Windows.
++            File.Delete(oldPath);
++        }
++        File.WriteAllText(PathFor(id), json + Environment.NewLine);
++    }
++
++    public void Delete(string id)
++    {
++        var path = Files().FirstOrDefault(f => f.Id == id).Path
++            ?? throw new FileNotFoundException($"No card with id '{id}'.");
++        File.Delete(path);
++    }
++
++    private string PathFor(string id)
++    {
++        if (!IdPattern().IsMatch(id))
++            throw new InvalidDataException($"Invalid id '{id}'.");
++        return Path.Combine(Directory, id + ".json");
++    }
++
++    [GeneratedRegex("^[A-Za-z0-9][A-Za-z0-9._-]*$")]
++    private static partial Regex IdPattern();
++}
+diff --git a/src/Leyline.Content.Json/JsonCardDefinitionRepository.cs b/src/Leyline.Content.Json/JsonCardDefinitionRepository.cs
+index 73c6bbf..ff78308 100644
+--- a/src/Leyline.Content.Json/JsonCardDefinitionRepository.cs
++++ b/src/Leyline.Content.Json/JsonCardDefinitionRepository.cs
+@@ -24,19 +24,30 @@ public sealed class JsonCardDefinitionRepository : ICardDefinitionRepository
+     public static JsonCardDefinitionRepository LoadFromDirectory(string path)
+     {
+         var definitions = new Dictionary<CardDefinitionId, CardDefinition>();
++        var seen = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase); // id -> file
+         foreach (var file in Directory.EnumerateFiles(path, "*.json").OrderBy(f => f, StringComparer.Ordinal))
+         {
+-            var dto = JsonSerializer.Deserialize<CardDefinitionDto>(File.ReadAllText(file), Options)
+-                ?? throw new InvalidDataException($"Could not parse card definition: {file}");
+-
+-            var id = new CardDefinitionId(dto.Id);
+-            var type = Enum.Parse<CardType>(dto.Type, ignoreCase: true);
+-            definitions[id] = new CardDefinition(id, dto.Name, dto.Stats.Attack, dto.Stats.Life, dto.Stats.Ap, dto.Abilities,
+-                type, dto.ManaCost, dto.EffectId, dto.EffectAmount);
++            var def = Parse(File.ReadAllText(file), file);
++            if (!seen.TryAdd(def.Id.Value, file))
++                throw new InvalidDataException($"Duplicate card id '{def.Id}' in {seen[def.Id.Value]} and {file}.");
++            definitions[def.Id] = def;
+         }
+         return new JsonCardDefinitionRepository(definitions);
+     }
+ 
++    /// <summary>One card file's JSON → CardDefinition. Unknown properties (e.g. the editor-only
++    /// "comment") are ignored — the engine reads only the fields it knows.</summary>
++    internal static CardDefinition Parse(string json, string source)
++    {
++        var dto = JsonSerializer.Deserialize<CardDefinitionDto>(json, Options)
++            ?? throw new InvalidDataException($"Could not parse card definition: {source}");
++
++        var id = new CardDefinitionId(dto.Id);
++        var type = Enum.Parse<CardType>(dto.Type, ignoreCase: true);
++        return new CardDefinition(id, dto.Name, dto.Stats.Attack, dto.Stats.Life, dto.Stats.Ap, dto.Abilities,
++            type, dto.ManaCost, dto.EffectId, dto.EffectAmount);
++    }
++
+     public static JsonCardDefinitionRepository FromDefinitions(IEnumerable<CardDefinition> definitions) =>
+         new(definitions.ToDictionary(d => d.Id));
+ 
+diff --git a/tests/Leyline.RulesCore.Tests/TestSupport/CardCatalogTests.cs b/tests/Leyline.RulesCore.Tests/TestSupport/CardCatalogTests.cs
+new file mode 100644
+index 0000000..62dc37d
+--- /dev/null
++++ b/tests/Leyline.RulesCore.Tests/TestSupport/CardCatalogTests.cs
+@@ -0,0 +1,173 @@
++using System.Text.Json.Nodes;
++using Leyline.Content.Json;
++using Leyline.RulesCore.State;
++
++namespace Leyline.RulesCore.Tests.TestSupport;
++
++public sealed class CardCatalogTests : IDisposable
++{
++    private readonly string _dir = Directory.CreateTempSubdirectory("leyline-catalog-").FullName;
++    private readonly CardCatalog _catalog;
++
++    public CardCatalogTests()
++    {
++        _catalog = new CardCatalog(_dir);
++    }
++
++    public void Dispose() => Directory.Delete(_dir, recursive: true);
++
++    private static JsonObject Grunt(string id = "test.grunt") => new()
++    {
++        ["id"] = id,
++        ["type"] = "Creature",
++        ["name"] = "Grunt",
++        ["manaCost"] = 2,
++        ["stats"] = new JsonObject { ["attack"] = 3, ["life"] = 5, ["ap"] = 3 },
++        ["abilities"] = new JsonArray("core.move", "core.attack"),
++        ["comment"] = "a note",
++    };
++
++    [Fact]
++    public void Saved_card_loads_in_the_engine_and_keeps_properties_the_engine_ignores()
++    {
++        var card = Grunt();
++        card["someFutureProperty"] = new JsonObject { ["x"] = 1 };
++
++        _catalog.Save(card, previousId: null);
++
++        var def = JsonCardDefinitionRepository.LoadFromDirectory(_dir).Get(new CardDefinitionId("test.grunt"));
++        Assert.Equal(("Grunt", 3, 5, 3, 2), (def.Name, def.Attack, def.Life, def.MaxAp, def.ManaCost));
++
++        var listed = Assert.Single(_catalog.List());
++        Assert.Equal("a note", (string?)listed["comment"]);
++        Assert.Equal(1, (int?)listed["someFutureProperty"]?["x"]);
++    }
++
++    [Fact]
++    public void New_card_may_not_overwrite_an_existing_one()
++    {
++        _catalog.Save(Grunt(), previousId: null);
++
++        var ex = Assert.Throws<InvalidDataException>(() => _catalog.Save(Grunt(), previousId: null));
++        Assert.Contains("already exists", ex.Message);
++    }
++
++    [Fact]
++    public void Ids_are_unique_ignoring_case()
++    {
++        _catalog.Save(Grunt(), previousId: null);
++
++        var ex = Assert.Throws<InvalidDataException>(() => _catalog.Save(Grunt("Test.Grunt"), previousId: null));
++        Assert.Contains("already exists", ex.Message);
++    }
++
++    [Fact]
++    public void Uniqueness_uses_the_id_inside_the_file_not_the_file_name()
++    {
++        File.WriteAllText(Path.Combine(_dir, "hand-edited.json"), Grunt().ToJsonString());
++
++        Assert.Throws<InvalidDataException>(() => _catalog.Save(Grunt(), previousId: null));
++    }
++
++    [Fact]
++    public void Renaming_an_id_to_one_already_taken_is_refused()
++    {
++        _catalog.Save(Grunt(), previousId: null);
++        _catalog.Save(Grunt("test.other"), previousId: null);
++
++        Assert.Throws<InvalidDataException>(() => _catalog.Save(Grunt("test.grunt"), previousId: "test.other"));
++        Assert.Equal(2, _catalog.List().Count);
++    }
++
++    [Fact]
++    public void Case_only_rename_keeps_the_card()
++    {
++        _catalog.Save(Grunt(), previousId: null);
++
++        _catalog.Save(Grunt("Test.Grunt"), previousId: "test.grunt");
++
++        Assert.Equal(["Test.Grunt"], _catalog.List().Select(c => (string?)c["id"]));
++    }
++
++    [Fact]
++    public void Renaming_a_hand_edited_file_replaces_it_instead_of_duplicating()
++    {
++        File.WriteAllText(Path.Combine(_dir, "hand-edited.json"), Grunt().ToJsonString());
++
++        _catalog.Save(Grunt("test.renamed"), previousId: "test.grunt");
++
++        Assert.Equal(["test.renamed"], _catalog.List().Select(c => (string?)c["id"]));
++    }
++
++    [Fact]
++    public void Saving_an_edit_of_a_card_that_no_longer_exists_is_refused()
++    {
++        Assert.Throws<InvalidDataException>(() => _catalog.Save(Grunt(), previousId: "test.gone"));
++        Assert.Empty(_catalog.List());
++    }
++
++    [Fact]
++    public void Engine_loader_rejects_duplicate_ids()
++    {
++        File.WriteAllText(Path.Combine(_dir, "a.json"), Grunt().ToJsonString());
++        File.WriteAllText(Path.Combine(_dir, "b.json"), Grunt("TEST.GRUNT").ToJsonString());
++
++        var ex = Assert.Throws<InvalidDataException>(() => JsonCardDefinitionRepository.LoadFromDirectory(_dir));
++        Assert.Contains("Duplicate card id", ex.Message);
++    }
++
++    [Fact]
++    public void Changing_the_id_moves_the_file()
++    {
++        _catalog.Save(Grunt(), previousId: null);
++
++        _catalog.Save(Grunt("test.big_grunt"), previousId: "test.grunt");
++
++        Assert.Equal(["test.big_grunt"], _catalog.List().Select(c => (string?)c["id"]));
++    }
++
++    [Fact]
++    public void Delete_removes_the_card()
++    {
++        _catalog.Save(Grunt(), previousId: null);
++
++        _catalog.Delete("test.grunt");
++
++        Assert.Empty(_catalog.List());
++    }
++
++    [Theory]
++    [InlineData("../escape")]
++    [InlineData("has space")]
++    [InlineData(".hidden")]
++    [InlineData("")]
++    public void Rejects_ids_that_are_not_safe_file_names(string id)
++    {
++        Assert.Throws<InvalidDataException>(() => _catalog.Save(Grunt(id), previousId: null));
++    }
++
++    [Theory]
++    [InlineData("Companion")]
++    [InlineData("Structure")]
++    [InlineData("Item")]
++    [InlineData("Map")]
++    [InlineData("Terrain")]
++    public void Rejects_card_types_the_engine_does_not_implement_yet(string type)
++    {
++        var card = Grunt();
++        card["type"] = type;
++
++        var ex = Assert.Throws<InvalidDataException>(() => _catalog.Save(card, previousId: null));
++        Assert.Contains("not implemented yet", ex.Message);
++    }
++
++    [Fact]
++    public void Rejects_a_card_the_engine_cannot_parse()
++    {
++        var card = Grunt();
++        card["manaCost"] = "two";
++
++        Assert.Throws<InvalidDataException>(() => _catalog.Save(card, previousId: null));
++        Assert.Empty(_catalog.List());
++    }
++}
+diff --git a/tests/Leyline.Scenarios.Tests/CardCatalogContentTests.cs b/tests/Leyline.Scenarios.Tests/CardCatalogContentTests.cs
+new file mode 100644
+index 0000000..51cff33
+--- /dev/null
++++ b/tests/Leyline.Scenarios.Tests/CardCatalogContentTests.cs
+@@ -0,0 +1,44 @@
++using Leyline.Content.Json;
++using Leyline.RulesCore.State;
++
++namespace Leyline.Scenarios.Tests;
++
++/// <summary>Guards the repo's card catalog (content/cards, edited by hand and by the DebugUi card
++/// editor): it must always load in the engine, and every card the DebugUi scenarios define
++/// inline must agree with the catalog's version of it.</summary>
++public class CardCatalogContentTests
++{
++    private static string RepoRoot()
++    {
++        var dir = new DirectoryInfo(AppContext.BaseDirectory);
++        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "Leyline.slnx")))
++            dir = dir.Parent;
++        return dir?.FullName ?? throw new DirectoryNotFoundException("Repo root (Leyline.slnx) not found.");
++    }
++
++    [Fact]
++    public void Scenario_cards_match_the_catalog()
++    {
++        var root = RepoRoot();
++        var catalog = JsonCardDefinitionRepository.LoadFromDirectory(Path.Combine(root, "content", "cards"));
++
++        var scenarioFiles = Directory.GetFiles(Path.Combine(root, "tools", "Leyline.DebugUi", "scenarios"), "*.scenario");
++        Assert.NotEmpty(scenarioFiles);
++
++        foreach (var file in scenarioFiles)
++        {
++            var content = ScenarioLoader.LoadFromFile(file).State.Content;
++            var ids = File.ReadLines(file)
++                .Where(line => line.StartsWith("card "))
++                .Select(line => new CardDefinitionId(line.Split(' ')[1]));
++
++            foreach (var id in ids)
++            {
++                var expected = content.Get(id);
++                var actual = catalog.Get(id);
++                Assert.Equal(expected with { AbilityIds = [] }, actual with { AbilityIds = [] });
++                Assert.Equal(expected.AbilityIds, actual.AbilityIds);
++            }
++        }
++    }
++}
+diff --git a/tools/Leyline.DebugUi/Dtos.cs b/tools/Leyline.DebugUi/Dtos.cs
+index fb2c31a..7ec1d2f 100644
+--- a/tools/Leyline.DebugUi/Dtos.cs
++++ b/tools/Leyline.DebugUi/Dtos.cs
+@@ -17,6 +17,10 @@ public sealed record CardCatalogEntryDto(CardDefinitionId Id, string Name, strin
+ 
+ public sealed record SubmitRequest(int Seat, int Index);
+ 
++/// <summary>Card editor save: PreviousId is the id the card was loaded under, null for a new card
++/// or copy (see CardCatalog.Save).</summary>
++public sealed record SaveCardRequest(System.Text.Json.Nodes.JsonObject Card, string? PreviousId);
++
+ public sealed record SubmitResultDto(bool Accepted, string? RejectionReason);
+ 
+ public sealed record DebugCellDto(HexCoord Coord, string? Terrain, IReadOnlyList<ActorId> Surface, IReadOnlyList<ActorId> Underground, IReadOnlyList<ActorId> Air, PlayerId? NetworkOwner, bool NetworkProducing);
+diff --git a/tools/Leyline.DebugUi/Leyline.DebugUi.csproj b/tools/Leyline.DebugUi/Leyline.DebugUi.csproj
+index 98ec342..829b623 100644
+--- a/tools/Leyline.DebugUi/Leyline.DebugUi.csproj
++++ b/tools/Leyline.DebugUi/Leyline.DebugUi.csproj
+@@ -4,6 +4,7 @@
+     <ProjectReference Include="..\..\src\Leyline.RulesCore\Leyline.RulesCore.csproj" />
+     <ProjectReference Include="..\..\src\Leyline.Host\Leyline.Host.csproj" />
+     <ProjectReference Include="..\..\src\Leyline.Scenarios\Leyline.Scenarios.csproj" />
++    <ProjectReference Include="..\..\src\Leyline.Content.Json\Leyline.Content.Json.csproj" />
+   </ItemGroup>
+ 
+ </Project>
+diff --git a/tools/Leyline.DebugUi/Program.cs b/tools/Leyline.DebugUi/Program.cs
+index 5193e58..09e79bf 100644
+--- a/tools/Leyline.DebugUi/Program.cs
++++ b/tools/Leyline.DebugUi/Program.cs
+@@ -1,4 +1,5 @@
+ using System.Text.Json.Serialization;
++using Leyline.Content.Json;
+ using Leyline.DebugUi;
+ using Leyline.Scenarios;
+ using LeylineHost = Leyline.Host;
+@@ -34,6 +35,43 @@ app.MapPost("/api/scenarios/{name}/load", (string name, GameSession session) =>
+     return Results.Ok();
+ });
+ 
++// The card catalog lives at the repo root (content/cards), shared with tests and future tools —
++// not inside this tool's folder like scenarios/.
++var repoRoot = new DirectoryInfo(app.Environment.ContentRootPath);
++while (repoRoot is not null && !File.Exists(Path.Combine(repoRoot.FullName, "Leyline.slnx")))
++    repoRoot = repoRoot.Parent;
++var catalog = new CardCatalog(Path.Combine(
++    repoRoot?.FullName ?? throw new DirectoryNotFoundException("Repo root (Leyline.slnx) not found."),
++    "content", "cards"));
++
++app.MapGet("/api/catalog/cards", () => catalog.List());
++
++app.MapPut("/api/catalog/cards", (SaveCardRequest req) =>
++{
++    try
++    {
++        catalog.Save(req.Card, req.PreviousId);
++        return Results.Ok();
++    }
++    catch (InvalidDataException ex)
++    {
++        return Results.BadRequest(ex.Message);
++    }
++});
++
++app.MapDelete("/api/catalog/cards/{id}", (string id) =>
++{
++    try
++    {
++        catalog.Delete(id);
++        return Results.Ok();
++    }
++    catch (Exception ex) when (ex is InvalidDataException or FileNotFoundException)
++    {
++        return Results.BadRequest(ex.Message);
++    }
++});
++
+ app.MapGet("/api/view/{seat:int}", (int seat, GameSession session) =>
+     session.Host is null
+         ? Results.NotFound("No scenario loaded.")
+diff --git a/tools/Leyline.DebugUi/wwwroot/cards.css b/tools/Leyline.DebugUi/wwwroot/cards.css
+new file mode 100644
+index 0000000..25aa503
+--- /dev/null
++++ b/tools/Leyline.DebugUi/wwwroot/cards.css
+@@ -0,0 +1,164 @@
++/* Card creator page (cards.html) — layered on style.css's tokens. */
++
++.card-creator {
++  display: grid;
++  grid-template-columns: minmax(260px, 340px) 1fr;
++  gap: 16px;
++  padding: 16px;
++  align-items: start;
++}
++
++.card-browser {
++  display: grid;
++  gap: 10px;
++}
++
++#card-filter {
++  width: 100%;
++}
++
++.type-group .group-title {
++  margin: 0 0 4px;
++}
++
++.type-chips {
++  display: flex;
++  flex-wrap: wrap;
++  gap: 4px;
++}
++
++button.type-chip {
++  border-radius: 12px;
++  padding: 2px 10px;
++}
++
++button.type-chip.active {
++  border-color: var(--accent);
++  background: var(--accent);
++  color: var(--bg);
++  font-weight: 600;
++}
++
++button.type-chip.active .chip-count {
++  color: inherit;
++}
++
++button.type-chip.unimplemented {
++  opacity: 0.55;
++}
++
++.chip-count {
++  color: var(--muted);
++}
++
++#status-line.error {
++  color: var(--p2);
++}
++
++.muted { color: var(--muted); }
++.small-text { font-size: 12px; }
++.hidden { display: none; }
++
++.group-title {
++  font-size: 13px;
++  text-transform: uppercase;
++  letter-spacing: 0.06em;
++  color: var(--muted);
++  margin: 16px 0 6px;
++}
++
++.type-header {
++  display: flex;
++  align-items: center;
++  gap: 8px;
++  padding: 8px 0 4px;
++  border-top: 1px solid var(--cell-stroke);
++}
++
++.type-name { font-weight: 600; }
++.type-header button { margin-left: auto; }
++
++.card-rows {
++  list-style: none;
++  margin: 0 0 6px;
++  padding: 0;
++}
++
++.card-row {
++  padding: 5px 8px;
++  border-radius: 4px;
++  cursor: pointer;
++}
++
++.card-row:hover { background: var(--cell-fill); }
++.card-row.selected { outline: 1px solid var(--accent); }
++.has-comment { color: var(--accent); }
++
++.editor-toolbar {
++  display: flex;
++  align-items: center;
++  gap: 8px;
++  flex-wrap: wrap;
++  margin-bottom: 12px;
++}
++
++.editor-toolbar h2 {
++  margin: 0 auto 0 0;
++  font-size: 16px;
++}
++
++.dirty-flag {
++  color: var(--accent);
++  font-size: 12px;
++}
++
++button.primary { border-color: var(--accent); }
++button.danger { border-color: var(--p2); }
++
++.card-form {
++  display: grid;
++  gap: 10px;
++}
++
++.form-row {
++  display: grid;
++  grid-template-columns: 140px 1fr;
++  gap: 12px;
++  align-items: start;
++}
++
++.form-label {
++  padding-top: 4px;
++  color: var(--muted);
++  font-size: 13px;
++}
++
++.checkboxes {
++  display: flex;
++  flex-wrap: wrap;
++  gap: 4px 16px;
++}
++
++.card-form textarea,
++.card-form input[type="text"] {
++  width: 100%;
++}
++
++textarea.json {
++  width: 100%;
++  font-family: ui-monospace, Consolas, monospace;
++  font-size: 12px;
++}
++
++textarea.raw { min-height: 420px; }
++
++.field-warning {
++  margin: 4px 0 0;
++  color: var(--p2);
++  font-size: 12px;
++}
++
++.not-implemented {
++  color: var(--accent);
++  font-style: italic;
++}
+diff --git a/tools/Leyline.DebugUi/wwwroot/cards.html b/tools/Leyline.DebugUi/wwwroot/cards.html
+new file mode 100644
+index 0000000..c0bef3a
+--- /dev/null
++++ b/tools/Leyline.DebugUi/wwwroot/cards.html
+@@ -0,0 +1,31 @@
++<!doctype html>
++<html lang="en">
++<head>
++  <meta charset="utf-8" />
++  <title>Leyline — Card creator</title>
++  <link rel="stylesheet" href="style.css?v=5" />
++  <link rel="stylesheet" href="cards.css?v=4" />
++</head>
++<body>
++  <header>
++    <h1>Leyline — Card creator</h1>
++    <nav class="view-nav">
++      <a href="index.html">Hub</a>
++    </nav>
++    <span id="status-line"></span>
++  </header>
++
++  <main class="card-creator">
++    <aside class="panel card-browser">
++      <div id="type-picker"></div>
++      <input id="card-filter" type="search" placeholder="Filter by name, id or comment" />
++      <div id="card-list"></div>
++    </aside>
++    <section id="card-editor" class="panel">
++      <p class="muted">Pick a card on the left, or create a new one with a type's “+ New”.</p>
++    </section>
++  </main>
++
++  <script src="cards.js?v=5"></script>
++</body>
++</html>
+diff --git a/tools/Leyline.DebugUi/wwwroot/cards.js b/tools/Leyline.DebugUi/wwwroot/cards.js
+new file mode 100644
+index 0000000..71d6af4
+--- /dev/null
++++ b/tools/Leyline.DebugUi/wwwroot/cards.js
+@@ -0,0 +1,523 @@
++// Card creator: browse, edit, copy and delete the card catalog (content/cards/<id>.json, one
++// file per card — see Leyline.Content.Json.CardCatalog). Cards are edited as raw JSON objects:
++// properties this editor doesn't know are shown under "Other properties" and written back
++// untouched, so a card file never loses data just because the editor lags behind the schema.
++//
++// FIELDS and TYPES below are the editor's whole schema — the one place to change when Track A
++// adds, renames or retypes a card property. Paths with a dot ("stats.attack") are nested objects.
++
++const ABILITIES = {
++  creature: ['core.move', 'core.attack'],
++  champion: ['core.move', 'core.attack', 'champion.bond', 'champion.draw', 'champion.collapse'],
++};
++
++const FIELDS = {
++  'name':         { label: 'Name', kind: 'text' },
++  'manaCost':     { label: 'Mana cost', kind: 'int' },
++  'stats.attack': { label: 'Attack', kind: 'int' },
++  'stats.life':   { label: 'Life', kind: 'int' },
++  'stats.ap':     { label: 'AP', kind: 'int' },
++  'abilities':    { label: 'Abilities', kind: 'multi' },
++  'effectId':     { label: 'Effect', kind: 'select', options: ['spell.damage', 'spell.heal'] },
++  'effectAmount': { label: 'Effect amount', kind: 'int' },
++};
++
++// `fields: null` = the engine can't load this type yet; the editor only shows "not implemented yet".
++const TYPES = [
++  { type: 'Creature',  group: 'Deck cards', fields: ['name', 'manaCost', 'stats.attack', 'stats.life', 'stats.ap', 'abilities'], abilities: ABILITIES.creature },
++  { type: 'Companion', group: 'Deck cards', fields: null },
++  { type: 'Structure', group: 'Deck cards', fields: null },
++  { type: 'Item',      group: 'Deck cards', fields: null },
++  { type: 'Spell',     group: 'Deck cards', fields: ['name', 'manaCost', 'effectId', 'effectAmount'] },
++  { type: 'Champion',  group: 'Special',    fields: ['name', 'stats.attack', 'stats.life', 'stats.ap', 'abilities'], abilities: ABILITIES.champion },
++  { type: 'Map',       group: 'Special',    fields: null },
++  { type: 'Terrain',   group: 'Special',    fields: null },
++];
++
++const typeInfo = type => TYPES.find(t => t.type === type);
++const OTHER_TYPE = '__other';
++const implementedTypes = TYPES.filter(t => t.fields);
++
++// ---- JSON path helpers -------------------------------------------------------------------
++
++const clone = v => JSON.parse(JSON.stringify(v));
++
++function getPath(obj, path) {
++  return path.split('.').reduce((o, k) => (o && typeof o === 'object' ? o[k] : undefined), obj);
++}
++
++function setPath(obj, path, value) {
++  const keys = path.split('.');
++  let o = obj;
++  for (const k of keys.slice(0, -1)) {
++    if (!o[k] || typeof o[k] !== 'object' || Array.isArray(o[k])) o[k] = {};
++    o = o[k];
++  }
++  o[keys.at(-1)] = value;
++}
++
++/// Removes a path, and any parent object it leaves empty.
++function deletePath(obj, path) {
++  const keys = path.split('.');
++  const parents = [obj];
++  for (const k of keys.slice(0, -1)) {
++    const next = parents.at(-1)?.[k];
++    if (!next || typeof next !== 'object') return;
++    parents.push(next);
++  }
++  delete parents.at(-1)[keys.at(-1)];
++  for (let i = parents.length - 1; i > 0; i--) {
++    if (Object.keys(parents[i]).length === 0) delete parents[i - 1][keys[i - 1]];
++  }
++}
++
++/// Deep-merges `extra` into `target` without overwriting anything `target` already has.
++function mergeMissing(target, extra) {
++  for (const [k, v] of Object.entries(extra)) {
++    if (!(k in target)) target[k] = v;
++    else if (v && typeof v === 'object' && !Array.isArray(v) && typeof target[k] === 'object') mergeMissing(target[k], v);
++  }
++}
++
++// ---- State -------------------------------------------------------------------------------
++
++const state = {
++  cards: [],
++  previousId: null,   // id the open card was loaded under; null = new card / copy
++  draft: null,        // the open card as a JSON object; null = nothing open
++  notice: null,       // type name when showing "not implemented yet"
++  listType: 'Creature', // type picked in the left pane (or OTHER_TYPE)
++  mode: 'form',       // 'form' | 'raw'
++  dirty: false,
++  filter: '',
++};
++
++async function api(path, options) {
++  const res = await fetch(path, options);
++  const text = await res.text();
++  if (!res.ok) {
++    let message = text;
++    try { message = JSON.parse(text); } catch { /* plain-text body */ }
++    throw new Error(message || `${res.status} ${res.statusText}`);
++  }
++  return text ? JSON.parse(text) : null;
++}
++
++function setStatus(text, isError = false) {
++  const el = document.getElementById('status-line');
++  el.textContent = text;
++  el.classList.toggle('error', isError);
++}
++
++async function reloadCards() {
++  state.cards = await api('/api/catalog/cards');
++  renderList();
++}
++
++function confirmDiscard() {
++  return !state.dirty || window.confirm('Discard unsaved changes to the open card?');
++}
++
++function openCard(card, previousId) {
++  state.draft = clone(card);
++  state.previousId = previousId;
++  state.listType = typeInfo(card.type) ? card.type : OTHER_TYPE;
++  state.notice = null;
++  state.dirty = false;
++  renderList();
++  renderEditor();
++}
++
++function newCard(type) {
++  if (!confirmDiscard()) return;
++  const info = typeInfo(type);
++  if (!info.fields) {
++    state.draft = null;
++    state.notice = type;
++    state.dirty = false;
++    renderList();
++    renderEditor();
++    return;
++  }
++  const card = { id: '', type };
++  for (const path of info.fields) {
++    const field = FIELDS[path];
++    setPath(card, path, field.kind === 'int' ? 0 : field.kind === 'multi' ? [] : field.kind === 'select' ? field.options[0] : '');
++  }
++  card.comment = '';
++  openCard(card, null);
++}
++
++// ---- List --------------------------------------------------------------------------------
++
++function summarize(card) {
++  const parts = [];
++  if (card.manaCost !== undefined) parts.push(`${card.manaCost} mana`);
++  if (card.stats) parts.push(`${card.stats.attack ?? '?'}/${card.stats.life ?? '?'}/${card.stats.ap ?? '?'}`);
++  if (card.effectId) parts.push(`${card.effectId.replace(/^spell\./, '')} ${card.effectAmount ?? ''}`.trim());
++  return parts.join(' · ');
++}
++
++function matchesFilter(card) {
++  const f = state.filter.trim().toLowerCase();
++  if (!f) return true;
++  return [card.id, card.name, card.comment].some(v => typeof v === 'string' && v.toLowerCase().includes(f));
++}
++
++/// Cards of the picked list type; OTHER_TYPE collects cards whose type isn't in TYPES at all
++/// (e.g. a hand-edited file), so they stay reachable.
++function cardsOfListType() {
++  if (state.listType !== OTHER_TYPE) return state.cards.filter(c => c.type === state.listType);
++  const known = new Set(TYPES.map(t => t.type));
++  return state.cards.filter(c => !known.has(c.type));
++}
++
++function renderTypePicker() {
++  const picker = document.getElementById('type-picker');
++  picker.replaceChildren();
++
++  const count = type => state.cards.filter(c => c.type === type).length;
++  const groups = [...new Set(TYPES.map(t => t.group))].map(group => [group, TYPES.filter(t => t.group === group).map(t => t.type)]);
++  const known = new Set(TYPES.map(t => t.type));
++  const otherCount = state.cards.filter(c => !known.has(c.type)).length;
++  if (otherCount) groups.push(['Unknown type', [OTHER_TYPE]]);
++
++  for (const [group, types] of groups) {
++    const chips = el('div', { class: 'type-chips' });
++    for (const type of types) {
++      const n = type === OTHER_TYPE ? otherCount : count(type);
++      const chip = button('', () => {
++        state.listType = type;
++        renderList();
++      }, false, 'type-chip' + (state.listType === type ? ' active' : '') + (typeInfo(type)?.fields || type === OTHER_TYPE ? '' : ' unimplemented'));
++      chip.append(type === OTHER_TYPE ? 'Other' : type, el('span', { class: 'chip-count' }, n ? ` ${n}` : ''));
++      chips.append(chip);
++    }
++    picker.append(el('div', { class: 'type-group' }, el('h2', { class: 'group-title' }, group), chips));
++  }
++}
++
++function renderList() {
++  renderTypePicker();
++
++  const list = document.getElementById('card-list');
++  list.replaceChildren();
++
++  const type = state.listType;
++  const header = el('div', { class: 'type-header' }, el('span', { class: 'type-name' }, type === OTHER_TYPE ? 'Unknown type' : type));
++  if (type !== OTHER_TYPE) header.append(button(`+ New ${type}`, () => newCard(type), false, 'small'));
++  list.append(header);
++
++  if (type !== OTHER_TYPE && !typeInfo(type).fields) {
++    list.append(el('p', { class: 'not-implemented' }, 'Not implemented yet.'));
++  }
++
++  const cards = cardsOfListType();
++  const shown = cards.filter(matchesFilter).sort((a, b) => String(a.name).localeCompare(String(b.name)));
++  if (cards.length && !shown.length) list.append(el('p', { class: 'muted small-text' }, 'No card matches the filter.'));
++  else if (!cards.length && typeInfo(type)?.fields) list.append(el('p', { class: 'muted small-text' }, 'No cards yet.'));
++
++  const ul = el('ul', { class: 'card-rows' });
++  for (const card of shown) {
++    const li = el('li', { class: 'card-row' + (state.previousId === card.id && state.draft ? ' selected' : '') },
++      el('div', { class: 'card-row-title' }, card.name || '(no name)', card.comment ? el('span', { class: 'has-comment', title: card.comment }, ' ✎') : ''),
++      el('div', { class: 'muted small-text' }, `${card.id} · ${summarize(card)}`));
++    li.onclick = () => {
++      if (state.previousId === card.id && state.draft) return;
++      if (confirmDiscard()) openCard(card, card.id);
++    };
++    ul.append(li);
++  }
++  list.append(ul);
++}
++
++// ---- Editor ------------------------------------------------------------------------------
++
++/// Splits a card into what the form shows (id/type/schema fields/comment) and everything else.
++function otherProperties(card) {
++  const rest = clone(card);
++  delete rest.id;
++  delete rest.type;
++  delete rest.comment;
++  for (const path of typeInfo(card.type)?.fields ?? []) deletePath(rest, path);
++  return rest;
++}
++
++/// Reads the form back into a card object, in a canonical key order (id, type, schema fields,
++/// comment, other properties) so saved files diff cleanly.
++function readForm() {
++  const form = document.getElementById('card-form');
++  const card = { id: form.elements.id.value.trim(), type: form.elements.type.value };
++
++  // The inputs on screen belong to the type the form was rendered for — after a type switch
++  // that's the old type, and its fields must be read (then land in "Other properties").
++  for (const path of typeInfo(state.draft.type)?.fields ?? []) {
++    const field = FIELDS[path];
++    if (field.kind === 'multi') {
++      setPath(card, path, [...form.querySelectorAll(`input[data-path="${path}"]:checked`)].map(i => i.value));
++      continue;
++    }
++    const input = form.querySelector(`[data-path="${path}"]`);
++    if (!input) continue;
++    if (field.kind === 'int') {
++      if (input.value.trim() !== '') setPath(card, path, Number(input.value));
++    } else if (field.kind === 'select') {
++      if (input.value !== '') setPath(card, path, input.value);
++    } else {
++      setPath(card, path, input.value);
++    }
++  }
++  card.comment = form.elements.comment.value;
++
++  const otherText = form.elements.other.value.trim();
++  let other = {};
++  if (otherText) {
++    other = JSON.parse(otherText);
++    if (!other || typeof other !== 'object' || Array.isArray(other)) throw new Error('Other properties must be a JSON object.');
++  }
++  mergeMissing(card, other);
++  return card;
++}
++
++/// The open card as currently edited, whichever mode the editor is in.
++function currentDraft() {
++  if (state.mode === 'raw') {
++    const parsed = JSON.parse(document.getElementById('raw-json').value);
++    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('The card must be a JSON object.');
++    return parsed;
++  }
++  return readForm();
++}
++
++function renderEditor() {
++  const pane = document.getElementById('card-editor');
++  pane.replaceChildren();
++
++  if (state.notice) {
++    pane.append(el('h2', {}, `New ${state.notice}`), el('p', { class: 'not-implemented' }, 'Not implemented yet.'));
++    return;
++  }
++  if (!state.draft) {
++    pane.append(el('p', { class: 'muted' }, 'Pick a card on the left, or create a new one with a type’s “+ New”.'));
++    return;
++  }
++
++  const card = state.draft;
++  const title = state.previousId ? `Edit ${card.name || card.id}` : `New ${card.type}`;
++  const toolbar = el('div', { class: 'editor-toolbar' },
++    el('h2', {}, title),
++    el('span', { class: 'dirty-flag' + (state.dirty ? '' : ' hidden') }, 'unsaved'),
++    button(state.mode === 'form' ? 'Raw JSON' : 'Form', toggleMode),
++    button('Copy', copyCard, !state.previousId),
++    button('Revert', revert),
++    deleteButton(),
++    button('Save', save, false, 'primary'));
++  pane.append(toolbar);
++
++  if (state.mode === 'raw') {
++    const area = el('textarea', { id: 'raw-json', class: 'json raw', spellcheck: 'false' });
++    area.value = JSON.stringify(card, null, 2);
++    area.oninput = markDirty;
++    pane.append(el('p', { class: 'muted small-text' }, 'The whole card file. Saved exactly as written (after the engine-compatibility check).'), area);
++    return;
++  }
++
++  const form = el('form', { id: 'card-form', class: 'card-form' });
++  form.onsubmit = e => e.preventDefault();
++  form.oninput = markDirty;
++
++  // Early warning only — CardCatalog.Save is the real uniqueness check (same rule: ignoring case).
++  const idInput = input('id', 'text', card.id ?? '', { name: 'id', placeholder: 'e.g. creature.grunt' });
++  const idWarning = el('p', { class: 'field-warning hidden' });
++  idInput.addEventListener('input', () => {
++    const id = idInput.value.trim().toLowerCase();
++    const taken = state.cards.find(c => typeof c.id === 'string' && c.id.toLowerCase() === id && c.id !== state.previousId);
++    idWarning.textContent = taken ? `Id already used by “${taken.name ?? taken.id}” (${taken.type}).` : '';
++    idWarning.classList.toggle('hidden', !taken);
++  });
++  form.append(row('Id', el('div', {}, idInput, idWarning)));
++
++  const typeSelect = el('select', { name: 'type' });
++  const types = typeInfo(card.type)?.fields ? implementedTypes : [{ type: card.type }, ...implementedTypes];
++  for (const t of types) typeSelect.append(el('option', { value: t.type }, t.type));
++  typeSelect.value = card.type;
++  typeSelect.onchange = () => {
++    // Keep what was typed: fields the new type doesn't have move to "Other properties".
++    try {
++      state.draft = readForm();
++      markDirty();
++      renderEditor();
++    } catch (e) {
++      typeSelect.value = card.type;
++      setStatus(e.message, true);
++    }
++  };
++  form.append(row('Type', typeSelect));
++
++  const info = typeInfo(card.type);
++  if (!info?.fields) {
++    form.append(el('p', { class: 'not-implemented' }, `${card.type}: not implemented yet — edit it as raw JSON.`));
++  }
++
++  for (const path of info?.fields ?? []) {
++    const field = FIELDS[path];
++    const value = getPath(card, path);
++    if (field.kind === 'multi') {
++      const boxes = el('div', { class: 'checkboxes' });
++      const selected = Array.isArray(value) ? value : [];
++      // Selected values unknown to the schema are still listed, so saving never drops them.
++      for (const option of [...new Set([...(info.abilities ?? []), ...selected])]) {
++        const box = el('input', { type: 'checkbox', value: option, 'data-path': path });
++        box.checked = selected.includes(option);
++        boxes.append(el('label', {}, box, ` ${option}`));
++      }
++      form.append(row(field.label, boxes));
++    } else if (field.kind === 'select') {
++      // A blank option stands for "property absent" — never invent a value the card didn't have.
++      const select = el('select', { 'data-path': path });
++      for (const option of ['', ...new Set([...field.options, ...(value ? [value] : [])])]) select.append(el('option', { value: option }, option || '—'));
++      select.value = value ?? '';
++      form.append(row(field.label, select));
++    } else {
++      form.append(row(field.label, input(path, field.kind === 'int' ? 'number' : 'text', value ?? '', { 'data-path': path })));
++    }
++  }
++
++  const comment = el('textarea', { name: 'comment', rows: '4', placeholder: 'Design notes — stored in the card file, never shown in the game.' });
++  comment.value = card.comment ?? '';
++  form.append(row('Comment', comment));
++
++  const other = otherProperties(card);
++  const otherArea = el('textarea', { name: 'other', class: 'json', rows: '6', spellcheck: 'false' });
++  otherArea.value = Object.keys(other).length ? JSON.stringify(other, null, 2) : '';
++  form.append(row('Other properties', el('div', {},
++    otherArea,
++    el('p', { class: 'muted small-text' }, 'Properties this editor has no field for yet (JSON object). Kept as-is on save; delete them here to remove them.'))));
++
++  pane.append(form);
++}
++
++function markDirty() {
++  state.dirty = true;
++  document.querySelector('.dirty-flag')?.classList.remove('hidden');
++}
++
++function toggleMode() {
++  try {
++    state.draft = currentDraft();
++  } catch (e) {
++    setStatus(`Can't switch: ${e.message}`, true);
++    return;
++  }
++  state.mode = state.mode === 'form' ? 'raw' : 'form';
++  renderEditor();
++}
++
++function copyCard() {
++  let card;
++  try {
++    card = currentDraft();
++  } catch (e) {
++    setStatus(e.message, true);
++    return;
++  }
++  card.id = `${card.id}.copy`;
++  if (card.name) card.name = `${card.name} (copy)`;
++  openCard(card, null);
++  state.dirty = true;
++  renderEditor();
++  setStatus('Copy created — change its id and save.');
++}
++
++function revert() {
++  const original = state.previousId && state.cards.find(c => c.id === state.previousId);
++  state.dirty = false;
++  if (original) openCard(original, original.id);
++  else newCard(state.draft.type);
++  setStatus('');
++}
++
++function deleteButton() {
++  const b = button('Delete', null, !state.previousId, 'danger');
++  b.onclick = async () => {
++    if (b.dataset.armed !== 'yes') {
++      b.dataset.armed = 'yes';
++      b.textContent = 'Confirm delete';
++      return;
++    }
++    try {
++      await api(`/api/catalog/cards/${encodeURIComponent(state.previousId)}`, { method: 'DELETE' });
++      setStatus(`Deleted ${state.previousId}.`);
++      state.draft = null;
++      state.previousId = null;
++      state.dirty = false;
++      await reloadCards();
++      renderEditor();
++    } catch (e) {
++      setStatus(e.message, true);
++    }
++  };
++  return b;
++}
++
++async function save() {
++  let card;
++  try {
++    card = currentDraft();
++  } catch (e) {
++    setStatus(`Invalid JSON: ${e.message}`, true);
++    return;
++  }
++  try {
++    await api('/api/catalog/cards', {
++      method: 'PUT',
++      headers: { 'Content-Type': 'application/json' },
++      body: JSON.stringify({ card, previousId: state.previousId }),
++    });
++    await reloadCards();
++    openCard(card, card.id);
++    setStatus(`Saved ${card.id}.`);
++  } catch (e) {
++    state.draft = card;
++    setStatus(e.message, true);
++  }
++}
++
++// ---- DOM helpers -------------------------------------------------------------------------
++
++function el(tag, attrs = {}, ...children) {
++  const node = document.createElement(tag);
++  for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
++  node.append(...children.filter(c => c !== null && c !== undefined));
++  return node;
++}
++
++function button(label, onclick, disabled = false, cls = '') {
++  const b = el('button', { type: 'button', class: cls });
++  b.textContent = label;
++  b.disabled = disabled;
++  if (onclick) b.onclick = onclick;
++  return b;
++}
++
++function input(name, type, value, attrs) {
++  const i = el('input', { type, ...attrs });
++  i.value = value;
++  return i;
++}
++
++function row(label, control) {
++  return el('div', { class: 'form-row' }, el('label', { class: 'form-label' }, label), control);
++}
++
++// ---- Boot --------------------------------------------------------------------------------
++
++document.getElementById('card-filter').oninput = e => {
++  state.filter = e.target.value;
++  renderList();
++};
++window.addEventListener('beforeunload', e => {
++  if (state.dirty) e.preventDefault();
++});
++
++reloadCards().catch(e => setStatus(e.message, true));
+diff --git a/tools/Leyline.DebugUi/wwwroot/index.html b/tools/Leyline.DebugUi/wwwroot/index.html
+index 6863182..4f63ecf 100644
+--- a/tools/Leyline.DebugUi/wwwroot/index.html
++++ b/tools/Leyline.DebugUi/wwwroot/index.html
+@@ -12,6 +12,7 @@
+       <a href="p1.html" target="_blank">Open P1 view</a>
+       <a href="p2.html" target="_blank">Open P2 view</a>
+       <a href="true.html" target="_blank">Open True state view</a>
++      <a href="cards.html" target="_blank">Card creator</a>
+     </nav>
+     <label>
+       Scenario:
+diff --git a/trackb-handover.md b/trackb-handover.md
+new file mode 100644
+index 0000000..863d2b2
+--- /dev/null
++++ b/trackb-handover.md
+@@ -0,0 +1,64 @@
++# Handover — Track B: card creator → scenario creator
++
++*Session ended 2026-09-30. Temporary file: delete once picked up.*
++
++## Where the work is
++
++- **Worktree:** `C:\Workspace\hex\.claude\worktrees\track-b`, branch `worktree-track-b`, based on `f582171` (D82).
++  Kept separate because the main checkout has another session's uncommitted Track A (D83) work.
++- **Everything is uncommitted.** Run `git status` in the worktree to see it. All 134 tests pass (`dotnet test Leyline.slnx`).
++- **Run it:** `dotnet run --project tools/Leyline.DebugUi` from the worktree, then open http://localhost:5299 and click "Card creator"
++  (or go to `/cards.html` directly). Port 5299 is hardcoded, so only one DebugUi can run at a time.
++
++## What was built (phase 1: card creator)
++
++- **Catalog:** `content/cards/<id>.json`, one pretty-printed file per card. Seeded with the 4 engine cards
++  (`test.champion`, `test.grunt`, `test.firebolt`, `test.mend`), same ids as the scenario files.
++- **`Leyline.Content.Json.CardCatalog`:** list/save/delete using raw JSON objects. Unknown properties survive a save.
++  Every save is checked with the engine's own parser. Ids are unique ignoring case, compared against the id
++  *inside* each file. Saving is refused for types the engine can't load yet (Companion, Structure, Item, Map, Terrain).
++- **`JsonCardDefinitionRepository.LoadFromDirectory`** now rejects duplicate ids (ignoring case).
++- **DebugUi:**
++  - Endpoints: `GET/PUT/DELETE /api/catalog/cards`.
++  - Page: `wwwroot/cards.html|js|css`, linked from the hub.
++  - Left pane: pick a type, see that type's cards, filter them.
++  - Right pane: a form built from the `FIELDS`/`TYPES` table at the top of `cards.js` (the one place to update when
++    Track A adds properties). Also: comment field, "Other properties" JSON box, raw JSON mode, Copy/Revert,
++    two-step Delete, live warning when an id is already taken.
++- **Tests:** `tests/Leyline.RulesCore.Tests/TestSupport/CardCatalogTests.cs`;
++  `tests/Leyline.Scenarios.Tests/CardCatalogContentTests.cs` (the catalog must load, and must match the inline `card` lines in the DebugUi scenarios).
++- **Docs:** `docs/architecture/card-data-and-editor.md` has a "Current state" paragraph.
++
++## Decisions agreed with the user
++
++- Readable string ids stay; auto-numbered ids were discussed and rejected, because scenario/deck files must stay readable by hand.
++  Ids must be unique.
++- Card types: deck types are Creature, Companion, Structure, Item, Spell; special types are Champion, Map, Terrain.
++  Types the engine doesn't support show "not implemented yet".
++- Each card has a `comment`: written to the file, shown in the editor, never shown in the game.
++- The format must stay easy to fix, because the card properties will keep changing along with Track A.
++- The editor starts with the fields the engine supports today; it grows together with Track A.
++
++## Open threads
++
++1. **Should the id lock after the first save?** Suggested (not yet answered): the id is suggested from type + name when a card is
++   created, editable until the first save, then read-only; renaming is done on purpose in the file. Matters as soon as
++   scenarios reference catalog ids.
++2. **LAN access from a phone:** the user wants it later, not now. Plan: replace the hardcoded `app.Run("http://localhost:5299")` with
++   a localhost default that `--urls http://0.0.0.0:5299` can override; mention the firewall and that there's no login.
++3. **Layout work** continues ("let's work on the layout a bit"). The left-pane type picker is done; the next layout change hasn't been named yet.
++4. **Commit:** not yet discussed. Nothing is committed.
++
++## Next phase (postponed by the user until the card creator is done): scenario creator
++
++Agreed answers:
++- **Catalog:** the shared card file; scenarios reference catalog cards instead of repeating `card` lines.
++- **Aether:** Pending + Past only.
++  - A Pending trace (Creature summon to a hex, or Spell on a target) opens a CastResolution priority window on load.
++  - A Past trace has a description, a controller and the round it fades.
++  - Future stays unsupported, because the engine never moves anything out of it.
++- **Scope:** cards (Mind zones Library/Hand/Discard, Aether, Island permanents at any hex/level) plus board basics
++  (size, seed, pre-bonds).
++- **Location:** a new DebugUi page that saves to `tools/Leyline.DebugUi/scenarios/`, so saved scenarios appear straight away
++  in the hub's Load dropdown; it can open existing scenarios to edit them.
++- **Format:** extend the existing `.scenario` text format (`docs/tools/scenario-format.md`) with `discard`, `pending` and `past` lines.
