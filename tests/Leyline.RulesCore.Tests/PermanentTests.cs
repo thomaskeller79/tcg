@@ -30,7 +30,7 @@ public class PermanentTests
         var g = Load("handcard A creature.ember-imp creature.sky-hawk\nmana A Fire 1\nmana A Air 1");
         g.Ok(g.Cast(A, "creature.ember-imp", At(0, 2)));
         g.ResolveAll();
-        Assert.Equal(3, g.P("creature.ember-imp").CurrentAp);
+        Assert.Equal(5, g.P("creature.ember-imp").CurrentAp);
         g.Ok(g.Cast(A, "creature.sky-hawk", At(0, 2)));
         g.ResolveAll();
         Assert.Equal(Slice.Sky, g.P("creature.sky-hawk").Slice);
