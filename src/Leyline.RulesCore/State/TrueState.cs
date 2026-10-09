@@ -68,6 +68,11 @@ public abstract record PendingDecision(PlayerId Decider);
 public sealed record DamageSplitDecision(PlayerId Decider, ObjectId AttackTrace, int Amount, IReadOnlyList<ObjectId> Candidates, bool Defended)
     : PendingDecision(Decider);
 
+/// <summary>D130: at the start of resolution a target's true surcharge is higher than what was
+/// paid — the caster may top up the difference, or the target becomes illegal for this trace.</summary>
+public sealed record TopUpDecision(PlayerId Decider, ObjectId Trace, TargetChoice Target, int Ap, bool CanPay)
+    : PendingDecision(Decider);
+
 /// <summary>
 /// The single source of truth for a match (architecture.md §2.1). Mutated only by Rules code;
 /// every view of it goes through Perception. Id and timestamp counters live here so assignment is

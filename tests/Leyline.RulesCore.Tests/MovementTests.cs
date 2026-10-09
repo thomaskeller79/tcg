@@ -38,9 +38,9 @@ public class MovementTests
             """);
         var grunt = g.P("test.grunt");
         var leaper = g.P("test.leaper");
-        Assert.Equal(3, Costs.Effective(g.State, grunt, DefaultAbilities.MoveAbility, [[TargetChoice.ForLocation(H(1, 0), Slice.Ground)]]).Ap);
-        Assert.Equal(3, Costs.Effective(g.State, leaper, g.State.Abilities(leaper).Single(a => a.Id == "leap"), []).Ap);
-        Assert.Equal(3, Costs.Effective(g.State, grunt, DefaultAbilities.AttackAbility, []).Ap); // not a Move ability
+        Assert.Equal(3, Costs.Effective(g.State, grunt, DefaultAbilities.MoveAbility, [[TargetChoice.ForLocation(H(1, 0), Slice.Ground)]], A).Ap);
+        Assert.Equal(3, Costs.Effective(g.State, leaper, g.State.Abilities(leaper).Single(a => a.Id == "leap"), [], A).Ap);
+        Assert.Equal(3, Costs.Effective(g.State, grunt, DefaultAbilities.AttackAbility, [], A).Ap); // not a Move ability
     }
 
     [Fact]
@@ -52,7 +52,7 @@ public class MovementTests
             """);
         var pyra = g.Champion(A);
         Assert.True(Network.IsRootConnected(g.State, pyra));
-        Assert.Equal(3, Costs.Effective(g.State, pyra, DefaultAbilities.MoveAbility, [[TargetChoice.ForLocation(H(0, 1), Slice.Ground)]]).Ap);
+        Assert.Equal(3, Costs.Effective(g.State, pyra, DefaultAbilities.MoveAbility, [[TargetChoice.ForLocation(H(0, 1), Slice.Ground)]], A).Ap);
     }
 
     [Fact]

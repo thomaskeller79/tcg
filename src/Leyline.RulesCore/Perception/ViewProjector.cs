@@ -68,6 +68,9 @@ public static class ViewProjector
         {
             DamageSplitDecision d => new DecisionView("DamageSplit", d.Decider.ToString(),
                 $"{(d.Defended ? "Defended" : "Undefended")}: split {d.Amount} damage", d.Candidates.Select(c => c.Value).ToList(), d.Amount),
+            TopUpDecision t => new DecisionView("TopUp", t.Decider.ToString(),
+                $"Top up {t.Ap} AP for {(t.Target.Object is not { } target ? t.Target.ToString() : omniscient || state.CanSee(observer, target) ? state.NameOf(target) : "a hidden object")}, or it becomes illegal for this trace",
+                [], t.Ap),
             _ => null,
         };
 

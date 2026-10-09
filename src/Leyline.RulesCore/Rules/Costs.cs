@@ -8,7 +8,9 @@ namespace Leyline.RulesCore.Rules;
 /// abilities on its subtypes (D129).</summary>
 public static class Costs
 {
-    public static Cost Effective(TrueState state, Permanent source, AbilityDefinition ability, IReadOnlyList<IReadOnlyList<TargetChoice>> targets)
+    /// <summary>The cost a caster pays at casting. Target-dependent parts are computed against
+    /// <paramref name="viewer"/>'s view (D130); the true ones are compared at resolution.</summary>
+    public static Cost Effective(TrueState state, Permanent source, AbilityDefinition ability, IReadOnlyList<IReadOnlyList<TargetChoice>> targets, PlayerId? viewer)
     {
         var cost = ability.Cost;
         var bondedRoot = source.Kind.IsRoot() && Network.IsRootConnected(state, source);
@@ -34,33 +36,29 @@ public static class Costs
                 cost = defend with { Ap = defend.Ap * (bondedRoot ? 2 : 1) };
                 break;
         }
-        return cost with { Ap = cost.Ap + StaticSurcharge(state, source, ability, targets) };
+        // D129: static abilities on the ability's subtypes, added after the doubling for bonded roots.
+        var surcharge = StaticAp(state, state.TerrainOf(state.PositionOf(source)), StaticScope.OnThis, ability)
+            + targets.SelectMany(list => list).Sum(c => TargetSurcharge(state, ability, c, viewer, trueState: false));
+        return cost with { Ap = cost.Ap + surcharge };
     }
 
-    /// <summary>D129: the AP that static abilities add to an ability with their subtype — from the
-    /// terrain the source stands on (leaving), or from a permanent or terrain it targets (entering).
-    /// Added after the doubling for bonded roots.</summary>
-    private static int StaticSurcharge(TrueState state, Permanent source, AbilityDefinition ability, IReadOnlyList<IReadOnlyList<TargetChoice>> targets)
+    /// <summary>D129/D130: the AP static abilities add to an ability for one target — from the
+    /// permanent or terrain it targets (entering it). At casting it is computed against the
+    /// caster's view; at resolution against true state, to find what needs a top-up.</summary>
+    public static int TargetSurcharge(TrueState state, AbilityDefinition ability, TargetChoice choice, PlayerId? viewer, bool trueState)
     {
-        if (ability.Subtypes.Count == 0)
+        var holder = choice.Object is { } id ? state.Find<Permanent>(id)
+            : choice.Hex is { } hex && state.IsOnBoard(hex) ? state.TerrainOf(hex)
+            : null;
+        if (holder is null || !(trueState || state.CanSee(viewer, holder)))
             return 0;
-        var from = state.PositionOf(source);
-        var total = 0;
-        foreach (var holder in state.Permanents.Where(p => p.Kind != PermanentKind.Remnant))
-        {
-            foreach (var s in state.Def(holder).Statics.Where(s => ability.Subtypes.Contains(s.Subtype)))
-            {
-                var applies = s.Scope switch
-                {
-                    StaticScope.OnThis => holder.Kind == PermanentKind.Terrain && holder.Hex == from,
-                    _ => targets.Any(list => list.Any(c => c.Object == holder.Id || (holder.Kind == PermanentKind.Terrain && c.Hex == holder.Hex))),
-                };
-                if (applies)
-                    total += s.Ap;
-            }
-        }
-        return total;
+        return StaticAp(state, holder, StaticScope.TargetingThis, ability);
     }
+
+    private static int StaticAp(TrueState state, Permanent holder, StaticScope scope, AbilityDefinition ability) =>
+        holder.Kind == PermanentKind.Remnant
+            ? 0
+            : state.Def(holder).Statics.Where(s => s.Scope == scope && ability.Subtypes.Contains(s.Subtype)).Sum(s => s.Ap);
 
     /// <summary>Can this permanent pay the AP part (D116)? `*` also checks this cycle's use.</summary>
     public static bool CanPayAp(Permanent payer, Cost cost, string abilityId)

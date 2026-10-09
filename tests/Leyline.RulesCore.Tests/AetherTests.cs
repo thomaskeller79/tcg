@@ -1,3 +1,4 @@
+using Leyline.RulesCore.Commands;
 using Leyline.RulesCore.Model;
 using Leyline.RulesCore.Rules;
 using Leyline.RulesCore.State;
@@ -144,5 +145,54 @@ public class AetherTests
         g.ResolveAll();
         Assert.Equal(champion.Id, g.Terrain(0, 1).Parent);
         Assert.Equal(2, champion.Pool!.Amounts[ManaUnit.Of(Element.Fire)]); // credited live (D77)
+    }
+
+    /// <summary>D130: a target's true surcharge was higher than the caster's view showed. No card
+    /// can produce that yet (terrain is always visible), so the test lowers the recorded payment.</summary>
+    private static (Game G, Permanent Grunt) MoveOntoMireSeenWithoutItsSurcharge()
+    {
+        var g = Load("place A test.grunt 0,1\nneutral fixed 1,0=terrain.mire");
+        var grunt = g.P("test.grunt");
+        g.Ok(g.Act(A, grunt, DefaultAbilities.Move, At(1, 0)));
+        var trace = g.State.Get<TraceObject>(g.State.Pending[^1]);
+        Assert.Equal(1, trace.SurchargePaid[At(1, 0)]);
+        trace.SurchargePaid[At(1, 0)] = 0;
+        g.ResolveAll();
+        return (g, grunt);
+    }
+
+    [Fact]
+    public void A_target_whose_true_surcharge_is_higher_is_topped_up_at_resolution()
+    {
+        var (g, grunt) = MoveOntoMireSeenWithoutItsSurcharge();
+        var decision = Assert.IsType<TopUpDecision>(g.State.Decision);
+        Assert.Equal(1, decision.Ap);
+        Assert.Equal(2, grunt.CurrentAp);
+
+        g.Ok(g.Apply(new TopUpCommand(A, true)));
+        Assert.Equal(1, grunt.CurrentAp);
+        Assert.Equal(H(1, 0), grunt.Hex);
+        Assert.Null(g.State.Decision);
+        Assert.Empty(g.State.Pending);
+    }
+
+    [Fact]
+    public void A_target_not_topped_up_becomes_illegal_and_the_paid_cost_stays_spent()
+    {
+        var (g, grunt) = MoveOntoMireSeenWithoutItsSurcharge();
+        g.Ok(g.Apply(new TopUpCommand(A, false)));
+        Assert.Equal(H(0, 1), grunt.Hex);
+        Assert.Equal(2, grunt.CurrentAp);
+        Assert.Empty(g.State.Pending);
+    }
+
+    [Fact]
+    public void A_top_up_the_payer_cant_afford_can_only_be_declined()
+    {
+        var (g, grunt) = MoveOntoMireSeenWithoutItsSurcharge();
+        grunt.CurrentAp = 0;
+        g.State.Decision = (g.State.Decision as TopUpDecision)! with { CanPay = false };
+        Assert.Equal([new TopUpCommand(A, false)], RulesEngine.LegalCommands(g.State, A));
+        Assert.False(g.Apply(new TopUpCommand(A, true)).Accepted);
     }
 }

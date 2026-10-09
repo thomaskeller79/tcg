@@ -37,6 +37,7 @@ public static class RulesEngine
             return (decision, command) switch
             {
                 (DamageSplitDecision d, SplitDamageCommand s) => ApplySplit(state, d, s),
+                (TopUpDecision t, TopUpCommand c) => ApplyTopUp(state, t, c),
                 _ => CommandResult.Reject("A decision is pending."),
             };
         }
@@ -83,12 +84,27 @@ public static class RulesEngine
         return CommandResult.Ok;
     }
 
+    private static CommandResult ApplyTopUp(TrueState state, TopUpDecision decision, TopUpCommand cmd)
+    {
+        if (cmd.Pay && !decision.CanPay)
+            return CommandResult.Reject("Not enough Activation Points.");
+
+        state.Decision = null;
+        var trace = state.Get<TraceObject>(decision.Trace);
+        TopUps.Apply(state, trace, decision.Target, decision.Ap, cmd.Pay);
+        if (Resolution.Continue(state, trace))
+            Turns.AfterResolution(state);
+        return CommandResult.Ok;
+    }
+
     private static IReadOnlyList<Command> DecisionCommands(TrueState state, PendingDecision decision)
     {
         switch (decision)
         {
             case DamageSplitDecision d:
                 return Splits(d.Amount, d.Candidates).Select(s => (Command)new SplitDamageCommand(d.Decider, s)).ToList();
+            case TopUpDecision t:
+                return t.CanPay ? [new TopUpCommand(t.Decider, true), new TopUpCommand(t.Decider, false)] : [new TopUpCommand(t.Decider, false)];
             default:
                 return [];
         }

@@ -1,6 +1,6 @@
 # Implementation Plan — Rules Sync (2026-10)
 
-*Brings the engine and the debug UI up to the current ruleset (`docs/rules/`, D1–D122; the guess review added D123–D128) so a full match can actually be played. Working doc for Track B (`PLAN.md` Track B item 7): what is missing, the order it gets built in, and every educated guess made where the rules leave a gap. Guesses and questions are labelled (G1, Q1, …) so they can be answered by label.*
+*Brings the engine and the debug UI up to the current ruleset (`docs/rules/`, D1–D122; the guess review added D123–D128, and D129–D133 followed) so a full match can actually be played. Working doc for Track B (`PLAN.md` Track B item 7): what is missing, the order it gets built in, and every educated guess made where the rules leave a gap. Guesses and questions are labelled (G1, Q1, …) so they can be answered by label.*
 
 **Branch:** `track-b-rules-sync` · **Started:** 2026-10-08
 
@@ -96,4 +96,4 @@ Nothing had to be paused for lack of a guess. Not built in this pass because no 
 
 ## 6. Status
 
-P1–P11 are built and tested, plus the follow-ups D123–D128 from the guess review: 100 RulesCore tests (including random-play fuzzing over 8 seeds and a deterministic-replay test), 3 Host tests, 4 scenario/content tests, and a headless-browser test of the activation wizard (`tools/Leyline.DebugUi/wwwroot/uitest.html`). Run the debug UI with `tools/Leyline.DebugUi/start.ps1` and load `demo-match` at http://localhost:5299.
+P1–P11 are built and tested, plus the follow-ups D123–D128 from the guess review and D129–D133 (Track B item 15): 107 RulesCore tests (including random-play fuzzing over 8 seeds and a deterministic-replay test), 3 Host tests, 4 scenario/content tests, and a headless-browser test of the activation wizard (`tools/Leyline.DebugUi/wwwroot/uitest.html`). Run the debug UI with `tools/Leyline.DebugUi/start.ps1` and load `demo-match` at http://localhost:5299.

@@ -25,7 +25,15 @@ public static class Resolution
         state.InstructionIndex = 0;
         state.EventCounter = 0;
         state.Note($"Resolving: {trace.Text}.", id);
+        return Continue(state, trace);
+    }
 
+    /// <summary>Resolves a trace taken from Pending: its D130 top-ups first, then its
+    /// instructions. Returns false if it is suspended waiting for a decision.</summary>
+    public static bool Continue(TrueState state, TraceObject trace)
+    {
+        if (TopUps.Ask(state, trace))
+            return false;
         var suspended = trace.Kind switch
         {
             TraceKind.Permanent => ResolvePermanentTrace(state, trace),
@@ -80,6 +88,11 @@ public static class Resolution
 
     private static bool ResolveBuiltin(TrueState state, TraceObject trace, BuiltinAbility builtin)
     {
+        if (trace.IllegalTargets.Count > 0)
+        {
+            Fizzle(state, trace, "its target wasn't topped up"); // D130; a built-in has one target
+            return false;
+        }
         if (builtin == BuiltinAbility.Attack)
             return Combat.ResolveAttack(state, trace);
         if (builtin == BuiltinAbility.Defend)
@@ -301,6 +314,8 @@ public static class Resolution
         var result = new List<Permanent>();
         foreach (var choice in choices)
         {
+            if (trace.IllegalTargets.Contains(choice))
+                continue; // not topped up (D130)
             if (choice.Object is not { } id || state.Find<Permanent>(id) is not { } p)
                 continue; // identity: the same instance must still exist
             if (!state.CanSee(trace.You, p))

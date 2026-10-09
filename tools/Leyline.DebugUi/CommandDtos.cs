@@ -39,6 +39,8 @@ public static class CommandDtos
                 return new(index, "SplitDamage", null, null,
                     "Split: " + string.Join(", ", s.Split.Where(kv => kv.Value > 0).Select(kv => $"{kv.Value} → {state.NameOf(kv.Key)}")),
                     [], null, null, s.Split.ToDictionary(kv => kv.Key.Value, kv => kv.Value));
+            case TopUpCommand t:
+                return new(index, "TopUp", null, null, t.Pay ? "Top up" : "Don't top up (the target becomes illegal)", [], null, null, null);
             case ActivateCommand a:
             {
                 var source = state.Find<GameObject>(a.Source);
@@ -55,7 +57,7 @@ public static class CommandDtos
                     var p = (Permanent)source!;
                     var ability = state.Abilities(p).First(x => x.Id == a.Ability);
                     abilityName = ability.Name;
-                    cost = Costs.Effective(state, p, ability, a.Targets).ToString();
+                    cost = Costs.Effective(state, p, ability, a.Targets, a.Actor).ToString();
                     speed = ability.Speed.ToString();
                 }
                 var targets = a.Targets.Select(list => (IReadOnlyList<TargetDto>)list.Select(t => Target(state, t)).ToList()).ToList();

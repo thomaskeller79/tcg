@@ -17,6 +17,9 @@ public sealed record PassCommand(PlayerId Actor) : Command(Actor);
 /// <summary>G16: split an attacker's damage among the candidates.</summary>
 public sealed record SplitDamageCommand(PlayerId Actor, IReadOnlyDictionary<ObjectId, int> Split) : Command(Actor);
 
+/// <summary>D130: pay a target's missing surcharge, or don't (the target becomes illegal).</summary>
+public sealed record TopUpCommand(PlayerId Actor, bool Pay) : Command(Actor);
+
 public sealed record CommandResult(bool Accepted, string? Error)
 {
     public static readonly CommandResult Ok = new(true, null);

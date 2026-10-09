@@ -197,6 +197,13 @@ public sealed class TraceObject : GameObject
     public required string Text { get; set; }
     public string PaidCost { get; init; } = "";
 
+    /// <summary>D130: the target-dependent surcharge paid for each target, against the caster's
+    /// view — compared with the true one at the start of resolution.</summary>
+    public Dictionary<TargetChoice, int> SurchargePaid { get; } = new();
+
+    /// <summary>D130: targets the caster didn't top up — illegal for this trace.</summary>
+    public HashSet<TargetChoice> IllegalTargets { get; } = [];
+
     public AttackInfo? Attack { get; init; }
 
     /// <summary>Permanent trace: the location target that becomes the permanent's location (D105).</summary>
