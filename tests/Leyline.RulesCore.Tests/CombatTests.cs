@@ -286,6 +286,45 @@ public class CombatTests
     }
 
     [Fact]
+    public void Only_permanents_with_Life_can_be_attacked_so_a_Remnant_or_loose_Item_alone_is_no_target()
+    {
+        var g = Load("""
+            place A test.brute 0,1
+            place B test.grunt 0,0 life=3
+            place B item.flame-blade 1,0
+            """);
+        g.Ok(g.Act(A, g.P("test.brute"), DefaultAbilities.Attack, AttackAt(0, 0, Slice.Ground, B)));
+        g.ResolveAll();
+        Assert.Null(g.Find("test.grunt"));
+        Assert.Single(g.Remnants);
+
+        var candidates = Combat.AttackCandidates(g.State, g.P("test.brute"), A);
+        Assert.DoesNotContain(candidates, c => c.Hex == H(0, 0)); // only the Remnant is left there
+        Assert.DoesNotContain(candidates, c => c.Hex == H(1, 0)); // only a loose Item
+    }
+
+    [Fact]
+    public void Whoever_has_Defend_may_defend_a_Structure_without_it_may_not()
+    {
+        var g = Load("""
+            bond B 0,-1 0,0 1,0
+            place A test.brute 0,1
+            place B structure.watchtower 0,0
+            place B test.bastion 1,0
+            place A test.grunt 1,1
+            """);
+        g.Ok(g.Act(A, g.P("test.brute"), DefaultAbilities.Attack, AttackAt(0, 0, Slice.Ground, B)));
+        Assert.False(Combat.CanDefend(g.State, g.P("structure.watchtower"), TopTrace(g)));
+        g.ResolveAll();
+
+        g.Ok(g.Act(A, g.P("test.grunt"), DefaultAbilities.Attack, AttackAt(1, 0, Slice.Ground, B)));
+        g.Pass(A);
+        g.Ok(g.Act(B, g.P("test.bastion"), DefaultAbilities.Defend, Obj(TopTrace(g))));
+        g.ResolveAll();
+        Assert.Equal(3, g.P("test.bastion").CurrentLife);
+    }
+
+    [Fact]
     public void Killing_the_enemy_Champion_wins()
     {
         var g = Load("place A test.brute 0,-1");

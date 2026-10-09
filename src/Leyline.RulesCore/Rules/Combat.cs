@@ -17,16 +17,12 @@ public static class Combat
     public static IEnumerable<Slice> AttackableSlices(Slice attacker) =>
         attacker == Slice.Sky ? [Slice.Sky, Slice.Ground] : [attacker];
 
-    /// <summary>The entity's permanents in an attacked Slice of a terrain: creature-type
-    /// permanents in that Slice, plus a Structure in the matching slot (G8 — the Ground slot
-    /// counts as Ground, the Root slot as Root).</summary>
-    public static IReadOnlyList<Permanent> TargetsIn(TrueState state, HexCoord hex, Slice slice, PlayerId? entity, ObjectId? exclude = null)
-    {
-        var list = state.CreaturesIn(hex, slice).Where(p => p.Id != exclude && state.Controller(p) == entity).ToList();
-        if (slice != Slice.Sky && state.StructureIn(hex, slice) is { } structure && state.Controller(structure) == entity && structure.Id != exclude)
-            list.Add(structure);
-        return list;
-    }
+    /// <summary>The entity's permanents in an attacked Slice of a terrain: those with Life (D133 —
+    /// the Actors; a Structure counts in the Slice of its slot, G8).</summary>
+    public static IReadOnlyList<Permanent> TargetsIn(TrueState state, HexCoord hex, Slice slice, PlayerId? entity, ObjectId? exclude = null) =>
+        state.Permanents
+            .Where(p => p.Kind.IsActor() && p.Carrier is null && p.Hex == hex && p.Slice == slice && p.Id != exclude && state.Controller(p) == entity)
+            .ToList();
 
     private static readonly PlayerId?[] Entities = [PlayerId.A, PlayerId.B, null];
 
@@ -36,7 +32,7 @@ public static class Combat
     /// Melee reaches distance 0–1 (D120), Ranged a-b from a to b (D127).</summary>
     public static IReadOnlyList<TargetChoice> AttackCandidates(TrueState state, Permanent attacker, PlayerId? observer)
     {
-        if (!attacker.Kind.IsCreatureType() || attacker.Carrier is not null)
+        if (!state.Abilities(attacker).Any(a => a.Builtin == BuiltinAbility.Attack) || attacker.Carrier is not null)
             return [];
         var own = state.Controller(attacker);
         var result = new List<TargetChoice>();
@@ -57,13 +53,13 @@ public static class Combat
         return result;
     }
 
-    /// <summary>D115/D117: who may defend — a creature-type permanent of the attacked entity on
-    /// the attacked terrain, in the attacked Slice (Sky creatures also defend Ground). D127: and
+    /// <summary>D115/D117/D133: who may defend — a permanent with a Defend ability, of the attacked
+    /// entity on the attacked terrain, in the attacked Slice (Sky also defends Ground). D127: and
     /// the attacker must be within the defender's own attack reach — distance only, no Slice,
     /// AP or "can attack" check.</summary>
     public static bool IsEligibleDefender(TrueState state, Permanent defender, AttackInfo attack, ObjectId attacker)
     {
-        if (!defender.Kind.IsCreatureType() || defender.Carrier is not null || defender.Id == attacker)
+        if (!state.Abilities(defender).Any(a => a.Builtin == BuiltinAbility.Defend) || defender.Carrier is not null || defender.Id == attacker)
             return false;
         if (defender.Hex != attack.Hex || state.Controller(defender) != attack.Entity)
             return false;

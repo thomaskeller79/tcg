@@ -192,5 +192,12 @@ public static class TestCards
         Abilities = [new AbilityDefinition { Id = "dawn-draw", Name = "Dawn Draw", Trigger = TriggerEvent.BeginningOfYourTurn, Speed = speed, Instructions = [new Instruction("draw", Amount: 1)] }],
     };
 
-    public static IEnumerable<CardDefinition> All => [Grunt, Mirror, Brute, Mole, Knotter, Digger, DawnSeer(Speed.Reactive), DawnSeer(Speed.Instant)];
+    /// <summary>D133: a Structure a card grants Defend.</summary>
+    public static readonly CardDefinition Bastion = new()
+    {
+        Id = "test.bastion", Name = "Bastion", Type = CardType.Structure, Cost = new Cost([ManaPip.Generic]), Life = 6, Ap = 2,
+        Abilities = [DefaultAbilities.DefendAbility],
+    };
+
+    public static IEnumerable<CardDefinition> All => [Grunt, Mirror, Brute, Mole, Knotter, Digger, DawnSeer(Speed.Reactive), DawnSeer(Speed.Instant), Bastion];
 }
