@@ -443,7 +443,7 @@ function renderPrompt() {
   if (ui.error) box.append(el('div', { style: 'color: var(--bad)' }, `Rejected: ${ui.error}`));
 
   // Decisions first.
-  const decisions = ui.legal.filter(c => ['SplitDamage', 'Redirect', 'CancelRedirect'].includes(c.kind));
+  const decisions = ui.legal.filter(c => ['SplitDamage'].includes(c.kind));
   if (decisions.length) {
     box.append(el('h2', {}, 'Decision'));
     box.append(el('div', { class: 'row' }, decisions.map(c => el('button', { class: 'choice', onclick: () => submit(c.index) }, c.label))));

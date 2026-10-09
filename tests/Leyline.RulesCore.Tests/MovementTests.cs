@@ -9,7 +9,7 @@ using static Leyline.RulesCore.Tests.Support.Game;
 namespace Leyline.RulesCore.Tests;
 
 /// <summary>Moving and Slices (overview.md §2/§4): the entry rule (D86, D119), capacity,
-/// Ascend/Descend (D42), Root concealment and D67 proximity, the D68 redirect.</summary>
+/// Ascend/Descend (D42), Root concealment and D67 proximity, hidden occupants (D132).</summary>
 public class MovementTests
 {
     [Fact]
@@ -85,7 +85,7 @@ public class MovementTests
     }
 
     [Fact]
-    public void Descending_blind_into_a_hidden_enemy_fails_and_the_cost_stays_paid()
+    public void Descending_blind_onto_a_hidden_enemy_enters_and_the_Slice_becomes_mixed()
     {
         var g = Load("""
             place A test.mole 0,0
@@ -94,11 +94,27 @@ public class MovementTests
         var mole = g.P("test.mole");
         Assert.False(g.State.CanSee(A, g.P("test.mole", 1))); // a Ground mover gives no Root vision
         g.Ok(g.Act(A, mole, DefaultAbilities.Descend));
-        // Descend has no other location: a clean hard fail with the cost sunk (D68).
-        Assert.Empty(g.State.Pending);
-        Assert.Null(g.State.Decision);
-        Assert.Equal(3, mole.CurrentAp);
+        g.ResolveAll();
+        Assert.Equal(Slice.Root, mole.Slice); // D132: a hidden occupant never blocks
+        Assert.Equal(Slice.Root, g.P("test.mole", 1).Slice);
+        Assert.Equal(H(0, 0), g.P("test.mole", 1).Hex);
+    }
+
+    [Fact]
+    public void Descending_blind_into_a_truly_full_Slice_fizzles_and_the_cost_stays_paid()
+    {
+        var g = Load("""
+            place A test.mole 0,0
+            place B test.mole 0,0 slice=Root
+            place B test.mole 0,0 slice=Root
+            place B test.mole 0,0 slice=Root
+            """);
+        var mole = g.P("test.mole");
+        g.Ok(g.Act(A, mole, DefaultAbilities.Descend));
+        Assert.Single(g.State.Pending); // nothing at casting is checked against true state
+        g.ResolveAll();
         Assert.Equal(Slice.Ground, mole.Slice);
+        Assert.Equal(3, mole.CurrentAp);
     }
 
     [Fact]
@@ -113,44 +129,21 @@ public class MovementTests
         Assert.False(g.Act(A, g.P("test.mole"), DefaultAbilities.Descend).Accepted); // known to be illegal
     }
 
-    private const string RedirectSetup = """
-        bond A 0,1 1,1
-        place B test.mole 0,1 slice=Root
-        handcard A test.digger
-        mana A Fire 2
-        """;
-
     [Fact]
-    public void A_cast_into_a_hidden_occupant_offers_the_other_locations()
+    public void A_cast_onto_a_hidden_occupant_of_another_controller_enters_and_the_Slice_becomes_mixed()
     {
-        var g = Load(RedirectSetup);
+        var g = Load("""
+            bond A 0,1
+            place B test.mole 0,1 slice=Root
+            handcard A test.digger
+            mana A Fire 2
+            """);
         g.P("test.mole").Parent = g.Champion(B).Id;
-        var card = g.HandCard(A, "test.digger");
         g.Ok(g.Cast(A, "test.digger", At(0, 1, Slice.Root)));
-
-        var decision = Assert.IsType<RedirectDecision>(g.State.Decision);
-        Assert.DoesNotContain(decision.Remaining, c => c.Hex == H(0, 1));
-        Assert.Contains(decision.Remaining, c => c.Hex == H(1, 1));
-        Assert.Equal(Zone.Discard, card.Zone); // the failure revealed information: cost committed
-        Assert.Empty(g.State.Pending);
-
-        g.Ok(g.Apply(new RedirectCommand(A, decision.Remaining.First(c => c.Hex == H(1, 1)))));
         Assert.Null(g.State.Decision);
         g.ResolveAll();
-        Assert.Equal(H(1, 1), g.P("test.digger").Hex);
+        Assert.Equal(H(0, 1), g.P("test.digger").Hex);
         Assert.Equal(Slice.Root, g.P("test.digger").Slice);
-    }
-
-    [Fact]
-    public void Cancelling_a_redirect_keeps_the_cost_paid()
-    {
-        var g = Load(RedirectSetup);
-        g.P("test.mole").Parent = g.Champion(B).Id;
-        var card = g.HandCard(A, "test.digger");
-        g.Ok(g.Cast(A, "test.digger", At(0, 1, Slice.Root)));
-        g.Ok(g.Apply(new CancelRedirectCommand(A)));
-        Assert.Equal(Zone.Discard, card.Zone);
-        Assert.Empty(g.State.Pending);
-        Assert.Equal(4, g.Champion(A).Pool!.Total); // 3 bonded + 2 added, minus the 1 paid
+        Assert.Equal(B, g.State.Controller(g.P("test.mole")));
     }
 }

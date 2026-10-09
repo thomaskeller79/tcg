@@ -21,7 +21,7 @@ public static class Behaviors
             return;
 
         var next = NextAction(state);
-        if (next is not null && Activation.Build(state, next) is { Draft: { } draft, RedirectIndex: null })
+        if (next is not null && Activation.Build(state, next) is { Draft: { } draft })
         {
             Activation.Commit(state, draft);
             Turns.AfterActivation(state, null);
@@ -95,7 +95,7 @@ public static class Behaviors
             if (!Combat.CanDefend(state, p, attack))
                 continue;
             var request = new ActivationRequest(null, p.Id, DefaultAbilities.Defend, [[TargetChoice.ForObject(attack.Id)]]);
-            if (Activation.Build(state, request) is { Draft: { } draft, RedirectIndex: null })
+            if (Activation.Build(state, request) is { Draft: { } draft })
             {
                 Activation.Commit(state, draft);
                 Turns.AfterActivation(state, null);

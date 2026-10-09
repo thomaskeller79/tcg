@@ -68,8 +68,6 @@ public static class ViewProjector
         {
             DamageSplitDecision d => new DecisionView("DamageSplit", d.Decider.ToString(),
                 $"{(d.Defended ? "Defended" : "Undefended")}: split {d.Amount} damage", d.Candidates.Select(c => c.Value).ToList(), d.Amount),
-            RedirectDecision rd => new DecisionView("Redirect", rd.Decider.ToString(),
-                "That destination is blocked by something hidden — pick another or cancel (the cost stays paid)", [], 0),
             _ => null,
         };
 

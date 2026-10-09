@@ -178,7 +178,7 @@ public static class TestCards
     };
 
     /// <summary>A Subterranean creature whose Slice filter names Root — the one way a cast can
-    /// meet a hidden occupant (D68).</summary>
+    /// meet a hidden occupant (D132).</summary>
     public static readonly CardDefinition Digger = new()
     {
         Id = "test.digger", Name = "Digger", Type = CardType.Creature, Cost = new Cost([ManaPip.Generic]), Attack = 1, Life = 2, Ap = 3,

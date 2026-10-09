@@ -43,8 +43,8 @@ public sealed record PendingTrigger(
     BehaviorAssignment? Behavior,
     string SourceName);
 
-/// <summary>A cast or activation, held between its steps (D70, D94). Only a D68 redirect ever
-/// keeps one alive across commands; otherwise it is built and committed inside one command.</summary>
+/// <summary>A cast or activation, held between its steps (D70, D94); it is built and committed
+/// inside one command.</summary>
 public sealed class ActivationDraft
 {
     public required PlayerId? Actor { get; init; }
@@ -59,7 +59,6 @@ public sealed class ActivationDraft
     public required ObjectId? ApPayer { get; init; }
     public required ObjectId? Parent { get; init; }
     public required BehaviorAssignment? Behavior { get; init; }
-    public bool CostCommitted { get; set; }
 }
 
 public abstract record PendingDecision(PlayerId Decider);
@@ -67,11 +66,6 @@ public abstract record PendingDecision(PlayerId Decider);
 /// <summary>G16: an Attack resolving with more than one possible recipient — its attacker's
 /// Champion splits the Attack value (D13, D117).</summary>
 public sealed record DamageSplitDecision(PlayerId Decider, ObjectId AttackTrace, int Amount, IReadOnlyList<ObjectId> Candidates, bool Defended)
-    : PendingDecision(Decider);
-
-/// <summary>D68: a location target turned out illegal against true state. The cost is
-/// committed; the player picks another candidate or cancels.</summary>
-public sealed record RedirectDecision(PlayerId Decider, ActivationDraft Draft, int TargetIndex, IReadOnlyList<TargetChoice> Remaining)
     : PendingDecision(Decider);
 
 /// <summary>

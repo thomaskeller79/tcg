@@ -17,12 +17,6 @@ public sealed record PassCommand(PlayerId Actor) : Command(Actor);
 /// <summary>G16: split an attacker's damage among the candidates.</summary>
 public sealed record SplitDamageCommand(PlayerId Actor, IReadOnlyDictionary<ObjectId, int> Split) : Command(Actor);
 
-/// <summary>D68: pick another location after one proved illegal against true state.</summary>
-public sealed record RedirectCommand(PlayerId Actor, TargetChoice Choice) : Command(Actor);
-
-/// <summary>D68: give up after a failed location; the cost stays paid.</summary>
-public sealed record CancelRedirectCommand(PlayerId Actor) : Command(Actor);
-
 public sealed record CommandResult(bool Accepted, string? Error)
 {
     public static readonly CommandResult Ok = new(true, null);

@@ -9,11 +9,10 @@ namespace Leyline.RulesCore.Rules;
 /// automatic). <see cref="Actor"/> null = a Neutral permanent's Behavior.</summary>
 public sealed record ActivationRequest(PlayerId? Actor, ObjectId Source, string AbilityId, IReadOnlyList<IReadOnlyList<TargetChoice>> Targets, IReadOnlyList<ManaUnit>? Mana = null);
 
-/// <summary>The outcome of checking a request: a draft ready to commit, an error, or — D68 — a
-/// location target that is legal in the actor's view but not in true state.</summary>
-public sealed record BuildResult(ActivationDraft? Draft, string? Error, int? RedirectIndex)
+/// <summary>The outcome of checking a request: a draft ready to commit, or an error.</summary>
+public sealed record BuildResult(ActivationDraft? Draft, string? Error)
 {
-    public static BuildResult Fail(string error) => new(null, error, null);
+    public static BuildResult Fail(string error) => new(null, error);
 }
 
 /// <summary>
@@ -21,8 +20,8 @@ public sealed record BuildResult(ActivationDraft? Draft, string? Error, int? Red
 /// One procedure for every card and every activated ability, physical ones included (D75):
 /// legality → pay → target → enter Pending. A request is the player's whole sequence of
 /// decisions; the steps are still checked in order, and the transaction only becomes real when
-/// the trace enters Pending (an unsubmitted request is the abort). Only a D68 redirect commits
-/// the cost before the trace exists.
+/// the trace enters Pending (an unsubmitted request is the abort). Nothing here is checked
+/// against true state (D132).
 /// </summary>
 public static class Activation
 {
@@ -55,7 +54,6 @@ public static class Activation
         if (ChoosePayment(champion.Pool, def.Cost.Mana, req.Mana, out var plan) is { } payError)
             return BuildResult.Fail(payError);
 
-        int? redirect = null;
         if (def.Type.IsPermanentCard())
         {
             if (req.Targets is not [[{ Hex: { } hex } choice]])
@@ -67,8 +65,6 @@ public static class Activation
                 return BuildResult.Fail("You can only cast a permanent onto a terrain you control.");
             if (!Entry.CanPermanentEnter(state, def, actor, hex, slice, trueState: false, observer: actor))
                 return BuildResult.Fail("No room there.");
-            if (!Entry.CanPermanentEnter(state, def, actor, hex, slice, trueState: true))
-                redirect = 0;
         }
         else if (!ValidatePrinted(state, actor, null, def.Targets, req.Targets))
         {
@@ -90,7 +86,7 @@ public static class Activation
             Parent = champion.Id,
             Behavior = null,
         };
-        return new BuildResult(draft, null, redirect);
+        return new BuildResult(draft, null);
     }
 
     /// <summary>D125: the payment a request names must be one the semi-automatic rule leaves
@@ -157,7 +153,7 @@ public static class Activation
             return BuildResult.Fail("It can't activate abilities until the end of this turn.");
 
         var observer = req.Actor;
-        var (error, redirect) = ValidateAbilityTargets(state, observer, controller, p, ability, req.Targets);
+        var error = ValidateAbilityTargets(state, observer, controller, p, ability, req.Targets);
         if (error is not null)
             return BuildResult.Fail(error);
 
@@ -195,10 +191,10 @@ public static class Activation
             Parent = state.ManaPayer(p)?.Id,
             Behavior = controller is null ? p.Behavior : null,
         };
-        return new BuildResult(draft, null, redirect);
+        return new BuildResult(draft, null);
     }
 
-    private static (string? Error, int? Redirect) ValidateAbilityTargets(
+    private static string? ValidateAbilityTargets(
         TrueState state, PlayerId? observer, PlayerId? controller, Permanent p, AbilityDefinition ability, IReadOnlyList<IReadOnlyList<TargetChoice>> targets)
     {
         switch (ability.Builtin)
@@ -206,19 +202,19 @@ public static class Activation
             case BuiltinAbility.Move:
             {
                 if (!p.Kind.IsCreatureType() || p.Carrier is not null)
-                    return ("Only a creature moves.", null);
+                    return "Only a creature moves.";
                 if (targets is not [[{ Hex: { } hex } choice]])
-                    return ("Choose one destination.", null);
+                    return "Choose one destination.";
                 if (choice.Slice is { } s && s != p.Slice)
-                    return ("A move stays in its Slice.", null);
+                    return "A move stays in its Slice.";
                 if (!state.IsOnBoard(hex) || hex.DistanceTo(p.Hex) != 1 || state.IsVoid(hex))
-                    return ("Not an adjacent terrain.", null);
+                    return "Not an adjacent terrain.";
                 // D9/D122/D126 realm lock: a connected Champion or Companion moves only onto terrain it bonded.
                 if (p.Kind.IsRoot() && Network.IsRootConnected(state, p) && state.TerrainOf(hex).Parent != p.Id)
-                    return ("It is confined to its own bonded terrain — collapse the network first.", null);
+                    return "It is confined to its own bonded terrain — collapse the network first.";
                 if (!Entry.CanCreatureEnter(state, controller, hex, p.Slice, p.Id, trueState: false, observer))
-                    return ("You can't enter that Slice.", null);
-                return (null, Entry.CanCreatureEnter(state, controller, hex, p.Slice, p.Id, trueState: true) ? null : 0);
+                    return "You can't enter that Slice.";
+                return null;
             }
             case BuiltinAbility.Ascend:
             case BuiltinAbility.Descend:
@@ -226,63 +222,63 @@ public static class Activation
                 var from = ability.Builtin == BuiltinAbility.Ascend ? Slice.Root : Slice.Ground;
                 var to = ability.Builtin == BuiltinAbility.Ascend ? Slice.Ground : Slice.Root;
                 if (p.Slice != from || p.Carrier is not null)
-                    return ($"Only from {from}.", null);
+                    return $"Only from {from}.";
                 if (targets.Count != 0)
-                    return ("Takes no target.", null);
+                    return "Takes no target.";
                 if (!Entry.CanCreatureEnter(state, controller, p.Hex, to, p.Id, trueState: false, observer))
-                    return ("You can't enter that Slice.", null);
-                return (null, Entry.CanCreatureEnter(state, controller, p.Hex, to, p.Id, trueState: true) ? null : 0);
+                    return "You can't enter that Slice.";
+                return null;
             }
             case BuiltinAbility.Attack:
             {
                 if (targets is not [[{ HasEntity: true, Hex: { } hex, Slice: { } slice } choice]])
-                    return ("Choose a terrain, a Slice and an entity.", null);
+                    return "Choose a terrain, a Slice and an entity.";
                 var legal = Combat.AttackCandidates(state, p, observer).Any(c => c.Hex == hex && c.Slice == slice && c.Entity == choice.Entity);
-                return legal ? (null, null) : ("Not a legal attack target.", null);
+                return legal ? null : "Not a legal attack target.";
             }
             case BuiltinAbility.Defend:
             {
                 if (targets is not [[{ Object: { } attackId }]] || state.Find<TraceObject>(attackId) is not { } attack)
-                    return ("Choose an attack to defend.", null);
-                return Combat.CanDefend(state, p, attack) ? (null, null) : ("It can't defend that attack.", null);
+                    return "Choose an attack to defend.";
+                return Combat.CanDefend(state, p, attack) ? null : "It can't defend that attack.";
             }
             case BuiltinAbility.Equip:
             {
                 if (targets is not [[{ Object: { } itemId }]] || state.Find<Permanent>(itemId) is not { Kind: PermanentKind.Item, Carrier: null } item)
-                    return ("Choose a loose Item.", null);
+                    return "Choose a loose Item.";
                 // D105: for Equip, Ground and Sky count as one Slice.
                 if (p.Carrier is not null || item.Hex != p.Hex || item.Slice != Island.LooseSliceFor(p.Slice) || !state.CanSee(observer, item))
-                    return ("The Item must share this location.", null);
-                return (null, null);
+                    return "The Item must share this location.";
+                return null;
             }
             case BuiltinAbility.Unequip:
             {
                 if (targets is not [[{ Object: { } itemId }]] || state.Find<Permanent>(itemId)?.Carrier != p.Id)
-                    return ("Choose an Item this carries.", null);
-                return (null, null);
+                    return "Choose an Item this carries.";
+                return null;
             }
             case BuiltinAbility.Bond:
             {
                 if (!p.Kind.IsRoot())
-                    return ("Only a Champion or Companion bonds.", null);
+                    return "Only a Champion or Companion bonds.";
                 if (targets is not [[{ Hex: { } hex }]])
-                    return ("Choose a terrain.", null);
-                return Network.BondCandidates(state, p).Contains(hex) ? (null, null) : ("That terrain can't be bonded now.", null);
+                    return "Choose a terrain.";
+                return Network.BondCandidates(state, p).Contains(hex) ? null : "That terrain can't be bonded now.";
             }
             case BuiltinAbility.Draw:
             {
                 if (p.Kind != PermanentKind.Champion || controller is not { } player || targets.Count != 0)
-                    return ("Only a Champion draws.", null);
-                return state.Player(player).Library.Count > 0 ? (null, null) : ("Your Library is empty.", null);
+                    return "Only a Champion draws.";
+                return state.Player(player).Library.Count > 0 ? null : "Your Library is empty.";
             }
             case BuiltinAbility.Collapse:
             {
                 if (!p.Kind.IsRoot() || targets.Count != 0)
-                    return ("Only a root collapses its network.", null);
-                return Network.BondedBy(state, p.Id).Any() ? (null, null) : ("There is no network to collapse.", null);
+                    return "Only a root collapses its network.";
+                return Network.BondedBy(state, p.Id).Any() ? null : "There is no network to collapse.";
             }
             default:
-                return ValidatePrinted(state, controller, p, ability.Targets, targets) ? (null, null) : ("Illegal targets.", null);
+                return ValidatePrinted(state, controller, p, ability.Targets, targets) ? null : "Illegal targets.";
         }
     }
 
@@ -304,10 +300,8 @@ public static class Activation
 
     /// <summary>Pays the cost (D70 step 1). The card leaves the Hand as payment starts and
     /// arrives in Discard when it ends (D37, D94).</summary>
-    public static void PayCost(TrueState state, ActivationDraft draft)
+    private static void PayCost(TrueState state, ActivationDraft draft)
     {
-        if (draft.CostCommitted)
-            return;
         if (draft.ManaPayer is { } payerId && draft.ManaPlan.Count > 0)
             state.Get<Permanent>(payerId).Pool!.Spend(draft.ManaPlan);
         if (draft.ApPayer is { } apId && draft.Ability is not null)
@@ -325,10 +319,9 @@ public static class Activation
             zones.Discard.Add(card.Id);
             card.Zone = Zone.Discard;
         }
-        draft.CostCommitted = true;
     }
 
-    /// <summary>Steps 1 (if not yet paid) and 4: the trace enters Pending, with any triggers the
+    /// <summary>Steps 1 and 4: the trace enters Pending, with any triggers the
     /// payment fired on top of it (D94).</summary>
     public static TraceObject Commit(TrueState state, ActivationDraft draft)
     {
@@ -417,8 +410,7 @@ public static class Activation
     // ----------------------------------------------------------------------------- enumeration
 
     /// <summary>Every cast and activation the actor may declare now, enumerated against its own
-    /// view only — a request that would hit a hidden occupant is offered like any other and
-    /// discovers the problem only when declared (D68), so the list never leaks hidden facts.</summary>
+    /// view only, so the list never leaks hidden facts (D132).</summary>
     public static IEnumerable<ActivationRequest> LegalFor(TrueState state, PlayerId actor)
     {
         var zones = state.Player(actor);

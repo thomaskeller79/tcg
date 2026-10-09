@@ -4,16 +4,18 @@ using Leyline.RulesCore.State;
 namespace Leyline.RulesCore.Rules;
 
 /// <summary>
-/// Entering a Slice (D86, D119): a creature-type permanent may enter only if there is a free place
-/// and every occupant shares its controller. Only creature-type occupants of that one Slice count —
-/// not Structures, Remnants, loose Items, or other Slices. Declaring checks against the actor's
-/// own view (<c>observer</c>); resolving checks against true state (D68).
+/// Entering a Slice (D86, D119, D132): a creature-type permanent may enter only if there is a free
+/// place and every occupant shares its controller. Only creature-type occupants of that one Slice
+/// count — not Structures, Remnants, loose Items, or other Slices. Declaring checks both against
+/// the actor's own view (<c>observer</c>); resolving checks only the capacity, against true state,
+/// so a hidden occupant of another controller never blocks and the Slice becomes mixed.
 /// </summary>
 public static class Entry
 {
     /// <summary>Whether a creature-type permanent controlled by <paramref name="controller"/> may
     /// enter (hex, slice). <paramref name="observer"/>: check against that observer's view
-    /// (hidden occupants don't count); <paramref name="trueState"/> true: check true state.</summary>
+    /// (hidden occupants don't count); <paramref name="trueState"/> true: check only the capacity,
+    /// against true state.</summary>
     public static bool CanCreatureEnter(TrueState state, PlayerId? controller, HexCoord hex, Slice slice, ObjectId? mover, bool trueState, PlayerId? observer = null)
     {
         if (state.IsVoid(hex))
@@ -22,7 +24,7 @@ public static class Entry
         if (!trueState)
             occupants = occupants.Where(p => state.CanSee(observer, p));
         var list = occupants.ToList();
-        return list.Count < Island.SliceCapacity && list.All(p => state.Controller(p) == controller);
+        return list.Count < Island.SliceCapacity && (trueState || list.All(p => state.Controller(p) == controller));
     }
 
     /// <summary>D24/D40: a Structure needs its slot free.</summary>

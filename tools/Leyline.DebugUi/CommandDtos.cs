@@ -39,10 +39,6 @@ public static class CommandDtos
                 return new(index, "SplitDamage", null, null,
                     "Split: " + string.Join(", ", s.Split.Where(kv => kv.Value > 0).Select(kv => $"{kv.Value} → {state.NameOf(kv.Key)}")),
                     [], null, null, s.Split.ToDictionary(kv => kv.Key.Value, kv => kv.Value));
-            case RedirectCommand r:
-                return new(index, "Redirect", null, null, $"Go to {r.Choice} instead", [[Target(state, r.Choice)]], null, null, null);
-            case CancelRedirectCommand:
-                return new(index, "CancelRedirect", null, null, "Cancel (the cost stays paid)", [], null, null, null);
             case ActivateCommand a:
             {
                 var source = state.Find<GameObject>(a.Source);
