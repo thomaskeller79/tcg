@@ -19,24 +19,28 @@ public static class Costs
         {
             case BuiltinAbility.Move:
             {
-                // A connected Champion or Companion pays double — it can only move onto terrain it
-                // bonded itself (D9, D126 realm lock).
+                // D134: a connected Champion or Companion has its own Move cost — it can only move
+                // onto terrain it bonded itself (D9, D126 realm lock).
                 var dest = targets.Count > 0 && targets[0].Count > 0 ? targets[0][0].Hex : null;
                 var staysConnected = bondedRoot && dest is { } d && state.IsOnBoard(d) && state.TerrainOf(d).Parent == source.Id;
-                cost = cost with { Ap = cost.Ap * (staysConnected ? 2 : 1) };
+                if (staysConnected)
+                    cost = cost with { Ap = DefaultAbilities.ConnectedMoveAp };
                 break;
             }
             case BuiltinAbility.Attack:
-                // D49/D116: `3~AP`, doubled to `6~AP` while network-bonded.
-                cost = cost with { Ap = cost.Ap * (bondedRoot ? 2 : 1) };
+                // D134: `6~AP` while connected, `3~AP` otherwise.
+                if (bondedRoot)
+                    cost = cost with { Ap = DefaultAbilities.ConnectedAttackAp };
                 break;
             case BuiltinAbility.Defend:
-                // D116 Defender keyword: `1AP: Defend` instead of `1~AP`; D117 doubled while bonded.
-                var defend = state.HasKeyword(source, Keyword.Defender) ? cost with { Flavor = ApFlavor.Plain } : cost;
-                cost = defend with { Ap = defend.Ap * (bondedRoot ? 2 : 1) };
+                // D134: `2~AP` while connected; D116 Defender keyword: `1AP: Defend` instead of `1~AP`.
+                if (bondedRoot)
+                    cost = cost with { Ap = DefaultAbilities.ConnectedDefendAp };
+                if (state.HasKeyword(source, Keyword.Defender))
+                    cost = cost with { Flavor = ApFlavor.Plain };
                 break;
         }
-        // D129: static abilities on the ability's subtypes, added after the doubling for bonded roots.
+        // D129/D134: static abilities on the ability's subtypes, added on top.
         var surcharge = StaticAp(state, state.TerrainOf(state.PositionOf(source)), StaticScope.OnThis, ability)
             + targets.SelectMany(list => list).Sum(c => TargetSurcharge(state, ability, c, viewer, trueState: false));
         return cost with { Ap = cost.Ap + surcharge };

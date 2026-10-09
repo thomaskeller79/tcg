@@ -6,6 +6,16 @@
 
 ---
 
+### D134 — A connected Champion's or Companion's Move, Attack and Defend costs are values of their own; modifiers add on top
+
+Raised by the rules-sync guess on Sucking Mire (`architecture/implementation-plan.md` G9): does a connected Champion entering its own Mire pay `(1+1)×2` or `2+1`? Before: the docs described the connected costs as the generic defaults "doubled while bonded" (D49, D116, D117), and the build multiplied the ability's cost by 2.
+
+**Adopted (user):** a connected Champion or Companion pays `2AP` to Move, `2~AP` to Defend and `6~AP` to Attack — printed values, not a doubling rule; disconnected it pays the generic `1AP`, `1~AP`, `3~AP`. A cost modifier adds on top of whichever value applies, the same way as for any ability: entering its own Mire costs `2AP + 1`. "Twice the generic default" stays in the docs as the reason for the values. **Why (user):** a modifier must not be multiplied by a context rule; and if the base values change, the connected values may need adjusting too, so they are stated, not derived.
+
+→ `champions.md`, `companions.md`, `economy.md`, `glossary.md`, `interaction-stack.md` §Combat integration, `overview.md`.
+
+---
+
 ### D133 — No negative rules: whoever has an ability may use it; "a Structure never fights" removed
 
 Reopens rules-sync guess G6 (confirmed earlier the same day as "Structures never defend, D107"). Before: D107 said "a Structure never fights" — the user's answer then was "a plain no".

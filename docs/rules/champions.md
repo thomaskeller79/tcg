@@ -2,7 +2,7 @@
 
 *Each player is embodied on the board by a single Champion: an avatar that summons creatures, casts spells, and channels magic — and that **evolves between games** along branching paths. Provisional term "Champion" (candidates: Channeler, Champion; not "Commander").*
 
-**Decisions:** D2, D9, D48, D49, D76, D77, D103, D114, D116, D117 (`history/decisions.md`)
+**Decisions:** D2, D9, D48, D49, D76, D77, D103, D114, D116, D117, D134 (`history/decisions.md`)
 
 ---
 
@@ -45,11 +45,13 @@ The Champion runs the **same two-resource shape as a creature** — there is no 
 |---|---|---|
 | **Draw a card** | `5*AP` | *Replaces* the automatic per-turn draw entirely — no longer a free simultaneous Beginning-phase step. Skippable, but powerful enough that skipping should be rare. |
 | **Bond a terrain** | `2*AP` | The D8 "up to once per turn" bonding limit, expressed via the `*` once-per-turn cost flavor (below) instead of a dedicated Channel. |
-| **Move** | `2AP`, only onto a hex that is itself part of the bonded network, while a network exists · `1AP`, unrestricted, once disconnected | A hard lock confined to the Champion's own territory, not a cost differential — see the realm constraint below. |
+| **Move** | `2AP`, only onto a hex that is itself part of the bonded network, while a network exists · `1AP`, unrestricted, once disconnected | A hard lock confined to the Champion's own territory, not a cost differential — see the realm constraint below. `2AP` is set at twice the generic `1AP` Move (D134). |
 | **Collapse Network** | `0AP` | Drops every current bond outright (not a pause — they're gone, re-bond from scratch). The escape valve for the Move lock above. |
-| **Attack** | `6~AP` network-active · `3~AP` if disconnected | The generic Actor default (D49, D116): `3~AP` base, doubled while bonded. Still expensive relative to the 7 AP baseline — keeps "fighting is the rare, costly line." Like a Creature's default attack, a Champion that attacks can't act again this turn; leftover AP stays for defending. |
-| **Defend** (retaliate) | `2~AP` network-active · `1~AP` if disconnected | The generic default (D116, D117), doubled while bonded like Move and Attack — it defends through the exact same mechanism as any creature: once per opponent turn while it has AP. A Champion that spent all its AP in its own turn can't defend until its next refresh. |
+| **Attack** | `6~AP` network-active · `3~AP` if disconnected | Disconnected, the generic Actor default (D49, D116); the connected `6~AP` is set at twice it (D134). Still expensive relative to the 7 AP baseline — keeps "fighting is the rare, costly line." Like a Creature's default attack, a Champion that attacks can't act again this turn; leftover AP stays for defending. |
+| **Defend** (retaliate) | `2~AP` network-active · `1~AP` if disconnected | Disconnected, the generic default (D116, D117); the connected `2~AP` is set at twice it, like Move and Attack (D134) — it defends through the exact same mechanism as any creature: once per opponent turn while it has AP. A Champion that spent all its AP in its own turn can't defend until its next refresh. |
 | **Champion abilities** | typically `2–5AP` | On top of the above; may still carry an additional mana cost. |
+
+**Connected and disconnected costs are two printed values (D134).** The connected Move, Attack and Defend costs are values of their own, set at twice the generic defaults; if the generic defaults change, revisit them. A cost modifier (e.g. Sucking Mire's "Move abilities that target this terrain cost 1 more AP") adds on top of whichever value applies.
 
 **The `*` cost notation.** `x*AP` = spend exactly `x`, but this specific action may be used **at most once per own-turn cycle**, regardless of leftover or later-refilled AP — distinct from `x!AP` ("drain all remaining AP") and `x~AP` ("no more abilities this turn"), see `economy.md`. `!` was rejected for Draw/Bond because it drains the *whole* pool, which would make it impossible to draw *and* bond in the same turn — a combo this design wants to keep open.
 

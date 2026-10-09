@@ -44,7 +44,7 @@ public class MovementTests
     }
 
     [Fact]
-    public void A_connected_Champion_entering_its_own_Mire_pays_double_then_1_more()
+    public void A_connected_Champion_entering_its_own_Mire_pays_its_connected_Move_cost_plus_1()
     {
         var g = Load("""
             neutral fixed 0,1=terrain.mire

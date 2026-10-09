@@ -2,7 +2,7 @@
 
 *Players can act on the opponent's turn (MTG-style instants). One primitive covers instants, combat tricks, and traps: a **Speed** tag per card/ability, checked live against what's sitting in **Pending**, the Aether's next-to-resolve zone.*
 
-**Decisions:** D6, D16, D35, D38, D45, D46, D68, D70, D75, D83, D85, D91, D92, D94, D95, D100, D115, D116, D117, D118, D123, D124, D127, D128, D130, D132, D133 (`history/decisions.md`)
+**Decisions:** D6, D16, D35, D38, D45, D46, D68, D70, D75, D83, D85, D91, D92, D94, D95, D100, D115, D116, D117, D118, D123, D124, D127, D128, D130, D132, D133, D134 (`history/decisions.md`)
 
 ---
 
@@ -43,7 +43,7 @@ These are the two fundamental ability shapes, and neither is tied to card Type �
 ## Combat integration (D117)
 An Attack is a **Physical Trace** (D45): it enters Pending exactly like any other trace, so it just sits there, respondable, until `Now` reaches it.
 
-**Defend is an ordinary activated ability of Quick speed:** "Defend target attack" (`1~AP`; doubled while network-bonded for a Champion or Companion, D116). A permanent of the attacked entity that has Defend, in the attacked Slice (D115) — one whose own attack reach covers the attacker's distance (D127) — plays it in response to the Attack trace; it leaves its own Physical Trace on top. When that trace resolves, it **adds its creature to the Attack trace as a defender** — an ordinary change to the trace's state. Not defending is just passing.
+**Defend is an ordinary activated ability of Quick speed:** "Defend target attack" (`1~AP`; `2~AP` for a Champion or Companion while network-bonded, D116, D134). A permanent of the attacked entity that has Defend, in the attacked Slice (D115) — one whose own attack reach covers the attacker's distance (D127) — plays it in response to the Attack trace; it leaves its own Physical Trace on top. When that trace resolves, it **adds its creature to the Attack trace as a defender** — an ordinary change to the trace's state. Not defending is just passing.
 
 **Defending bit by bit.** Defenders are not declared once: each Defend is its own response, so defenders accumulate one at a time, interleaved with tricks from both sides. The attacked entity can defend with one creature, see the attacker's trick (a pump, removal on the defender), and then add another defender; the attacker can answer each Defend with another trick, as its Speed allows. The exchange ends when everyone passes in a row and the Attack resolves. Consequences, accepted on purpose: a valuable creature never has to commit until it's needed; the defender can always answer last with another body while it has eligible creatures with AP, which weakens the attacker's tricks and removal aimed at defenders; together with gang-up (D13) this tilts combat toward the defender, braked by each Defend's AP cost and lock. A playtest point (`history/playtest-variants.md`).
 

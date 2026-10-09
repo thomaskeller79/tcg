@@ -94,4 +94,5 @@ abilities on that subtype reach it (D129).
 
 The one shape built so far (D129): abilities with `subtype` cost `ap` more AP. `scope`: `OnThis` —
 abilities of permanents standing on this terrain (leaving it); `TargetingThis` — abilities that
-target this permanent or terrain (entering it). Added after a bonded root's doubling.
+target this permanent or terrain (entering it). Added on top of a connected Champion's or Companion's
+own Move, Attack and Defend costs (D134).

@@ -2,12 +2,18 @@ namespace Leyline.RulesCore.Model;
 
 /// <summary>
 /// The default abilities written on every card of a type (D10, D106, glossary "Default ability").
-/// Costs here are the printed baseline; context-dependent prices — a bonded Champion or Companion
-/// doubling Move/Attack/Defend (D9, D49, D117), the Defender keyword (D116), static abilities on
-/// subtypes (D129) — are applied by the cost query (Rules.Costs), not baked in here.
+/// Costs here are the printed baseline; context-dependent prices — a connected Champion's or
+/// Companion's own Move/Attack/Defend costs (D134), the Defender keyword (D116), static abilities
+/// on subtypes (D129) — are applied by the cost query (Rules.Costs), not baked in here.
 /// </summary>
 public static class DefaultAbilities
 {
+    /// <summary>D134: a Champion's or Companion's Move, Attack and Defend AP while connected —
+    /// double the generic defaults, but stated values of their own.</summary>
+    public const int ConnectedMoveAp = 2;
+    public const int ConnectedAttackAp = 6;
+    public const int ConnectedDefendAp = 2;
+
     public const string Move = "move";
     public const string Attack = "attack";
     public const string Defend = "defend";

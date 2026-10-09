@@ -2,7 +2,7 @@
 
 *A Champion's signature "friend": a card that sits mechanically **between Creature and Champion**. Introduces the game's channeling hierarchy explicitly: **Creature spends mana it can't draw; Companion draws mana it can't share; Champion draws and shares.***
 
-**Decisions:** D22, D26, D49, D54–D55, D107, D116, D117, D126 (`history/decisions.md`)
+**Decisions:** D22, D26, D49, D54–D55, D107, D116, D117, D126, D134 (`history/decisions.md`)
 
 ---
 
@@ -41,12 +41,14 @@ No new resource. Mana + AP are the only two things that keep the world ticking �
 
 | Action | Cost | Notes |
 |---|---|---|
-| **Move** | `1AP` while disconnected · `2AP` while connected | Exactly the Champion's rule (D9, D126). **Connected** = the terrain it stands on is bonded by itself, knotted or not (D122) — nothing else is checked. While connected it may only move onto terrain it bonded itself (the realm lock). |
+| **Move** | `1AP` while disconnected · `2AP` while connected | Exactly the Champion's rule (D9, D126); `2AP` is set at twice the generic `1AP` (D134). **Connected** = the terrain it stands on is bonded by itself, knotted or not (D122) — nothing else is checked. While connected it may only move onto terrain it bonded itself (the realm lock). |
 | **Collapse Network** | `0AP` | Exactly the Champion's ability (D126): drops every bond of this Companion outright, so it is disconnected. |
-| **Attack** | `3~AP` while disconnected · `6~AP` while connected | The generic Actor default (D49, D116): `3~AP` base, doubled while bonded. No more abilities this turn (`~`) in both cases, same as the Champion's own Attack and a Creature's default. |
-| **Defend** | `1~AP` while disconnected · `2~AP` while connected | The generic default (D116, D117), doubled while bonded like Move and Attack. Once per opponent turn while it has AP. |
+| **Attack** | `3~AP` while disconnected · `6~AP` while connected | Disconnected, the generic Actor default (D49, D116); the connected `6~AP` is set at twice it (D134). No more abilities this turn (`~`) in both cases, same as the Champion's own Attack and a Creature's default. |
+| **Defend** | `1~AP` while disconnected · `2~AP` while connected | Disconnected, the generic default (D116, D117); the connected `2~AP` is set at twice it, like Move and Attack (D134). Once per opponent turn while it has AP. |
 | **Bond** | `3*AP` *(tuning example)* | Once/turn (the `*` flavor, D9 / `economy.md`); priced high against a small total AP pool so it crowds out most of the rest of the turn. |
 | **Its own printed abilities** | card-specific `mana + AP` | Typically pricier than an equivalent Champion ability — a Companion is a narrower, less efficient channeler, not a second Champion. |
+
+Connected and disconnected costs are two printed values, as for the Champion (D134): a cost modifier adds on top of whichever applies.
 
 Example total AP: **4–5** *(tuning)*, vs. the Champion's 7 — so `Bond` alone already eats 60–75% of a turn, matching "if the pool is extended, it won't be able to do much else." All numbers here are illustrative, not locked; exact totals are a tuning pass alongside the rest of AP costs.
 
