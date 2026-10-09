@@ -2,7 +2,7 @@
 
 *The internal structure every card's and ability's rules text is written in. Card text shown to players may use shorter wording ("you may," "kicker," "choose one or more"); every such wording must translate into this form. Kept deliberately compact, so that a card validator or an AI can read and check it.*
 
-**Decisions:** D83, D91, D92, D94, D95, D96, D104, D108 (`history/decisions.md`)
+**Decisions:** D83, D91, D92, D94, D95, D96, D104, D108, D130 (`history/decisions.md`)
 
 ---
 
@@ -31,7 +31,7 @@ Until the game runs end to end, only cards of this restricted shape are legal (D
 - **Abilities** of a permanent (static, triggered, activated) follow the same shape, and function only on the Island (an activated one through its Trace). Abilities that function from Hand, Library or Discard are not in scope, with one exception: **card statics restricting the card's own location target** (D110) — the Slice filter (D32, e.g. Flying: enters in Sky) and restrictions such as "can only target a terrain holding a Remnant you control."
 - **Cost** is a fixed list — a CNF with one option per clause: no `X`, no branches, no cast condition.
 
-The procedure stays the full one (pay → choose → target, `interaction-stack.md`), with Choose empty. The rest of this doc describes the full form; parts outside the scope stay decided, and their open questions are `PLAN.md` Track D.
+The procedure stays the full one (amounts → choose → target → pay, D130, `interaction-stack.md`), with Amounts empty and Choose holding only how the cost is paid. The rest of this doc describes the full form; parts outside the scope stay decided, and their open questions are `PLAN.md` Track D.
 
 ## One primitive: choose
 
