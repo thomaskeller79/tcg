@@ -17,9 +17,10 @@ rules text is a list of targets plus a sequence of instructions.
 | `attack`, `life`, `ap` | Actors | Printed max stats. A Structure has no Attack. |
 | `keywords` | permanents | `Flying`, `Subterranean`, `Knotting`, `Defender`, `Haste`, `Haste 2`, `Ranged 1-2` (distances 1 to 2, D127). |
 | `abilities` | permanents | Printed activated and triggered abilities, below. |
+| `statics` | permanents, Terrain | Printed static abilities, below. |
 | `removedDefaults` | permanents | Default abilities this card lacks, e.g. `["equip"]`. |
 | `targets`, `instructions`, `duration` | Spell | Rules text; Duration defaults to 5 (D50). |
-| `produces`, `moveCost` | Terrain | Mana per draw, one entry per mana: an Element (`"Fire"`), Elements joined by `/` for mana spendable as any of them (`"Fire/Metal"`), or `"Colorless"` (D125); move cost, default 1. |
+| `produces` | Terrain | Mana per draw, one entry per mana: an Element (`"Fire"`), Elements joined by `/` for mana spendable as any of them (`"Fire/Metal"`), or `"Colorless"` (D125). |
 | `carrierAttack`, `carrierLife` | Item | Static bonus to the carrier. |
 | `entersSlice` | permanents | Overrides the Slice filter (default: Flying → Sky, else Ground; a Structure takes the Ground or Root slot). |
 | `bondAp` | Companion | Its Bond cost, default 3 (`3*AP`). |
@@ -27,7 +28,7 @@ rules text is a list of targets plus a sequence of instructions.
 
 Default abilities (Move, Attack, Defend, Equip, Un-equip, Ascend/Descend for Subterranean, Bond and
 Collapse Network for the Champion and Companions, Draw for the Champion) are added by type and need
-no entry.
+no entry. Each has the subtype of its own name (D129).
 
 ## Cost syntax
 
@@ -82,4 +83,15 @@ kept in the trace and rechecked at resolution (D83).
 
 `trigger`: `EntersIsland`, `Falls`, `BeginningOfYourTurn`, `EndOfYourTurn` — the permanent's own
 events. Triggered abilities take no targets yet. `physical: true` makes the trace physical
-(Duration 0, D45).
+(Duration 0, D45). `subtypes` names the ability's kind of action (`Move`, `Attack`…), so static
+abilities on that subtype reach it (D129).
+
+## Static abilities
+
+```json
+{ "subtype": "Move", "scope": "TargetingThis", "ap": 1 }
+```
+
+The one shape built so far (D129): abilities with `subtype` cost `ap` more AP. `scope`: `OnThis` —
+abilities of permanents standing on this terrain (leaving it); `TargetingThis` — abilities that
+target this permanent or terrain (entering it). Added after a bonded root's doubling.

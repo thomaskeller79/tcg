@@ -29,13 +29,13 @@ public static class ViewProjector
             var def = state.Def(t);
             var bonder = Network.BonderOf(state, t);
             return new HexView(
-                hex, t.Id.Value, def.Id, def.Name, t.TerrainType, def.Produces.Select(u => u.ToString()).ToList(), def.IsVoid, def.MoveCost,
+                hex, t.Id.Value, def.Id, def.Name, t.TerrainType, def.Produces.Select(u => u.ToString()).ToList(), def.IsVoid, def.Text,
                 bonder?.Id.Value,
                 bonder is null ? null : ControllerName(state.Controller(bonder)),
                 Network.IsFlowing(state, t),
                 Network.IsPaused(state, t),
                 t.Drawn,
-                def.Abilities.Count > 0,
+                def.Abilities.Count > 0 || def.Statics.Count > 0,
                 homeOf.GetValueOrDefault(hex));
         }).ToList();
 

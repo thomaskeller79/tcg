@@ -61,12 +61,12 @@ public static class CardJson
             Ap = d.Ap,
             Keywords = (d.Keywords ?? []).Select(ParseKeyword).ToList(),
             Abilities = (d.Abilities ?? []).Select(ToAbility).ToList(),
+            Statics = (d.Statics ?? []).Select(ToStatic).ToList(),
             RemovedDefaults = d.RemovedDefaults ?? [],
             Targets = (d.Targets ?? []).Select(ToTarget).ToList(),
             Instructions = (d.Instructions ?? []).Select(ToInstruction).ToList(),
             Duration = d.Duration ?? 5,
             Produces = (d.Produces ?? []).Select(ManaUnit.Parse).ToList(),
-            MoveCost = d.MoveCost ?? 1,
             IsVoid = d.IsVoid,
             CarrierAttack = d.CarrierAttack,
             CarrierLife = d.CarrierLife,
@@ -80,6 +80,7 @@ public static class CardJson
     {
         Id = a.Id ?? throw new InvalidDataException("An ability needs an id."),
         Name = a.Name ?? a.Id,
+        Subtypes = a.Subtypes ?? [],
         Trigger = a.Trigger,
         Cost = ParseCost(a.Cost),
         Speed = a.Speed ?? (a.Trigger is null ? Speed.Slow : Speed.Reactive), // D128: triggers default to Reactive
@@ -89,6 +90,9 @@ public static class CardJson
         Instructions = (a.Instructions ?? []).Select(ToInstruction).ToList(),
         Text = a.Text ?? "",
     };
+
+    private static StaticAbility ToStatic(StaticDto s) =>
+        new(s.Subtype ?? throw new InvalidDataException("A static ability needs a subtype."), s.Scope, s.Ap);
 
     private static TargetSpec ToTarget(TargetDto t) =>
         new(t.Name ?? "T1", t.Kind, t.Control, t.WithinOfSource, t.RelativeTo, t.WithinOfTarget, t.Min ?? 1, t.Max ?? 1);
@@ -187,12 +191,12 @@ public static class CardJson
         public int Ap { get; set; }
         public List<string>? Keywords { get; set; }
         public List<AbilityDto>? Abilities { get; set; }
+        public List<StaticDto>? Statics { get; set; }
         public List<string>? RemovedDefaults { get; set; }
         public List<TargetDto>? Targets { get; set; }
         public List<InstructionDto>? Instructions { get; set; }
         public int? Duration { get; set; }
         public List<string>? Produces { get; set; }
-        public int? MoveCost { get; set; }
         public bool IsVoid { get; set; }
         public int CarrierAttack { get; set; }
         public int CarrierLife { get; set; }
@@ -205,6 +209,7 @@ public static class CardJson
     {
         public string? Id { get; set; }
         public string? Name { get; set; }
+        public List<string>? Subtypes { get; set; }
         public TriggerEvent? Trigger { get; set; }
         public string? Cost { get; set; }
         public Speed? Speed { get; set; }
@@ -213,6 +218,13 @@ public static class CardJson
         public List<TargetDto>? Targets { get; set; }
         public List<InstructionDto>? Instructions { get; set; }
         public string? Text { get; set; }
+    }
+
+    private sealed class StaticDto
+    {
+        public string? Subtype { get; set; }
+        public StaticScope Scope { get; set; }
+        public int Ap { get; set; }
     }
 
     private sealed class TargetDto

@@ -103,6 +103,9 @@ public sealed record AbilityDefinition
 {
     public required string Id { get; init; }
     public required string Name { get; init; }
+    /// <summary>D129: the kind of action (Move, Attack, Defend…), so effects can modify abilities
+    /// by subtype. Not inherited from the card.</summary>
+    public IReadOnlyList<string> Subtypes { get; init; } = [];
     public BuiltinAbility Builtin { get; init; }
     public TriggerEvent? Trigger { get; init; }
     public Cost Cost { get; init; } = Cost.Free;
@@ -115,6 +118,19 @@ public sealed record AbilityDefinition
 
     public bool IsTriggered => Trigger is not null;
 }
+
+/// <summary>D129: which abilities a static cost change reaches — those of permanents standing on
+/// this terrain (leaving it), or those that target this permanent or terrain (entering it).</summary>
+public enum StaticScope
+{
+    OnThis,
+    TargetingThis,
+}
+
+/// <summary>A static ability (D35, D87). The prototype builds one shape (D129): abilities with
+/// <see cref="Subtype"/> cost <see cref="Ap"/> more AP — e.g. Sucking Mire, "Move abilities that
+/// target this terrain cost 1 more AP".</summary>
+public sealed record StaticAbility(string Subtype, StaticScope Scope, int Ap);
 
 /// <summary>A static keyword (D10: range is a keyword). Value carries X for Haste X (0 = plain
 /// Haste: enters with its max); Ranged a-b carries a in Value and b in To (D127).</summary>
@@ -150,6 +166,9 @@ public sealed record CardDefinition
     /// <summary>Printed activated and triggered abilities, in printed order.</summary>
     public IReadOnlyList<AbilityDefinition> Abilities { get; init; } = [];
 
+    /// <summary>Printed static abilities (D129).</summary>
+    public IReadOnlyList<StaticAbility> Statics { get; init; } = [];
+
     /// <summary>Ids of default abilities this card doesn't have (D10: "a beast can't wield a sword").</summary>
     public IReadOnlyList<string> RemovedDefaults { get; init; } = [];
 
@@ -160,7 +179,6 @@ public sealed record CardDefinition
 
     // Terrain
     public IReadOnlyList<ManaUnit> Produces { get; init; } = [];
-    public int MoveCost { get; init; } = 1;
     public bool IsVoid { get; init; }
 
     // Item: a static bonus to its carrier (continuous-effects.md §Item).

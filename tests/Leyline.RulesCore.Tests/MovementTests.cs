@@ -13,16 +13,46 @@ namespace Leyline.RulesCore.Tests;
 public class MovementTests
 {
     [Fact]
-    public void Move_is_a_physical_trace_and_costs_the_destination_terrains_move_cost()
+    public void Move_is_a_physical_trace_and_Sucking_Mire_makes_moving_onto_it_cost_1_more()
     {
         var g = Load("place A test.grunt 0,1\nneutral fixed 1,0=terrain.mire");
         var grunt = g.P("test.grunt");
         g.Ok(g.Act(A, grunt, DefaultAbilities.Move, At(1, 0)));
         Assert.Equal(H(0, 1), grunt.Hex); // still in Pending
-        Assert.Equal(2, grunt.CurrentAp); // the Mire costs 2
+        Assert.Equal(2, grunt.CurrentAp); // 1 + the Mire's 1 (D129)
         g.ResolveAll();
         Assert.Equal(H(1, 0), grunt.Hex);
         Assert.Empty(g.State.Past);
+
+        g.Ok(g.Act(A, grunt, DefaultAbilities.Move, At(1, 1))); // leaving the Mire costs nothing extra
+        Assert.Equal(1, grunt.CurrentAp);
+    }
+
+    [Fact]
+    public void A_static_on_the_terrain_left_reaches_every_ability_with_the_Move_subtype()
+    {
+        var g = Load("""
+            neutral fixed 0,1=test.bog
+            place A test.grunt 0,1
+            place A test.leaper 0,1
+            """);
+        var grunt = g.P("test.grunt");
+        var leaper = g.P("test.leaper");
+        Assert.Equal(3, Costs.Effective(g.State, grunt, DefaultAbilities.MoveAbility, [[TargetChoice.ForLocation(H(1, 0), Slice.Ground)]]).Ap);
+        Assert.Equal(3, Costs.Effective(g.State, leaper, g.State.Abilities(leaper).Single(a => a.Id == "leap"), []).Ap);
+        Assert.Equal(3, Costs.Effective(g.State, grunt, DefaultAbilities.AttackAbility, []).Ap); // not a Move ability
+    }
+
+    [Fact]
+    public void A_connected_Champion_entering_its_own_Mire_pays_double_then_1_more()
+    {
+        var g = Load("""
+            neutral fixed 0,1=terrain.mire
+            bond A 0,1
+            """);
+        var pyra = g.Champion(A);
+        Assert.True(Network.IsRootConnected(g.State, pyra));
+        Assert.Equal(3, Costs.Effective(g.State, pyra, DefaultAbilities.MoveAbility, [[TargetChoice.ForLocation(H(0, 1), Slice.Ground)]]).Ap);
     }
 
     [Fact]

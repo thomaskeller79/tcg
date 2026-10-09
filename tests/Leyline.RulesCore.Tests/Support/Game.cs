@@ -199,5 +199,19 @@ public static class TestCards
         Abilities = [DefaultAbilities.DefendAbility],
     };
 
-    public static IEnumerable<CardDefinition> All => [Grunt, Mirror, Brute, Mole, Knotter, Digger, DawnSeer(Speed.Reactive), DawnSeer(Speed.Instant), Bastion];
+    /// <summary>D129: a terrain slowing Move abilities of permanents standing on it (leaving).</summary>
+    public static readonly CardDefinition Bog = new()
+    {
+        Id = "test.bog", Name = "Bog", Type = CardType.Terrain, Produces = [ManaUnit.Parse("Water")],
+        Statics = [new StaticAbility("Move", StaticScope.OnThis, 2)],
+    };
+
+    /// <summary>D129: a printed ability of subtype Move, which Move surcharges reach.</summary>
+    public static readonly CardDefinition Leaper = new()
+    {
+        Id = "test.leaper", Name = "Leaper", Type = CardType.Creature, Cost = new Cost([ManaPip.Generic]), Attack = 1, Life = 3, Ap = 6,
+        Abilities = [new AbilityDefinition { Id = "leap", Name = "Leap", Subtypes = ["Move"], Cost = Cost.ApOnly(1), Instructions = [new Instruction("gainAp", Target: "self", Amount: 0)] }],
+    };
+
+    public static IEnumerable<CardDefinition> All => [Grunt, Mirror, Brute, Mole, Knotter, Digger, DawnSeer(Speed.Reactive), DawnSeer(Speed.Instant), Bastion, Bog, Leaper];
 }

@@ -292,7 +292,7 @@ function renderBoard() {
 
     if (!h.isVoid) {
       const letters = h.produces.map(e => ELEMENT_LETTER[e]).join('') || '·';
-      gMarks.append(svg('text', { x, y: y - HEX * 0.08, class: 'terrain-label', 'text-anchor': 'middle' }, letters + (h.moveCost > 1 ? ` ⛰${h.moveCost}` : '')));
+      gMarks.append(svg('text', { x, y: y - HEX * 0.08, class: 'terrain-label', 'text-anchor': 'middle' }, letters));
       if (h.hasAbilities) gMarks.append(svg('text', { x: x + 12, y: y - HEX * 0.3, class: 'badge' }, '✦'));
       // Leyline node: green = drawn this cycle, red = paused and undrawn (D77).
       if (h.bondedBy != null) {
@@ -346,7 +346,8 @@ function terrainFill(h) {
 function hexTooltip(h) {
   const lines = [`(${h.coord.q},${h.coord.r}) ${h.terrainName}${h.terrainType ? ' — ' + h.terrainType : ''}`];
   if (h.isVoid) return lines[0] + '\nVoid: can\'t be entered or bonded.';
-  lines.push(`Produces: ${h.produces.join(', ') || 'nothing'} · move cost ${h.moveCost}`);
+  lines.push(`Produces: ${h.produces.join(', ') || 'nothing'}`);
+  if (h.hasAbilities && h.terrainText) lines.push(h.terrainText);
   if (h.bondedBy != null) lines.push(`Bonded by #${h.bondedBy} (Champion ${h.bondedByChampion}) — ${h.flowing ? 'flowing' : h.paused ? 'PAUSED by a knot' : 'not connected'}${h.drawn ? ', drawn this cycle' : ''}`);
   else lines.push('Unbonded');
   if (h.homeOf) lines.push(`Home ground of Champion ${h.homeOf}`);

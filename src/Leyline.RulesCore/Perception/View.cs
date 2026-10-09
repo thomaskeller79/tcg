@@ -12,7 +12,7 @@ public sealed record HexView(
     string? TerrainType,
     IReadOnlyList<string> Produces,
     bool IsVoid,
-    int MoveCost,
+    string TerrainText,
     int? BondedBy,
     string? BondedByChampion,
     bool Flowing,

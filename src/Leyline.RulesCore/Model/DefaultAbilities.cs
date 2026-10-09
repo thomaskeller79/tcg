@@ -3,8 +3,8 @@ namespace Leyline.RulesCore.Model;
 /// <summary>
 /// The default abilities written on every card of a type (D10, D106, glossary "Default ability").
 /// Costs here are the printed baseline; context-dependent prices — a bonded Champion or Companion
-/// doubling Move/Attack/Defend (D9, D49, D117), a terrain's move cost, the Defender keyword
-/// (D116) — are applied by the cost query (Rules.Costs), not baked in here.
+/// doubling Move/Attack/Defend (D9, D49, D117), the Defender keyword (D116), static abilities on
+/// subtypes (D129) — are applied by the cost query (Rules.Costs), not baked in here.
 /// </summary>
 public static class DefaultAbilities
 {
@@ -24,70 +24,70 @@ public static class DefaultAbilities
 
     public static readonly AbilityDefinition MoveAbility = new()
     {
-        Id = Move, Name = "Move", Builtin = BuiltinAbility.Move,
+        Id = Move, Subtypes = ["Move"], Name = "Move", Builtin = BuiltinAbility.Move,
         Cost = Cost.ApOnly(1), Speed = Speed.Slow, Physical = true, Duration = 0,
         Text = "Move to an adjacent terrain.",
     };
 
     public static readonly AbilityDefinition AttackAbility = new()
     {
-        Id = Attack, Name = "Attack", Builtin = BuiltinAbility.Attack,
+        Id = Attack, Subtypes = ["Attack"], Name = "Attack", Builtin = BuiltinAbility.Attack,
         Cost = Cost.ApOnly(3, ApFlavor.Done), Speed = Speed.Slow, Physical = true, Duration = 0,
         Text = "Attack a terrain, a Slice and an entity.",
     };
 
     public static readonly AbilityDefinition DefendAbility = new()
     {
-        Id = Defend, Name = "Defend", Builtin = BuiltinAbility.Defend,
+        Id = Defend, Subtypes = ["Defend"], Name = "Defend", Builtin = BuiltinAbility.Defend,
         Cost = Cost.ApOnly(1, ApFlavor.Done), Speed = Speed.Quick, Physical = true, Duration = 0,
         Text = "Defend target attack.",
     };
 
     public static readonly AbilityDefinition EquipAbility = new()
     {
-        Id = Equip, Name = "Equip", Builtin = BuiltinAbility.Equip,
+        Id = Equip, Subtypes = ["Equip"], Name = "Equip", Builtin = BuiltinAbility.Equip,
         Cost = Cost.ApOnly(2), Speed = Speed.Slow,
         Text = "Equip target Item sharing this location.",
     };
 
     public static readonly AbilityDefinition UnequipAbility = new()
     {
-        Id = Unequip, Name = "Un-equip", Builtin = BuiltinAbility.Unequip,
+        Id = Unequip, Subtypes = ["Unequip"], Name = "Un-equip", Builtin = BuiltinAbility.Unequip,
         Cost = Cost.ApOnly(0), Speed = Speed.Slow,
         Text = "Drop a carried Item.",
     };
 
     public static readonly AbilityDefinition AscendAbility = new()
     {
-        Id = Ascend, Name = "Ascend", Builtin = BuiltinAbility.Ascend,
+        Id = Ascend, Subtypes = ["Ascend"], Name = "Ascend", Builtin = BuiltinAbility.Ascend,
         Cost = Cost.ApOnly(3), Speed = Speed.Slow, Physical = true, Duration = 0,
         Text = "Root → Ground.",
     };
 
     public static readonly AbilityDefinition DescendAbility = new()
     {
-        Id = Descend, Name = "Descend", Builtin = BuiltinAbility.Descend,
+        Id = Descend, Subtypes = ["Descend"], Name = "Descend", Builtin = BuiltinAbility.Descend,
         Cost = Cost.ApOnly(3), Speed = Speed.Slow, Physical = true, Duration = 0,
         Text = "Ground → Root.",
     };
 
     public static readonly AbilityDefinition DrawAbility = new()
     {
-        Id = Draw, Name = "Draw", Builtin = BuiltinAbility.Draw,
+        Id = Draw, Subtypes = ["Draw"], Name = "Draw", Builtin = BuiltinAbility.Draw,
         Cost = Cost.ApOnly(5, ApFlavor.OncePerCycle), Speed = Speed.Slow,
         Text = "Draw a card.",
     };
 
     public static readonly AbilityDefinition CollapseAbility = new()
     {
-        Id = Collapse, Name = "Collapse Network", Builtin = BuiltinAbility.Collapse,
+        Id = Collapse, Subtypes = ["Collapse"], Name = "Collapse Network", Builtin = BuiltinAbility.Collapse,
         Cost = Cost.ApOnly(0), Speed = Speed.Slow,
         Text = "Drop every bond of this root.",
     };
 
     public static AbilityDefinition BondAbility(int ap) => new()
     {
-        Id = Bond, Name = "Bond", Builtin = BuiltinAbility.Bond,
+        Id = Bond, Subtypes = ["Bond"], Name = "Bond", Builtin = BuiltinAbility.Bond,
         Cost = Cost.ApOnly(ap, ApFlavor.OncePerCycle), Speed = Speed.Slow,
         Text = "Bond a reachable terrain.",
     };
