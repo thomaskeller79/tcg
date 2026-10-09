@@ -9,7 +9,7 @@
 ## Concept
 
 - **The channeling hierarchy (fiction → mechanics).** Mana is abundant and many things can *spend* it, but drawing it from the land is rare, and sharing what you draw is rarer still:
-  - **Creature** — can spend mana (mana-costed abilities) but cannot bond terrain. Draws on the **Champion's** pool only.
+  - **Creature** — can spend mana (mana-costed abilities). Draws on the **Champion's** pool only.
   - **Companion** — can bond terrain like a channeler, but the mana it draws stays in **its own pool**: funds its own subtree, never the Champion's.
   - **Champion** — can bond terrain **and** channel what it draws into **its own pool**, the one the whole army spends from (D8/D9).
 - **Deckbuilding-gated.** A Companion is a signature card tied to specific Champion(s) — legal only in the deck of the Champion(s) it names. Not a general card pool.

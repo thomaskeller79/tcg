@@ -48,7 +48,7 @@
 | **Markovian object creation** | *(D69.)* The rule governing every domain transition: a created object's properties are a pure function of its immediate predecessor's *current* state only — never a deeper lineage reference, in either direction. See `object-properties.md`. |
 | **Home tile** | The Champion's starting board location (usually a landmark terrain). Not a separate objective — there is **no Base** (D9). |
 | **Creature** | A card summoned onto the Board, defined by **three numbers: Attack / Life / Activation Points** (D10, D58), plus abilities/keywords. |
-| **Actor** | *(D44, D103, D106.)* {Champion, Companion, Creature, Structure} — the types that hold their own AP and act under their own power. Shared properties: activated abilities, Activation Points, Life, Behavior (`object-properties.md` §5). Only Actors and Traces can carry a Behavior (D106). |
+| **Actor** | *(D44, D103, D106.)* {Champion, Companion, Creature, Structure} — the types that hold their own AP and act under their own power. Shared properties: activated abilities, Activation Points, Life, Behavior (`object-properties.md` §5). |
 | **Object** | *(D44, D103.)* {Item, Remnant, Terrain} — everything on the Island that isn't an Actor; holds no Activation Points and needs funding/direction from something else. A label only, not a property group (D103). |
 | **Permanent** | Actor or Object — i.e. anything on the Island. Unaffected by the terminology changes above; matches `ancestry.md`'s existing usage. |
 | **Life (persistent)** | A creature's health. **Damage persists between turns — no automatic healing** (D14); healing is a special ability; 0 Life → it **falls** (D110). |

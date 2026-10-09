@@ -55,10 +55,10 @@ Made where the rules leave a gap. Each is the simplest reading that keeps a matc
 - **G3 — Quick with empty Pending.** Confirmed as D124 (`interaction-stack.md` §The primitive).
 - **G4 — Priority with empty Pending.** Confirmed as part of D123 (`interaction-stack.md` §The primitive).
 - **G5 — Beginning/End triggers.** Replaced by D128: priority runs whenever Pending is non-empty; Beginning and End end once it is empty; a trigger is Reactive unless its card says otherwise (`interaction-stack.md` §The primitive).
-- **G6 — Defend eligibility includes the Champion and Companions** (creature-type permanents); Structures never defend (D107: a Structure never fights).
+- **G6 — Defend eligibility.** Replaced by D133: whoever has a Defend ability may defend (the Champion and Companions carry it by default, `champions.md`, `companions.md`); there is no rule excluding Structures or anything else. The build still requires a creature-type defender until Track B item 15.
 - **G7 — Ranged N (item 45).** Replaced by D127: Ranged a-b, and a defender must reach its attacker.
-- **G8 — Structure as attack target.** A Ground-slot Structure counts as being in the Ground Slice (and is reachable by Sky → Ground); a Root-slot Structure is in Root.
-- **G9 — Move cost.** A Move costs the destination terrain's move cost (base 1). A Champion or Companion pays double while it stays connected — onto terrain it bonded itself, while its own tile is bonded (D9's `2AP`). A connected Champion can only move onto such terrain anyway (realm lock).
+- **G8 — Structure as attack target.** Confirmed: the rules already say it — a Structure's Slice is Ground or Root, by its slot (`object-properties.md`), and D115's Slice rule (own Slice, plus Sky → Ground) decides who reaches it.
+- **G9 — Move cost.** Replaced by D129: terrain has no move cost — the build still reads a terrain `moveCost` (base 1) until Track B item 15. A Champion or Companion pays double while it stays connected — onto terrain it bonded itself, while its own tile is bonded (D9's `2AP`). A connected Champion can only move onto such terrain anyway (realm lock).
 - **G10 — Companion movement (item 38).** Replaced by D126: a Companion has Collapse Network and the realm lock, like the Champion.
 - **G11 — Bond reachability.** A root may bond its own tile if it isn't bonded by itself; otherwise a terrain adjacent to its own tile or to any terrain it bonded that has an unknotted path to it. The target must be unbonded, or bonded by an enemy root and currently paused by a knot (theft).
 - **G12 — Summon target.** A permanent card may be cast onto a terrain the caster controls (bonded by the Champion or one of its Companions, with an unknotted path), into the Slice its Slice filter names, with room.

@@ -2,7 +2,7 @@
 
 *Champions do not share one view of the board. What each Champion perceives is itself a manipulable, card-driven property.*
 
-**Decisions:** D7, D12, D18, D41, D42, D67, D71, D102, D118 (`history/decisions.md`)
+**Decisions:** D7, D12, D18, D41, D42, D67, D71, D102, D118, D131 (`history/decisions.md`)
 
 ---
 
@@ -80,7 +80,8 @@ The hard core of pillar 6 is not *hiding* a fact but keeping a *false view inter
 - The engine **never fabricates a consistent alternate reality** (rejected: infinite regress, unbalanceable, not authorable). **Cards author *claims*;** the engine projects them and does nothing to back them up.
 - **No deduction engine.** The engine guarantees hard facts are truthful and enforces a **small, finite, documented set of conservation laws** (e.g. *sum of claimed mana costs this turn ≤ public network max* → auto-collapse over-claims; card-count / library-size conservation). **All other deduction is the human's** — the UI surfaces hard facts; players see through bluffs themselves. The mind-game lives in the player, not the CPU.
 - **A lie is cheap until reality tests it.** A mimicked stat holds until combat makes true and fake outcomes diverge (deals unexpected damage, or falls when the fake said it survives); a mimicked cost holds until conservation can't reconcile it. Even pure hiding leaks through **counts** (know they have 5 units, see 4 → one is submerged).
-- **Collapse → full truth (default).** When a claim breaks, the observer learns the *entire* truth, including which of a masked pool it really was (shown as 2/1 masking A-or-B → reveal which). A per-card partial-reveal is possible later but not the default.
+- **Every hidden-information ability states its own collapse (D131).** A concealment, a Mimic face or any other ability that creates hidden or false information states on its card when it collapses and what part of it collapses. What is revealed need not be the full truth, but it must fit what the observer saw — the game must never make a player remember that a creature shown as 2 power really dealt 4.
+- **Collapse → full truth (fallback).** For a broken claim its card doesn't cover, the observer learns the *entire* truth, including which of a masked pool it really was (shown as 2/1 masking A-or-B → reveal which).
 - **Reveal (keyword, D102)** forces the same collapse on purpose: it sets one player's belief about an object equal to its true state, lifting any Mimic face. It is a one-time event, not a lasting state — an object that becomes hidden again afterwards is not tracked.
 
 ## Resource observability — the hard/soft border (D18)

@@ -6,6 +6,87 @@
 
 ---
 
+### D133 — No negative rules: whoever has an ability may use it; "a Structure never fights" removed
+
+Reopens rules-sync guess G6 (confirmed earlier the same day as "Structures never defend, D107"). Before: D107 said "a Structure never fights" — the user's answer then was "a plain no".
+
+**Adopted (user):** the rules describe what things *can* do — a positive list of default abilities per type — never what they can't. Whoever has a Defend ability may defend, if the ability's own conditions allow it; whoever has Attack may attack. A Structure has no Attack or Defend by default, but a card may grant them (a cannon tower that defends, a ghost rising from a Remnant). "A Structure never fights" is deleted, not reworded. **Removed with the same reasoning (user):** "only Actors and Traces can carry a Behavior" (the property lists already say it) and "a Companion's parent is a Champion or none, never another Companion" (nothing needs it — the Payment and Controller walks work at any depth; a created Companion's parent is its payer like a creature's). Also removed: "a Creature cannot bond terrain", "an Item is never a combat participant / never holds AP" and "a Creature's or Trace's parent is never another creature" — the positive definitions (default abilities; parent = the Champion or Companion that pays) already carry them. **Kept:** a Champion never becomes Neutral (it is its player's side); an Item's abilities work only while it's equipped (what an Item is). **Damage goes only to permanents with Life (user):** an undefended attacker splits its damage among the attacked entity's permanents that have Life in the attacked Slice, and an attack is legal only if one is visible there — only a terrain and Slice are attacked, so "a Remnant can't be attacked" is not a rule; a Remnant simply has no Life. **Why:** like Draw and Bond, combat is just abilities; a negative rule is words that add nothing beyond the positive list of defaults, and it blocks cards that would want the capability. **The one deliberate exception is Terrain**, which has no activated abilities and no AP (D87) — D87's reason (terrain can't be attacked or destroyed, so its engine could only be answered by position) plus the user's: players shouldn't have to watch every terrain for something it might activate. Terrain's other special rules were reviewed and kept (user): it never occupies a Mind zone, can never be bounced or destroyed, there is exactly one per hex, and its Terrain Type is flavor only.
+
+→ `object-properties.md` §5, `interaction-stack.md` §Combat integration.
+
+---
+
+### D132 — A hidden occupant never blocks entry; D68's redirect loop is removed
+
+Raised by D130 (deal with hidden information at resolution, where the owner can respond). Before: entry into a Slice needs every occupant to share the mover's controller and room under the 3-slot cap (D86, D119), checked against the mover's view at declaration; if a hidden occupant made the destination illegal against true state, D68's redirect loop ran at casting — cost committed, pick another destination or cancel.
+
+**Adopted (user):**
+- **Controller uniformity is checked only against the acting Champion's view, at declaration.** A hidden occupant of another controller never blocks entry: the mover enters and the Slice becomes **mixed**, as after a control change (D86). A visible enemy still blocks.
+- **At resolution only the capacity is checked**, against true state: a Slice that is truly full makes the instruction fizzle, its cost spent. An enemy that becomes visible or enters in response doesn't stop the move — both end up sharing the Slice; only filling the Slice to capacity blocks it.
+- **D68's redirect loop is gone**, and with it the one exception to "abort rolls the whole transaction back" (D94): nothing at casting is checked against true state any more.
+
+**Why (user):** a hidden creature is already strong; it should not also make every move into its hex fizzle and be treated as invincible. Hiding should reward staying off the routes others travel — and under D118's recommended default, entering usually breaks the concealment, so a hidden creature sitting on a route gets exposed. Mixed Slices didn't exist when D68 was decided; now they do, so reuse them.
+
+**Consequences:** mixed Slices become common, not rare — `PLAN.md` Track A item 46 (enemies sharing a Slice) gains weight. Responding to a move by occupying its destination ("block the path") only works by filling the Slice.
+
+**Considered and rejected:** the move fizzles at resolution when its destination is illegal for any reason, hidden enemy included (Claude's first proposal) — makes hidden creatures roadblocks; checking uniformity again at resolution — revealing a hidden creature in response would become a free way to block.
+
+→ `overview.md` §2, `ancestry.md` §Control changes and occupancy, `interaction-stack.md`, `structures-items.md`.
+
+---
+
+### D131 — Every hidden-information ability states when and how far it collapses
+
+Raised while settling D130's top-up (it tells the caster their view was wrong). Before: a soft claim collapsed to the full truth when a hard fact tested it, detected by the engine (D18); only concealment effects had to state their own breaking (D118).
+
+**Adopted (user):** a design rule for card text. Every ability that creates hidden or false information (a concealment, a Mimic face…) states when it collapses and what part of it collapses. What is revealed need not be the full truth, but it must fit what the observer saw. **Why:** the game must not become one of memorizing — a creature shown as 2 power that dealt 4 damage must not keep showing 2 power. The engine can't work out in general what an observation forces to be revealed (too many cases), so card text says it. D18's collapse to the full truth stays as the fallback for anything a card doesn't cover.
+
+**Considered:** the engine deciding what must be revealed — too hard. A fixed base rule that being targeted or fighting reveals a permanent's true identity — a sensible default for many cards, but not right for all (a Mimic copying a creature with the same combat stats needn't collapse in combat).
+
+→ `asymmetric-information.md` §The consistency problem & belief model.
+
+---
+
+### D130 — Casting order: amounts, choices, targets, then pay; a cost may depend on targets and is topped up at resolution
+
+Closes the question raised by G9 (Sucking Mire: "moving onto it costs 2 AP"). Before: D70's order pay → choose → target, so a cost could not depend on a target — yet the rules already had two such costs (a terrain's bond surcharge, an Item's equip surcharge).
+
+**Adopted (user):**
+- **Order:** Legality → **Amounts** (every `X`) → **Choose** (modes, other choices, and every choice of which resources pay, e.g. which creature to fell) → **Target** → **Pay** → Enter Pending. Every choice comes before paying; **paying itself makes no choices.** So a target may depend on a payment choice ("destroy target creature sharing a type with the felled creature").
+- **A cost may depend on targets.** It is computed against the **caster's view** and paid in full at casting.
+- **A surcharge another card adds** (e.g. a creature's "targeting this costs a discard") is only known after targets, so its choices are made when it is paid — at casting or at a top-up. Harmless: nothing on the casting card can read them. Restricting such surcharges to amounts (mana, AP, life) would remove the choice — parked as `PLAN.md` possible simplification S3.
+- **Top-up at resolution.** If the true cost of a target is higher than what was paid, the caster **may** pay the difference at the start of resolution, **per target**; a target not topped up becomes illegal for this trace. A lower true cost is not refunded (paid cost is never refunded). Optional, so an illegal target doesn't tell the opponent whether the caster couldn't or wouldn't pay — the mana balance is hidden.
+- **Collapse.** A top-up demand is a hard fact against the caster's view, so it collapses as D131 says.
+- **Remand.** A trace's cost is exactly what was paid at casting (`object-properties.md`), surcharges included; a top-up never changes it, and Remand always comes before resolution. A recast therefore pays the old surcharge again inside the locked cost, plus whatever the new target adds — accepted as simple (user), Remand being a niche case.
+
+**Why:** target-dependent costs ("targeting this costs 1 more") can't always be rewritten as something else. Deferring the hidden part to resolution keeps hidden information protected by the response system: the owner can counter, Remand or move the target before anything is revealed, and targeting a suspected Mimic is no free scouting. Triggers already pay at resolution (D35), so the mechanism exists. A player who expects a possible surcharge plays around it by keeping mana open.
+
+**Considered and rejected:**
+- **Only amounts come before targets; other payment choices stay at payment.** A target can depend on which creature was felled, not only on a number; and "all choices first" needs no test of which choice is referenced later.
+- **No target-dependent costs at all** (a cost may depend only on the card or ability and its source; D70 unchanged). Clean, but a steep sacrifice — "targeting this costs 1 more" has no general equivalent.
+- **Compute the true cost at casting** (top-up before entering Pending, like D68's redirect). Simpler, but the hidden information is lifted at casting and the owner can do nothing against it.
+- **A cost reads only the caster's view, never topped up.** Then a disguised Mire wouldn't slow anyone down — hidden information silently cancels the ability.
+
+→ `interaction-stack.md` §Casting and activating, §Resolution; `object-properties.md` §4.
+
+---
+
+### D129 — Terrain has no move cost; abilities have subtypes
+
+Closes rules-sync guess G9's open part (Track B item 7). Before: Terrain had a move-cost property (base 1, changed by static abilities); the build and Sucking Mire (`"moveCost": 2`) used it.
+
+**Adopted (user):**
+- **No move-cost property on Terrain.** Move is an ability like any other — every creature-type permanent just has it by default. A terrain that changes movement does it with a static ability on Move abilities, which D87 already allows: "Move abilities of permanents on this terrain cost 1 more AP" (leaving), or "Move abilities that target this terrain cost 1 more AP" (entering, a target-dependent cost, D130).
+- **Abilities have subtypes**, the same mechanism as card subtypes (D99). The defaults carry theirs (Move, Attack, Defend…), so a card can modify abilities by subtype, and a creature's own "Leap" with subtype Move pays a Move surcharge too. An ability's subtype describes its kind of action; a card's subtypes (race, class) are **not** inherited — "an ability of a Goblin" is a query on its `source`.
+
+**Considered:** inheriting the card's subtypes onto its abilities (so a bounced ability, Track D item 42, reads "Goblin") — dropped: `source` already answers it, and it would mix two axes. Deriving Physical from the subtype — parked as `PLAN.md` possible simplification S1. Dropping terrain capacity too — kept, parked as S2.
+
+**Open:** whether every card and ability must have at least one subtype, groups like "Combat", and a symbol per ability subtype on cards.
+
+→ `object-properties.md` §5.
+
+---
+
 ### D128 — Priority runs whenever Pending is non-empty; triggers default to Reactive
 
 Closes rules-sync guess G5 (`architecture/implementation-plan.md` §3). Before: the Beginning and End phases opened no priority at all, so beginning- and end-of-turn triggers resolved one after another with no response window (overview §3: "no priority this phase to start"; End "same as Beginning").
