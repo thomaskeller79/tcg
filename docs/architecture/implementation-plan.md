@@ -1,6 +1,6 @@
 # Implementation Plan — Rules Sync (2026-10)
 
-*Brings the engine and the debug UI up to the current ruleset (`docs/rules/`, D1–D122; the guess review added D123–D127) so a full match can actually be played. Working doc for Track B (`PLAN.md` Track B item 7): what is missing, the order it gets built in, and every educated guess made where the rules leave a gap. Guesses and questions are labelled (G1, Q1, …) so they can be answered by label.*
+*Brings the engine and the debug UI up to the current ruleset (`docs/rules/`, D1–D122; the guess review added D123–D128) so a full match can actually be played. Working doc for Track B (`PLAN.md` Track B item 7): what is missing, the order it gets built in, and every educated guess made where the rules leave a gap. Guesses and questions are labelled (G1, Q1, …) so they can be answered by label.*
 
 **Branch:** `track-b-rules-sync` · **Started:** 2026-10-08
 
@@ -54,7 +54,7 @@ Made where the rules leave a gap. Each is the simplest reading that keeps a matc
 - **G2 — Priority order.** Confirmed as D123 (`interaction-stack.md` §The primitive).
 - **G3 — Quick with empty Pending.** Confirmed as D124 (`interaction-stack.md` §The primitive).
 - **G4 — Priority with empty Pending.** Confirmed as part of D123 (`interaction-stack.md` §The primitive).
-- **G5 — Beginning/End triggers** resolve without priority, like Setup's S9 (overview §3: "no priority this phase to start").
+- **G5 — Beginning/End triggers.** Replaced by D128: priority runs whenever Pending is non-empty; Beginning and End end once it is empty; a trigger is Reactive unless its card says otherwise (`interaction-stack.md` §The primitive).
 - **G6 — Defend eligibility includes the Champion and Companions** (creature-type permanents); Structures never defend (D107: a Structure never fights).
 - **G7 — Ranged N (item 45).** Replaced by D127: Ranged a-b, and a defender must reach its attacker.
 - **G8 — Structure as attack target.** A Ground-slot Structure counts as being in the Ground Slice (and is reachable by Sky → Ground); a Root-slot Structure is in Root.
@@ -96,4 +96,4 @@ Nothing had to be paused for lack of a guess. Not built in this pass because no 
 
 ## 6. Status
 
-P1–P11 are built and tested, plus the follow-ups D123–D127 from the guess review: 97 RulesCore tests (including random-play fuzzing over 8 seeds and a deterministic-replay test), 3 Host tests, 4 scenario/content tests, and a headless-browser test of the activation wizard (`tools/Leyline.DebugUi/wwwroot/uitest.html`). Run the debug UI with `tools/Leyline.DebugUi/start.ps1` and load `demo-match` at http://localhost:5299.
+P1–P11 are built and tested, plus the follow-ups D123–D128 from the guess review: 100 RulesCore tests (including random-play fuzzing over 8 seeds and a deterministic-replay test), 3 Host tests, 4 scenario/content tests, and a headless-browser test of the activation wizard (`tools/Leyline.DebugUi/wwwroot/uitest.html`). Run the debug UI with `tools/Leyline.DebugUi/start.ps1` and load `demo-match` at http://localhost:5299.

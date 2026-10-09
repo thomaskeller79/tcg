@@ -86,7 +86,7 @@ public static class ViewProjector
             Turns.SeatName(state.ActiveSeat),
             state.Phase.ToString(),
             state.PriorityHolder?.ToString(),
-            observer is { } o && state.PriorityHolder == o && state.Decision is null && state.Phase == Phase.Action && !state.IsOver,
+            observer is { } o && state.PriorityHolder == o && state.Decision is null && !state.IsOver,
             decision,
             observer is { } o2 && state.Decision?.Decider == o2,
             state.Winner?.ToString(),

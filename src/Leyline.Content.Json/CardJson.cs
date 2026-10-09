@@ -82,7 +82,7 @@ public static class CardJson
         Name = a.Name ?? a.Id,
         Trigger = a.Trigger,
         Cost = ParseCost(a.Cost),
-        Speed = a.Speed,
+        Speed = a.Speed ?? (a.Trigger is null ? Speed.Slow : Speed.Reactive), // D128: triggers default to Reactive
         Physical = a.Physical,
         Duration = a.Duration ?? (a.Physical ? 0 : 5),
         Targets = (a.Targets ?? []).Select(ToTarget).ToList(),
@@ -207,7 +207,7 @@ public static class CardJson
         public string? Name { get; set; }
         public TriggerEvent? Trigger { get; set; }
         public string? Cost { get; set; }
-        public Speed Speed { get; set; } = Speed.Slow;
+        public Speed? Speed { get; set; }
         public bool Physical { get; set; }
         public int? Duration { get; set; }
         public List<TargetDto>? Targets { get; set; }

@@ -17,7 +17,7 @@ public static class RulesEngine
         if (state.Decision is { } decision)
             return decision.Decider == actor ? DecisionCommands(state, decision) : [];
 
-        if (state.Phase != Phase.Action || state.PriorityHolder != actor)
+        if (state.PriorityHolder != actor)
             return [];
 
         var commands = new List<Command> { new PassCommand(actor) };
@@ -43,7 +43,7 @@ public static class RulesEngine
             };
         }
 
-        if (state.Phase != Phase.Action || state.PriorityHolder != command.Actor)
+        if (state.PriorityHolder != command.Actor)
             return CommandResult.Reject("You don't have priority.");
 
         switch (command)

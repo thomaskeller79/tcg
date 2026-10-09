@@ -4,12 +4,13 @@ using Leyline.RulesCore.State;
 namespace Leyline.RulesCore.Rules;
 
 /// <summary>
-/// Turn structure and priority (D21, D45, D60, D92, D114; G2, G4, G5). A round is four turns:
-/// Champion A, Neutral A, Champion B, Neutral B. Each turn: Beginning (refresh, triggers — no
-/// priority), Action, End (triggers, expiry — no priority). In the Action phase priority moves
-/// between the two Champions; `Now` advances past the top of Pending when both have passed in
-/// succession, and the phase ends when both pass with Pending empty. While an Instant is in
-/// Pending nobody gets priority and `Now` advances automatically.
+/// Turn structure and priority (D21, D45, D60, D92, D114, D123, D128). A round is four turns:
+/// Champion A, Neutral A, Champion B, Neutral B. Each turn: Beginning (refresh, triggers),
+/// Action, End (triggers, expiry). Priority moves between the two Champions whenever Pending
+/// is non-empty; `Now` advances past the top of Pending when both have passed in succession.
+/// Beginning and End end as soon as Pending is empty (D128); the Action phase ends when both
+/// pass with Pending empty. While an Instant is in Pending nobody gets priority and `Now`
+/// advances automatically.
 /// </summary>
 public static class Turns
 {
@@ -63,11 +64,7 @@ public static class Turns
         foreach (var p in permanents)
             Triggers.Fire(state, TriggerEvent.BeginningOfYourTurn, p);
         Triggers.Flush(state);
-        AutoResolve(state);
-        if (state.IsOver)
-            return;
-
-        StartActionPhase(state);
+        OpenPriority(state);
     }
 
     public static void StartActionPhase(TrueState state)
@@ -78,6 +75,29 @@ public static class Turns
         state.NeutralActionsDone = false;
         if (IsNeutralTurn(state))
             Behaviors.Step(state);
+    }
+
+    /// <summary>D128: Beginning's or End's triggers are in Pending; priority runs while Pending
+    /// is non-empty, and the phase ends once it is empty.</summary>
+    private static void OpenPriority(TrueState state)
+    {
+        if (state.IsOver)
+            return;
+        state.PriorityHolder = FirstChampion(state);
+        state.ConsecutivePasses = 0;
+        AutoAdvanceInstants(state);
+        EndBookkeepingPhaseIfDone(state);
+    }
+
+    /// <summary>D128: Beginning and End end as soon as Pending is empty.</summary>
+    private static void EndBookkeepingPhaseIfDone(TrueState state)
+    {
+        if (state.IsOver || state.Decision is not null || state.Pending.Count > 0)
+            return;
+        if (state.Phase == Phase.Beginning)
+            StartActionPhase(state);
+        else if (state.Phase == Phase.End)
+            FinishTurn(state);
     }
 
     /// <summary>A Champion with priority passes.</summary>
@@ -115,11 +135,12 @@ public static class Turns
             return;
         state.PriorityHolder = FirstChampion(state);
         state.ConsecutivePasses = 0;
-        if (IsNeutralTurn(state) && state.Pending.Count == 0)
+        if (IsNeutralTurn(state) && state.Phase == Phase.Action && state.Pending.Count == 0)
         {
             state.NeutralActionsDone = false;
             Behaviors.Step(state);
         }
+        EndBookkeepingPhaseIfDone(state);
     }
 
     /// <summary>After a trace entered Pending: its Champion gets priority first (G2).</summary>
@@ -150,7 +171,8 @@ public static class Turns
         }
     }
 
-    /// <summary>G5: outside the Action phase triggers resolve without priority.</summary>
+    /// <summary>Resolves Pending without priority: Setup's trigger step (S9, D114) and debug
+    /// placement.</summary>
     public static void AutoResolve(TrueState state)
     {
         while (!state.IsOver && state.Pending.Count > 0 && state.Decision is null)
@@ -167,10 +189,12 @@ public static class Turns
         foreach (var p in SeatPermanents(state, state.ActiveSeat))
             Triggers.Fire(state, TriggerEvent.EndOfYourTurn, p);
         Triggers.Flush(state);
-        AutoResolve(state);
-        if (state.IsOver)
-            return;
+        OpenPriority(state);
+    }
 
+    /// <summary>The End phase is over: Pending is empty (D128).</summary>
+    private static void FinishTurn(TrueState state)
+    {
         // "Until end of turn" effects end (an instruction, so its consequences apply, D112).
         state.Modifiers.RemoveAll(m => m.UntilEndOfTurn);
         foreach (var p in state.Permanents)

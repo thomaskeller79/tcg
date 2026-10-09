@@ -185,5 +185,12 @@ public static class TestCards
         Keywords = [new Keyword(Keyword.Subterranean)], EntersSlice = Slice.Root,
     };
 
-    public static IEnumerable<CardDefinition> All => [Grunt, Mirror, Brute, Mole, Knotter, Digger];
+    /// <summary>D128: a Beginning trigger at a stated Speed.</summary>
+    public static CardDefinition DawnSeer(Speed speed) => new()
+    {
+        Id = $"test.dawn-seer-{speed.ToString().ToLowerInvariant()}", Name = "Dawn Seer", Type = CardType.Creature, Cost = new Cost([ManaPip.Generic]), Attack = 1, Life = 3, Ap = 4,
+        Abilities = [new AbilityDefinition { Id = "dawn-draw", Name = "Dawn Draw", Trigger = TriggerEvent.BeginningOfYourTurn, Speed = speed, Instructions = [new Instruction("draw", Amount: 1)] }],
+    };
+
+    public static IEnumerable<CardDefinition> All => [Grunt, Mirror, Brute, Mole, Knotter, Digger, DawnSeer(Speed.Reactive), DawnSeer(Speed.Instant)];
 }

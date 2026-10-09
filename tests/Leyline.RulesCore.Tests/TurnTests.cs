@@ -23,6 +23,45 @@ public class TurnTests
     }
 
     [Fact]
+    public void A_Reactive_Beginning_trigger_opens_priority_and_the_phase_ends_once_Pending_is_empty()
+    {
+        var g = Load("""
+            place B test.dawn-seer-reactive 0,-1
+            deck B spell.mend
+            """);
+        g.Pass(A);
+        g.Pass(B);
+        while (g.State.ActiveSeat != Seat.ChampionB)
+            g.Pass(g.State.PriorityHolder!.Value);
+        // D128: the trigger is respondable, so Beginning holds priority while it is in Pending.
+        Assert.Equal(Phase.Beginning, g.State.Phase);
+        Assert.Single(g.State.Pending);
+        Assert.Equal(B, g.State.PriorityHolder);
+        g.Pass(B);
+        g.Pass(A);
+        Assert.Equal(Phase.Action, g.State.Phase);
+        Assert.Single(g.State.Player(B).Hand);
+    }
+
+    [Fact]
+    public void An_Instant_Beginning_trigger_resolves_without_priority()
+    {
+        var g = Load("""
+            place B test.dawn-seer-instant 0,-1
+            deck B spell.mend
+            """);
+        g.AdvanceTo(Seat.ChampionB);
+        Assert.Single(g.State.Player(B).Hand);
+    }
+
+    [Fact]
+    public void A_trigger_without_a_stated_Speed_is_Reactive()
+    {
+        var herald = Game.Content.Get("creature.herald");
+        Assert.Equal(Speed.Reactive, herald.Abilities.Single(a => a.IsTriggered).Speed);
+    }
+
+    [Fact]
     public void A_round_is_four_turns_and_each_Champion_refreshes_only_in_its_own_Beginning()
     {
         var g = Load();

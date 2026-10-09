@@ -6,6 +6,26 @@
 
 ---
 
+### D128 — Priority runs whenever Pending is non-empty; triggers default to Reactive
+
+Closes rules-sync guess G5 (`architecture/implementation-plan.md` §3). Before: the Beginning and End phases opened no priority at all, so beginning- and end-of-turn triggers resolved one after another with no response window (overview §3: "no priority this phase to start"; End "same as Beginning").
+
+**Adopted (user):**
+- **Priority runs whenever Pending is non-empty, in any phase** (D123's rules). Beginning and End end as soon as Pending is empty. Only the Action phase gives priority with Pending empty — that is where the active Champion acts — with its closing pass round (D123). Setup still opens no priority (D114).
+- **A triggered ability is Reactive unless its card states another Speed.** In Pending a trigger's Speed only matters as Instant or not: an Instant trigger resolves with no response window (D92), any other is respondable by Reactive and Instant cards. A card that wants a trigger to resolve unanswered says Instant.
+
+**Why:** Speed is already per ability, and the Instant row already says "nothing can respond, `Now` advances automatically" — a phase-level "no priority" rule duplicated what per-trigger Speed covers. And a turn still feels like one phase with some bookkeeping at the start and end: with no Beginning/End triggers, or only Instant ones, it really is one, and costs no extra clicks.
+
+**Considered and rejected:**
+- **P2 — the Action phase's rule in every phase** (each phase ends only when every Champion has passed in succession with Pending empty, so Quick/Reactive cards are playable in every Beginning and End). One rule with no special case, but two extra passes per Champion per turn — 12 instead of 4 per round, since neutral turns always occur (D56, D60) — and the turn no longer feels like one phase. Built and briefly adopted, then reverted before testing (simplicity first).
+- **Remove the Action phase's pass round** (would make P1 fully uniform). Already rejected in D123.
+- **Triggers default to Instant** (keeps the old no-window behavior as the default). A trigger stays respondable like every other trace unless its card says otherwise.
+- **Skip a neutral turn when no Neutral permanent exists** (as a click-saver). Breaks D56: a neutral turn's occurrence must never reveal whether a hidden Neutral permanent exists.
+
+→ `interaction-stack.md` §The primitive and §Triggered vs. activated abilities; `overview.md` §3.
+
+---
+
 ### D127 — Ranged a-b, and a defender must reach its attacker
 
 Closes item 45 and rules-sync guess G7 (`architecture/implementation-plan.md` Q6). Before: `Ranged N` attacked within distance N (0 included) and was the sole exception to universal retaliation (D19); whether it could be defended was open, and the build let anyone defend it without hitting back.
