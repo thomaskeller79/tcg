@@ -2,7 +2,7 @@
 
 *What a game object is made of — Card, Trace, and Permanent as one connected chain — and how properties move (or don't) when one creates another, including backward: Bounce and Flicker.*
 
-**Decisions:** D69, D70, D72, D73, D74, D75, D83, D88, D93, D97, D98, D99, D100, D101, D103, D105, D106, D107, D108, D109, D129, D130, D133 (`history/decisions.md`)
+**Decisions:** D69, D70, D72, D73, D74, D75, D83, D88, D93, D97, D98, D99, D100, D101, D103, D105, D106, D107, D108, D109, D129, D130, D133, D135 (`history/decisions.md`)
 
 ---
 
@@ -70,7 +70,7 @@ A backward creation event (Bounce, Flicker) reads the predecessor's current stat
 
 Once a variable value is resolved — an X-cost, an X/X/X stat line, a modal card's chosen mode (including a "choose `N` times from this menu, repeats allowed" structure, where each pick locks in independently) — it becomes a fixed, ordinary property of the object from that point on, exactly like a value that was printed from the start. This applies identically to a permanent-producing card and a Spell — a modal choice on a permanent (e.g. which of two entirely different stat/ability bundles it becomes) uses the same "choose" step (D72), not a separate mechanism. It flows forward and, per §3, backward: a creature cast for X=3 that gets bounced comes back as a flatly-costed, flatly-statted 3-mana 3/3/3 card, no longer variable. This holds because cost (even printed only as "X") and a chosen mode are properties of the object's *own* nature — the Card's schema always had a slot for them, unresolved or not.
 
-**This is also why a lock-in decision is never made per-property in isolation — it follows directly from *when* a trace comes into existence at all (D70, D130, `interaction-stack.md`).** Casting/activating is a strict amounts → choose → target → pay procedure, and a trace isn't a real, reachable object in the Aether until every step finishes — so cost and every modal choice are *always* already resolved by the time anything (Remand included) can act on a trace; only target can ever still be "live" enough to reset.
+**This is also why a lock-in decision is never made per-property in isolation — it follows directly from *when* a trace comes into existence at all (D70, D130, D135, `interaction-stack.md`).** Casting/activating is a strict commit → amounts → choose → target procedure, each step paying as it goes, and a trace isn't a real, reachable object in the Aether until every step finishes — so cost and every modal choice are *always* already resolved by the time anything (Remand included) can act on a trace; only target can ever still be "live" enough to reset.
 
 **A cost that consumes specific objects to be paid — fell X creatures you control, discard N cards, pay N life — only ever locks in the magnitude (X, N), never the identity of what was consumed.** The specific creatures felled are never tracked as a property of anything created afterward.
 
@@ -80,7 +80,7 @@ Once a variable value is resolved — an X-cost, an X/X/X stat line, a modal car
 
 ## 5. Property inventory
 
-One list per object type, built from two shared groups (D103). Each property also has a **transition rule** saying how a created object gets its value from its predecessor (D105): **copy**; **narrow** (open choices resolved, e.g. a CNF cost losing its unpaid disjuncts at Trace creation); **fresh** (a new value for every object); **convert** (target ↔ location); **drop** (no slot on the new object); **derive** (a query, nothing transferred). **Stored** properties are state; **derived** ones are queries over other state and never stored (one fact, one home, D101); **definition-only** ones live on the card definition, reached through the name, never on a game object. **Properties are never added or removed during play**, only their values change; "none" is an ordinary value (a Champion's parent, a Map-placed permanent's `source`). A type lacks a property only where giving it a value would change the rules (Terrain with Activation Points could act).
+One list per object type, built from two shared groups (D103). Each property also has a **transition rule** saying how a created object gets its value from its predecessor (D105): **copy**; **narrow** (open choices resolved, e.g. the options not chosen, with their costs, dropping out at Trace creation); **fresh** (a new value for every object); **convert** (target ↔ location); **drop** (no slot on the new object); **derive** (a query, nothing transferred). **Stored** properties are state; **derived** ones are queries over other state and never stored (one fact, one home, D101); **definition-only** ones live on the card definition, reached through the name, never on a game object. **Properties are never added or removed during play**, only their values change; "none" is an ordinary value (a Champion's parent, a Map-placed permanent's `source`). A type lacks a property only where giving it a value would change the rules (Terrain with Activation Points could act).
 
 **General rules (all types).**
 - **Name is immutable** and is the reference to the card definition; names are unique across card definitions (D99). The definition supplies printed originals and same-card identity. Every other property can be changed.
@@ -92,7 +92,7 @@ One list per object type, built from two shared groups (D103). Each property als
 - **Short-term history** ("attacked this turn") is a query over the history track, not a property (D98; `glossary.md` **History track**).
 
 **Card** (Mind), grouped like the permanents, minus what exists only on the Island (D108):
-- **Card** (all): name, subtypes, cost (CNF, D91), Speed, cast condition (D91; outside the prototype scope, D104), ID, timestamp, `source`. Derived: parent (the zone's Champion, D81), Elements.
+- **Card** (all): name, subtypes, cost (fixed cost and amounts; costs on options and targets live in the rules text, D135), Speed, cast condition (D91; outside the prototype scope, D104), ID, timestamp, `source`. Derived: parent (the zone's Champion, D81), Elements.
 - **Permanent card** = Card + static, triggered and activated abilities. **Actor card** = Permanent card + max-Activation Points, max-Life.
 - **Per type:** Item card = Permanent card; Structure card = Actor card; Creature card = Actor card + max-Attack; Companion card = Creature card (its mana pool is fresh on the Island, D107). Champion and Terrain have no Card object.
 - **Spell card** = Card + rules text (effects in the normal form, `effect-form.md`, D95; in the prototype scope, targets plus a sequence of instructions) + Duration (default 5, `Duration X`, D50), copied into its Trace. Spell properties beyond the prototype scope: `PLAN.md` Track A item 33.

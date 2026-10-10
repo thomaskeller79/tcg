@@ -2,7 +2,7 @@
 
 *The signature economy: a separate terrain deck laid out on the board, connected outward from the Champion turn by turn. Goal — keep lands powerful and thought-after (MTG's best quality) while eliminating mana/color screw *except* as a deliberate opponent strategy.*
 
-**Decisions:** D8, D11, D22, D24, D27, D28, D47, D51, D54, D57, D58, D77, D87, D88, D100, D125 (`history/decisions.md`)
+**Decisions:** D8, D11, D22, D24, D27, D28, D47, D51, D54, D57, D58, D77, D87, D88, D100, D125, D135 (`history/decisions.md`)
 
 ---
 
@@ -28,7 +28,7 @@
 - **Cost pips.** A mana cost is a list of pips of two kinds: **generic** (any mana pays it) and **colored** — a disjunction over Elements, paid by mana of any one of them. One Element is ordinary colored mana, two is hybrid, and so on.
 - **Pool mana.** A mana in a pool is **colorless** or **colored** — again a disjunction over Elements, spendable as any one of them. Colorless pays only generic pips. A terrain's card says what it produces.
 - **Domination.** One mana dominates another if it pays every pip the other pays — a colored mana dominates a mana whose Elements it includes, and every mana dominates colorless.
-- **Semi-automatic payment.** Pips are paid from the most constrained to the least: one-Element pips first, then two-Element, …, generic last. Each pip takes the mana that every other mana able to pay it dominates; when no such mana exists, the paying player chooses among the tied ones. Identical mana is never a choice. Consequences: colorless always pays generic; a one-Element pool pays everything automatically; with two Elements, the only choice is which one pays a generic pip.
+- **Semi-automatic payment.** Each casting step pays its own mana (D135, `interaction-stack.md` §Casting); within one payment, pips are paid from the most constrained to the least: one-Element pips first, then two-Element, …, generic last. Each pip takes the mana that every other mana able to pay it dominates; when no such mana exists, the paying player chooses among the tied ones. Identical mana is never a choice. Consequences: colorless always pays generic; a one-Element pool pays everything automatically; with two Elements, the only choice is which one pays a generic pip.
 
 ## Why it avoids screw
 - The Champion starts with ~6 neighbor hexes; the connectable **frontier grows for many turns**, so early color/mana screw is unlikely (though enough spatial variance that running all 8 colors is impractical — a good tension).

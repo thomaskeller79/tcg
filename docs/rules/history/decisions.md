@@ -6,6 +6,34 @@
 
 ---
 
+### D135 — Casting is choose → bind → pay, step by step; a cost sits on the step and the option it belongs to
+
+Raised by re-running the Cinder Verdict walkthrough against D130 (`PLAN.md` item 47). Before (D130): every choice came first and one Pay step paid them all; a cost was a CNF of labelled branches paid in a fixed order of four kinds, and conditions could test which branch was paid. A payment choice therefore reserved an object without using it up: the creature chosen to be felled could still be chosen as a target, two fell costs could name the same creature, a card could be discarded twice, and the card being cast, still in the Hand, could target itself.
+
+**Adopted (user):**
+- **Steps:** C0 Legality (a check only) → C1 Commit → C2 Amounts → C3 Choose → C4 Target → C5 Enter Pending. **Each of C1–C4 is choose → bind → pay:** C1 — play the card; bind the source references; pay the card and every fixed cost. C2 — every `X`; bind it; pay the amounts. C3 — the options of each effect; bind them; pay the costs on the chosen options. C4 — the targets; bind them and the references that depend on them; pay the costs that depend on targets (caster's view, D130), a surcharge's own choices made here.
+- **A payment choice is the payment.** What is paid leaves the decision state at once, so it can't be chosen, targeted or paid again.
+- **Casting is one atomic event for the game**, a sequence of decisions only for the player. The steps work on a scratch state; everything paid **arrives** at C5 — the card and discarded cards in Discard, a felled creature's Remnant, the triggers. Abort throws the scratch state away. Not an exception to D112: the whole casting is one instruction-level event.
+- **Binding comes before paying and replaces a reference by its values:** "sharing a type with the felled creature" becomes "being a Goblin or a Warrior" while the creature still exists — no last-known information needed.
+- **Costs by step, each with its scope:** C1 fixed costs — read by nothing; C2 amounts — card-wide variables; C3 a cost on an option — visible only inside that option; C4 a cost on a target — belongs to that target. The CNF, branch labels, conditions on branches and the four-kind payment order are gone. Kicker is `choose 0..1 { ({2}) … }`; "+{1}: A / +{2}: B, choose one or more" is `choose 1..2 { ({1}) A } { ({2}) B }`; an option may have no instructions. Card text may be worded differently from the form.
+- **One level of nesting, bounded by time.** An option of a choice made at casting may contain, where an instruction would stand, a **choice made at resolution** — with its own chooser and, like an instruction, an optional condition. An option of a choice made at resolution holds only instructions: one chooser at resolution, no third layer. **Why:** choices at casting are all the caster's and made at once, so nested ones flatten into one menu; flattening fails only across the casting/resolution boundary, which is exactly where nesting is allowed. It expresses Cinder Verdict's "(fell a creature you control) T1's controller chooses: they discard, or you draw" and Harrow's "if it falls this way, its controller chooses…" (`PLAN.md` item 41). The user's view: cards will rarely come close to this limit; card design will show whether they ever do.
+- **A name introduced inside an option — its cost, its selections, its outputs — is visible only inside that option.** References flow inward, never outward. A card reads strangely if it refers to an option that may not have been chosen (user).
+- **Semi-automatic mana payment (D125) works within each step.** A tie resolved in an earlier step can leave a later step unpayable; the player aborts. **Why (user):** one decision after another, each paid right away, feels more natural than one big payment at the end.
+- **An option chosen at resolution may carry a cost.** Its chooser pays it when the instruction is reached, as an ordinary instruction — no transaction, no abort; the option can be chosen only if its cost is payable then; the trace's cost doesn't change (like a top-up). It makes sense only when the choice depends on something unknown at casting ("if it fell this way, you may pay {2} to draw a card"), which needs `PLAN.md` item 41.
+- **Every choice made while casting is the caster's;** other choosers choose only at resolution. **Why:** casting is hidden from the opponent until C5 (D94); an opponent choosing during it would have to see it. MTG allows an opponent's mode choice at casting (CR 700.2e) on only three cards (Fatal Lore, Library of Lat-Nam, Misfortune), a template it no longer prints.
+- **Accepted gap (user):** a surcharge another card adds may still pick an object that is a target of the same trace (target your own throwaway creature, fell it for the surcharge). If a card makes this hurt, it shows in testing and the card is adjusted. Noted at `PLAN.md` S3.
+
+**Considered and rejected:**
+- **Mark chosen objects as reserved** (Pay stays one step): a new object state, a "can't" rule, and a second way of being used up next to actually being used up.
+- **Pay objects when chosen, add up amounts and pay them at the end:** keeps the most-constrained-first guarantee of D125, but splits the rule by kind; abort already covers a dead end.
+- **Keep labelled cost branches read by conditions:** a condition then refers to a choice that need not have been made in that place.
+
+Closes `PLAN.md` Track B item 16 (dynamic casting UI): the order is now the rules' own.
+
+→ `interaction-stack.md` §Casting and activating, §Binding, §Resolution; `effect-form.md`; `object-properties.md` §4, §5; `resources-terrain.md`; `examples/cinder-verdict.md`.
+
+---
+
 ### D134 — A connected Champion's or Companion's Move, Attack and Defend costs are values of their own; modifiers add on top
 
 Raised by the rules-sync guess on Sucking Mire (`architecture/implementation-plan.md` G9): does a connected Champion entering its own Mire pay `(1+1)×2` or `2+1`? Before: the docs described the connected costs as the generic defaults "doubled while bonded" (D49, D116, D117), and the build multiplied the ability's cost by 2.
