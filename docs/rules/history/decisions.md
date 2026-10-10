@@ -6,6 +6,30 @@
 
 ---
 
+### D136 — Every Unit has a close-quarters ability, usable only against an enemy in its own hex and Slice
+
+Closes `PLAN.md` Track A item 46. Before: a mixed Slice (D86, D132) had no rules of its own. Its enemies fought at distance 0 like any other attack and could simply move away, so the situation wasn't special at all. It arises only in special circumstances (entering a Slice with a hidden enemy, a control change, possibly more causes later).
+
+**Adopted (user):**
+- **Every Unit (Creature, Companion, Champion) carries one default close-quarters ability**, chosen per card from a small shared list. The card's class guides the choice; the ability fits the Unit's flavour. Like Move and Attack (D10), it is a default ability that a card can replace.
+- **It targets an enemy in the same hex *and* the same Slice.** Another Slice of the same hex doesn't count. Distance is unchanged: D120's Melee still reaches the same hex in any Slice.
+- **The active side gets the advantage.** Whoever uses the ability first gains from it. In the hidden-entry case that is usually the Unit that entered. Hidden creatures may carry "may enter a hex with an enemy" to start the situation on purpose.
+- **Each ability ends the situation quickly**, not a back-and-forth between two creatures. This is a design target for every entry in the list; exceptions are possible.
+- **The list is content** (`PLAN.md` Track C item 12). Starting ideas: an Attack that can't be Defended (assassins, after Dark Souls' backstab), Stun, Plunder (take its activated abilities), Pin (Hive's Beetle), Shove, Disarm, Turn (likely too strong for a default), Slip away, Devour, Spy. "Stops an entering enemy's movement" (Wesnoth's Ambush) is a keyword for some hidden creatures, not a list entry.
+
+**Why:** a default ability adds one slot to every Unit instead of a special-case rule; the variety lives in card data. It gives classes a mechanical meaning (Fire Emblem's class commands: Steal, Talk, Shove). Most hidden creatures are revealed when another creature enters (D118 per effect), so the entrant usually learns what it walked into once it is there.
+
+**Considered and rejected:**
+- **One shared ability for every Unit:** less identity per card for the same rules cost.
+- **An advantage for the hidden side by default** (Root's ambush cards): rewards hiding by default and doesn't fit the control-change case. Left to keywords (Track C item 5).
+- **Making a mixed Slice a lasting lock** (zone of control, D14): the situation should be short.
+
+**Moved to Track D:** what races mean mechanically (`PLAN.md` item 49).
+
+→ `overview.md` §2, §4; `glossary.md`; `PLAN.md` Track A item 46 (closed), Track B item 19, Track C item 12, Track D item 49.
+
+---
+
 ### D135 — Casting is choose → bind → pay, step by step; a cost sits on the step and the option it belongs to
 
 Raised by re-running the Cinder Verdict walkthrough against D130 (`PLAN.md` item 47). Before (D130): every choice came first and one Pay step paid them all; a cost was a CNF of labelled branches paid in a fixed order of four kinds, and conditions could test which branch was paid. A payment choice therefore reserved an object without using it up: the creature chosen to be felled could still be chosen as a target, two fell costs could name the same creature, a card could be discarded twice, and the card being cast, still in the Hand, could target itself.
