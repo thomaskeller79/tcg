@@ -6,6 +6,43 @@
 
 ---
 
+### D137 — Every view is a belief: the numbers and counts are private, a few reveal points are guaranteed true
+
+Closes `PLAN.md` Track A item 35 (hide the Mind from the opponent). Before: D18 made standing state public (hand size, AP, Life, Power) and hid only the live mana balance; D71 made the three Mind counts public; D7 made the board fully visible; D18 called fell, unbond and discard costs self-revealing.
+
+**Adopted (user):**
+- **Every view is a belief.** An observer's view is what they observed, with claims taken as true. By default a player's view of what they own is true; a card may change that too (Track D item 50).
+- **The true numbers are private to their owner:** a permanent's stats and resources (Power, Life, AP) and every pool and count (mana, Hand, Library, Discard sizes). Positions, identities and bonds stay visible by default (D7 narrowed to these); the network stays public, since denial needs it (D8).
+- **A change is seen by every player whose view contains the object.** A fell is seen by those who see the permanent, so felling a hidden Root creature shows nothing (as with its Remnant, D110); an unbond is seen by everyone. D18's "self-revealing costs" are this rule, not a category of their own; a discard is a change in a private Hand.
+- **Reveal points** are always true, no card can fake them:
+
+  | Reveal point | Shows | To whom |
+  |---|---|---|
+  | A permanent is dealt damage | its true Life | every player who sees it |
+  | A permanent deals damage | its true Power | every player who sees it |
+  | A permanent's AP reaches 0 | that it is exhausted | every player who sees it |
+  | A Hand becomes empty | that it is empty | everyone |
+  | A mana pool refreshes | its true amount | everyone |
+  | A cost is paid | the true value of the paid resource | the payer's controller |
+
+  Each depends on the owner's choices: keep 1 AP or one card back, avoid combat. No reveal points for Library and Discard sizes: a player who needs them plays a card that reveals them.
+- **Damage is the only way an instruction lowers Life.** No separate "lose life" (MTG's damage vs. life loss is not adopted). Paying Life as a cost is not damage, so a hidden trace's Life cost stays hidden.
+- **A cost is paid by the payment walk only** (`ancestry.md`). A cost can no longer name the controller as payer ("this creature's controller pays 2 life"); a card that wants the Champion to pay puts it in its effect. This keeps a hidden trace's possible payers known from its source.
+- **GUI support, not a rule:** each observer sees an expected value per number (their view) and a marker on resources that a hidden trace's possible payers could have spent. Effects of hidden traces are not marked: after one resolves, anything may differ, and Mimic shows that a display may be false with no marker at all. Players are taught that hidden and false information exist. → `PLAN.md` Track B item 20.
+
+**Why:** with public resources, a claimed cost collapses the moment it is paid (a spell claiming 3 while 6 mana leaves the pool), so Mimic can't work. Anything public and derivable should be shown, because bookkeeping that the system could do is no fun; so the choice was all public or private with reveal points, not public-but-undisplayed. Combat as the reveal for Life and Power keeps D18's hard fact. Removes the card-count / library-size conservation law: no public count is left to check against.
+
+**Considered and rejected:**
+- **A hidden Champion Draw** (so the hand count is unknown): with public AP, the 5-AP spend gives it away; a cheaper Draw or other hidden 5-AP actions would be needed. Dropped by the user as solving a broader problem at the wrong level.
+- **Hiding AP only for hidden abilities:** a special case of the general rule.
+- **Marking everything after a hidden trace resolves:** no information gain, and Mimic already makes unmarked numbers uncertain.
+- **"A resource at 0 is public" for all resources:** kept for AP and Hand only. An empty mana pool would remove the "tapped out, or not?" doubt; mana gets the refresh reveal instead. "Empty" is too weak for Library and Discard.
+- **Reveal when Life goes down for any reason:** would reveal a hidden trace's Life cost.
+
+**Constraint on Mimic:** a face whose Life or Power differs from the truth collapses at the first combat; a face copying a creature with the same stats survives it (D131's per-card collapse still decides the rest). A card faking leftover mana mid-turn collapses at the next refresh at the latest.
+
+→ `asymmetric-information.md`, `overview.md` §1, §9, `glossary.md`, `ancestry.md` §Paying a cost; `PLAN.md` Track A item 35 (closed), Track B item 20, Track D item 50.
+
 ### D136 — Every Unit has a close-quarters ability, usable only against an enemy in its own hex and Slice
 
 Closes `PLAN.md` Track A item 46. Before: a mixed Slice (D86, D132) had no rules of its own. Its enemies fought at distance 0 like any other attack and could simply move away, so the situation wasn't special at all. It arises only in special circumstances (entering a Slice with a hidden enemy, a control change, possibly more causes later).

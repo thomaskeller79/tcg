@@ -78,30 +78,35 @@ The hard core of pillar 6 is not *hiding* a fact but keeping a *false view inter
 > **A soft claim is cheap and holds until a *hard fact* tests it. Then the truth is applied, and the lie collapses.**
 
 - The engine **never fabricates a consistent alternate reality** (rejected: infinite regress, unbalanceable, not authorable). **Cards author *claims*;** the engine projects them and does nothing to back them up.
-- **No deduction engine.** The engine guarantees hard facts are truthful and enforces a **small, finite, documented set of conservation laws** (e.g. *sum of claimed mana costs this turn ≤ public network max* → auto-collapse over-claims; card-count / library-size conservation). **All other deduction is the human's** — the UI surfaces hard facts; players see through bluffs themselves. The mind-game lives in the player, not the CPU.
+- **No deduction engine.** The engine guarantees hard facts are truthful and enforces a **small, finite, documented set of conservation laws** (e.g. *sum of claimed mana costs this turn ≤ public network max* → auto-collapse over-claims). **All other deduction is the human's** — the UI surfaces hard facts; players see through bluffs themselves. The mind-game lives in the player, not the CPU.
 - **A lie is cheap until reality tests it.** A mimicked stat holds until combat makes true and fake outcomes diverge (deals unexpected damage, or falls when the fake said it survives); a mimicked cost holds until conservation can't reconcile it. Even pure hiding leaks through **counts** (know they have 5 units, see 4 → one is submerged).
 - **Every hidden-information ability states its own collapse (D131).** A concealment, a Mimic face or any other ability that creates hidden or false information states on its card when it collapses and what part of it collapses. What is revealed need not be the full truth, but it must fit what the observer saw — the game must never make a player remember that a creature shown as 2 power really dealt 4.
 - **Collapse → full truth (fallback).** For a broken claim its card doesn't cover, the observer learns the *entire* truth, including which of a masked pool it really was (shown as 2/1 masking A-or-B → reveal which).
 - **Reveal (keyword, D102)** forces the same collapse on purpose: it sets one player's belief about an object equal to its true state, lifting any Mimic face. It is a one-time event, not a lasting state — an object that becomes hidden again afterwards is not tracked.
 
-## Resource observability — the hard/soft border (D18)
-The border is a **principle, not a per-resource list**:
-> **Standing state is public. The private-resource *ledger* (what a given action drew) is hidden. Any cost with a hard board footprint is self-revealing.**
-> **⇒ A spell is mimickable exactly when its whole cost is payable from the hidden mana ledger.**
+## Beliefs and reveal points (D137)
+**Every view is a belief.** An observer's view is what they observed, with claims taken as true. A player's view of what they own is true unless a card changes it.
 
-| Fact | Default | Why |
+- **Private to the owner:** the true numbers — a permanent's stats and resources (Power, Life, AP) and every pool and count (mana, Hand, Library, Discard sizes) — and the contents of the Mind zones.
+- **Visible by default:** positions, identities, terrain, bonds and the mana network (D8: denial needs it), Structures, Remnants.
+- **A change is seen by every player whose view contains the object.** A fell is seen by those who see the permanent; an unbond by everyone; a discard by no one but its owner.
+
+**Reveal points** are always true; no card can fake them:
+
+| Reveal point | Shows | To whom |
 |---|---|---|
-| **Mana network** (bonded terrain, max) | **Public** | must see it to deny it (D8) |
-| **Mana spent / live balance** | **Hidden** | the engine of cost-deception; also "do they have mana for a trick?" bluffs (D5) |
-| **Costs with a board footprint** (fell, unbond, discard) | **Self-revealing** | can't be faked → that spell isn't mimickable, and that's fine |
-| **Hand size (count)** | **Public** | legibility; the cast-A-as-B bluff needs only hidden mana-spend. Contents always private. A card may *obscure* the count (opt-in). |
-| **Discard size (count)** | **Public** | same legibility shape as Hand; contents always private (D71 — was fully public in the implementation, corrected) |
-| **Library size (count)** | **Public** | opponent knows how many cards remain; the owner additionally knows *which* cards remain (deducible from decklist + what's been seen), but never the true draw order (D71) |
-| **Activation Points (max & current)** | **Public** | board readability (pillar 3); AP surprises come from instant-speed **timing** (D5, the +1-AP ambush blocker), not hidden state |
-| **Hidden-zone contents** (hand cards, discard cards, submerged units, mimicked trace identities, Library draw order) | **Hidden** | core pillar 6; Discard added by D71 |
-| **Unit stats/positions, terrain, buildings, Remnants, life** | **Public** | D7 legibility |
+| A permanent is dealt damage | its true Life | every player who sees it |
+| A permanent deals damage | its true Power | every player who sees it |
+| A permanent's AP reaches 0 | that it is exhausted | every player who sees it |
+| A Hand becomes empty | that it is empty | everyone |
+| A mana pool refreshes (Beginning, D77) | its true amount | everyone |
+| A cost is paid | the true value of the paid resource | the payer's controller |
 
-The **only** standing quantity hidden is the **live mana balance** (because per-spell spends are never shown) — one deliberate, minimal carve-out from D7, justified by deception being a headline pillar. **Resolved by D77:** mana refreshes each Beginning phase with no banking — a smaller bluff-room than a hypothetical bank model would have given, but already decided, not an open question anymore.
+Library and Discard sizes have no reveal point; a card reveals them. Damage is the only way an instruction lowers Life; paying Life as a cost is not damage.
+
+**Costs and Mimic.** A cost is paid from private resources, so the spend doesn't contradict a claimed cost; a cost that changes something an observer sees (felling a visible creature, an unbond) shows that change. A face whose Life or Power differs from the truth collapses at the first combat; a face copying the same stats survives it.
+
+**GUI support:** the UI shows each observer an expected value per number (their view) and marks the resources a hidden trace's possible payers could have spent (payment walk, `ancestry.md`). Effects of a hidden trace are not marked.
 
 ## Representing deception: claims, Mimic, ChooseOne (D18)
 **The atomic primitive is a `face`:** a per-observer overlay (claimed identity + stat modifiers) that a **permanent** carries. Truth lives in true state; a face is the per-observer lie laid over it. This **unifies** the two "mimic" ideas — a creature *entering with a face* and a spell *applying a face to its target* are the **same operation**; deception cards are just "attach / alter a face." A card's own Aether trace shows the **same** face (board + trace consistent for free — one authored thing). Any face is governed by the belief model above (holds until a hard fact collapses it).
@@ -135,7 +140,7 @@ Because the face is *always* +3 Life, the honest cast and the +2-Attack bluff ar
 
 ## Open questions
 1. **Default visibility:** is the board **fully visible by default** (hidden info is opt-in via cards like Mist/Submerged), or is there baseline fog-of-war? *(Recommendation: full visibility by default — simplest default rule; concealment is added by cards.)*
-2. **Exact list of hard "test" events:** D18 settles that a lie collapses when a hard fact tests it; the precise catalog of qualifying events isn't enumerated yet.
+2. **Exact list of hard "test" events:** D18 settles that a lie collapses when a hard fact tests it; beyond the reveal points (D137), the catalog of qualifying events isn't enumerated yet.
 3. **Default spell-resolution visibility (lean Model 2):** when you cast a **non-mimic** spell, does the opponent see the **true card/resolution** (D7; `Mimic` overrides holistically — *recommended*), or only ever the *effect* (ambient fog, less legible)?
 4. **Bluff economy:** can a player deploy face-down/unknown units generally, or only via specific cards?
 5. **Fairness of information:** do players get told *that* they lack information (e.g., "there is fog here") or can information be hidden so completely they don't know to look?

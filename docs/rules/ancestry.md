@@ -82,7 +82,7 @@ A cost is paid by the **nearest node — starting at the entity itself — that 
 
 - Activation Points and Life are held directly by every permanent that carries them (D58 — Activation Points: Champion/Companion/Creature/Structure, D87, D88; Life: Champion/Companion/Creature/Structure) — an ability costs its own object's Activation Points or Life, no climbing. A Terrain holds neither; its AP costs climb to its bonder (D87). Life is not a third resource alongside mana/Activation Points (`economy.md`) — it's the same counter combat damage reduces.
 - Mana, discarding a card, felling a permanent, unbonding a terrain (and any other pooled/hand/board resource) climb the parent chain, live, stopping at the first Champion or Companion found.
-- A card may explicitly name the **controller** as payer instead — e.g. "this creature's controller must pay 2 life" skips the creature's own Life *and* skips past any Companion in its chain, reaching the Champion specifically.
+- A card that wants the controller to pay puts it in its effect ("deal 2 damage to this creature's controller"); a cost is paid by this walk alone, so a hidden trace's possible payers follow from its source (D137).
 
 ## Only Champions cast spells
 
