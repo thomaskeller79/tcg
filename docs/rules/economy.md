@@ -53,7 +53,7 @@ This is pillar 5 at its purest: the base rules *are* abilities, so the engine ne
 **`*`** is used by the Champion's `5*AP: Draw` and `2*AP: Bond` actions (`champions.md`) — `Draw`/`Bond` need to stay usable *together* in one turn while each staying capped, which neither `!` nor `~` can express. Also used by the Companion's own Bond ability (`companions.md`) — same flavor, priced higher relative to the Companion's smaller AP total so it crowds out the rest of the turn.
 
 ### Speed (Slow/Quick/Reactive/Instant, D45)
-Every card/ability has one of four **Speeds**, gated by what's currently sitting in **Pending** (the Aether's next-to-resolve zone, D38):
+Every card/ability has one of four **Speeds**, gated by what's currently sitting in **Pending** (the Aether's next-to-resolve section, D38):
 - **Slow** — controller's main phase only, Pending empty.
 - **Quick** — whenever only **Physical Traces** (the trace left by Move/Attack/Ascend/Descend) are in Pending.
 - **Reactive** — whenever no **Instant Trace** is in Pending.

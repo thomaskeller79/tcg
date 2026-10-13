@@ -20,7 +20,7 @@
 ## In-match: what a Companion is
 
 - A real card in the maindeck: drawn to Hand, **summoned like a Creature** (D20 — paid in mana from the Champion's pool, onto a bonded terrain cell in the Champion's realm, subject to Slice capacity and summoning sickness).
-- **Default abilities: the Champion's, minus Draw (D126)** — a Companion has no Mind zones (no Hand or Library of its own); in everything else it acts like a Champion: Bond, Move with the realm lock, Collapse Network, Attack, Defend, Equip, Un-equip. Its pool still never shares (above).
+- **Default abilities: the Champion's, minus Draw (D126)** — a Companion has no Mind (no Hand or Library of its own); in everything else it acts like a Champion: Bond, Move with the realm lock, Collapse Network, Attack, Defend, Equip, Un-equip. Its pool still never shares (above).
 - **Stats: Attack / Life / AP**, the same three numbers as a Creature (D10) — it occupies a board slot and is attackable. It moves, fights, and bonds using the network-dependent cost shape below (shared logic with the Champion, D9), not a Creature's flat defaults.
 - Losing a Companion is a real, permanent loss (Life → 0 → it falls, leaving a Remnant, D14, D110) — it doesn't end the match, but it **un-bonds the terrain it personally bonded** (see Terrain network, below) and its printed abilities go with it.
 

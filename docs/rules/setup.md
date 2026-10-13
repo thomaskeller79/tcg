@@ -1,14 +1,14 @@
 # Match Setup
 
-*How a legal match's four components (card deck, terrain deck, Champion, Map) combine into the actual starting board state — and why this isn't a domain transition, even though Champion and Terrain are printed and collected like any other card.*
+*How a legal match's four components (card deck, terrain deck, Champion, Map) combine into the actual starting board state — and why this isn't a move between zones, even though Champion and Terrain are printed and collected like any other card.*
 
 **Decisions:** D76, D77, D87, D114 (`history/decisions.md`)
 
 ---
 
-## Setup is not a domain transition
+## Setup is not a move between zones
 
-Champion and Terrain are printed and collected like any other card, but never occupy Hand/Library/Discard, ever (`object-properties.md` §1) — they are a different kind of game object from Creature/Spell/Structure/Item/Companion despite sharing the word "card" for the deckbuilding-tier concept (a real naming collision, tracked at `PLAN.md` §8 item 6, deliberately not resolved here). Because they never pass through a Mind-domain zone, their arrival on the Island at Setup is not a Mind→Matter transition at all — there is no Card object for them to skip the Aether from. Setup is a distinct, more primitive kind of event: it reads directly from a player's collection and creates Permanents, with no Card or Trace ever created for Champion or Terrain specifically.
+Champion and Terrain are printed and collected like any other card, but never occupy Hand/Library/Discard, ever (`object-properties.md` §1) — they are a different kind of game object from Creature/Spell/Structure/Item/Companion despite sharing the word "card" for the deckbuilding-tier concept (a real naming collision, tracked at `PLAN.md` §8 item 6, deliberately not resolved here). Because they never exist in the Mind, their arrival on the Island at Setup is not a Mind→Island transition at all — there is no Card object for them to skip the Aether from. Setup is a distinct, more primitive kind of event: it reads directly from a player's collection and creates Permanents, with no Card or Trace ever created for Champion or Terrain specifically.
 
 ## Setup is Champion A's first Beginning phase (D114)
 
@@ -34,7 +34,7 @@ Then Champion A's Action phase begins, with the match's first priority window. C
 
 ## Invariant vs. mutable
 
-- **Invariant:** Champion and Terrain never occupy a Mind-domain zone, and their Setup placement is not a domain transition; Setup is Champion A's first Beginning phase and opens no priority; Setup-placed permanents enter the Island under the ordinary rules.
+- **Invariant:** Champion and Terrain never exist in the Mind, and their Setup placement is not a move between zones; Setup is Champion A's first Beginning phase and opens no priority; Setup-placed permanents enter the Island under the ordinary rules.
 - **Mutable (map-driven):** home-ground and neutral-ground population rules (algorithm + parameters); Layout; landmarks.
 
 ## Open questions

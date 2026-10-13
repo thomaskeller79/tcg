@@ -39,7 +39,7 @@ We already committed (pillar 5) to *never reading raw values — always querying
 |---|---|---|
 | **Visibility** | Does observer P see object O at all? | Mist hides a region from B; Submerged hides a unit until detected. |
 | **Appearance / identity** | *What does O look like* to observer P? (may differ from truth) | Mimic makes O report a decoy's name/stats to the opponent. |
-| **Knowledge** | What does P know about a hidden zone / hidden facts? | "Reveal the top card of enemy deck to you only." |
+| **Knowledge** | What does P know about hidden cards / hidden facts? | "Reveal the top card of enemy deck to you only." |
 
 **Cards modify perception with the same modifier system as everything else.** A Mimic effect adds an appearance-modifier to O for the opponent-observer. Mist adds a visibility-modifier to a region for one observer. A Detection ability adds a visibility-modifier that *removes* a Submerged unit's concealment. No special-case subsystem — it's the modifier/query engine applied to perception.
 
@@ -87,9 +87,9 @@ The hard core of pillar 6 is not *hiding* a fact but keeping a *false view inter
 ## Beliefs and reveal points (D137)
 **Every view is a belief.** An observer's view is what they observed, with claims taken as true. A player's view of what they own is true unless a card changes it.
 
-- **Private to the owner:** the true numbers — a permanent's stats and resources (Power, Life, AP) and every pool and count (mana, Hand, Library, Discard sizes) — and the contents of the Mind zones.
+- **Private to the owner:** the true numbers — a permanent's stats and resources (Power, Life, AP) and every mana pool — and the contents of a Mind's cards. What the opponent's view shows of each card, including its section and position (and so how many cards a section holds), is open (D138, `PLAN.md` Track A item 51); counts are only a GUI summary.
 - **Visible by default:** positions, identities, terrain, bonds and the mana network (D8: denial needs it), Structures, Remnants.
-- **A change is seen by every player whose view contains the object.** A fell is seen by those who see the permanent; an unbond by everyone; a discard by no one but its owner.
+- **A change is seen by every player whose view contains the object.** A fell is seen by those who see the permanent; an unbond by everyone. A discard changes a card's section; what the opponent's view shows of that is open (D138).
 
 **Reveal points** are always true; no card can fake them:
 

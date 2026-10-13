@@ -1,13 +1,13 @@
 # Interaction & Speed
 
-*Players can act on the opponent's turn (MTG-style instants). One primitive covers instants, combat tricks, and traps: a **Speed** tag per card/ability, checked live against what's sitting in **Pending**, the Aether's next-to-resolve zone.*
+*Players can act on the opponent's turn (MTG-style instants). One primitive covers instants, combat tricks, and traps: a **Speed** tag per card/ability, checked live against what's sitting in **Pending**, the Aether's next-to-resolve section.*
 
 **Decisions:** D6, D16, D35, D38, D45, D46, D68, D70, D75, D83, D85, D91, D92, D94, D95, D100, D115, D116, D117, D118, D123, D124, D127, D128, D130, D132, D133, D134, D135 (`history/decisions.md`)
 
 ---
 
 ## The primitive
-> **Speed.** Every card/ability has one of four speeds — **Slow, Quick, Reactive, Instant** (D45) — and legality to play it is a live query against the current contents of **Pending** (the Aether's next-to-resolve zone, D38).
+> **Speed.** Every card/ability has one of four speeds — **Slow, Quick, Reactive, Instant** (D45) — and legality to play it is a live query against the current contents of **Pending** (the Aether's next-to-resolve section, D38).
 
 | Speed | Playable whenever… | What happens after |
 |---|---|---|
@@ -18,7 +18,7 @@
 
 **Move/Attack/Ascend/Descend are Slow (D75), not Quick** — Quick describes what *other* cards can play while a Physical Trace already sits in Pending (combat tricks, below), not the physical action's own speed. Being Slow means such an action can't be declared while Pending is non-empty, so **at most one Slow physical action ever sits in Pending at a time** — an actual enforced consequence of the Speed system, not merely how things happen to play out. **Defend is the one Quick physical action (D117):** its traces stack on top of the Attack they answer.
 
-Pending is the zone just ahead of `Now` — `Now` itself is **not a zone**, just the moving point dividing Pending from Past. **`Now` advances past whatever's next in Pending when both Champions pass priority in succession** (neither has anything they want to play). The sole exception is an Instant: while one is in Pending, `Now` advances automatically, never waiting for both Champions to pass, until the Instant has resolved. As things resolve they cross `Now` and become past **traces**, which then fade (except Physical Traces, which get zero Past residency at all).
+Pending is the section just ahead of `Now` — `Now` itself is **not a section**, just the moving point dividing Pending from Past. **`Now` advances past whatever's next in Pending when both Champions pass priority in succession** (neither has anything they want to play). The sole exception is an Instant: while one is in Pending, `Now` advances automatically, never waiting for both Champions to pass, until the Instant has resolved. As things resolve they cross `Now` and become past **traces**, which then fade (except Physical Traces, which get zero Past residency at all).
 
 **Priority (D123):** a Champion with priority may act as often as they wish; acting never passes priority, only passing does. A pass hands priority to the next Champion in turn order (APNAP). Whenever Pending is non-empty, in any phase (D128), the active Champion gets priority — in a neutral turn, the next Champion in turn order — and gets it again after each trace resolves. **Beginning and End** end as soon as Pending is empty. **The Action phase** also gives priority with Pending empty — that is where the active Champion acts — and ends only when every Champion has passed in succession with Pending empty: the active Champion ending its phase is a pass, and every other Champion then gets priority once with Pending empty, so Reactive, Instant and Quick cards can be played on the opponent's turn even when nothing is in Pending. In a neutral turn, this pass round runs once the Behaviors are done. Setup opens no priority (`setup.md`).
 
@@ -131,7 +131,7 @@ A destination-choosing action (Move, Summon, Relocate/push) checks its destinati
 - **Timing/UX**: players need clear, fast "respond or pass" prompts; auto-pass when a player has no legal response keeps it snappy.
 
 ## Invariant vs. mutable
-- **Invariant:** the Pending zone and the Speed check always exist; resolution order within Pending is LIFO; deterministic. Nothing can respond to an Instant.
+- **Invariant:** the Pending section and the Speed check always exist; resolution order within Pending is LIFO; deterministic. Nothing can respond to an Instant.
 - **Mutable (card-driven):** what Speed a given card/ability has, what triggers exist, extra priority a card grants.
 
 ## Open questions
