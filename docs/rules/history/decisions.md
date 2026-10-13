@@ -6,6 +6,27 @@
 
 ---
 
+### D138 — One zone per domain: a card's or trace's section and position are properties
+
+Closes `PLAN.md` Track A item 5 (transitions within a domain). Before: seven zones (Hand, Library, Discard; Past, Pending, Future; Island) grouped into three domains, and the Mind counts were D137's private numbers.
+
+**Adopted (user):**
+- **Three zones: Mind (one per Champion), Aether, Island.** Zone and domain become one term.
+- **Every card has a section — Hand, Library or Discard — and a position** (all three are ordered, D71). **Every trace has a section — Past, Pending or Future (D38's Sections) — and a position.** Both are ordinary properties: in a view each can be true, hidden or false, like any other property.
+- **No property is relevant only for some values of another property.** Position applies in every section; a section-specific property is a sign the model is wrong.
+- **A move within a zone (draw, discard, mill, resolve, delay) changes the section and position of the same object.** Nothing else changes. A move between zones creates a new object (D69); an object that leaves every zone ceases to exist (D97).
+- Card text keeps its words ("your hand", "the top card of your Library"); they name a section.
+
+**Why:** the question "can the opponent know I drew two cards?" becomes the same true/hidden/false question as any property, instead of a special rule about zone counts. A hidden draw changes two cards' section; whether the opponent's view shows it is decided by the view defaults (`PLAN.md` Track A item 51). Counts are only a GUI summary. It also answers item 5 with one rule.
+
+**Considered and rejected:**
+- **M2 — Mind counts in the view** (D137 as written): a second kind of thing next to objects, needing its own marker logic when a hidden trace draws.
+- **M1 — cards as visible objects, zones unchanged:** a card's zone could then never be hidden or false, so every hidden draw, discard or mill would show.
+
+**Still open:** each property's default in each view (object type × controller), including section and position for the opponent — the user's lean is that every card is visible as an object with its content hidden (item 51). Library position stays invisible even to the owner (D71).
+
+→ `overview.md` §1, `object-properties.md`, `interaction-stack.md`, `asymmetric-information.md`, `glossary.md` and others: rewrite tracked at `PLAN.md` Track A item 53; engine at Track B item 21. D137's Mind counts are superseded by this decision.
+
 ### D137 — Every view is a belief: the numbers and counts are private, a few reveal points are guaranteed true
 
 Closes `PLAN.md` Track A item 35 (hide the Mind from the opponent). Before: D18 made standing state public (hand size, AP, Life, Power) and hid only the live mana balance; D71 made the three Mind counts public; D7 made the board fully visible; D18 called fell, unbond and discard costs self-revealing.
