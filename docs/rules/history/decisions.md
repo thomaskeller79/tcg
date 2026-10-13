@@ -11,9 +11,9 @@
 Closes `PLAN.md` Track A item 5 (transitions within a domain). Before: seven zones (Hand, Library, Discard; Past, Pending, Future; Island) grouped into three domains, and the Mind counts were D137's private numbers.
 
 **Adopted (user):**
-- **Three zones: Mind (one per Champion), Aether, Island.** Zone and domain become one term.
-- **Every card has a section — Hand, Library or Discard — and a position** (all three are ordered, D71). **Every trace has a section — Past, Pending or Future (D38's Sections) — and a position.** Both are ordinary properties: in a view each can be true, hidden or false, like any other property.
-- **No property is relevant only for some values of another property.** Position applies in every section; a section-specific property is a sign the model is wrong.
+- **Three zones: Mind (one per Champion), Aether, Island.** The term "domain" is dropped; it is the same thing as a zone now.
+- **Principle: no object ever changes zone.** Cards exist only in the Mind, traces only in the Aether, every other object only on the Island (D59, now without exception). Every move across zones creates a new object.
+- **Every card has a section — Hand, Library or Discard — and a position** (all three are ordered, D71). **Every trace has a section — Past, Pending or Future (D38's Sections) — and a position.** Both are ordinary properties: in a view each can be true, hidden or false, like any other property. Position applies in every section, so no property matters only for some values of another (an observation, not a principle; changed if a card ever needs it).
 - **A move within a zone (draw, discard, mill, resolve, delay) changes the section and position of the same object.** Nothing else changes. A move between zones creates a new object (D69); an object that leaves every zone ceases to exist (D97).
 - Card text keeps its words ("your hand", "the top card of your Library"); they name a section.
 
