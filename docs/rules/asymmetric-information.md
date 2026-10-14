@@ -2,7 +2,7 @@
 
 *Champions do not share one view of the board. What each Champion perceives is itself a manipulable, card-driven property.*
 
-**Decisions:** D7, D12, D18, D41, D42, D67, D71, D102, D118, D131 (`history/decisions.md`)
+**Decisions:** D7, D12, D18, D41, D42, D67, D71, D102, D118, D131, D139 (`history/decisions.md`)
 
 ---
 
@@ -84,12 +84,31 @@ The hard core of pillar 6 is not *hiding* a fact but keeping a *false view inter
 - **Collapse → full truth (fallback).** For a broken claim its card doesn't cover, the observer learns the *entire* truth, including which of a masked pool it really was (shown as 2/1 masking A-or-B → reveal which).
 - **Reveal (keyword, D102)** forces the same collapse on purpose: it sets one player's belief about an object equal to its true state, lifting any Mimic face. It is a one-time event, not a lasting state — an object that becomes hidden again afterwards is not tracked.
 
+## Views: defaults and the game's own changes (D139)
+Each observer's view gives every property of an object a **view state**: true, hidden or false — e.g. position (hidden = concealment, false = a decoy location), name and type (a Mimic face). **Bonds** are always true. This section covers the default case, without any keyword; a keyword that hides or fakes something states its own behavior.
+
+**Start of game.** Nothing is false. Library content is hidden from everyone, Hand content from the opponent, Root occupants from the opponent unless D67's proximity applies. Everything else is visible; every card is visible as an object, with its section and position. The opening Hand is drawn before the game starts.
+
+**Creating an object or changing its section** keeps each observer's view state of every property (true stays true, hidden stays hidden, false stays false), except:
+
+| Change | What changes |
+|---|---|
+| Cast or activate (→ trace) | For the opponent, hidden content becomes true. Targets are true. |
+| Any trace | Its section and position are always true, like bonds. |
+| Resolve, Flicker | Fresh current Attack and Life take their max's view state; current AP enters at 0, true for everyone. Location and target carry each other's state. |
+| Bounce, Remand (→ card) | The new card's section and position are true for everyone; the content keeps its state in either Mind. |
+| Fall, Raise | Only the name crosses; values read from the card definition take the name's view state. |
+| Draw | For the owner, hidden content becomes true. |
+| Entering Discard (discard, mill, a cast card) | The content becomes true for everyone, unless an effect states otherwise. |
+
+**Losing track forgets.** A view holds property values only for objects whose position the observer knows. Losing track — a shuffle, concealment — forgets every value, true or false; a shuffle does so for every observer, the owner included. The view never shows "one of these is X"; that is the player's memory. What regaining track shows is open (`PLAN.md` Track A item 51).
+
 ## Beliefs and reveal points (D137)
 **Every view is a belief.** An observer's view is what they observed, with claims taken as true. A player's view of what they own is true unless a card changes it.
 
-- **Private to the owner:** the true numbers — a permanent's stats and resources (Power, Life, AP) and every mana pool — and the contents of a Mind's cards. What the opponent's view shows of each card, including its section and position (and so how many cards a section holds), is open (D138, `PLAN.md` Track A item 51); counts are only a GUI summary.
+- **Private to the owner:** the true numbers — a permanent's stats and resources (Power, Life, AP) and every mana pool — and the contents of the Hand's cards (§Views). Counts are only a GUI summary.
 - **Visible by default:** positions, identities, terrain, bonds and the mana network (D8: denial needs it), Structures, Remnants.
-- **A change is seen by every player whose view contains the object.** A fell is seen by those who see the permanent; an unbond by everyone. A discard changes a card's section; what the opponent's view shows of that is open (D138).
+- **A change is seen by every player whose view contains the object.** A fell is seen by those who see the permanent; an unbond by everyone. A discard shows the card to everyone (§Views).
 
 **Reveal points** are always true; no card can fake them:
 

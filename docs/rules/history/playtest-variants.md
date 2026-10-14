@@ -340,3 +340,16 @@ Ground creatures could always step in.
 A flyer attacks the Sky while the enemy has a flyer on that hex, and dives only once the air is
 clear. No choice at all, but an extra rule, and no diving past enemy flyers. Kept the rare Slice
 choice instead.
+
+## What a raised Remnant brings back (D110)
+
+**Current rule:** a Remnant keeps only the fallen permanent's name; raise builds the permanent from
+the printed card, so a permanent change (e.g. a raised max-Life) is lost at the fall. False values
+(a Mimic face) end at the fall too — Mimic should state that its face collapses then.
+
+### Variant — the Remnant keeps the true changes · NOT ADOPTED (playtest)
+The user's preference: the Remnant carries the fallen permanent's last true values as properties
+irrelevant to the Remnant itself, read only by raise, so a raised creature keeps its permanent
+changes. Claude against: death should feel like a loss, and killing a buffed creature would be a
+weaker answer whenever a raise is around. Kept the printed card as the playtest version; the
+scenarios that test it are `PLAN.md` Track C item 13.

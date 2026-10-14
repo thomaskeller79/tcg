@@ -6,6 +6,33 @@
 
 ---
 
+### D139 — What the game itself does to a view: creation and section changes, in the default case
+
+Settles part (a) of `PLAN.md` Track A item 51 for the changes the game makes without a described effect, and without any keyword involved (a keyword states its own behavior). Before: D138 left each property's default in each view open; D71 hid Discard from the opponent and showed the owner their Library's remaining contents.
+
+**Adopted (user):**
+- **A view state per observer and property: true, hidden or false** — e.g. position (hidden = concealment, false = a decoy location), name and type (a Mimic face), a card's section and position. **Bonds** are always true. A creation or section change maps each observer's prior state to a new one; everything not listed below keeps its state (true → true, hidden → hidden, false → false).
+- **Start of game.** Nothing is false. Library content is hidden from everyone, Hand content from the opponent, Root occupants from the opponent unless D67's proximity applies (D12). Everything else is visible: every card is visible as an object, with its section and position. The opening Hand is drawn before the game starts (mulligans need it).
+- **Cast** (card → trace): for the caster nothing changes; for the opponent hidden content becomes true. Targets are true. A trace's section and position are always true, like bonds — a secret spell still shows as a trace and hides its content itself, as a trace and in Discard. Activate is the same from a permanent's ability.
+- **Resolve** (permanent trace → permanent) and **Flicker** (permanent → trace): no view state changes. Fresh current Attack and Life take their max's view state; current AP enters at 0, true for everyone; location and target inherit each other's state.
+- **Bounce** (permanent → card) and **Remand** (trace → card): the content keeps its view state, in its owner's Mind and in the opponent's. The new card's section and position are true for everyone.
+- **Fall** (Creature/Companion → Remnant) and **Raise** (Remnant → permanent): only the name crosses, with its view state; a value raise reads from the card definition takes the name's view state. A false value (a Mimic face) ends at the fall: Mimic states that its face collapses then.
+- **Draw:** hidden → true for the owner. **Entering Discard** (discard, mill, a cast card) makes the content true for everyone, unless an effect states otherwise.
+- **Losing track forgets.** A view holds property values only for objects whose position the observer knows; losing track (a shuffle, concealment) forgets every value, true or false. A shuffle forgets for every observer, the owner included. The view never shows "one of these is X" — that is the player's memory.
+
+**Why:** almost every value a new object gets is copied, converted or derived from its predecessor (D105), so its view state can travel with it; the few real changes sit at the edges of what a player sees — the opponent's Mind (cast, Discard), the owner's Library (draw) and losing track. Discard is public because cast already showed most of what enters it, a hidden Discard would make the view forget what everyone saw, and cards reading a Discard need it; D71's reason (a public Discard can't carry a secret cast) is met by the secret spell hiding itself, which it must anyway since its trace is visible.
+
+**Considered and rejected:**
+- **A creation-type axis** in the defaults table (object type × controller × how it was created): the transition rules already say where each value comes from.
+- **Bounce into the opponent's Mind hides the content** (as in a physical card game): hides nothing the player doesn't know, only makes the view forget.
+- **Discard keeps the content's view state** (Claude): kept discards and mills hidden from the opponent; the user preferred one public rule and effects that hide.
+- **D71's owner list of the remaining Library contents:** a "one of these is X" region; a deck tracker is a GUI matter outside the view.
+- **Raise keeps the fallen permanent's true changes** (user's preference): parked for playtest, `history/playtest-variants.md` §What a raised Remnant brings back.
+
+**Still open (item 51):** whether regaining track restores the old view state or gives the default of the object's current place; what kind of property the paid cost is; how a hidden trace's changes reach the opponent's view.
+
+→ `asymmetric-information.md` §Views, `overview.md` §1 and §9, `glossary.md` (Mind, Library, Discard), `object-properties.md` Open question 5. Engine: `PLAN.md` Track B item 22. D71's Discard and Library rules are superseded.
+
 ### D138 — One zone per domain: a card's or trace's section and position are properties
 
 Closes `PLAN.md` Track A item 5 (transitions within a domain). Before: seven zones (Hand, Library, Discard; Past, Pending, Future; Island) grouped into three domains, and the Mind counts were D137's private numbers.
