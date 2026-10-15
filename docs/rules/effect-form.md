@@ -2,7 +2,7 @@
 
 *The internal structure every card's and ability's rules text is written in. Card text shown to players may use shorter wording ("you may," "kicker," "choose one or more"); every such wording must translate into this form. Kept deliberately compact, so that a card validator or an AI can read and check it.*
 
-**Decisions:** D83, D91, D92, D94, D95, D96, D104, D108, D130, D135 (`history/decisions.md`)
+**Decisions:** D83, D91, D92, D94, D95, D96, D104, D108, D130, D135, D141, D142 (`history/decisions.md`)
 
 ---
 
@@ -76,6 +76,23 @@ An instruction can bind an output for later instructions in the same option. **T
 ## Conditions
 
 A condition sits on the instruction only. A condition on a fact already settled at cast (a variable) collapses into the trace text when that step completes; any other condition is evaluated just before its instruction runs (`interaction-stack.md` §Resolution).
+
+## Instructions (D141)
+
+The basic instructions are a slim set for the engine; card text may use **aliases** chosen for clarity ("draw" for a move from Library to Hand, "return to Hand" for a put, "counter" for destroying a trace; names in `PLAN.md` Track A item 39).
+
+| Group | Instructions |
+|---|---|
+| Mind | draw, discard, mill, shuffle (any section), search |
+| Information | look at, reveal (any object with hidden or false information) |
+| Objects | **move** (same object, new place in its zone: section and position, or terrain and Slice), **put** (a new object in another zone; the predecessor ceases to exist), **copy** (a new object; the original stays), **create** (a new object from a card name or a card object), **destroy**, **cease to exist**, fell |
+| Stats (D143) | deal damage, heal, ±Health; slow, quicken, ±AP; ±Power; gain or lose an ability |
+| Resources | add mana |
+| Island | attach, detach, gain control, bond, unbond, raise, attack, defend |
+
+Put, copy and create are essentially identical, as are destroy and cease to exist; they stay apart until cards show whether they need to differ. What refers to an object (a modifier, an equipped Item, a target on the stack) survives a move, not a put.
+
+**Activate an ability** (with a cost override) is an instruction too, outside the prototype scope: casting a card is activating its Cast ability (D142), so "cast it without paying its cost" is one. Also outside the scope: create for cards and traces, and composites that need a choice at resolution (look at three, choose one, put it into your Hand).
 
 ## Card text to normal form
 

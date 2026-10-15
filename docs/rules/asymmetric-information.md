@@ -2,7 +2,7 @@
 
 *Champions do not share one view of the board. What each Champion perceives is itself a manipulable, card-driven property.*
 
-**Decisions:** D7, D12, D18, D41, D42, D67, D71, D102, D118, D131, D139 (`history/decisions.md`)
+**Decisions:** D7, D12, D18, D41, D42, D67, D71, D102, D118, D131, D139, D140 (`history/decisions.md`)
 
 ---
 
@@ -84,24 +84,25 @@ The hard core of pillar 6 is not *hiding* a fact but keeping a *false view inter
 - **Collapse → full truth (fallback).** For a broken claim its card doesn't cover, the observer learns the *entire* truth, including which of a masked pool it really was (shown as 2/1 masking A-or-B → reveal which).
 - **Reveal (keyword, D102)** forces the same collapse on purpose: it sets one player's belief about an object equal to its true state, lifting any Mimic face. It is a one-time event, not a lasting state — an object that becomes hidden again afterwards is not tracked.
 
-## Views: defaults and the game's own changes (D139)
-Each observer's view gives every property of an object a **view state**: true, hidden or false — e.g. position (hidden = concealment, false = a decoy location), name and type (a Mimic face). **Bonds** are always true. This section covers the default case, without any keyword; a keyword that hides or fakes something states its own behavior.
+## Views: defaults and the game's own changes (D139, D140)
+Each observer's view gives every property of an object a **view state**: true, hidden or false — e.g. position (hidden = concealment, false = a decoy location), name and type (a Mimic face). **Bonds** are always true, and so are a trace's section and position. This section covers the default case, without any keyword; a keyword that hides or fakes something states its own behavior.
 
 **Start of game.** Nothing is false. Library content is hidden from everyone, Hand content from the opponent, Root occupants from the opponent unless D67's proximity applies. Everything else is visible; every card is visible as an object, with its section and position. The opening Hand is drawn before the game starts.
 
-**Creating an object or changing its section** keeps each observer's view state of every property (true stays true, hidden stays hidden, false stays false), except:
+**A view state comes from where the value comes from.** A new object's property takes the view state of the value it was copied or converted from (a trace's content from its card or permanent, a permanent's from its trace, a card's from its permanent or trace); a computed value takes its input's (current Health from max, printed values from the name); a value with no predecessor — a target, a new card's or trace's section and position, current AP at 0 — is true. **A changed property keeps its view state:** a change to an object the observer sees is seen, whatever caused it.
 
-| Change | What changes |
+**Exceptions, by instruction:**
+
+| Instruction | What changes |
 |---|---|
-| Cast or activate (→ trace) | For the opponent, hidden content becomes true. Targets are true. |
-| Any trace | Its section and position are always true, like bonds. |
-| Resolve, Flicker | Fresh current Attack and Life take their max's view state; current AP enters at 0, true for everyone. Location and target carry each other's state. |
-| Bounce, Remand (→ card) | The new card's section and position are true for everyone; the content keeps its state in either Mind. |
-| Fall, Raise | Only the name crosses; values read from the card definition take the name's view state. |
+| Cast | For an observer to whom the card's content is hidden, it becomes true. |
 | Draw | For the owner, hidden content becomes true. |
 | Entering Discard (discard, mill, a cast card) | The content becomes true for everyone, unless an effect states otherwise. |
+| Shuffle, concealment | The observer loses track. |
 
-**Losing track forgets.** A view holds property values only for objects whose position the observer knows. Losing track — a shuffle, concealment — forgets every value, true or false; a shuffle does so for every observer, the owner included. The view never shows "one of these is X"; that is the player's memory. What regaining track shows is open (`PLAN.md` Track A item 51).
+Activate has no exception: a creature the opponent doesn't see (in the Root) activates with its content hidden to them.
+
+**Losing track.** A view holds property values only for objects whose position the observer knows. The view never shows "one of these is X"; that is the player's memory. Whether a lost object's values are kept for when it is found again, or forgotten, is open (`PLAN.md` Track A item 55).
 
 ## Beliefs and reveal points (D137)
 **Every view is a belief.** An observer's view is what they observed, with claims taken as true. A player's view of what they own is true unless a card changes it.

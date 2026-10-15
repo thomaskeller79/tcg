@@ -6,7 +6,100 @@
 
 ---
 
-### D139 — What the game itself does to a view: creation and section changes, in the default case
+### D145 — A trace's cost is the pips, not the mana spent
+
+Closes part (a3) of `PLAN.md` Track A item 51. Before: "cost (narrowed: what was paid)" could mean either.
+
+**Adopted (user):** a trace's cost property is magnitudes — the printed pips ({F}{F/M}{1}), X, the chosen mode, surcharges — never which mana, creatures or cards paid it (`object-properties.md` §4's magnitude rule, applied to mana). Cost is card content, so its view state follows the content's (D140). Which resources paid is a change to the pools, creatures or Hand, made by the paying instructions. A card that wants to know what was spent ("for each Element of mana spent") reads the history track (D98), where spending is an instruction output.
+
+**Why:** with the mana spent as the cost, Remand would hand back a card demanding {F}{M}{W} instead of a hybrid and a generic pip — harder to cast because of how it was paid once.
+
+**Considered and rejected:** **the mana spent as the cost** (above).
+
+→ `object-properties.md` (Trace cost), rewrite tracked at `PLAN.md` Track A item 56.
+
+### D144 — Two kinds of duration; Duration counts the ends of player turns
+
+Closes the duration question raised during `PLAN.md` Track A item 51. Before: D50's "an effect lives as long as its vessel does" next to "until end of turn" effects; Duration counted rounds.
+
+**Adopted (user):**
+- **An effect is permanent, or lives as long as its vessel:** a trace (its `Duration X`; destroying the trace ends it early) or a permanent with a static ability. "Until end of turn" is a short Duration, not a duration kind of its own.
+- **Duration counts the ends of player turns** (Neutral turns don't count): Duration 1 lasts until the end of this turn, 2 until the end of the next player's turn, and so on. The default (5 rounds) becomes about 10, still a placeholder.
+- **±X is a modifier**, counted while its vessel exists (`glossary.md` **Modifier**, pillar 5), which is why ±X must be the exact mirror of −X (D143).
+- **The `~AP` lock (D116) stays** a cost flavor tied to the turn structure: it comes from a cost, not from an effect with a vessel.
+
+**Why (user):** it gives the Aether, a concept unique to this game, more weight — interacting with traces matters more, and dispelling an effect is destroying its trace, with no layer or timestamp system. Rounds are too coarse: some effects must end with this turn.
+
+**Considered and rejected:** **Duration in rounds** (too coarse).
+
+→ `object-properties.md`, `glossary.md` (Duration, Trace), `overview.md`: rewrite tracked at `PLAN.md` Track A item 56. Engine: Track B item 23.
+
+### D143 — Stat changes: Health and AP have a current-only pair and a ±X pair; Power is one value
+
+Closes the stat-change question raised during `PLAN.md` Track A item 51. Before: max- and current-tier for Attack, Life and AP (D70), with damage and heal on Life.
+
+**Adopted (user):**
+- **Health:** **damage / heal** change current only (heal capped at max); **+X / −X** change max and current together, as exact mirrors.
+- **AP:** **slow / quicken** change current only; **+X / −X** change max and current together. Names to settle in item 39.
+- **Power is one value**, changed by ±X: **current-Attack is dropped** from the property list. A permanent change is carried by Bounce (D70); a temporary one ends with its vessel (D144).
+
+**Why:** Health and AP are consumed — damage uses up Life, actions use up AP — so a current tier tracks what is left; Power is never consumed. Other games agree: CCGs have damage/heal plus buffs for Health and only ±X for Power; AP games (Divinity: Original Sin 2, Pathfinder 2e, Dofus) change both tiers (Haste/Slowed per turn, Adrenaline or AP removal now). MTG's damage next to −X toughness confuses new players; here −X visibly lowers the max, which keeps the two explainable.
+
+**Considered and rejected:** **+X raising the max only as far as current exceeds it** (user): not the reverse of −X — −2 then +2 turns 3/5 into 3/3, and a temporary +2 can't be undone cleanly.
+
+→ `object-properties.md`, `overview.md`, `economy.md`: rewrite tracked at `PLAN.md` Track A item 56. Engine: Track B item 23.
+
+### D142 — Cards are abilities: a spell card is an activated ability, a permanent card a definition plus a Cast ability
+
+Closes the "player actions vs instructions" question raised during `PLAN.md` Track A item 51. A working route (user): the whole game as activated and triggered abilities, with the turn structure the one exception; backed out where it hurts more than it helps. Before: casting and activating were the same procedure (D75, D135) but distinct concepts; three trace groups (D109).
+
+**Adopted (user):**
+- **A spell card is an activated ability** usable from the Hand: cost, targets, instructions. **The card moving to Discard is part of its cost** (paid at C1, D135).
+- **A permanent card is a definition plus an implicit Cast ability** whose one instruction creates the permanent defined there at the target location, from the card's current values (a bounced card's raised max Life included, D70). **The Permanent-trace group goes away:** it is an ability trace whose instruction carries the definition, which Flicker and Remand keep.
+- The GUI still shows "cast"; nobody sees Cast as an ability.
+- **Activate an ability** (with a cost override) is an instruction — "you may cast the top card of your Library without paying its cost" activates its Cast ability. Defined, outside the prototype.
+- **"Put card X onto the Island"** is card wording for creating a permanent from card X; the card stays in the Mind and goes wherever the text says. Its effect's trace is the only one.
+- Item 39 needs a name for a trace that comes from a card.
+
+**Why:** casting already was activating, procedurally; one concept makes flashback (a second Cast ability), casting from elsewhere (where the ability works) and cost changes uniform. Abilities working from the Hand stay outside the prototype scope (D104) except Cast.
+
+→ `object-properties.md` (§5 Trace groups), `interaction-stack.md` §Casting, `effect-form.md`, `glossary.md`: rewrite tracked at `PLAN.md` Track A item 56. Engine: Track B item 23.
+
+### D141 — The basic instructions, and which are in the prototype
+
+Raised during `PLAN.md` Track A item 51 (each instruction needs a default view behavior, D140), checked against MTG (rule 701 and plain card text), Hearthstone, Legends of Runeterra, Gwent and our docs and content.
+
+**Adopted (user):**
+- **Two layers:** a slim set of basic instructions for the engine, and **aliases** for card wording, chosen for clarity (item 39) — "draw" is a move from Library to Hand, "return to Hand" a put, "counter" a destroy on a trace.
+- **Move vs put:** **move** keeps the object and changes its place within its zone (section and position in the Mind or the Aether — a delay into Future is a move; terrain and Slice on the Island). **Put** makes a new object in another zone from a predecessor that ceases to exist (Bounce, Remand, Flicker, a card from another Champion's Library). What refers to the object survives a move but not a put: a buff, an equipped Item, a target on the stack.
+- **Put, copy and create stay three instructions, marked essentially identical** (a new object from an object that ceases, from one that stays, from a card name or card object); **cease to exist and destroy** likewise. Merged once cards show whether they need to differ.
+- **In the prototype:** draw, discard, mill, shuffle (any Mind section: Hand and Discard are ordered too), search, look at and reveal (any object with hidden or false information; one verb with an audience or two, open), move, put, create (permanents), copy, destroy (any object — MTG's exile and counter), fell, deal damage / heal and ±Health, slow / quicken and ±AP, ±Power (D143), gain / lose an ability, add mana, attach, detach, gain control, bond, unbond, raise, attack, defend.
+- **Not in the prototype:** activate an ability (D142), create for cards and traces, choices at resolution (Discover comes back later as a composite of look at, choose, put).
+- **Not instructions:** scry, surveil, fight, exchange, transform, regenerate; sacrifice (fell or destroy on a creature you control); Collapse Network (a composite of unbonds); un-summon (destroy the permanents whose `source` is a trace).
+
+**Why:** card text should read clearly; the engine should not grow a verb per wording. Gain / lose stays apart from destroy: an ability is a property value, not an object, and gaining or losing it for a while needs a verb that comes back.
+
+**Considered and rejected:**
+- **Add mana excluded for good** (user, briefly): the network's passive mana fixes screw and flood, and an add-mana instruction doesn't bring them back — it is acceleration on top. In the prototype instead, to see the two play together.
+- **One "return" verb across zones and sections** (Claude): what survives differs, so move and put are two.
+
+→ `effect-form.md` §Instructions. Engine: Track B item 23.
+
+### D140 — A view state comes from the source; exceptions per instruction
+
+Restructures D139 (`PLAN.md` Track A item 51 (a)). Before: D139 listed transitions one by one, and treated activate like cast.
+
+**Adopted (user):**
+- **Default: a new object's property takes its view state from where the value comes from** — the predecessor's property for a copied or converted value, the input for a computed one (current Health from max, printed values from the name). A value with no predecessor (a target, a new card's or trace's section and position, current AP at 0) is true. **A changed property keeps its view state**: a change to an object the observer sees is seen, whatever caused it.
+- **Exceptions:** **cast** — content hidden to an observer becomes true; **draw** — hidden becomes true for the owner; **entering Discard** — true for everyone, unless an effect states otherwise; **shuffle** and **concealment** — the observer loses track (what is kept is open, item 55).
+- **Activate has no exception:** its trace inherits from the permanent, so a creature the opponent can't see (in the Root) activates with its content hidden to them; a trace's section and position stay true.
+- Every instruction has a default view behavior; most need no exception (D141).
+
+**Why:** a value's view state travels with the value; the few real changes sit where an observer gains or loses sight. D139 treated activate like cast, which would show where a hidden creature moves (D98 assumes a hidden move stays hidden).
+
+→ `asymmetric-information.md` §Views.
+
+### D139 — What the game itself does to a view: creation and section changes, in the default case *(restructured by D140; losing track reopened, item 55)*
 
 Settles part (a) of `PLAN.md` Track A item 51 for the changes the game makes without a described effect, and without any keyword involved (a keyword states its own behavior). Before: D138 left each property's default in each view open; D71 hid Discard from the opponent and showed the owner their Library's remaining contents.
 
