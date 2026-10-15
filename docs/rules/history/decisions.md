@@ -16,7 +16,7 @@ Closes part (a3) of `PLAN.md` Track A item 51. Before: "cost (narrowed: what was
 
 **Considered and rejected:** **the mana spent as the cost** (above).
 
-→ `object-properties.md` (Trace cost), rewrite tracked at `PLAN.md` Track A item 56.
+→ `object-properties.md` (Trace cost).
 
 ### D144 — Two kinds of duration; Duration counts the ends of player turns
 
@@ -32,7 +32,7 @@ Closes the duration question raised during `PLAN.md` Track A item 51. Before: D5
 
 **Considered and rejected:** **Duration in rounds** (too coarse).
 
-→ `object-properties.md`, `glossary.md` (Duration, Trace), `overview.md`: rewrite tracked at `PLAN.md` Track A item 56. Engine: Track B item 23.
+→ `object-properties.md`, `glossary.md` (Aether, Modifier), `overview.md`, `economy.md`. Engine: Track B item 23.
 
 ### D143 — Stat changes: Health and AP have a current-only pair and a ±X pair; Power is one value
 
@@ -47,7 +47,7 @@ Closes the stat-change question raised during `PLAN.md` Track A item 51. Before:
 
 **Considered and rejected:** **+X raising the max only as far as current exceeds it** (user): not the reverse of −X — −2 then +2 turns 3/5 into 3/3, and a temporary +2 can't be undone cleanly.
 
-→ `object-properties.md`, `overview.md`, `economy.md`: rewrite tracked at `PLAN.md` Track A item 56. Engine: Track B item 23.
+→ `object-properties.md`, `overview.md`, `economy.md`, `glossary.md` (Life, Activation Points). Engine: Track B item 23.
 
 ### D142 — Cards are abilities: a spell card is an activated ability, a permanent card a definition plus a Cast ability
 
@@ -63,7 +63,7 @@ Closes the "player actions vs instructions" question raised during `PLAN.md` Tra
 
 **Why:** casting already was activating, procedurally; one concept makes flashback (a second Cast ability), casting from elsewhere (where the ability works) and cost changes uniform. Abilities working from the Hand stay outside the prototype scope (D104) except Cast.
 
-→ `object-properties.md` (§5 Trace groups), `interaction-stack.md` §Casting, `effect-form.md`, `glossary.md`: rewrite tracked at `PLAN.md` Track A item 56. Engine: Track B item 23.
+→ `object-properties.md` (§2, §5 Trace groups), `interaction-stack.md` §Casting, `effect-form.md`, `glossary.md` (Trace, Spell). Engine: Track B item 23.
 
 ### D141 — The basic instructions, and which are in the prototype
 

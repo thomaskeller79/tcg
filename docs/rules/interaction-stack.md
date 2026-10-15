@@ -2,7 +2,7 @@
 
 *Players can act on the opponent's turn (MTG-style instants). One primitive covers instants, combat tricks, and traps: a **Speed** tag per card/ability, checked live against what's sitting in **Pending**, the Aether's next-to-resolve section.*
 
-**Decisions:** D6, D16, D35, D38, D45, D46, D68, D70, D75, D83, D85, D91, D92, D94, D95, D100, D115, D116, D117, D118, D123, D124, D127, D128, D130, D132, D133, D134, D135 (`history/decisions.md`)
+**Decisions:** D6, D16, D35, D38, D45, D46, D68, D70, D75, D83, D85, D91, D92, D94, D95, D100, D115, D116, D117, D118, D123, D124, D127, D128, D130, D132, D133, D134, D135, D142 (`history/decisions.md`)
 
 ---
 
@@ -56,7 +56,7 @@ An Attack is a **Physical Trace** (D45): it enters Pending exactly like any othe
 Tricks (Quick, Reactive, Instant) can be played at any point while the Attack is in Pending, as their Speed allows.
 
 ## Casting and activating: choose → bind → pay, step by step (D46, D70, D91, D130, D135)
-Playing a card or activating an ability is a strict procedure. No step may look ahead at a later one, and none is revisited once passed. **Each of C1–C4 is choose → bind → pay:** the step's choices are made, the references they fix are bound (§Binding), and what they cost is paid at once. **A payment choice is the payment:** what is paid leaves the decision state immediately, so it can't be chosen, targeted or paid again.
+Playing a card is activating its Cast ability (D142), so one procedure covers both, and it is strict. No step may look ahead at a later one, and none is revisited once passed. **Each of C1–C4 is choose → bind → pay:** the step's choices are made, the references they fix are bound (§Binding), and what they cost is paid at once. **A payment choice is the payment:** what is paid leaves the decision state immediately, so it can't be chosen, targeted or paid again.
 
 - **C0 Legality.** The card/ability is offered as a legal play only if its Speed permits it against Pending's current contents, its **cast condition** (if printed, e.g. "cast only if you control a Rebel") holds, and at least one legal cost-and-target combination exists — no paying into a target-less cast. The cast condition is checked here only: paying a cost that makes it false (felling the only Rebel) is legal. C0 is a check: nothing is chosen, bound or paid.
 - **C1 Commit.** The player plays the card or activates the ability. The source references are bound ("you," the payer, an inherited Behavior and neutral turn). The card is paid — it leaves the Hand — together with **every fixed cost** (one that needs no later decision: "🔥", "fell this creature").
