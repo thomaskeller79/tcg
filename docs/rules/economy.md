@@ -2,7 +2,7 @@
 
 *The full resource model in one place. There are **two** resources — mana and Activation Points — and the same shape — "mana access + a private action budget" — repeats for every actor, **including the Champion and the Companion**. Learn it once, it applies everywhere (pillar 3).*
 
-**Decisions:** D8 (terrain/mana), D9 (Champion economy), D10 (Action Points), D15 (Defend cost), D22 (Companion), D45 (Speed), D47 (Activation Capacity), D48, D49 (Champion/Companion Attack), D58 (Activation Points), D65 (Defend once per round), D76 (first-turn AP asymmetry), D77 (mana accounting), D87 (Terrain holds no AP), D88, D110 (Remnant holds no AP), D89 (summoning sickness), D92 (Instant blocks active play), D114 (Setup is entering; Haste X), D116 (`~` cost; Attack `3~AP`, Defend `1~AP`), D134 (connected Champion/Companion costs), D143 (stat changes), D144 (Duration) — `history/decisions.md`
+**Decisions:** D8 (terrain/mana), D9 (Champion economy), D10 (Action Points), D15 (Defend cost), D22 (Companion), D45 (Speed), D47 (Activation Capacity), D48, D49 (Champion/Companion Attack), D58 (Activation Points), D65 (Defend once per round), D76 (first-turn AP asymmetry), D77 (mana accounting), D87 (Terrain holds no AP), D88, D110 (Remnant holds no AP), D89 (summoning sickness), D92 (Instant blocks active play), D114 (Setup is entering; Haste X), D116 (`~` cost; Attack `3~AP`, Defend `1~AP`), D134 (connected Champion/Companion costs), D143 (stat changes), D144 (Duration), D147 (Life as a cost) — `history/decisions.md`
 
 ---
 
@@ -76,7 +76,7 @@ The Champion **has an AP value and spends it directly**, exactly like a creature
 
 **Consequence:** a Structure's own Activation-Points-costed ability is funded by the Structure itself, not by whoever bonds/controls it — decoupled from the controlling Champion's own action economy. It's also what lets a Neutral Structure act on its own at all: an Activation-Points-only ability is always self-payable once Neutral, with no bonder required; a mana-inclusive ability still needs a live root supplying the mana. See `neutral-permanents.md`.
 
-**Life is not a third resource alongside mana/Activation Points.** Whichever permanents track their own Life (Champion, Companion, Creature, Structure, D10/D24) do so the same way they track Activation Points, so a "pay N life" ability on one of them spends its own Life directly — self-paid, no climbing — unless a card explicitly names the controller as payer instead (`ancestry.md`).
+**Life is not a third resource alongside mana/Activation Points.** Whichever permanents track their own Life (Champion, Companion, Creature, Structure, D10/D24) do so the same way they track Activation Points, so a "pay N life" ability on one of them spends its own Life directly — as damage to itself (D147), self-paid, no climbing — unless a card explicitly names the controller as payer instead (`ancestry.md`).
 
 **Changing Life and AP (D143).** Both are consumed, so each has a max and a current value and two kinds of change: **damage / heal** and **slow / quicken** (working names) change current only (heal up to max); **+X / −X** change max and current together, as exact mirrors, so a temporary ±X ends cleanly with its trace (D144). Attack is never consumed: one value, changed by ±X.
 

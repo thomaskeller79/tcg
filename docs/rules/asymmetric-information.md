@@ -2,7 +2,7 @@
 
 *Champions do not share one view of the board. What each Champion perceives is itself a manipulable, card-driven property.*
 
-**Decisions:** D7, D12, D18, D41, D42, D67, D71, D102, D118, D131, D139, D140 (`history/decisions.md`)
+**Decisions:** D7, D12, D18, D41, D42, D67, D71, D102, D118, D131, D139, D140, D146 (`history/decisions.md`)
 
 ---
 
@@ -81,7 +81,7 @@ The hard core of pillar 6 is not *hiding* a fact but keeping a *false view inter
 - **No deduction engine.** The engine guarantees hard facts are truthful and enforces a **small, finite, documented set of conservation laws** (e.g. *sum of claimed mana costs this turn ≤ public network max* → auto-collapse over-claims). **All other deduction is the human's** — the UI surfaces hard facts; players see through bluffs themselves. The mind-game lives in the player, not the CPU.
 - **A lie is cheap until reality tests it.** A mimicked stat holds until combat makes true and fake outcomes diverge (deals unexpected damage, or falls when the fake said it survives); a mimicked cost holds until conservation can't reconcile it. Even pure hiding leaks through **counts** (know they have 5 units, see 4 → one is submerged).
 - **Every hidden-information ability states its own collapse (D131).** A concealment, a Mimic face or any other ability that creates hidden or false information states on its card when it collapses and what part of it collapses. What is revealed need not be the full truth, but it must fit what the observer saw — the game must never make a player remember that a creature shown as 2 power really dealt 4.
-- **Collapse → full truth (fallback).** For a broken claim its card doesn't cover, the observer learns the *entire* truth, including which of a masked pool it really was (shown as 2/1 masking A-or-B → reveal which).
+- **Collapse on contradiction (fallback, D146).** For a broken claim its card doesn't cover, every false or hidden value the testing instruction read becomes true (§When a belief breaks), including which of a masked pool it really was (shown as 2/1 masking A-or-B → reveal which).
 - **Reveal (keyword, D102)** forces the same collapse on purpose: it sets one player's belief about an object equal to its true state, lifting any Mimic face. It is a one-time event, not a lasting state — an object that becomes hidden again afterwards is not tracked.
 
 ## Views: defaults and the game's own changes (D139, D140)
@@ -104,29 +104,14 @@ Activate has no exception: a creature the opponent doesn't see (in the Root) act
 
 **Losing track.** A view holds property values only for objects whose position the observer knows. The view never shows "one of these is X"; that is the player's memory. Whether a lost object's values are kept for when it is found again, or forgotten, is open (`PLAN.md` Track A item 55).
 
-## Beliefs and reveal points (D137)
-**Every view is a belief.** An observer's view is what they observed, with claims taken as true. A player's view of what they own is true unless a card changes it.
+## When a belief breaks (D146)
+**A view is what the GUI shows an observer**, not the player's belief. A visible creature's numbers — Life, AP, Power — are true by default (§Views); hidden or false numbers come only from keywords.
 
-- **Private to the owner:** the true numbers — a permanent's stats and resources (Power, Life, AP) and every mana pool — and the contents of the Hand's cards (§Views). Counts are only a GUI summary.
-- **Visible by default:** positions, identities, terrain, bonds and the mana network (D8: denial needs it), Structures, Remnants.
-- **A change is seen by every player whose view contains the object.** A fell is seen by those who see the permanent; an unbond by everyone. A discard shows the card to everyone (§Views).
+**Contradiction.** An instruction runs on the true state and, for each observer, on that observer's view; the parts of the two results the observer can see are compared. If they match, the view keeps its values: a lie survives as long as it is consistent. If they differ, **every false or hidden value the instruction read becomes true** for that observer. A hidden value predicts nothing, so a seen outcome that reads it always shows it. The observer always sees the true outcome. A keyword may state its own collapse instead (D131).
 
-**Reveal points** are always true; no card can fake them:
+Example: a 3/3/6 shown to its owner as 3/3/6 was secretly made 1/3/6 (a secret effect on what its owner controls, `PLAN.md` Track D item 50). It deals 1 damage where its owner's view expected 3; the outcomes differ, so the owner's view of its Power becomes 1. Had it killed a 1-Life creature, both runs would agree and the lie would survive. A Mimic face collapses the same way — when an outcome contradicts it, not at a combat as such.
 
-| Reveal point | Shows | To whom |
-|---|---|---|
-| A permanent is dealt damage | its true Life | every player who sees it |
-| A permanent deals damage | its true Power | every player who sees it |
-| A permanent's AP reaches 0 | that it is exhausted | every player who sees it |
-| A Hand becomes empty | that it is empty | everyone |
-| A mana pool refreshes (Beginning, D77) | its true amount | everyone |
-| A cost is paid | the true value of the paid resource | the payer's controller |
-
-Library and Discard sizes have no reveal point; a card reveals them. Damage is the only way an instruction lowers Life; paying Life as a cost is not damage.
-
-**Costs and Mimic.** A cost is paid from private resources, so the spend doesn't contradict a claimed cost; a cost that changes something an observer sees (felling a visible creature, an unbond) shows that change. A face whose Life or Power differs from the truth collapses at the first combat; a face copying the same stats survives it.
-
-**GUI support:** the UI shows each observer an expected value per number (their view) and marks the resources a hidden trace's possible payers could have spent (payment walk, `ancestry.md`). Effects of a hidden trace are not marked.
+**Costs.** A cost that changes something an observer sees (felling a visible creature, an unbond, Life paid as damage, D147) shows that change. The mana pool's visibility, and a GUI marker on resources a hidden trace could have spent, are open (`PLAN.md` Track A item 52).
 
 ## Representing deception: claims, Mimic, ChooseOne (D18)
 **The atomic primitive is a `face`:** a per-observer overlay (claimed identity + stat modifiers) that a **permanent** carries. Truth lives in true state; a face is the per-observer lie laid over it. This **unifies** the two "mimic" ideas — a creature *entering with a face* and a spell *applying a face to its target* are the **same operation**; deception cards are just "attach / alter a face." A card's own Aether trace shows the **same** face (board + trace consistent for free — one authored thing). Any face is governed by the belief model above (holds until a hard fact collapses it).
@@ -160,8 +145,6 @@ Because the face is *always* +3 Life, the honest cast and the +2-Attack bluff ar
 
 ## Open questions
 1. **Default visibility:** is the board **fully visible by default** (hidden info is opt-in via cards like Mist/Submerged), or is there baseline fog-of-war? *(Recommendation: full visibility by default — simplest default rule; concealment is added by cards.)*
-2. **Exact list of hard "test" events:** D18 settles that a lie collapses when a hard fact tests it; beyond the reveal points (D137), the catalog of qualifying events isn't enumerated yet.
-3. **Default spell-resolution visibility (lean Model 2):** when you cast a **non-mimic** spell, does the opponent see the **true card/resolution** (D7; `Mimic` overrides holistically — *recommended*), or only ever the *effect* (ambient fog, less legible)?
-4. **Bluff economy:** can a player deploy face-down/unknown units generally, or only via specific cards?
-5. **Fairness of information:** do players get told *that* they lack information (e.g., "there is fog here") or can information be hidden so completely they don't know to look?
-6. **Reveal / view-merge (D12):** when a "reveal" effect exposes the hidden **below** layer, how does the owner's hidden sub-view merge into the opponent's view — *scope* (one hex / region / all), *duration* (instant snapshot / lasting), *granularity* (existence only / full identity)? Structurally already supported (reveal = a visibility-modifier on the perception layer); the mechanic shape is the open part.
+2. **Bluff economy:** can a player deploy face-down/unknown units generally, or only via specific cards?
+3. **Fairness of information:** do players get told *that* they lack information (e.g., "there is fog here") or can information be hidden so completely they don't know to look?
+4. **Reveal / view-merge (D12):** when a "reveal" effect exposes the hidden **below** layer, how does the owner's hidden sub-view merge into the opponent's view — *scope* (one hex / region / all), *duration* (instant snapshot / lasting), *granularity* (existence only / full identity)? Structurally already supported (reveal = a visibility-modifier on the perception layer); the mechanic shape is the open part.

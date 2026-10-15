@@ -6,6 +6,42 @@
 
 ---
 
+### D147 — Paying Life is damage to the payer
+
+Closes part (d) of `PLAN.md` Track A item 51. Before: D137 kept "pay N life" as not damage, with damage the only way an instruction lowers Life.
+
+**Adopted (user), to test:** paying N Life as a cost deals N damage to the payer, so Life goes down through damage or −X only (D143). "Whenever this is dealt damage" triggers fire on a cost payment; a card with such a trigger is priced with that in mind. Scenario: Track B item 24.
+
+**Why:** one instruction instead of two, and the trigger interaction is printed on the card, not hidden in a rules distinction. The two old catches are gone: damage no longer reveals anything by itself (D146), and the prototype has no prevention instruction (D141) — if prevention is added, a Life cost must not be preventable.
+
+**Considered and rejected:**
+- **Paying Life is −X:** lowers the max for good — harsher than a cost should be.
+- **A separate "lose Life"** (MTG's split, current only, not damage): avoids damage triggers on costs, at the price of the distinction D143 set out to avoid.
+
+→ `economy.md`, `glossary.md` (Life).
+
+### D146 — A belief breaks on contradiction; reveal points and private numbers are dropped
+
+Closes parts (b) and (c) of `PLAN.md` Track A item 51. Supersedes D137. Before: D137 made a permanent's numbers and the mana pools private and guaranteed a list of reveal points; the user suspected the guarantees couldn't be had.
+
+**Adopted (user):**
+- **Contradiction:** an instruction runs on the true state and, for each observer, on that observer's view; the parts of the two results the observer can see are compared. If they match, the view keeps its values — a lie survives as long as it is consistent. If they differ, **every false or hidden value the instruction read becomes true** for that observer. A hidden value predicts nothing, so a seen outcome that reads it shows it. The observer always sees the true outcome. A keyword may state its own collapse instead (D131).
+- **Numbers are not private.** A visible creature's Life, AP and Power are true by default (D140: fresh values from a true max, and a change to a visible object is seen); hidden or false numbers come only from keywords. The guarantees the user wanted then hold in the default case: a view showing 0 AP means 0, a card shown in a Hand is there.
+- **Reveal points are dropped** — they were examples of the contradiction rule (damage dealt reads Power; a creature acting with 0 AP in the view reads AP).
+- **A view is what the GUI shows**, not the player's belief. A Mimic face collapses when an outcome contradicts it, not at its first combat as such.
+- The mana pool's visibility and the GUI marker on resources a hidden trace could have spent move to item 52.
+
+**Why (user's example):** a 3/3/6 secretly made 1/3/6 deals 1 damage; the owner's view expected 3, so it learns the truth without any keyword. Comparing two runs of the same instruction is cheap and needs no deduction (D18). Collapsing every read value avoids a search; collapsing to the true value avoids an inferred value that would itself be false.
+
+**Considered and rejected:**
+- **Collapse by dependency** (any seen outcome reveals every value it read, consistent or not): ends bluffs that were never tested.
+- **Minimal-subset search** (find the smallest set of false values whose correction explains the outcome): cheap enough — an instruction reads a handful of values — but only matters when two false values were read; kept as an alternative.
+- **Collapse to an inferred value** (a 1-Power face kills a 2-Life creature → "2"): a deduction, and a new false belief.
+- **Collapse to hidden** ("?"): reveals the least, at the price of a visible unknown state; kept as an alternative.
+- **D137's numbers private to their owner, and its reveal points** (above).
+
+→ `asymmetric-information.md` (§The consistency problem, §When a belief breaks, Open questions), `glossary.md` (View, Hard fact, Collapse, Live mana ledger, Reveal point), `overview.md` §9, `docs/architecture/implementation-plan.md` (Perception). Engine: Track B item 20.
+
 ### D145 — A trace's cost is the pips, not the mana spent
 
 Closes part (a3) of `PLAN.md` Track A item 51. Before: "cost (narrowed: what was paid)" could mean either.
@@ -147,7 +183,7 @@ Closes `PLAN.md` Track A item 5 (transitions within a domain). Before: seven zon
 
 → `overview.md` §1, `object-properties.md`, `interaction-stack.md`, `asymmetric-information.md`, `glossary.md` and others: rewrite tracked at `PLAN.md` Track A item 53; engine at Track B item 21. D137's Mind counts are superseded by this decision.
 
-### D137 — Every view is a belief: the numbers and counts are private, a few reveal points are guaranteed true
+### D137 — Every view is a belief: the numbers and counts are private, a few reveal points are guaranteed true *(superseded by D146 and D147; Mind counts by D138)*
 
 Closes `PLAN.md` Track A item 35 (hide the Mind from the opponent). Before: D18 made standing state public (hand size, AP, Life, Power) and hid only the live mana balance; D71 made the three Mind counts public; D7 made the board fully visible; D18 called fell, unbond and discard costs self-revealing.
 

@@ -2,7 +2,7 @@
 
 *The skeleton everything hangs on. Two companion principles govern every default: **(1) the simplest rule that still exposes a hook** (see `history/knowledge-capture-plan.md` §Part A); **(2) pessimistic defaults (D14)** — the baseline is the weakest *still-functional-and-fun* case, and cards improve it with **positive** lines, never default restrictions (e.g. damage persists by default; healing is an ability).*
 
-**Decisions:** D3–D6, D8–D14, D16, D18, D20, D21, D24, D26, D30, D37–D50, D54–D58, D66–D68, D71, D75, D76, D77, D86, D100, D101, D102, D103, D114, D115, D116, D117, D119, D120, D128, D132, D133, D134, D139, D143, D144 (`history/decisions.md`)
+**Decisions:** D3–D6, D8–D14, D16, D18, D20, D21, D24, D26, D30, D37–D50, D54–D58, D66–D68, D71, D75, D76, D77, D86, D100, D101, D102, D103, D114, D115, D116, D117, D119, D120, D128, D132, D133, D134, D139, D143, D144, D146 (`history/decisions.md`)
 
 Legend: 🪝 = the mutation hook this default preserves so cards can bend it.
 
@@ -96,10 +96,10 @@ The stable substrate cards rely on. Kept fixed on purpose:
 ---
 
 ## 9. Visibility / perception (default)
-- **Default:** positions, identities, terrain and bonds on the board are **visible** to both Champions. Concealment is **opt-in via cards** (Mist, Submerged, Mimic). The numbers — stats, AP, Life, mana — are private to their owner and shown to others through **reveal points** (D137). A Mind's cards are visible as objects; Hand content is hidden from the opponent, Library content from everyone, Discard content from no one (D139).
+- **Default:** positions, identities, terrain and bonds on the board are **visible** to both Champions. Concealment is **opt-in via cards** (Mist, Submerged, Mimic). A visible creature's numbers — Life, AP, Power — are true to everyone by default (D140, D146); the mana pool's visibility is open (`PLAN.md` Track A item 52). A Mind's cards are visible as objects; Hand content is hidden from the opponent, Library content from everyone, Discard content from no one (D139).
 - 🪝 Visibility, appearance, and knowledge are **perception queries** per observer (see `asymmetric-information.md`). Default answers = "visible / true / known." → Mist, Submerged, Mimic, Detection are modifiers on these queries.
 - *Rationale:* full visibility is the simplest default that still exposes the perception hook; hidden info is layered on by cards, exactly per the "simplest rule that still exposes a hook" principle.
-- **Belief consistency (D18):** deceptions are card-authored **claims** that hold until a **hard fact** tests them, then **collapse to full truth**. The engine enforces only a small set of **conservation laws** (no deduction engine — humans reason). Every view is a belief; your own view of what you own is true by default; reveal points (damage dealt and taken, AP at 0, empty Hand, mana refresh, paying a cost) are always true (D137). See `asymmetric-information.md`.
+- **Belief consistency (D18):** deceptions are card-authored **claims** that hold until a **hard fact** tests them, then **collapse**: when an outcome an observer sees contradicts their view, every false or hidden value it read becomes true (D146). The engine enforces only a small set of **conservation laws** (no deduction engine — humans reason). A view is what the GUI shows; your own view of what you own is true by default. See `asymmetric-information.md`.
 
 ## 10. Champions (in-match default)
 - **Default:** each player has exactly one **Champion** on the board, placed by Setup (`setup.md`, D76, D114) on its **home tile**, already bonded to that tile (1 mana live from turn 1 — kept deliberately, D77, for tempo and to tax rushing the Champion out of its own realm). It is a special card type (HP, position) simulated by the core; **it is attackable, and its falling loses the game** (§7, D9). **First-turn AP asymmetry (D114):** Setup raises both Champions to at least **4 Activation Points**; the first-move-advantage lever is that Setup is the first player's opening Beginning phase, so that player gets no AP-refresh on turn 1 — exact starting number still deferred to tuning.

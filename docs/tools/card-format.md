@@ -69,7 +69,7 @@ kept in the trace and rechecked at resolution (D83).
 | `create` | Create `card` on target terrain (D88), parent and Behavior from the trace. |
 | `raise` | Target Remnant becomes a permanent of its card again (D110). |
 | `bounce` | Target returns to its controller's hand as a new card (D69). |
-| `flicker` | Target becomes a new Permanent trace on its terrain (D69). |
+| `flicker` | Target becomes a new trace (a card trace, D142) on its terrain (D69). |
 | `unbond` | Target terrain loses its bond record; everything behind it is cut (D122). |
 
 ## Abilities

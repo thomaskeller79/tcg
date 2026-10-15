@@ -24,7 +24,7 @@
 | Combat | Attack = Physical Trace naming terrain + Slice + entity (D115); Defend = Quick ability adding defenders bit by bit (D117); defended/undefended split at resolution | Declare-defenders step, combat object, one window |
 | Network | Knotting keyword (D121); pause vs. cut, theft (D122); realm lock; Collapse Network | Any enemy pauses; no cut, no theft |
 | Remnants | Fallen Creature/Companion leaves a Remnant (D110); Structure leaves nothing (D111); draw on simultaneous Champion fall (D113) | Actor removed |
-| Perception | Root hidden except controller and D67 proximity; Hand and Discard private (D71); live mana hidden | Underground hidden + "Located" flag; Discard public |
+| Perception | Root hidden except controller and D67 proximity; Hand content hidden from the opponent, Library from everyone, Discard public (D139); view states carried per instruction (D140), collapse on contradiction (D146); live mana: open (Track A item 52) | Underground hidden + "Located" flag; Discard public |
 | Neutral | Behavior, neutral seats acting (D56–D65, D82–D84) | Neutral turns pass immediately |
 | Debug UI | Two map views, both layouts agreed (Root: Root creatures on the three G corners, the Root Structure in the centre, Remnants and Items on the left and right of the ring; Ground+Sky: Ground creatures on three alternating corners, Sky on the other three, the Ground-slot Structure in the centre, Remnants and Items on the ring, a mark for terrain with abilities), Mind/Aether panels | One small-hex board, no Slices drawn |
 
