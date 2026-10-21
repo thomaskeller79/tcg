@@ -6,6 +6,19 @@
 
 ---
 
+### D158 — An exhausting cost pays `x` at C1 and drains the rest at C5
+
+`PLAN.md` Track A item 63, raised by the engine's D135 sync (Track B).
+
+**Adopted (user):** `x!AP` splits into its two parts. **`x` is paid at C1** with the fixed costs; **the remaining AP is consumed at C5**, when the casting arrives — after every surcharge paid at C4. An exhausting Move onto a Sucking Mire ("Move abilities that target this terrain cost 1 more AP") needs `x`+1 AP and still ends at 0 AP. An abort before C5 drains nothing.
+
+**Why:** with the whole drain at C1, nothing is left for a C4 surcharge, so an exhausting ability could never target a surcharged object — a hidden "can't" (against D133) that the Mire's "costs 1 more" never said, and against D134 (a cost modifier adds on top of whichever value applies). Draining at C5 matches D135: casting is one atomic event, and what it causes arrives at C5. Only surcharges become payable; AP beyond them is still drained.
+
+**Considered and rejected:**
+- **The literal rule** (drain at C1, as the engine first built it): exhausting abilities can never pay a surcharge.
+
+→ `economy.md` (§AP cost flavors), `interaction-stack.md` (§Casting, C5), `glossary.md`. Engine: Track B item 28.
+
 ### D157 — Overspending past the opponent's belief is a contradiction; an untested mana bluff ends at the reset; no "possible payers" marker
 
 `PLAN.md` Track A item 52 (mana pool), continued from D156.

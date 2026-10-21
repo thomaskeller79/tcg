@@ -2,7 +2,7 @@
 
 *The full resource model in one place. There are **two** resources — mana and Activation Points — and the same shape — "mana access + a private action budget" — repeats for every actor, **including the Champion and the Companion**. Learn it once, it applies everywhere (pillar 3).*
 
-**Decisions:** D8 (terrain/mana), D9 (Champion economy), D10 (Action Points), D15 (Defend cost), D22 (Companion), D45 (Speed), D47 (Activation Capacity), D48, D49 (Champion/Companion Attack), D58 (Activation Points), D65 (Defend once per round), D76 (first-turn AP asymmetry), D77 (mana accounting), D87 (Terrain holds no AP), D88, D110 (Remnant holds no AP), D89 (summoning sickness), D92 (Instant blocks active play), D114 (Setup is entering; Haste X), D116 (`~` cost; Attack `3~AP`, Defend `1~AP`), D134 (connected Champion/Companion costs), D143 (stat changes), D144 (Duration), D147 (Life as a cost) — `history/decisions.md`
+**Decisions:** D8 (terrain/mana), D9 (Champion economy), D10 (Action Points), D15 (Defend cost), D22 (Companion), D45 (Speed), D47 (Activation Capacity), D48, D49 (Champion/Companion Attack), D58 (Activation Points), D65 (Defend once per round), D76 (first-turn AP asymmetry), D77 (mana accounting), D87 (Terrain holds no AP), D88, D110 (Remnant holds no AP), D89 (summoning sickness), D92 (Instant blocks active play), D114 (Setup is entering; Haste X), D116 (`~` cost; Attack `3~AP`, Defend `1~AP`), D134 (connected Champion/Companion costs), D143 (stat changes), D144 (Duration), D147 (Life as a cost), D158 (`!` drains at C5) — `history/decisions.md`
 
 ---
 
@@ -42,7 +42,7 @@ This is pillar 5 at its purest: the base rules *are* abilities, so the engine ne
 
 ### AP cost flavors: `xAP`, `x!AP`, `x~AP`, `x*AP`
 - **`xAP`** — spend exactly `x`. Leftover AP remains usable (enables multi-action, e.g. a custom `1AP` attack that permits hit-and-run or multi-attack).
-- **`x!AP`** ("exhaust") — **require `x`, then consume *all* remaining AP.** The permanent can't act again until its next refresh, including on other players' turns: no defending, no reactive abilities.
+- **`x!AP`** ("exhaust") — **require `x`, then consume *all* remaining AP.** The permanent can't act again until its next refresh, including on other players' turns: no defending, no reactive abilities. `x` is paid at C1 with the fixed costs; the rest is consumed at C5, after every surcharge (`interaction-stack.md` §Casting, D158) — so an exhausting Move onto a Sucking Mire needs `x`+1 AP.
 - **`x~AP`** ("done for this turn", D116) — **spend exactly `x`; the permanent can't activate abilities until the end of this turn.** Leftover AP stays and is usable again from the next turn on — in particular on the opponents' turns, for defending.
 - **`x*AP`** ("once per cycle") — **spend exactly `x`; this specific action may be used at most once per own-turn cycle** (from the controller's turn start to its next one), regardless of leftover AP or AP gained later.
 
