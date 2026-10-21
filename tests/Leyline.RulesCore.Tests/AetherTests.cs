@@ -44,6 +44,27 @@ public class AetherTests
     }
 
     [Fact]
+    public void A_move_within_a_zone_keeps_the_object_and_changes_its_section()
+    {
+        var g = Load(Hands);
+        var card = g.HandCard(A, "spell.firebolt");
+        g.Ok(g.Cast(A, "spell.firebolt", Obj(g.P("creature.fire-warrior", 1))));
+        Assert.Same(card, g.State.Get<CardObject>(card.Id)); // D138: Hand → Discard, same card
+        Assert.Equal(CardSection.Discard, card.Section);
+        Assert.Equal(card.Id, g.State.Player(A).Discard[^1]);
+
+        var trace = g.State.Get<TraceObject>(g.State.Pending.Single());
+        g.ResolveAll();
+        Assert.Equal(TraceSection.Past, trace.Section); // Pending → Past, same trace
+        Assert.Equal(trace.Id, g.State.Past.Single());
+
+        var top = Creation.CreateCard(g.State, "spell.study", A, CardSection.Library);
+        Mind.Draw(g.State, A, 1);
+        Assert.Equal(CardSection.Hand, top.Section); // Library → Hand, same card
+        Assert.Equal(top.Id, g.State.Player(A).Hand[^1]);
+    }
+
+    [Fact]
     public void Slow_needs_your_own_main_phase_and_Pending_empty()
     {
         var g = Load(Hands);

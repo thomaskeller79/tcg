@@ -9,15 +9,17 @@ public abstract class GameObject
     public required ObjectId Id { get; init; }
     public required int Timestamp { get; init; }
     public ObjectId? Source { get; set; }
-    public Zone Zone { get; set; }
 }
 
-/// <summary>A Mind-domain object (D59). Its parent is the Champion whose zone contains it, live
-/// (D81) — <see cref="Owner"/> is that zone's owner, not a separate ownership concept.</summary>
+/// <summary>A card: a Mind object (D59, D138). Its parent is the Champion whose Mind contains it, live
+/// (D81) — <see cref="Owner"/> is that Mind's owner, not a separate ownership concept.</summary>
 public sealed class CardObject : GameObject
 {
     public required string Definition { get; init; }
     public required PlayerId Owner { get; set; }
+
+    /// <summary>D138: its section; its position is its index in that section's list.</summary>
+    public CardSection Section { get; set; }
 
     /// <summary>Max-tier changes carried back from a bounced permanent (object-properties.md §3).</summary>
     public int AttackDelta { get; init; }
@@ -160,6 +162,10 @@ public sealed record TargetChoice(ObjectId? Object = null, HexCoord? Hex = null,
 public sealed class TraceObject : GameObject
 {
     public required TraceKind Kind { get; init; }
+
+    /// <summary>D138: its section; its position is its index in that section's list. The trace
+    /// resolving now (<see cref="TrueState.Resolving"/>) is on Now: Pending, in no list.</summary>
+    public TraceSection Section { get; set; }
 
     /// <summary>The card name for a Permanent or Spell trace (D99); none for an Ability trace (D109).</summary>
     public string? Definition { get; init; }

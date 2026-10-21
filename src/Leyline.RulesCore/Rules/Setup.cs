@@ -81,7 +81,7 @@ public static class Setup
         {
             var ps = player == PlayerId.A ? setup.A : setup.B;
             foreach (var card in ps.Deck)
-                Creation.CreateCard(state, card, player, Zone.Library);
+                Creation.CreateCard(state, card, player, CardSection.Library);
             if (setup.ShuffleLibraries)
                 Mind.Shuffle(state, state.Player(player).Library);
             Mind.Draw(state, player, setup.OpeningHand);

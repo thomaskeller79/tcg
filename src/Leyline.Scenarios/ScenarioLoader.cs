@@ -233,7 +233,7 @@ public static class ScenarioLoader
                 s.Edits.Add(state =>
                 {
                     foreach (var c in cards)
-                        Creation.CreateCard(state, c, player, Zone.Hand);
+                        Creation.CreateCard(state, c, player, CardSection.Hand);
                 });
                 break;
             }

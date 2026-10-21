@@ -10,7 +10,7 @@
 
 | Area | Rules (current) | Code at start |
 |---|---|---|
-| Object model | Card / Trace / Permanent, one unified monotonic ID + timestamp, `source` links (D93, D97) | `CardDefinitionId` lists in zones (no card objects), `ActorId` for actors, `TraceId` separate, no timestamps, no `source` |
+| Object model | Card / Trace / Permanent, one unified monotonic ID + timestamp, `source` links (D93, D97); the zone follows from the kind, a card or trace has a section and position (D138) | `CardDefinitionId` lists in zones (no card objects), `ActorId` for actors, `TraceId` separate, no timestamps, no `source` |
 | Permanent types | Champion, Companion, Creature, Structure (Actors); Item, Remnant, Terrain (Objects) | Creature and Champion only |
 | Terrain | One Terrain permanent per hex (D100), Element-producing, bond record = parent, drawn-this-cycle flag (D77), move-cost static | `Cell.Terrain` string, bond set on the Champion |
 | Slices | Root / Ground / Sky, capacity 3, entry = every occupant shares your controller (D86, D119); two Structure slots (Ground, Root) | `Level` Surface/Air/Underground, any enemy blocks the level |
@@ -34,7 +34,7 @@ Each phase ends with its own tests passing and a commit. The engine is rebuilt a
 
 | Phase | Content | Verified by |
 |---|---|---|
-| **P1 — Object model** | Unified `ObjectId` + timestamp; Card/Trace/Permanent objects; zones; Terrain permanents per hex; Slices + Structure slots; card definitions with abilities as data; JSON content; Ancestry walks (payer, controller); 4-seat turn order; AP flavors; Element mana pools with live crediting | unit tests on walks, pools, turn order |
+| **P1 — Object model** | Unified `ObjectId` + timestamp; Card/Trace/Permanent objects; zones (Mind, Aether, Island) with ordered sections (D138); Terrain permanents per hex; Slices + Structure slots; card definitions with abilities as data; JSON content; Ancestry walks (payer, controller); 4-seat turn order; AP flavors; Element mana pools with live crediting | unit tests on walks, pools, turn order |
 | **P2 — Aether** | Activation procedure as one transaction (legality, pay, target, enter Pending); Speeds; priority + Now; Instants; Physical Traces; Past fade; per-instruction resolution checks; immediate consequences; trigger collection and ordering; instruction verbs (damage, heal, draw, fell, destroy, create, raise, bounce, flicker, gain AP, stat buffs, unbond) | tests per speed, per verb, trigger order (Cinder-Verdict-style) |
 | **P3 — Network** | Bond (Champion `2*AP`, Companion `3*AP`), Knotting, pause, cut, theft, realm lock, Collapse Network, Structure/Remnant control from terrain | tests per D121/D122 rule |
 | **P4 — Movement & Slices** | Move (static costs on the Move subtype D129, the connected Move cost D134), Ascend/Descend, Flying/Subterranean Slice filters, entry rule, mixed Slices, hidden occupants never block (D132), Root perception + D67 proximity | tests incl. hidden occupants |
@@ -89,7 +89,7 @@ Nothing had to be paused for lack of a guess. Not built in this pass because no 
 
 - **Deception (D18):** faces, claims, Mimic, collapse; concealment effects beyond the Root default (Mist, Submerged, D118).
 - **History track (D98)** and card text reading it ("attacked this turn").
-- **Remand, un-summon, Future-zone delays** (D69, D16, D38).
+- **Remand and delays into the Future section** (D69, D38, D138); un-summon is outside the prototype (D141).
 - **The effect form outside the prototype scope (D104):** targeted triggers (G25), choices at resolution, modes, `X` costs, costs on options (D135).
 - **Mulligans** (G13), and Structures a terrain card brings at Setup (`resources-terrain.md` Open question 3).
 - **Behaviors beyond `Aggressive toward X`.**

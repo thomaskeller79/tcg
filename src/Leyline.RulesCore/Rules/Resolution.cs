@@ -57,7 +57,7 @@ public static class Resolution
         }
         else
         {
-            trace.Zone = Zone.Past;
+            trace.Section = TraceSection.Past;
             trace.RoundResolved = state.Round;
             state.Past.Add(trace.Id);
         }
@@ -372,7 +372,7 @@ public static class Resolution
             return;
         }
         var name = state.NameOf(p.Id);
-        Creation.CreateCard(state, p.Definition, owner, Zone.Hand, p.Id, p.AttackDelta, p.MaxLifeDelta);
+        Creation.CreateCard(state, p.Definition, owner, CardSection.Hand, p.Id, p.AttackDelta, p.MaxLifeDelta);
         Creation.CeaseToExist(state, p.Id, $"{name} returns to Champion {owner}'s hand.");
     }
 

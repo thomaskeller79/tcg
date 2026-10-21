@@ -69,16 +69,21 @@ public enum Phase
     End,
 }
 
-/// <summary>D16/D37/D38: every object is in exactly one zone.</summary>
-public enum Zone
+/// <summary>D37/D138: where in its Mind a card is. Every section is ordered (D71); the zone
+/// itself follows from the object's kind (a card is in a Mind, a trace in the Aether).</summary>
+public enum CardSection
 {
     Library,
     Hand,
     Discard,
+}
+
+/// <summary>D38/D138: where in the Aether a trace is.</summary>
+public enum TraceSection
+{
     Past,
     Pending,
     Future,
-    Island,
 }
 
 /// <summary>D44/D103: Actors (Champion, Companion, Creature, Structure) and Objects (Item,

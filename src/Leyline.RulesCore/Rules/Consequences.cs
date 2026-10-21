@@ -69,23 +69,29 @@ public static class Consequences
     }
 }
 
-/// <summary>Mind-domain helpers (D37, D71): drawing and shuffling.</summary>
+/// <summary>Mind helpers (D37, D71, D138): moving a card between sections, drawing and shuffling.</summary>
 public static class Mind
 {
+    /// <summary>D138: a move within the Mind — the same card, a new section, last in it.</summary>
+    public static void Move(TrueState state, CardObject card, CardSection to)
+    {
+        var mind = state.Player(card.Owner);
+        mind.Section(card.Section).Remove(card.Id);
+        mind.Section(to).Add(card.Id);
+        card.Section = to;
+    }
+
     public static void Draw(TrueState state, PlayerId player, int count)
     {
-        var zones = state.Player(player);
+        var mind = state.Player(player);
         for (var i = 0; i < count; i++)
         {
-            if (zones.Library.Count == 0)
+            if (mind.Library.Count == 0)
             {
                 state.Note($"Champion {player} can't draw: the Library is empty.");
                 return;
             }
-            var id = zones.Library[0];
-            zones.Library.RemoveAt(0);
-            zones.Hand.Add(id);
-            state.Get<CardObject>(id).Zone = Zone.Hand;
+            Move(state, state.Get<CardObject>(mind.Library[0]), CardSection.Hand);
         }
         state.Note($"Champion {player} draws {count} card{(count == 1 ? "" : "s")}.");
     }

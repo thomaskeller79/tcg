@@ -42,7 +42,7 @@ public static class Activation
 
     private static BuildResult BuildCast(TrueState state, ActivationRequest req, CardObject card)
     {
-        if (req.Actor is not { } actor || card.Zone != Zone.Hand || card.Owner != actor)
+        if (req.Actor is not { } actor || card.Section != CardSection.Hand || card.Owner != actor)
             return BuildResult.Fail("That card is not in your hand.");
         if (req.AbilityId != DefaultAbilities.Cast)
             return BuildResult.Fail("A card in hand can only be cast.");
@@ -323,13 +323,7 @@ public static class Activation
                 apPayer.CurrentLife -= draft.Cost.Life;
         }
         if (draft.IsCast)
-        {
-            var card = state.Get<CardObject>(draft.Source);
-            var zones = state.Player(card.Owner);
-            zones.Hand.Remove(card.Id);
-            zones.Discard.Add(card.Id);
-            card.Zone = Zone.Discard;
-        }
+            Mind.Move(state, state.Get<CardObject>(draft.Source), CardSection.Discard);
     }
 
     /// <summary>C5 Enter Pending: the trace enters Pending, with any triggers the payment fired

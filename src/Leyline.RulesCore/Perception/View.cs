@@ -51,10 +51,10 @@ public sealed record PermanentView(
 
 public sealed record CardView(int Id, string Card);
 
-/// <summary>A Champion's Mind zones as the observer sees them (D71): counts are public;
+/// <summary>A Champion's Mind, section by section, as the observer sees it (D71): counts are public;
 /// contents only for the owner — and the owner's own Library in a canonical order, never the
 /// draw order.</summary>
-public sealed record ZonesView(
+public sealed record MindView(
     string Player,
     int? ChampionId,
     int HandCount,
@@ -120,7 +120,7 @@ public sealed record View(
     bool IsDraw,
     IReadOnlyList<HexView> Hexes,
     IReadOnlyList<PermanentView> Permanents,
-    IReadOnlyList<ZonesView> Players,
+    IReadOnlyList<MindView> Players,
     IReadOnlyList<TraceView> Pending,
     IReadOnlyList<TraceView> Past,
     TraceView? Resolving,

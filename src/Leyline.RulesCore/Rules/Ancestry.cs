@@ -4,7 +4,7 @@ using Leyline.RulesCore.State;
 namespace Leyline.RulesCore.Rules;
 
 /// <summary>
-/// ancestry.md: one parent-link structure over every domain, and its two walks — Payment (stop at
+/// ancestry.md: one parent-link structure over every zone, and its two walks — Payment (stop at
 /// the first node holding the resource) and Controller (climb to the root: a Champion, or Neutral).
 /// Only the Terrain → bonder edge can be inactive (D83): while no unknotted path connects the
 /// terrain to its bonder, neither walk crosses it.

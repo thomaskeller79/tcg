@@ -4,14 +4,14 @@ using Leyline.RulesCore.State;
 namespace Leyline.RulesCore.Rules;
 
 /// <summary>
-/// Creating and removing objects (object-properties.md). Nothing ever moves between domains: a
+/// Creating and removing objects (object-properties.md). Nothing ever moves between zones: a
 /// transition creates a new object from its predecessor's current state (D69). An object that
 /// leaves every zone ceases to exist, and links through it are joined up (D97); a removed node
 /// updates its subtree in the same step (ancestry.md §Removing an inner node).
 /// </summary>
 public static class Creation
 {
-    public static CardObject CreateCard(TrueState state, string definition, PlayerId owner, Zone zone, ObjectId? source = null, int attackDelta = 0, int maxLifeDelta = 0)
+    public static CardObject CreateCard(TrueState state, string definition, PlayerId owner, CardSection section, ObjectId? source = null, int attackDelta = 0, int maxLifeDelta = 0)
     {
         var card = new CardObject
         {
@@ -19,20 +19,13 @@ public static class Creation
             Timestamp = state.NewTimestamp(),
             Definition = definition,
             Owner = owner,
-            Zone = zone,
+            Section = section,
             Source = source,
             AttackDelta = attackDelta,
             MaxLifeDelta = maxLifeDelta,
         };
         state.Add(card);
-        var player = state.Player(owner);
-        switch (zone)
-        {
-            case Zone.Library: player.Library.Add(card.Id); break;
-            case Zone.Hand: player.Hand.Add(card.Id); break;
-            case Zone.Discard: player.Discard.Add(card.Id); break;
-            default: throw new ArgumentOutOfRangeException(nameof(zone), zone, "A card exists only in a Mind zone (D59).");
-        }
+        state.Player(owner).Section(section).Add(card.Id);
         return card;
     }
 
@@ -62,7 +55,6 @@ public static class Creation
             Parent = kind is PermanentKind.Creature or PermanentKind.Companion ? parent : null,
             Behavior = behavior,
             Source = source,
-            Zone = Zone.Island,
             AttackDelta = attackDelta,
             MaxLifeDelta = maxLifeDelta,
             Pool = kind.IsRoot() ? new ManaPool() : null,
@@ -95,7 +87,6 @@ public static class Creation
             Hex = state.PositionOf(fallen),
             Slice = Island.LooseSliceFor(fallen.Slice),
             Source = fallen.Id,
-            Zone = Zone.Island,
         };
         state.Add(remnant);
         return remnant;
@@ -104,7 +95,7 @@ public static class Creation
     public static TraceObject CreateTrace(TrueState state, TraceObject trace)
     {
         state.Add(trace);
-        trace.Zone = Zone.Pending;
+        trace.Section = TraceSection.Pending;
         state.Pending.Add(trace.Id);
         return trace;
     }
@@ -121,15 +112,10 @@ public static class Creation
         if (obj is Permanent p)
             UpdateSubtree(state, p);
 
-        foreach (var player in state.Players)
-        {
-            player.Hand.Remove(id);
-            player.Library.Remove(id);
-            player.Discard.Remove(id);
-        }
-        state.Pending.Remove(id);
-        state.Past.Remove(id);
-        state.Future.Remove(id);
+        if (obj is CardObject card)
+            state.Player(card.Owner).Section(card.Section).Remove(id);
+        if (obj is TraceObject trace)
+            state.Section(trace.Section).Remove(id);
         state.Modifiers.RemoveAll(m => m.Subject == id);
 
         // D97: whatever had it as `source` takes over its `source`.

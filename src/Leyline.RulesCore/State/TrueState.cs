@@ -3,7 +3,8 @@ using Leyline.RulesCore.Rng;
 
 namespace Leyline.RulesCore.State;
 
-/// <summary>D16/D37: one Champion's Mind zones, each ordered. Library[0] is the top.</summary>
+/// <summary>D16/D37/D138: one Champion's Mind — its cards by section, each ordered (D71); a
+/// card's position is its index. Library[0] is the top; Hand and Discard in order of arrival.</summary>
 public sealed class PlayerState
 {
     public required PlayerId Id { get; init; }
@@ -11,6 +12,13 @@ public sealed class PlayerState
     public List<ObjectId> Hand { get; } = [];
     public List<ObjectId> Discard { get; } = [];
     public ObjectId? Champion { get; set; }
+
+    public List<ObjectId> Section(CardSection section) => section switch
+    {
+        CardSection.Library => Library,
+        CardSection.Hand => Hand,
+        _ => Discard,
+    };
 }
 
 /// <summary>A continuous change to a queried value (continuous-effects.md): folded in append
@@ -87,7 +95,7 @@ public sealed class TrueState
     public Dictionary<HexCoord, ObjectId> TerrainAt { get; } = new();
     public MapInfo Map { get; set; } = MapInfo.Empty;
 
-    // --- Objects of every domain.
+    // --- Objects of every zone.
     private readonly Dictionary<ObjectId, GameObject> _objects = new();
     public PlayerState[] Players { get; } = [new PlayerState { Id = PlayerId.A }, new PlayerState { Id = PlayerId.B }];
 
@@ -97,10 +105,18 @@ public sealed class TrueState
     public int Round => (TurnNumber - 1) / 4 + 1;
     public Phase Phase { get; set; } = Phase.Setup;
 
-    // --- Aether (D38). Pending is bottom → top; Past oldest first.
+    // --- Aether (D38, D138): traces by section; a trace's position is its index. Pending is
+    // bottom → top; Past oldest first.
     public List<ObjectId> Pending { get; } = [];
     public List<ObjectId> Past { get; } = [];
     public List<ObjectId> Future { get; } = [];
+
+    public List<ObjectId> Section(TraceSection section) => section switch
+    {
+        TraceSection.Past => Past,
+        TraceSection.Pending => Pending,
+        _ => Future,
+    };
 
     /// <summary>A trace mid-resolution, waiting for a decision (G16).</summary>
     public ObjectId? Resolving { get; set; }

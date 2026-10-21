@@ -48,7 +48,7 @@ public static class ViewProjector
         {
             var owner = Owns(ps.Id);
             var champion = state.ChampionOf(ps.Id);
-            return new ZonesView(
+            return new MindView(
                 ps.Id.ToString(),
                 champion?.Id.Value,
                 ps.Hand.Count,

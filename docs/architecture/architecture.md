@@ -39,7 +39,7 @@ Meta-progression (outside the match core; touches it only via a resolved Loadout
 ## 2. Components — responsibility, boundary, interface
 
 ### 2.1 Rules Core
-The sole authoritative simulator: state (Card/Trace/Permanent objects in their zones), the activation procedure and Pending/priority, per-instruction resolution with immediate consequences, triggers, the query/modifier layer, legal-command generation, combat, the terrain network, win-check (`src/Leyline.RulesCore/Rules/`). Base rules are written as default abilities on the cards (pillar 5); only their verbs are built in. No replacement-effect hook exists yet (`continuous-effects.md`). Reads the Card Data Content Repository as static input; never touches Meta-progression (consumes a resolved Loadout only, D1); never references an engine, sockets, or a serialization format.
+The sole authoritative simulator: state (Card/Trace/Permanent objects in their zones, cards and traces by section, D138), the activation procedure and Pending/priority, per-instruction resolution with immediate consequences, triggers, the query/modifier layer, legal-command generation, combat, the terrain network, win-check (`src/Leyline.RulesCore/Rules/`). Base rules are written as default abilities on the cards (pillar 5); only their verbs are built in. No replacement-effect hook exists yet (`continuous-effects.md`). Reads the Card Data Content Repository as static input; never touches Meta-progression (consumes a resolved Loadout only, D1); never references an engine, sockets, or a serialization format.
 **In:** validated Commands from a Host. **Out:** True State + true Events, to Perception only (or to the Test/Sim harness).
 
 ### 2.2 Perception layer

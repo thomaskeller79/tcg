@@ -74,7 +74,7 @@ public static class Combat
 
     public static bool CanDefend(TrueState state, Permanent defender, TraceObject attackTrace) =>
         attackTrace.Attack is { } attack
-        && attackTrace.Zone == Zone.Pending
+        && attackTrace.Section == TraceSection.Pending
         && attackTrace.ActingPermanent is { } attacker
         && !attack.Defenders.Contains(defender.Id)
         && IsEligibleDefender(state, defender, attack, attacker);
