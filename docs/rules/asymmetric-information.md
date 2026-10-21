@@ -79,7 +79,7 @@ The hard core of pillar 6 is not *hiding* a fact but keeping a *false view inter
 > **Players believe what they see. A lie holds until an outcome they see contradicts it; then the truth is applied, and the lie collapses.**
 
 - The engine **never fabricates a consistent alternate reality** (rejected: infinite regress, unbalanceable, not authorable). **Cards author what the opponent sees** (Pretend, below); the engine applies it and does nothing to back it up.
-- **No deduction engine.** Beliefs change only by an instruction's update, by observation and by contradiction — a sound but incomplete picture by design. The engine enforces a **small, finite, documented set of conservation laws** (e.g. *sum of claimed mana costs this turn ≤ public network max* → auto-collapse over-claims). **All other deduction is the human's.** The mind-game lives in the player, not the CPU.
+- **No deduction engine.** Beliefs change only by an instruction's update, by observation and by contradiction — a sound but incomplete picture by design. The engine enforces a **small, finite, documented set of conservation laws** (e.g. a payment can't take the opponent's count of a mana pool below 0, D157). **All other deduction is the human's.** The mind-game lives in the player, not the CPU.
 - **A lie is cheap until reality tests it.** A pretended stat holds until an outcome diverges (unexpected damage, or a fall the belief said wouldn't happen); a claimed cost holds until conservation can't reconcile it. A consistent lie may never be tested at all.
 - **Every hidden-information ability may state its own collapse (D131).** A concealment, a Mimic face or any other ability that creates hidden or false information may state when it collapses and what part of it collapses; otherwise the contradiction rule (§When a belief breaks) applies. What is revealed must fit what the observer saw — the game must never make a player remember that a creature shown as 2 power really dealt 4.
 - **Reveal (keyword, D102)** sets one player's belief about an object equal to its true value, on purpose. It is a one-time event, not a lasting state.
@@ -96,6 +96,7 @@ Each instruction sets every copy itself. The defaults, which card text may overr
 - **The death check** runs on the true state and applies the fall to every copy: a death names the creature that fell, not where.
 - **Durations run per copy:** a trace's Duration may differ between copies, so an effect can end in one copy and not in another.
 - **A move** keeps the opponent's location belief (§Observation).
+- **The mana pool (D156).** The opponent's belief of a pool is one count; the controller's copy holds the counts per kind. A credit raises the count by the terrain's production and flips its drawn flag in every copy; add mana raises it by the believed amount; a cost lowers it by the believed pips; the owner's Beginning phase sets it to 0. Pretended costs and gains reach the opponent's copy, true ones don't; color is never checked.
 
 A belief is never disjunctive ("either this one or that one"): every update lands on one object per copy.
 
@@ -117,7 +118,7 @@ Example: B believes X has Power 3, truly 2, because of a Pretend. X hits B's cre
 
 The small reveal (read values only) and the explicit reveal (every instruction reveals what it reads, no comparison) are kept as alternatives (`history/playtest-variants.md`).
 
-**Costs.** A cost that changes something an observer sees (felling a visible creature, an unbond, Life paid as damage, D147) shows that change. The mana pool's visibility, and a GUI marker on resources a hidden trace could have spent, are open (`PLAN.md` Track A item 52).
+**Costs.** A cost that changes something an observer sees (felling a visible creature, an unbond, Life paid as damage, D147) shows that change. A payment that takes the opponent's count of a pool below 0 contradicts it, with the large reveal (D157). The reset at the owner's Beginning phase makes the count true in every copy, so an untested mana bluff is never revealed afterwards.
 
 ## Representing deception: Pretend, Mimic, ChooseOne (D18, D150)
 **Pretend is the one deception mechanism.** A card states its true effect and, after *Pretend*, what the opponent sees; the opponent believes it. The true copy and the controller's copy apply the true effect, the opponent's copy the pretend:

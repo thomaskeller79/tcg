@@ -6,6 +6,41 @@
 
 ---
 
+### D157 — Overspending past the opponent's belief is a contradiction; an untested mana bluff ends at the reset; no "possible payers" marker
+
+`PLAN.md` Track A item 52 (mana pool), continued from D156.
+
+**Adopted (user):**
+- **A payment that takes the opponent's count below 0 contradicts it**, like a creature paying more AP than believed (D151): the large reveal as written — the count becomes true and the Pretends that caused the false count are revealed, traced on the true state. The real payment is always checked against the true pool, so a Pretend can only *show* spending the player can't afford. To playtest: the reveal names which of several spells was the cheap one, which a human could not deduce.
+- **The Beginning-phase reset sets the pool to 0 in every copy**, so a mana bluff never tested by an outcome is not revealed afterwards; it only has to last until the owner's next Beginning phase.
+- **No GUI marker for "resources a hidden trace's possible payers could have spent".** Every instruction names its source (D153) and a cost is paid by the Payment walk from that source alone (`ancestry.md`), so each payment lands on exactly one believed pool. A Pretend showing a different source lowers the wrong pool's count and is caught by the overspend contradiction.
+
+**Why:** the AP rule and D18's conservation law (claimed costs ≤ what the network produced) already make overspending a contradiction; a special rule for mana needs a reason no playtest has given yet. Without the check, a Pretend showing a higher cost would never be caught.
+
+**Considered and rejected:**
+- **No check on overspending** (user's first idea): a Pretend showing a higher cost is never caught.
+- **Count-only reveal** (the count becomes true, nothing else): an exception to the large reveal for one property. Kept for the playtest if the large reveal gives away too much.
+
+→ `asymmetric-information.md` (§Beliefs, §Costs, §The consistency problem), `ancestry.md` (§Payment). Engine: Track B item 27.
+
+### D156 — The mana pool is a property; the opponent believes it as one count
+
+`PLAN.md` Track A item 52 (mana pool), restating D77's pool and D137's visibility in the belief model (D149).
+
+**Adopted (user):**
+- **The pool is a property** of the Champion and of each Companion: a count per mana kind (colorless, or a disjunction over Elements, D125), e.g. "3 Water, 1 Water/Air". A unit of mana is not an object — nothing targets, names or tracks one. The drawn-this-cycle flag is a terrain property (D77).
+- **The opponent's belief of a pool is one count**, not a count per kind; the controller's own copy holds the counts per kind. The opponent's copy changes by what the opponent believes — pretended costs and pretended gains; true costs, true gains and which mana paid never reach it.
+- **Default updates, the same function in every copy (D149):** a credit raises the count by the terrain's production and flips its drawn flag (bonds and production are true, so the opponent knows what was drawn — a hidden Knotting creature can be read off a terrain that wasn't drawn); add mana raises it by the believed amount; a cost lowers it by the believed pips (D155: values in a trace come from beliefs); the owner's Beginning phase sets it to 0.
+- **Prototype: color is never checked.** A Pretend can claim an Element the player has no terrain for; spotting it is the human's deduction (D18). A belief with color is Track D item 62.
+
+**Why:** bonds are true and production is printed, so the amount a player drew is known anyway; hiding it would only make players compute it. A count-only belief means a Pretend cost never forces the player to invent which mana paid it. As a property, the pool needs no visibility mechanism of its own.
+
+**Considered and rejected:**
+- **An unobservable pool:** the amount follows from true bonds, so hiding it is only a burden.
+- **A conservation law for colored pips** ("a claimed colored pip needs a bonded terrain of that Element", Claude): any one such terrain anywhere silences it; parked in Track D item 62.
+
+→ `asymmetric-information.md` (§Beliefs), `resources-terrain.md` (§Mana), `glossary.md` (Live mana ledger), `overview.md` §4. Engine: Track B item 27.
+
 ### D155 — Your own permanents are true in your copy; traces show targets by observation; no hidden creation in the prototype
 
 `PLAN.md` Track A item 59 (observation of cards and traces). Generalizes D149's damage default; replaces D152's move-trace rule.
