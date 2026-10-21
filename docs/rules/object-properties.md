@@ -2,15 +2,15 @@
 
 *What a game object is made of — Card, Trace, and Permanent as one connected chain — and how properties move (or don't) when one creates another, including backward: Bounce and Flicker.*
 
-**Decisions:** D69, D70, D72, D73, D74, D75, D83, D88, D93, D97, D98, D99, D100, D101, D103, D105, D106, D107, D108, D109, D129, D130, D133, D135, D141, D142, D143, D144, D145 (`history/decisions.md`)
+**Decisions:** D69, D70, D72, D73, D74, D75, D83, D88, D93, D97, D98, D99, D100, D101, D103, D105, D106, D107, D108, D109, D129, D130, D133, D135, D141, D142, D143, D144, D145, D148, D149 (`history/decisions.md`)
 
 ---
 
 ## 1. The object graph
 
-Every game object is in exactly one zone, each zone has exactly one kind of object in it, and no object ever changes zone (`overview.md` §1, D37/D59/D138):
+Every game object is in exactly one zone, and each zone has exactly one kind of object in it, so the zone follows from the object's kind and is not part of the state (`overview.md` §1, D37/D59/D138/D148):
 
-- **Mind** (one per Champion) — **Card**. Its section is Hand, Library, or Discard.
+- **Mind** (one per Champion) — **Card**. Its location is whose Mind, its section (Hand, Library or Discard) and its position; a card can move to another Champion's Mind and stays the same object (D148).
 - **Aether** — **Trace**. Its section is Past, Pending, or Future.
 - **Island** — **Permanent**. An Actor (Champion, Companion, Creature, Structure) or an Object (Item, Terrain, Remnant) (D103).
 
@@ -23,11 +23,11 @@ Two things that look like they might belong on this list don't:
 
 **Three permanent-type cards skip the Mind entirely.** Champion and Terrain exist in a player's collection like any other card, but never occupy Hand/Library/Discard. **The exact mechanism by which they, and Map-populated Neutral Structures/Items/Creatures/Companions, become Permanents at setup is not yet decided** — it is *not* simply a direct Card→Permanent edge, since that would contradict Mind→Island being forbidden (§2); it plausibly involves the Map itself as a participant in the process, not just the card and the permanent. See Open questions.
 
-## 2. No object ever changes zone
+## 2. A transition between kinds creates a new object
 
 Casting a card — activating its Cast ability (D142) — doesn't relocate it into the Aether: it **creates** a new, linked Trace, while the card itself discharges into Discard as part of the cost (`glossary.md`'s **Zone** entry, D16). A resolving Trace doesn't relocate onto the Island — it **creates** a new, linked Permanent. This is true in both directions: **Bounce** and **Flicker**, the two backward transitions, also create new objects rather than moving an existing one back. A bounced permanent's card can end up sitting in Hand while an entirely different, untouched card object from the same cast still sits in Discard — that's not a violation of "one object, one zone," because they're two separate objects, exactly the same way a cast card and the permanent it produced are two separate objects.
 
-A move within a zone (draw, discard, mill, resolve, delay — the **move** instruction, D141) changes the **section** and **position** of the same object; nothing else changes (D138). A move between zones always creates a new object, its properties set by the rules below (D69). The six ordered transitions between zones:
+A **move** (draw, discard, mill, resolve, delay, a card passing to another Champion's Mind — the **move** instruction, D141, D148) changes only the location of the same object: a card's Mind, section and position, a trace's section and position (D138). A transition between kinds always creates a new object, its properties set by the rules below (D69). The six ordered transitions between zones:
 
 | Transition | Name | Status |
 |---|---|---|
@@ -83,6 +83,7 @@ Once a variable value is resolved — an X-cost, an X/X/X stat line, a modal car
 One list per object type, built from two shared groups (D103). Each property also has a **transition rule** saying how a created object gets its value from its predecessor (D105): **copy**; **narrow** (open choices resolved, e.g. the options not chosen, with their costs, dropping out at Trace creation); **fresh** (a new value for every object); **convert** (target ↔ location); **drop** (no slot on the new object); **derive** (a query, nothing transferred). **Stored** properties are state; **derived** ones are queries over other state and never stored (one fact, one home, D101); **definition-only** ones live on the card definition, reached through the name, never on a game object. **Properties are never added or removed during play**, only their values change; "none" is an ordinary value (a Champion's parent, a Map-placed permanent's `source`). A type lacks a property only where giving it a value would change the rules (Terrain with Activation Points could act).
 
 **General rules (all types).**
+- **Every property exists three times:** the true value and one belief per Champion (D149, `asymmetric-information.md`). The transition rules below apply to each copy: a created object's belief copies the predecessor's belief once (D140).
 - **Name is immutable** and is the reference to the card definition; names are unique across card definitions (D99). The definition supplies printed originals and same-card identity. Every other property can be changed.
 - **ID and timestamp** (D61, D93) and **`source`** (§2, D97) on every game object.
 - **Subtypes** on every type that has a card (D99), and on every ability (D129): an ability's subtypes name its kind of action (Move, Attack, Defend…), so effects can modify abilities by subtype. A card's subtypes are not passed on to its abilities.

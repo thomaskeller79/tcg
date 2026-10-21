@@ -6,6 +6,162 @@
 
 ---
 
+### D155 — Your own permanents are true in your copy; traces show targets by observation; no hidden creation in the prototype
+
+`PLAN.md` Track A item 59 (observation of cards and traces). Generalizes D149's damage default; replaces D152's move-trace rule.
+
+**Adopted (user):**
+- **A change to a permanent a Champion controls is true in its copy, unless a Pretend says otherwise.** An instruction default, not an observation checked after the instruction (that would undo the Pretend). It covers damage: the damaged creature's controller sees the true amount, whatever it believes about the source. A hidden curse on your creature is a Pretend.
+- **A trace shows each target only to Champions who observe it.** A permanent target is always named (D153), its location shown only to those who observe it. A location target — one Slice of one terrain — is shown only to those who observe that Slice; a Champion observes a Slice where it would observe a permanent it doesn't control. A move inside darkness stays hidden; a move out into the light shows its destination. A visible effect still hints where a hidden source is — the price of acting in the open.
+- **An ability trace takes each Champion's belief of its source:** activating creates the trace from the permanent's ability, so each copy of the trace is copied once from that Champion's belief of the ability (D140) — automatically, with nothing written on the ability. A Mimic believed to be a Goblin that activates a Dragon ability contradicts that belief. A Pretend written on an ability is only for deceiving beyond that.
+- **Values in a trace come from beliefs:** a value computed from a property ("damage equal to its Power") takes each Champion's belief of that property (D140), fixed at activation or computed at resolution alike. So B's copy reads 2 where the truth reads 3, and the comparison reveals the difference only when an outcome shows it.
+- **Discard follows the trace:** each Champion's belief of a cast card in Discard is its belief of the trace (D140).
+- **Prototype: creating a permanent is never hidden.** A Pretend on a creation may only show a different permanent — a Mimic face, or "create 2 Fire Warriors. *Pretend:* create 2 Water Elementals". So every permanent is in every belief, with values. Truly unseen creatures are Track D item 52.
+
+**Why:** a trace's targets were the remaining way a hidden creature's location leaked. Hidden abilities for hidden permanents (Claude) didn't cover values the ability reads. Banning hidden creation removes the only case of a permanent named without any believed values.
+
+**Considered and rejected:**
+- **A hidden creature's ability trace keeps its content hidden** (D140, Claude): leaks through its targets anyway, and hides an ability the opponent can infer from the named creature.
+- **The controller observes only damage dealt to its permanents** (Claude): narrower than needed; Pretend already makes the exceptions.
+
+→ `asymmetric-information.md` (§Observation, §Beliefs, §Representing deception), `effect-form.md` (§Prototype scope), `glossary.md` (Pretend). Engine: Track B item 25.
+
+### D154 — A card belief always knows its section; a card you lose track of becomes anonymous
+
+`PLAN.md` Track A item 59 (counts, a shuffled card). Answers item 55 for cards.
+
+**Adopted (user):**
+- **A belief is never disjunctive** ("either this card or that one"). On the Island D153 guarantees it; cards need their own rule, because showing which card a hidden draw took would reveal it.
+- **A card belief always knows the card's section,** so the counts of Library, Hand and Discard follow from the objects in each belief. Its position may be `?`.
+- **When an instruction moves a card a Champion can't identify** — a draw from a Library whose order it doesn't know — every card in that section whose position the Champion doesn't know becomes **anonymous** for it: every belief about it except its section is forgotten, and the section stays true.
+- **Example:** A shuffles Bolt #7 from Hand into Library. For both, its section becomes Library and its position `?`. A draws: A sees the drawn card, so A's beliefs stay certain. B sees a card move from Library to Hand but not which, so every card B knew in that Library with an unknown position, the Bolt included, becomes anonymous. A card whose position B knows (put on top) stays identified.
+
+**Why:** beliefs stay about one object each, as on the Island, and the counts can't drift from the cards. The shuffle itself doesn't forget: the owner still knows the Bolt is in their Library; only an unseen draw makes its section uncertain.
+
+**Considered and rejected:**
+- **Keep** (the unidentified Champion's copy stays as it was): a belief turns false without any Pretend (the Bolt still believed in the Library).
+- **Counts as a separately observed property of a section** (Claude): needs a belief spread over several cards, which can drift out of sync with the counts.
+- **A shuffle forgets at once.**
+
+**Open:** how a player sees why a belief was forgotten and what it was before (`PLAN.md` Track A item 60).
+
+→ `asymmetric-information.md` (§Beliefs), `glossary.md` (Belief). Engine: Track B item 25.
+
+### D153 — Every instruction identifies the permanents it affects, never their location
+
+`PLAN.md` Track A item 59 (objects created or dying unseen, a hidden target).
+
+**Adopted (user):**
+- **Every instruction identifies the permanents it affects to every Champion** — which instance, not where it is. "Target creature gets +1 Power" on a hidden creature tells the opponent "#12 gets +1 Power"; its belief of #12 updates correctly and its location stays hidden. A death names the creature that fell. So the update always lands on one object in every copy, and a permanent's controller is always known.
+- **Pretend may name a different object:** "Target creature gets +1 Power. Pretend: another target creature gets +1 Power" — the opponent's copy applies it to the pretended one, a second target chosen at cast. Still one object per copy.
+- **Observing a permanent identifies its instance,** not only its name; two identical creatures are never confused by default.
+- **The objects in a belief need not match the true state:** a belief may hold an object that no longer exists or never existed (a Pretend decoy), and may lack one it has never observed nor seen affected.
+- **Seeing a permanent missing makes its location `?`:** when a Champion observes a location where it believes a permanent is, and it isn't there, its location belief becomes `?` — the same whether it moved, died or never existed. Whether the view shows known permanents with an unknown location is a GUI detail, not decided.
+- **Observation corrects silently:** it never triggers a contradiction or the large reveal (D151). Example: X moves honestly from h4 to h5 inside darkness; B looks at h4 and finds nothing — a large reveal would make the move's destination true for B.
+
+**Why:** the Island is the core of the game and must stay simple; what makes a hidden creature hidden is its location, not its identity. With every affected permanent named, no Island belief can become disjunctive, so there are no candidates to reason over. A card that wants a truly secret target uses Pretend (pessimistic default).
+
+**Considered and rejected:**
+- **A hidden target stays hidden; the changed property becomes `?` on every creature it could have hit** (briefly adopted): sound, but one hidden pump blanks every unseen creature's Power — too complex for the Island.
+- **Every object exists in every copy, with an unknown location if unseen** (Claude): leaks how many objects exist.
+- **Identification by name only** (seeing a Goblin tells you a Goblin, not which one): needs reasoning over several candidates. Accepted cost: a shell game with identical creatures needs Pretend.
+- **A death updates only observing copies, until the remnant is found** (briefly adopted): unneeded once a death names its creature.
+- **Seeing a permanent missing removes it from the belief:** asserts what the player can't know, and answering differently for a real creature and a decoy would tell them which it was.
+
+→ `asymmetric-information.md` (§Beliefs), `glossary.md` (Belief). Engine: Track B item 25.
+
+### D152 — Observation lives on the terrain; sight lost forgets location; a move keeps the opponent's belief
+
+`PLAN.md` Track A item 59 (darkness walkthrough). Before: D139/D140 listed what loses track (shuffle, concealment); D67 stated Root proximity as a rule of its own.
+
+**Adopted (user):**
+- **No global observation rule.** Observation is static abilities on every terrain, one per Slice, checked after every instruction; where a player observes a permanent's location, their belief becomes the true value. **Ground** and **Sky**: every player observes the location of every permanent there. **Root**: a player observes the location of a permanent in this terrain's Root if they control it, or control a permanent in the Root of this terrain or a neighbouring one (D67).
+- **Changing observation:** an effect replaces the terrain's observation ability, found by its subtype (D129), with its own text for its duration. **Darkness:** "Target terrain's Ground becomes dark, Duration 2" — a player then observes a permanent on that Ground only if they control it or control a permanent on the Ground of the same terrain. Effects changing the same ability apply in creation order; the later one counts. This "instead" is a continuous effect on an ability, not an MTG replacement effect.
+- **Sight lost forgets:** a player's location belief becomes `?` when they observed the permanent before the instruction and don't after — computed from the true state, whatever the belief holds.
+- **A move keeps the opponent's belief by default;** observation does the rest. A move's trace shows its destination only to players who see the creature (D140); it names the creature to everyone (D153).
+- **A false location needs no extra object:** Pretend can move the opponent's belief of an unseen creature (out of a dark hex, say); observation only reveals permanents that are really there, so nothing contradicts it until a contradiction (D151).
+
+**Why:** every observation rule sits on an object, as abilities do. Forgetting on every unobserved state wiped out any false location by construction; forgetting only when sight is lost keeps it. A move writing its destination into every copy leaked the true location of a creature moving inside darkness.
+
+**Considered and rejected:**
+- **A global rule "you observe your own permanents' location"** (Claude): more general than needed; folded into the Root ability.
+- **Observation as a terrain property** ("observation range" per Slice, Darkness sets it to 0): kept as a possible simplification — ability parameters — not decided.
+- **Unobserved means keep the last belief:** right for a one-hex darkness, stale and false in a larger one. Accepted cost of the adopted rule: a creature in a one-hex darkness becomes `?` though B could know where it is.
+- **A move's target always hidden** (user, briefly): would hide where a visible creature is going while B can still respond.
+
+→ `asymmetric-information.md` (§Observation, §The Root Slice), `overview.md` §9, `glossary.md` (Observation ability). Engine: Track B item 25.
+
+### D151 — Contradiction by comparison, with the large reveal
+
+`PLAN.md` Track A item 59 (Runs 2 and 3, the curse). Amends D146 for the three-copy model (D149).
+
+**Adopted (user):**
+- **Comparison:** each copy runs the instruction; when an outcome the observer sees differs from their own copy's prediction, there is a contradiction (D146).
+- **Large reveal:** a contradiction makes the read values true for the observer **and** reveals what caused the false value — the traces and their cards (modifiers remember their trace, D144) and the static abilities that contribute to it. The trace back runs on the true state. It also corrects later false beliefs from the same cause (Mirage 3's false end-of-turn drop).
+- **A consistent bluff may stay hidden forever** (curse dealt lethal damage both sides expected).
+- **Health and AP need no rule of their own:** a creature that lives although a belief put its Health at 0 or less, or pays more AP than a belief says it has, is a contradiction like any other; the large reveal makes the value true and shows its cause. AP spent is seen, since every action names its creature (D153).
+- **A combat is compared once:** its damage in both directions is one instruction (D13). First Strike would split it into two instructions, each compared on its own.
+- **A contradiction never fills in an unknown** (Claude, adopted on trust; check in playtest, Track B item 26): the large reveal corrects false beliefs only; a belief that is `?` stays `?`. Example: a ranged creature in darkness with a Power bluff attacks; the contradiction corrects its Power, but its location, read by the range check, stays `?` — the darkness hid it honestly. A decoy's location is false, not `?`, so it is corrected when the creature acts from its real place.
+
+**Why:** uncertainty should also shrink now and then, not only pile up. A static ability ("+1 Power while defending") can make a revealed Power look wrong again unless the ability is revealed with it. The comparison keeps untested bluffs alive.
+
+**Considered:** the **small reveal** (read values only) and the **explicit reveal** (an instruction always reveals what it reads, no comparison — the old reveal points) — both kept as playtest variants (`playtest-variants.md`).
+
+→ `asymmetric-information.md` §When a belief breaks, `overview.md` §9, `glossary.md` (Collapse); variants in `playtest-variants.md`. Engine: Track B item 25.
+
+### D150 — Pretend is the one deception mechanism; players believe what they see
+
+`PLAN.md` Track A item 59.
+
+**Adopted (user):**
+- **Pretend:** card text states the true effect and, after *Pretend*, what the opponent sees; the opponent believes it. "Mirage Might — Target creature gets +0 Power. *Pretend:* target creature gets +1 Power." The true and controller's copies apply the true effect, the opponent's copy the pretend.
+- **Secret and concealed are forms of Pretend:** secret is "*Pretend:* no effect" (the opponent doesn't see the target); concealed is "*Pretend:* does nothing to target creature" (the target is seen, nothing seems to happen). So both are in the prototype.
+- **Players believe what they see:** an effect never turns a belief into `?`; `?` stays for what nobody has seen (Library, the opponent's Hand) or what a Champion lost track of (D152, D154).
+- **Mimic is Pretend on the cast:** "5/5 Dragon. *Pretend:* 1/1 Goblin" — the opponent's copy of the trace reads Goblin, and the permanent and the card in Discard copy that belief (D140). Observation shows location and instance only, so the face holds; it collapses by a contradiction (a hit too strong for a Goblin) — the large reveal traces back to the Pretend and reveals the card, so the whole face at once — or by its own stated collapse (D131). Choosing a plausible face is the designer's job (a Flying Dragon entering the Sky as a Goblin contradicts at once). An observable mana pool would kill it (item 52).
+- Card keywords may name the forms differently; that is content (item 39's alias layer), one mechanism in the rules.
+
+**Why:** a concealed effect that set "everything it may change" to `?` leaked which properties a hidden spell touches; setting every property of the target to `?` was harsh and gave no duration. Pretend can also play with durations (the true effect permanent, the pretend until end of turn).
+
+**Considered and rejected:** **concealed as `?`** (above).
+
+→ `asymmetric-information.md` §Representing deception, `overview.md` §9, `glossary.md` (Pretend, Claim, Face). Engine: Track B item 25.
+
+### D149 — Three copies of every property; the basic instruction sets each copy
+
+`PLAN.md` Track A item 59. Restates D139–D140's views. Before: a view state per observer and property (true, hidden, false).
+
+**Adopted (user):**
+- **Every property exists three times:** the true value, A's belief, B's belief; a belief may also be `?`. True and false are derived (belief equals the true value or not), not stored. Turn, phase and active player have a true value only. (Beliefs for Neutral permanents: open.)
+- **The basic instruction is apply(object, f_true, f_A, f_B)**, one function per copy — keep and `?` included. Rule text on cards maps to it ("gains +1 Power" is (+1, +1, +1)). In the prototype the object is resolved on the true state and used in every copy; a selection evaluated per copy ("the creature with the highest Power" as each player believes) is outside the prototype scope.
+- **Instructions set the beliefs themselves**, by default: a **cast** creates its trace true for everyone; a **draw** reveals the card to its owner; **creating an object from a predecessor** (cast, resolve, Bounce, Remand, Flicker, put, copy) copies each belief once (D140), so a cast card in Discard is as known as its trace; the **death check** runs on the true state and applies to every copy; **damage** is applied with the true amount in the copy of the target's controller.
+- **Durations run per copy:** a trace's Duration may differ between copies (Mirage 3: permanent in truth, Duration 1 in the opponent's copy).
+
+**Why:** a POMDP-style factored belief, sound where nobody deceives and incomplete by design (no deduction, D18). Per-copy functions replace a mask of apply/keep/forget and make deceiving a player about an ability's text carry into its effect.
+
+**Considered and rejected:**
+- **Global observation rules** "a controller observes all properties of their permanents" (wipes out pretends aimed at a creature's controller) and "traces are observable" (the cast's own update does it). Replaced by the damage default above and by D152.
+- **A Discard rule revealing every card that enters it:** leaks a secret spell's card; the one-time copy keeps the card as secret as its trace. Mill and discard: item 58.
+- **A mask (apply, keep, forget per copy) with one f** (Claude): a special case of per-copy functions.
+- **An observable "appearance" factor in the true state next to sound beliefs** (Claude): four copies instead of three, same behaviour.
+
+→ `asymmetric-information.md` (§The core model, §Beliefs), `effect-form.md` §Instructions, `object-properties.md` §5, `glossary.md` (View, Belief, Discard, Mind). Engine: Track B item 25.
+
+### D148 — The state: objects, their properties, the game record; zone is not state
+
+`PLAN.md` Track A item 59.
+
+**Adopted (user):**
+- **The state** is the game objects with their properties (relations included, as properties pointing at objects; the drawn-this-cycle flag is a terrain property; a Champion's Life is its Health) plus the game record (turn, phase, active player, priority).
+- **Zone is not state:** it follows from the object's kind. "No object ever changes zone" becomes "a transition between kinds creates a new object".
+- **A card's location is (whose Mind, section, position),** so a card can **move** between Minds and keeps its identity — reverses D141's "a card from another Champion's Library" as a put.
+- **History, the next ID and the random generator are implementation details,** not state the rules change. The mana pool: item 52.
+
+**Why:** "Mind is one zone with six sections" vs "a card changes zone" was a naming question; a card moving to another Mind feels like the same card.
+
+**Considered and rejected:** **each Mind a zone of its own, crossing it a put** (Claude).
+
+→ `overview.md` §1, `object-properties.md` §1–2, `effect-form.md` §Instructions, `glossary.md` (Zone). Engine: Track B item 25.
+
 ### D147 — Paying Life is damage to the payer
 
 Closes part (d) of `PLAN.md` Track A item 51. Before: D137 kept "pay N life" as not damage, with damage the only way an instruction lowers Life.
@@ -20,7 +176,7 @@ Closes part (d) of `PLAN.md` Track A item 51. Before: D137 kept "pay N life" as 
 
 → `economy.md`, `glossary.md` (Life).
 
-### D146 — A belief breaks on contradiction; reveal points and private numbers are dropped
+### D146 — A belief breaks on contradiction; reveal points and private numbers are dropped *(amended by D151: the large reveal)*
 
 Closes parts (b) and (c) of `PLAN.md` Track A item 51. Supersedes D137. Before: D137 made a permanent's numbers and the mana pools private and guaranteed a list of reveal points; the user suspected the guarantees couldn't be had.
 
@@ -101,7 +257,7 @@ Closes the "player actions vs instructions" question raised during `PLAN.md` Tra
 
 → `object-properties.md` (§2, §5 Trace groups), `interaction-stack.md` §Casting, `effect-form.md`, `glossary.md` (Trace, Spell). Engine: Track B item 23.
 
-### D141 — The basic instructions, and which are in the prototype
+### D141 — The basic instructions, and which are in the prototype *(a card moving to another Champion's Mind is a move, D148)*
 
 Raised during `PLAN.md` Track A item 51 (each instruction needs a default view behavior, D140), checked against MTG (rule 701 and plain card text), Hearthstone, Legends of Runeterra, Gwent and our docs and content.
 
@@ -121,7 +277,7 @@ Raised during `PLAN.md` Track A item 51 (each instruction needs a default view b
 
 → `effect-form.md` §Instructions. Engine: Track B item 23.
 
-### D140 — A view state comes from the source; exceptions per instruction
+### D140 — A view state comes from the source; exceptions per instruction *(restated as one-time belief copies, D149; view states replaced by beliefs)*
 
 Restructures D139 (`PLAN.md` Track A item 51 (a)). Before: D139 listed transitions one by one, and treated activate like cast.
 
@@ -135,7 +291,7 @@ Restructures D139 (`PLAN.md` Track A item 51 (a)). Before: D139 listed transitio
 
 → `asymmetric-information.md` §Views.
 
-### D139 — What the game itself does to a view: creation and section changes, in the default case *(restructured by D140; losing track reopened, item 55)*
+### D139 — What the game itself does to a view: creation and section changes, in the default case *(restructured by D140; losing track reopened, item 55; view states replaced by beliefs, D149; losing sight of a permanent, D152)*
 
 Settles part (a) of `PLAN.md` Track A item 51 for the changes the game makes without a described effect, and without any keyword involved (a keyword states its own behavior). Before: D138 left each property's default in each view open; D71 hid Discard from the opponent and showed the owner their Library's remaining contents.
 
@@ -1309,7 +1465,7 @@ Resolves the "hidden-occupant-on-entry" question left open alongside D66 (`PLAN.
 
 → `interaction-stack.md`, `structures-items.md`, `ancestry.md`, `overview.md` §2/§4, `asymmetric-information.md`.
 
-### D67 — Underground visibility belongs to the observer, granted by any permanent they control on the hex itself or a neighboring hex
+### D67 — Underground visibility belongs to the observer, granted by any permanent they control on the hex itself or a neighboring hex *(stated as the Root observation ability, D152)*
 Underground is hidden by default (D12) to everyone but a permanent's own controller — but that default already had an unwritten exception, confirmed here rather than newly invented: **an observer sees a hex's Underground occupants if *any* permanent they control has Underground presence on that hex or on any neighboring hex.** Two things worth being precise about, since both were gotten wrong in an earlier pass at this same entry: (1) this is narrower than "any presence reveals it" — a Surface or Air unit standing on a hex gains *no* Underground vision of that same hex; only matching-layer (Underground) presence, on the hex itself or adjacent to it, does; (2) it's a per-**observer** query like every other perception query (`asymmetric-information.md`), not a per-*creature* one — the presence can come from *any* permanent the observer controls, not specifically the one about to act.
 
 **The general rule this produces: entering any level is blind exactly when the acting player currently has no qualifying Underground presence (via any permanent they control) already covering that destination — nothing else about the specific ability matters.** This is not fundamentally an "Ascend vs. Descend" split, and it is not "always" anything for either — it was previously mis-stated both ways:
@@ -1564,7 +1720,7 @@ A creature is summoned onto a **bonded terrain cell within the player's realm/ma
 ### D19 — Cross-layer combat: initiation is layer-restricted, retaliation is universal *(table revised and defenders defined by D115)*
 Default attack **initiation** legality (attacker → target): **Ground→**Ground ✓, Flyer ✗, Sub only-if-located. **Flyer→**Ground ✓, Flyer ✓, Sub only-if-located. **Sub→**Ground ✓ *(tentative, balance)*, Flyer ✗, Sub ✓ (if located). Subterrain is **hidden by default** (D12) → cannot be targeted unless located. All defaults; cards give exceptions (reach/anti-air/true-sight). **Retaliation is UNIVERSAL (corrects an earlier "gated by matrix" reading):** a defender **always** deals its damage back to the attacker regardless of layer — a ground creature retaliates against a diving flyer even though it can't *initiate* on flyers. Combat is mutual across layers; air superiority = an **initiative / target-selection** advantage, not damage-immunity. **Sole exception: Ranged** — a keyword making the attack **one-way** (no retaliation): "deals damage equal to its power to target creature." (Ranged combat otherwise untackled; covered by keyword later.) **Acting reveals a concealed sub:** attacking **surfaces** it → it stays **located while it remains on that hex**, and **re-conceals only when it moves away** *(interpreted from user's note — confirm next session)*. "Strike and stay hidden" is a rare positive keyword. This *is* D18 (a concealed thing risks revealing via the hard fact of acting). → `../overview.md` §4.
 
-### D18 — Belief-consistency model for asymmetric information (the hard core of pillar 6)
+### D18 — Belief-consistency model for asymmetric information (the hard core of pillar 6) *(faces and claims recast as Pretend, D150)*
 **Principle:** *a soft claim is cheap and holds until a hard fact tests it, then the truth is applied and the lie collapses.* The engine **never fabricates a consistent lie** (rejected: regress/unbalanceable/unauthorable); **cards author claims**, the engine projects them. **No deduction engine** — the engine guarantees hard facts are truthful and enforces a **small, finite set of conservation laws** (e.g. *claimed mana costs this turn ≤ public network max*, card-count conservation) that auto-collapse mechanically-impossible claims; **all other deduction is the human's** (UI surfaces hard facts). **Collapse → full truth** by default (incl. which of a masked pool it was).
 **Resource border (a principle, not a list):** *standing state public; the private-resource ledger hidden; any cost with a board footprint self-revealing* ⇒ **a spell is mimickable iff its whole cost is payable from the hidden mana ledger.** Defaults: mana **network public** (needed for denial, D8), mana **spend/live-balance hidden** (engine of cost-deception + "mana for a trick?" bluffs), **hand size public** (count; contents private), **AP public** (max & current — surprises come from instant-speed *timing*, D5, not hidden state), footprint costs (sacrifice/unbond/discard) **self-revealing**. Only standing quantity hidden = **live mana balance** (minimal carve-out from D7). Interacts with D8 #4 (bank vs refresh).
 **Representation:** the atomic primitive is a **`face`** — a per-observer overlay (claimed identity + stat modifiers) a **permanent** carries; this **unifies** creature-mimicry (enter *with* a face) and spell-mimicry (an effect *applies* a face), with the card's trace showing the same face. Composable combinators — **`ChooseOne[…]`** (modal, private caster choice → true state) and **`Mimic(face)`** (applies a face over an object's whole Aether life — stack + trace, hiding true identity). Key capability: **events/effects carry a per-observer projected form, not just objects** — and since `face` is itself an effect, projecting it **mutates the opponent's view state, board objects included** (a buffed creature carries a *true* modifier + a per-observer *claimed* modifier: **modifiers can be per-observer**). Trace and board stay consistent (one authored `face`); the divergence rides along until a hard fact collapses it. Honest and bluff casts of the same Mimic card are **indistinguishable** to the opponent. **Open:** default spell-resolution visibility (lean Model 2: true by default, Mimic overrides). → `../asymmetric-information.md`, `../overview.md` §9.

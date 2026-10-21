@@ -353,3 +353,28 @@ irrelevant to the Remnant itself, read only by raise, so a raised creature keeps
 changes. Claude against: death should feel like a loss, and killing a buffed creature would be a
 weaker answer whenever a raise is around. Kept the printed card as the playtest version; the
 scenarios that test it are `PLAN.md` Track C item 13.
+
+## What a contradiction reveals (D151)
+
+**Current rule:** an observed outcome that differs from the observer's own prediction (comparison)
+reveals the values the instruction read **and** the traces, cards and static abilities behind the
+false value (large reveal). A belief that is `?` stays `?` — the reveal corrects false beliefs only.
+
+### Variant — small reveal · NOT ADOPTED (playtest)
+The contradiction reveals only the values the instruction read. The causing trace and card stay
+false in the observer's belief (Mirage Might still reads "+1" after its bluff is caught), and
+later false beliefs from the same cause still happen. Same trigger and timing as the large reveal;
+only less is shown. The user prefers the large reveal so uncertainty also shrinks.
+
+### Variant — explicit reveal · FALLBACK
+No comparison: an instruction always reveals the values it reads (combat reveals the Power of
+each creature that dealt damage), consistent or not — fully explicit, no check after the
+instruction, but every instruction must state what it reveals (the old reveal points, D146).
+Ends bluffs that were never tested (a curse hit by damage both sides expected to be lethal).
+Fall back to it only if the comparison proves unworkable.
+
+### Variant — the large reveal also fills in unknowns · NOT ADOPTED (playtest)
+Every value the instruction read becomes true, `?` included. A ranged creature in darkness whose
+Power bluff is caught then also shows its location, because the range check read it — the bluff
+on one property exposes another that terrain hid honestly. Adopted instead: a contradiction
+corrects false beliefs only (D151). Try this variant if caught bluffs feel too toothless.

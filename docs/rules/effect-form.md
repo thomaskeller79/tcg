@@ -2,7 +2,7 @@
 
 *The internal structure every card's and ability's rules text is written in. Card text shown to players may use shorter wording ("you may," "kicker," "choose one or more"); every such wording must translate into this form. Kept deliberately compact, so that a card validator or an AI can read and check it.*
 
-**Decisions:** D83, D91, D92, D94, D95, D96, D104, D108, D130, D135, D141, D142 (`history/decisions.md`)
+**Decisions:** D83, D91, D92, D94, D95, D96, D104, D108, D130, D135, D141, D142, D148, D149, D150, D155 (`history/decisions.md`)
 
 ---
 
@@ -31,7 +31,7 @@ An effect is a list of choices, each a list of options, each a list of instructi
 Until the game runs end to end, only cards of this restricted shape are legal (D104). Every such card is a valid card in the full form, so extending the scope only adds.
 
 - **Rules text** is targets (objects selected at cast, any number) plus a **sequence of instructions** (`verb arg*`), run in card order — one effect with one option, chosen by you, at cast.
-- **Not in scope:** modes, conditions, outputs, repeatable picks, choices at resolution, choosers other than you.
+- **Not in scope:** modes, conditions, outputs, repeatable picks, choices at resolution, choosers other than you. A Pretend on a creation shows a different permanent, never none (D155).
 - **A permanent card** has no target but its implicit location.
 - **Abilities** of a permanent (static, triggered, activated) follow the same shape, and function only on the Island (an activated one through its Trace). Abilities that function from Hand, Library or Discard are not in scope, with one exception: **card statics restricting the card's own location target** (D110) — the Slice filter (D32, e.g. Flying: enters in Sky) and restrictions such as "can only target a terrain holding a Remnant you control."
 - **Cost** is a fixed list: no `X`, no costs on options, no cast condition. Costs that depend on a target (D130, e.g. a terrain's "Move abilities that target this cost 1 more AP") are in scope.
@@ -79,13 +79,15 @@ A condition sits on the instruction only. A condition on a fact already settled 
 
 ## Instructions (D141)
 
+**Every instruction is apply(object, f_true, f_A, f_B)** underneath (D149): one function for the true value and one for each Champion's belief, "keep" and "set to `?`" included. Card text states only the true effect; each instruction's default belief update (`asymmetric-information.md` §Beliefs) and *Pretend* (D150) supply the rest. In the prototype the object is resolved on the true state and used in every copy.
+
 The basic instructions are a slim set for the engine; card text may use **aliases** chosen for clarity ("draw" for a move from Library to Hand, "return to Hand" for a put, "counter" for destroying a trace; names in `PLAN.md` Track A item 39).
 
 | Group | Instructions |
 |---|---|
 | Mind | draw, discard, mill, shuffle (any section), search |
 | Information | look at, reveal (any object with hidden or false information) |
-| Objects | **move** (same object, new place in its zone: section and position, or terrain and Slice), **put** (a new object in another zone; the predecessor ceases to exist), **copy** (a new object; the original stays), **create** (a new object from a card name or a card object), **destroy**, **cease to exist**, fell |
+| Objects | **move** (same object, new location: Mind, section and position for a card (another Champion's Mind included, D148), section and position for a trace, terrain and Slice for a permanent), **put** (a new object in another zone; the predecessor ceases to exist), **copy** (a new object; the original stays), **create** (a new object from a card name or a card object), **destroy**, **cease to exist**, fell |
 | Stats (D143) | deal damage, heal, ±Health; slow, quicken, ±AP; ±Power; gain or lose an ability |
 | Resources | add mana |
 | Island | attach, detach, gain control, bond, unbond, raise, attack, defend |
