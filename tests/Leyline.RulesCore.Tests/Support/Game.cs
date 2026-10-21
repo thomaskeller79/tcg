@@ -213,5 +213,12 @@ public static class TestCards
         Abilities = [new AbilityDefinition { Id = "leap", Name = "Leap", Subtypes = ["Move"], Cost = Cost.ApOnly(1), Instructions = [new Instruction("gainAp", Target: "self", Amount: 0)] }],
     };
 
-    public static IEnumerable<CardDefinition> All => [Grunt, Mirror, Brute, Mole, Knotter, Digger, DawnSeer(Speed.Reactive), DawnSeer(Speed.Instant), Bastion, Bog, Leaper];
+    /// <summary>D135: an exhausting (`!`) Move-subtype ability with a target, which surcharges reach.</summary>
+    public static readonly CardDefinition Vaulter = new()
+    {
+        Id = "test.vaulter", Name = "Vaulter", Type = CardType.Creature, Cost = new Cost([ManaPip.Generic]), Attack = 1, Life = 3, Ap = 4,
+        Abilities = [new AbilityDefinition { Id = "vault", Name = "Vault", Subtypes = ["Move"], Cost = Cost.ApOnly(1, ApFlavor.Exhaust), Targets = [new TargetSpec("T", TargetKind.Terrain)], Instructions = [new Instruction("gainAp", Target: "self", Amount: 0)] }],
+    };
+
+    public static IEnumerable<CardDefinition> All => [Grunt, Mirror, Brute, Mole, Knotter, Digger, DawnSeer(Speed.Reactive), DawnSeer(Speed.Instant), Bastion, Bog, Leaper, Vaulter];
 }

@@ -44,6 +44,23 @@ public class MovementTests
     }
 
     [Fact]
+    public void An_exhausting_ability_pays_a_surcharge_before_it_drains_the_rest_at_C5()
+    {
+        var g = Load("""
+            neutral fixed 1,0=terrain.mire
+            place A test.vaulter 0,1
+            """);
+        var vaulter = g.P("test.vaulter");
+        var mire = TargetChoice.ForObject(g.State.TerrainOf(H(1, 0)).Id);
+        // D158: `1!AP` pays 1 at C1, the Mire's +1 at C4, and drains the rest at C5.
+        vaulter.CurrentAp = 1;
+        Assert.Equal("Not enough Activation Points.", g.Act(A, vaulter, "vault", mire).Error);
+        vaulter.CurrentAp = 2;
+        g.Ok(g.Act(A, vaulter, "vault", mire));
+        Assert.Equal(0, vaulter.CurrentAp);
+    }
+
+    [Fact]
     public void A_connected_Champion_entering_its_own_Mire_pays_its_connected_Move_cost_plus_1()
     {
         var g = Load("""

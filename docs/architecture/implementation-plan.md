@@ -19,7 +19,7 @@
 | AP costs | `x`, `x!`, `x~`, `x*` flavors (D116) | `x` and `x!` only; Defend `0*AP` |
 | Turn structure | 4 seats per round (A, Neutral A, B, Neutral B), Setup as A's first Beginning (D114) | 4 seats exist but neutral turns are empty; no Setup |
 | Aether | Every activated ability goes through Pending (D45, D75); Speeds Slow/Quick/Reactive/Instant; Physical Traces with 0 Past residency; Instants auto-advance Now (D92) | Only Creature/Spell casts go through Pending; no Speeds |
-| Casting | Legality → Pay → Choose → Target → Pending; a transaction (D70, D91, D94); D68 redirect | Validate + pay + push |
+| Casting | C1 commit (card + fixed cost) → C2 amounts → C3 choose → C4 target (+ target-dependent costs) → C5 Pending (`x!AP` drains the rest here, D158); a transaction (D70, D91, D94, D135) | Validate in step order + pay + push |
 | Resolution | Per-instruction checks (identity, visibility, protection, verb applicability); immediate consequences (D112); triggers collected and ordered APNAP/ID/printed/event (D92) | Whole-trace resolution; state-based checks |
 | Combat | Attack = Physical Trace naming terrain + Slice + entity (D115); Defend = Quick ability adding defenders bit by bit (D117); defended/undefended split at resolution | Declare-defenders step, combat object, one window |
 | Network | Knotting keyword (D121); pause vs. cut, theft (D122); realm lock; Collapse Network | Any enemy pauses; no cut, no theft |
@@ -37,13 +37,13 @@ Each phase ends with its own tests passing and a commit. The engine is rebuilt a
 | **P1 — Object model** | Unified `ObjectId` + timestamp; Card/Trace/Permanent objects; zones; Terrain permanents per hex; Slices + Structure slots; card definitions with abilities as data; JSON content; Ancestry walks (payer, controller); 4-seat turn order; AP flavors; Element mana pools with live crediting | unit tests on walks, pools, turn order |
 | **P2 — Aether** | Activation procedure as one transaction (legality, pay, target, enter Pending); Speeds; priority + Now; Instants; Physical Traces; Past fade; per-instruction resolution checks; immediate consequences; trigger collection and ordering; instruction verbs (damage, heal, draw, fell, destroy, create, raise, bounce, flicker, gain AP, stat buffs, unbond) | tests per speed, per verb, trigger order (Cinder-Verdict-style) |
 | **P3 — Network** | Bond (Champion `2*AP`, Companion `3*AP`), Knotting, pause, cut, theft, realm lock, Collapse Network, Structure/Remnant control from terrain | tests per D121/D122 rule |
-| **P4 — Movement & Slices** | Move (terrain move cost, realm cost doubling), Ascend/Descend, Flying/Subterranean Slice filters, entry rule, mixed Slices, D68 redirect, Root perception + D67 proximity | tests incl. hidden-occupant redirect |
+| **P4 — Movement & Slices** | Move (static costs on the Move subtype D129, the connected Move cost D134), Ascend/Descend, Flying/Subterranean Slice filters, entry rule, mixed Slices, hidden occupants never block (D132), Root perception + D67 proximity | tests incl. hidden occupants |
 | **P5 — Combat** | Attack trace + legality, Defend (Quick, `1~AP`/doubled for bonded roots), Defender keyword, defended/undefended resolution with a damage-split decision, retaliation, Ranged | combat-scenarios.md S1–S8 as tests |
 | **P6 — Permanents** | Casting Creature/Companion/Structure/Item/Spell; Equip/Un-equip; Remnants, raise; Haste X; Companion pool/Bond; cascades when a node ceases to exist | tests per type |
 | **P7 — Setup & maps** | Map format (layout, start tiles, home/neutral ground, void), terrain decks, Setup S1–S9, shuffle, opening hand | setup test, deterministic replay |
 | **P8 — Neutral** | Neutral turns refresh/act; Behavior `Aggressive toward X`; Companion-loss cascade assigns it | neutral-turn tests |
 | **P9 — Perception & Host** | View rewrite (per-observer), legal commands enumerated against the actor's own view, trace redaction | perception tests, Host tests |
-| **P10 — Debug UI** | Large hexes with the Ground+Sky layout and a Root view; Mind/Aether panels; step-by-step activation (pay → target → confirm/abort); priority/pass; decisions (damage split, redirect); content library + demo match | API smoke tests + driving the UI in a browser |
+| **P10 — Debug UI** | Large hexes with the Ground+Sky layout and a Root view; Mind/Aether panels; step-by-step activation on the client (pay → target → OK/abort, D135); priority/pass; decisions (damage split, top-up); content library + demo match | API smoke tests + driving the UI in a browser |
 | **P11 — Harness & docs** | SimHarness random policy on the new engine; `architecture.md`, `continuous-effects.md`, `scenario-format.md` brought in sync; PLAN.md Track B items 1–4 removed as done | full test suite, sim run |
 
 ## 3. Educated guesses
@@ -90,7 +90,7 @@ Nothing had to be paused for lack of a guess. Not built in this pass because no 
 - **Deception (D18):** faces, claims, Mimic, collapse; concealment effects beyond the Root default (Mist, Submerged, D118).
 - **History track (D98)** and card text reading it ("attacked this turn").
 - **Remand, un-summon, Future-zone delays** (D69, D16, D38).
-- **The effect form outside the prototype scope (D104):** targeted triggers (G25), choices at resolution, modes, `X` costs, cost branches.
+- **The effect form outside the prototype scope (D104):** targeted triggers (G25), choices at resolution, modes, `X` costs, costs on options (D135).
 - **Mulligans** (G13), and Structures a terrain card brings at Setup (`resources-terrain.md` Open question 3).
 - **Behaviors beyond `Aggressive toward X`.**
 

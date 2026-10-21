@@ -8,9 +8,17 @@ namespace Leyline.RulesCore.Rules;
 /// abilities on its subtypes (D129).</summary>
 public static class Costs
 {
-    /// <summary>The cost a caster pays at casting. Target-dependent parts are computed against
-    /// <paramref name="viewer"/>'s view (D130); the true ones are compared at resolution.</summary>
+    /// <summary>The cost a caster pays at casting: the fixed cost plus the target-dependent
+    /// surcharges, computed against <paramref name="viewer"/>'s view (D130); the true ones are
+    /// compared at resolution.</summary>
     public static Cost Effective(TrueState state, Permanent source, AbilityDefinition ability, IReadOnlyList<IReadOnlyList<TargetChoice>> targets, PlayerId? viewer)
+    {
+        var cost = Fixed(state, source, ability);
+        return cost with { Ap = cost.Ap + Surcharge(state, ability, targets, viewer) };
+    }
+
+    /// <summary>D135 C1: the cost that needs no target — paid before targets are chosen.</summary>
+    public static Cost Fixed(TrueState state, Permanent source, AbilityDefinition ability)
     {
         var cost = ability.Cost;
         var bondedRoot = source.Kind.IsRoot() && Network.IsRootConnected(state, source);
@@ -18,15 +26,11 @@ public static class Costs
         switch (ability.Builtin)
         {
             case BuiltinAbility.Move:
-            {
                 // D134: a connected Champion or Companion has its own Move cost — it can only move
-                // onto terrain it bonded itself (D9, D126 realm lock).
-                var dest = targets.Count > 0 && targets[0].Count > 0 ? targets[0][0].Hex : null;
-                var staysConnected = bondedRoot && dest is { } d && state.IsOnBoard(d) && state.TerrainOf(d).Parent == source.Id;
-                if (staysConnected)
+                // onto terrain it bonded itself (D9, D126 realm lock), so no destination changes it.
+                if (bondedRoot)
                     cost = cost with { Ap = DefaultAbilities.ConnectedMoveAp };
                 break;
-            }
             case BuiltinAbility.Attack:
                 // D134: `6~AP` while connected, `3~AP` otherwise.
                 if (bondedRoot)
@@ -40,11 +44,13 @@ public static class Costs
                     cost = cost with { Flavor = ApFlavor.Plain };
                 break;
         }
-        // D129/D134: static abilities on the ability's subtypes, added on top.
-        var surcharge = StaticAp(state, state.TerrainOf(state.PositionOf(source)), StaticScope.OnThis, ability)
-            + targets.SelectMany(list => list).Sum(c => TargetSurcharge(state, ability, c, viewer, trueState: false));
-        return cost with { Ap = cost.Ap + surcharge };
+        // D129/D134: static abilities on the ability's subtypes from the terrain it stands on.
+        return cost with { Ap = cost.Ap + StaticAp(state, state.TerrainOf(state.PositionOf(source)), StaticScope.OnThis, ability) };
     }
+
+    /// <summary>D135 C4: the AP the chosen targets add, against <paramref name="viewer"/>'s view (D130).</summary>
+    public static int Surcharge(TrueState state, AbilityDefinition ability, IReadOnlyList<IReadOnlyList<TargetChoice>> targets, PlayerId? viewer) =>
+        targets.SelectMany(list => list).Sum(c => TargetSurcharge(state, ability, c, viewer, trueState: false));
 
     /// <summary>D129/D130: the AP static abilities add to an ability for one target — from the
     /// permanent or terrain it targets (entering it). At casting it is computed against the

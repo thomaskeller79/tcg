@@ -18,10 +18,12 @@ public sealed record BuildResult(ActivationDraft? Draft, string? Error)
 /// <summary>
 /// Casting and activating (D46, D70, D91, D94; interaction-stack.md §Casting and activating).
 /// One procedure for every card and every activated ability, physical ones included (D75):
-/// legality → amounts → choose → target → pay → enter Pending (D130; no `X` or modes under the
-/// prototype scope, so Choose is how the mana is paid). A request is the player's whole sequence of
-/// decisions; the steps are still checked in order, and the transaction only becomes real when
-/// the trace enters Pending (an unsubmitted request is the abort). Nothing here is checked
+/// C1 commit (the card and every fixed cost) → C2 amounts → C3 choose → C4 target (and the costs
+/// that depend on targets) → C5 enter Pending (D135; no `X` or modes under the prototype scope, so
+/// C2 and C3 are empty). A request is the player's whole sequence of decisions, made on the
+/// client; the steps are checked here in order, and nothing becomes real until C5 (an
+/// unsubmitted request is the abort). No target check reads what C1 pays (mana, AP, Life, the
+/// card's zone), so the checks need no scratch copy of the state. Nothing here is checked
 /// against true state (D132).
 /// </summary>
 public static class Activation
@@ -51,7 +53,8 @@ public static class Activation
             return BuildResult.Fail($"{def.Speed} speed doesn't allow casting now.");
         if (state.ChampionOf(actor) is not { } champion || champion.Pool is null)
             return BuildResult.Fail("You have no Champion.");
-        // Casting is paid from the Champion's pool only (D20, D22).
+        // C1 Commit (D135): the card and its mana, from the Champion's pool only (D20, D22), before
+        // the location or targets are chosen.
         if (ChoosePayment(champion.Pool, def.Cost.Mana, req.Mana, out var plan) is { } payError)
             return BuildResult.Fail(payError);
 
@@ -153,8 +156,8 @@ public static class Activation
         if (p.Locked || apPayer.Locked)
             return BuildResult.Fail("It can't activate abilities until the end of this turn.");
 
-        // Choose (D130): every choice of how the cost is paid comes before targets — here which
-        // mana pays. Only the AP part of a cost depends on targets (D129), so the mana is known.
+        // C1 Commit (D135): every fixed cost is paid before targets — the mana (and which mana,
+        // D125), and the AP and Life no target changes. Only AP depends on targets (D129).
         IReadOnlyList<ManaUnit> plan = [];
         Permanent? manaPayer = null;
         if (ability.Cost.Mana.Count > 0)
@@ -165,20 +168,24 @@ public static class Activation
             if (ChoosePayment(manaPayer.Pool, ability.Cost.Mana, req.Mana, out plan) is { } payError)
                 return BuildResult.Fail(payError);
         }
+        var fixedCost = Costs.Fixed(state, p, ability);
+        if (!Costs.CanPayAp(apPayer, fixedCost, ability.Id))
+            return BuildResult.Fail(fixedCost.Flavor == ApFlavor.OncePerCycle && apPayer.UsedThisCycle.Contains(ability.Id)
+                ? "Already used this cycle."
+                : "Not enough Activation Points.");
+        if (fixedCost.Life > 0 && apPayer.CurrentLife < fixedCost.Life)
+            return BuildResult.Fail("Not enough Life.");
 
+        // C4 Target: the targets, then the AP they add, paid from what C1 left and computed
+        // against the caster's view (D130). `x!AP` drains the rest only at C5 (D158).
         var observer = req.Actor;
         var error = ValidateAbilityTargets(state, observer, controller, p, ability, req.Targets);
         if (error is not null)
             return BuildResult.Fail(error);
-
-        // Pay: the whole cost, its target-dependent part against the caster's view (D130).
-        var cost = Costs.Effective(state, p, ability, req.Targets, observer);
-        if (!Costs.CanPayAp(apPayer, cost, ability.Id))
-            return BuildResult.Fail(cost.Flavor == ApFlavor.OncePerCycle && apPayer.UsedThisCycle.Contains(ability.Id)
-                ? "Already used this cycle."
-                : "Not enough Activation Points.");
-        if (cost.Life > 0 && apPayer.CurrentLife < cost.Life)
-            return BuildResult.Fail("Not enough Life.");
+        var surcharge = Costs.Surcharge(state, ability, req.Targets, observer);
+        if (surcharge > apPayer.CurrentAp - fixedCost.Ap)
+            return BuildResult.Fail("Not enough Activation Points.");
+        var cost = fixedCost with { Ap = fixedCost.Ap + surcharge };
 
         var draft = new ActivationDraft
         {
@@ -303,8 +310,7 @@ public static class Activation
 
     // ----------------------------------------------------------------------------- commit
 
-    /// <summary>Pays the cost (D70 step 1). The card leaves the Hand as payment starts and
-    /// arrives in Discard when it ends (D37, D94).</summary>
+    /// <summary>C5: everything C1–C4 paid arrives at once — the card in Discard (D37, D94, D135).</summary>
     private static void PayCost(TrueState state, ActivationDraft draft)
     {
         if (draft.ManaPayer is { } payerId && draft.ManaPlan.Count > 0)
@@ -326,8 +332,8 @@ public static class Activation
         }
     }
 
-    /// <summary>Steps 1 and 4: the trace enters Pending, with any triggers the
-    /// payment fired on top of it (D94).</summary>
+    /// <summary>C5 Enter Pending: the trace enters Pending, with any triggers the payment fired
+    /// on top of it (D94, D135).</summary>
     public static TraceObject Commit(TrueState state, ActivationDraft draft)
     {
         PayCost(state, draft);
@@ -450,8 +456,8 @@ public static class Activation
                 continue;
             }
 
-            foreach (var targets in options)
             foreach (var mana in payments)
+            foreach (var targets in options)
             {
                 var req = new ActivationRequest(actor, cardId, DefaultAbilities.Cast, targets, mana);
                 if (Build(state, req).Error is null)
@@ -482,18 +488,16 @@ public static class Activation
         {
             if (!Speeds.Allows(state, seat.Value, ability.Speed))
                 continue;
+            var cost = Costs.Fixed(state, p, ability);
+            var payments = cost.Mana.Count == 0 || state.ManaPayer(p)?.Pool is not { } pool
+                ? Automatic
+                : Payments(pool.PaymentOptions(cost.Mana), cost.Mana);
+            foreach (var mana in payments)
             foreach (var targets in BuiltinOptions(state, actor, p, ability))
             {
-                var cost = Costs.Effective(state, p, ability, targets, actor);
-                var payments = cost.Mana.Count == 0 || state.ManaPayer(p)?.Pool is not { } pool
-                    ? Automatic
-                    : Payments(pool.PaymentOptions(cost.Mana), cost.Mana);
-                foreach (var mana in payments)
-                {
-                    var req = new ActivationRequest(actor, p.Id, ability.Id, targets, mana);
-                    if (Build(state, req).Error is null)
-                        yield return req;
-                }
+                var req = new ActivationRequest(actor, p.Id, ability.Id, targets, mana);
+                if (Build(state, req).Error is null)
+                    yield return req;
             }
         }
     }

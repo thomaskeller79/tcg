@@ -145,14 +145,14 @@ function meta(...parts) { return parts.filter(p => p).join(' · '); }
 function wizardStep() {
   const cmds = matching();
   if (cmds.length === 0) return null;
-  const step = ui.wizard.chosen.length;
-  const total = cmds[0].targets.length;
-  if (step >= total) {
-    // D125: the payment, once the targets are chosen — asked only when it needs a choice.
+  // C1 (D135, D125): how the fixed cost is paid, before any target — asked only when it needs a choice.
+  if (ui.wizard.payment == null) {
     const payments = [...new Set(cmds.map(c => c.payment).filter(p => p != null))];
     if (payments.length > 1) return { done: false, payment: true, options: payments };
-    return { done: true, command: cmds[0] };
   }
+  const step = ui.wizard.chosen.length;
+  const total = cmds[0].targets.length;
+  if (step >= total) return { done: true, command: cmds[0] };
   const options = new Map();
   for (const c of cmds) {
     const k = targetKey(c.targets[step]);
@@ -508,14 +508,15 @@ function renderWizard(box) {
   if (!s || !any) { ui.wizard = null; return; }
   const title = any.label.split(' → ')[0];
   box.append(el('h2', {}, `${title} — ${meta(decidedCost(matching()), any.speed)}`));
-  box.append(el('div', { class: 'hint' }, 'Pay → target → Pending. Nothing is paid until you confirm; abort any time.'));
+  box.append(el('div', { class: 'hint' }, 'Pay → target → OK. Nothing happens until OK; Abort undoes every step.'));
+  if (w.payment != null) box.append(el('div', {}, `Pay: ${w.payment}`));
   w.chosen.forEach((k, i) => {
     const label = matching()[0].targets[i].map(t => t.label).join(' + ') || 'nothing';
     box.append(el('div', {}, `Target ${i + 1}: ${label}`));
   });
   if (s.done) {
     box.append(el('div', { class: 'row' },
-      el('button', { class: 'primary', onclick: () => submit(s.command.index) }, `Confirm: ${s.command.label}`),
+      el('button', { class: 'primary', onclick: () => submit(s.command.index) }, `OK: ${s.command.label}`),
       el('button', { class: 'danger', onclick: () => { ui.wizard = null; render(); } }, 'Abort')));
     return;
   }

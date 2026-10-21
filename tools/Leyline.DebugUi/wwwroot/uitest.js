@@ -17,7 +17,7 @@
     const hex = [...document.querySelectorAll('polygon.hex.candidate')];
     out.push('candidate hexes ' + hex.length);
     hex[0].dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    const confirm = buttons().find(b => b.textContent.startsWith('Confirm'));
+    const confirm = buttons().find(b => b.textContent.startsWith('OK: '));
     out.push(confirm ? confirm.textContent : 'buttons: ' + buttons().map(x => x.textContent).join(' | '));
     confirm.click();
     await until(() => ui.view.pending.length === 1, 'attack in Pending');

@@ -8,9 +8,9 @@ namespace Leyline.DebugUi;
 public sealed record TargetDto(int? Object, HexCoord? Hex, string? Slice, string? Entity, string Label);
 
 /// <summary>One legal command, labelled for the UI. The client walks an activation step by
-/// step — source, ability, each target selection in order, then the payment when it needs a
-/// choice (D125) — by filtering this list (interaction-stack.md: pay → choose → target; not
-/// submitting is the abort). <see cref="Payment"/> is null when the payment is automatic.</summary>
+/// step in D135 order — source, ability, the payment when it needs a choice (C1, D125), then each
+/// target selection in order (C4) — by filtering this list; only OK submits it (C5), and not
+/// submitting is the abort. <see cref="Payment"/> is null when the payment is automatic.</summary>
 public sealed record LegalCommandDto(
     int Index,
     string Kind,
