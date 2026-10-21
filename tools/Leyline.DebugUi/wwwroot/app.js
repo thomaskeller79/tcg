@@ -134,6 +134,14 @@ function matching() {
     && (w.payment == null || c.payment === w.payment));
 }
 
+/// A cost is shown only once it is decided: every remaining option costs the same (D129 makes
+/// the cost depend on the target).
+function decidedCost(cmds) {
+  return cmds.length > 0 && cmds.every(c => c.cost === cmds[0].cost) ? cmds[0].cost ?? '' : '';
+}
+
+function meta(...parts) { return parts.filter(p => p).join(' · '); }
+
 function wizardStep() {
   const cmds = matching();
   if (cmds.length === 0) return null;
@@ -469,12 +477,12 @@ function renderPrompt() {
       const first = cmds[0];
       const name = first.label.split(' → ')[0];
       box.append(el('button', { class: 'ability', onclick: () => startWizard(sel.id, ability) },
-        el('span', {}, name), el('span', { class: 'meta' }, `${first.cost ?? ''} · ${first.speed ?? ''}${cmds.length > 1 ? ` · ${cmds.length} options` : ''}`)));
+        el('span', {}, name), el('span', { class: 'meta' }, meta(decidedCost(cmds), first.speed, cmds.length > 1 ? `${cmds.length} options` : ''))));
     }
     if (perm && perm.controller === ME) {
       for (const a of perm.abilities.filter(a => !a.trigger && !shown.has(a.id))) {
         box.append(el('button', { class: 'ability', disabled: true },
-          el('span', {}, a.name), el('span', { class: 'meta' }, `${a.cost} · ${a.speed} · not now`)));
+          el('span', {}, a.name), el('span', { class: 'meta' }, `${a.speed} · not now`)));
       }
     }
   } else if (ui.view.yourPriority) {
@@ -499,7 +507,7 @@ function renderWizard(box) {
   const any = matching()[0];
   if (!s || !any) { ui.wizard = null; return; }
   const title = any.label.split(' → ')[0];
-  box.append(el('h2', {}, `${title} — ${any.cost ?? ''} · ${any.speed ?? ''}`));
+  box.append(el('h2', {}, `${title} — ${meta(decidedCost(matching()), any.speed)}`));
   box.append(el('div', { class: 'hint' }, 'Pay → target → Pending. Nothing is paid until you confirm; abort any time.'));
   w.chosen.forEach((k, i) => {
     const label = matching()[0].targets[i].map(t => t.label).join(' + ') || 'nothing';
