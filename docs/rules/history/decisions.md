@@ -6,6 +6,26 @@
 
 ---
 
+### D159 — Resolution checks in the belief model: visibility is a belief matching the truth
+
+`PLAN.md` Track A item 24. Restates D85's visibility condition, written for the live view, in D148–D155 terms.
+
+**Adopted (user):**
+- **Visibility, for a bound permanent only:** the trace's Champion's belief of its location equals its true location. A permanent the Champion doesn't observe fails — its belief is `?` (sight lost) or false (a decoy). A Reveal (D102) sets the belief true without sight, so a revealed creature can be hit until it moves (a move keeps the belief, which is then false). A terrain or a Slice as a target is always known and isn't checked, so Darkness cast in response doesn't make a Move fizzle.
+- **The checks read the true state; each copy runs them with its own beliefs (D151).** A Mimic face never decides identity, protection or verb applicability; it only shapes the opponent's prediction, and a differing outcome is an ordinary contradiction. Hidden protection: the Bolt fizzles, the opponent expected damage, the protection is revealed. Bluffed protection: the Bolt hits, the opponent expected a fizzle — the same.
+- **Test cases for verb applicability:** "Destroy target Structure" on a creature with "*Pretend:* a Wall" — legal to target by the caster's belief, fizzles at resolution, collapses the face. "Unbond target terrain" after it was unbonded in response — nothing left to unbond.
+- **No further implicit condition found:** identity (the object), visibility (the caster's knowledge of it), protection (what it refuses), verb applicability (what the verb can act on); anything else is printed.
+
+**Why:** a belief that matches the truth is the model's meaning of "knows where it is", and it gives Reveal a use as setup for an attack.
+
+**Considered and rejected:**
+- **The Champion observes it** (D152, Claude): equivalent except after a Reveal, which it makes useless as setup.
+- **The belief isn't `?`:** a false belief (a decoy) would grant reach — a bluff would make the opponent better at hitting you.
+
+**Open:** whose belief decides for a trace from a Neutral source (`PLAN.md` Track A item 61); resolution-time choices (Track D item 64).
+
+→ `interaction-stack.md` (§Resolution). Engine: Track B item 25 (the checks per copy), item 26 (S9).
+
 ### D158 — An exhausting cost pays `x` at C1 and drains the rest at C5
 
 `PLAN.md` Track A item 63, raised by the engine's D135 sync (Track B).
@@ -1196,7 +1216,7 @@ Resolves `PLAN.md` Track A item 23 (mixed-controller Slice after automatic contr
 
 ---
 
-### D85 — What a trace checks at resolution: its remaining text plus four implicit conditions; perception is always a live view
+### D85 — What a trace checks at resolution: its remaining text plus four implicit conditions; perception is always a live view *(visibility restated in the belief model by D159)*
 
 Resolves `PLAN.md` Track A item 22 (what "can no longer be targeted" means at resolution). **Decided for now, deliberately untested** — the list is not expected to be complete; a second pass is item 24.
 
