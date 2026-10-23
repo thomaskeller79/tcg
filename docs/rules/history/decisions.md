@@ -1177,7 +1177,7 @@ Corrects the D32 mapping "a burrower-type keyword → Below," which `structures-
 
 ---
 
-### D89 — Every permanent entering the Island enters with 0 Activation Points; replaces D57 *(Setup exception removed by D114)*
+### D89 — Every permanent entering the Island enters with 0 Activation Points; replaces D57 *(Setup exception removed by D114; entry AP 2 by D160)*
 
 **Adopted:** a permanent entering the Island — cast, created by an effect (D88), flickered, however it got there — enters with **0 Activation Points** and refreshes at its controller's next Beginning phase. That is all summoning sickness is: a permanent that wasn't there at the beginning of its controller's turn can't act yet. **Haste** removes it. D57's criterion ("did it enter via casting") is dropped — it wrongly let a created creature (e.g. D87's Fire Warrior) act immediately.
 
