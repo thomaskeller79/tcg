@@ -72,7 +72,7 @@ static void Interactive(TrueState state)
         var view = host.CurrentView(seat);
         Console.WriteLine($"\n--- Champion {player} · round {view.Round} · {view.ActiveSeat} · {view.Phase} · Pending {view.Pending.Count}");
         foreach (var p in view.Permanents.Where(p => p.Kind != "Item" || p.Carrier is null))
-            Console.WriteLine($"  #{p.Id} {p.Name} [{p.Controller}] ({p.Hex.Q},{p.Hex.R}) {p.Slice} A{p.Attack} L{p.Life} AP{p.Ap}");
+            Console.WriteLine($"  #{p.Id} {p.Name} [{p.Controller}] {(p.Hex is { } h ? $"({h.Q},{h.R}) {p.Slice}" : "location ?")} A{p.Attack} L{p.Life} AP{p.Ap}");
         var commands = host.LegalCommands(seat);
         for (var i = 0; i < commands.Count; i++)
             Console.WriteLine($"  [{i}] {commands[i]}");

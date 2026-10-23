@@ -74,6 +74,7 @@ public static class Creation
             Pool = kind.IsRoot() ? new ManaPool() : null,
         };
         state.Add(p);
+        Observation.Enter(state, p);
         p.CurrentLife = state.MaxLife(p);
         p.CurrentAp = def.HasKeyword(Keyword.Haste) ? HasteAp(state, p, def) : 0;
         state.Note($"{state.NameOf(p.Id)} enters the Island at {hex} {p.Slice}.", p.Id);
@@ -103,6 +104,7 @@ public static class Creation
             Source = fallen.Id,
         };
         state.Add(remnant);
+        Observation.Enter(state, remnant, fallen);
         return remnant;
     }
 
@@ -127,10 +129,8 @@ public static class Creation
             UpdateSubtree(state, p);
 
         if (obj is CardObject card)
-        {
             state.Player(card.Owner).Section(card.Section).Remove(id);
-            state.Beliefs.Forget(id);
-        }
+        state.Beliefs.Forget(id);
         if (obj is TraceObject trace)
             state.Section(trace.Section).Remove(id);
         state.Modifiers.RemoveAll(m => m.Subject == id);

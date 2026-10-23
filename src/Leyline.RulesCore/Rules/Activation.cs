@@ -328,9 +328,7 @@ public static class Activation
         }
         if (draft.IsCast)
         {
-            var cast = state.Get<CardObject>(draft.Source);
-            Mind.Move(state, cast, CardSection.Discard, named: true);
-            Mind.Reveal(state, cast); // as known as its trace, which is true for everyone (D155)
+            Mind.Move(state, state.Get<CardObject>(draft.Source), CardSection.Discard, named: true);
         }
     }
 
@@ -340,6 +338,8 @@ public static class Activation
     {
         PayCost(state, draft);
         var trace = Creation.CreateTrace(state, BuildTrace(state, draft));
+        if (draft.IsCast)
+            Mind.BelieveFromTrace(state, state.Get<CardObject>(draft.Source), trace);
         state.Note($"{trace.Text} enters Pending.", trace.Id);
         Consequences.Run(state);
         Triggers.Flush(state);

@@ -44,8 +44,8 @@ public static class Targeting
             return false;
         if (p.Kind == PermanentKind.Terrain && state.Def(p).IsVoid)
             return false;
-        if (!state.CanSee(you, p))
-            return false;
+        if (you is { } w ? state.BelievedLocation(w, p) is null : !state.CanSee(null, p))
+            return false; // chosen against the chooser's belief: a permanent it believes somewhere
         if (!ControlMatches(spec.Control, state.Controller(p), you))
             return false;
         if (spec.WithinOfSource is { } within && source is not null && state.PositionOf(p).DistanceTo(state.PositionOf(source)) > within)

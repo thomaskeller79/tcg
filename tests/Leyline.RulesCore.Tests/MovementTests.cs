@@ -109,7 +109,7 @@ public class MovementTests
         Assert.Equal(Slice.Root, mole.Slice);
         Assert.False(g.State.CanSee(B, mole));
         Assert.True(g.State.CanSee(A, mole));
-        Assert.DoesNotContain(ViewProjector.Project(g.State, B).Permanents, p => p.Id == mole.Id.Value);
+        Assert.Null(ViewProjector.Project(g.State, B).Permanents.Single(p => p.Id == mole.Id.Value).Hex); // known, location ? (D152, D155)
 
         g.Ok(g.Act(A, mole, DefaultAbilities.Ascend));
         var ascend = Assert.Single(ViewProjector.Project(g.State, B).Pending); // D153/D155: names the mole, shows the Ground

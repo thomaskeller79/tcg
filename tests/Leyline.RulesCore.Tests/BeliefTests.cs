@@ -79,4 +79,33 @@ public class BeliefTests
         Assert.Contains("location: a hidden location", descend.Targets);
         Assert.Contains("location: (0,0) Root", Assert.Single(ViewProjector.Project(g.State, A).Pending).Targets);
     }
+
+    [Fact]
+    public void Darkness_takes_away_sight_and_a_target_nobody_knows_the_place_of_fizzles()
+    {
+        // D152 sight lost, D159 visibility: B targets A's grunt; A darkens its Ground in response.
+        var g = Load("place A test.grunt 0,1\nhandcard A test.darkness\nhandcard B spell.firebolt");
+        var grunt = g.P("test.grunt");
+        g.AdvanceTo(Seat.ChampionB);
+        g.Champion(B).Pool!.Add(Element.Fire, 2);
+        g.Ok(g.Cast(B, "spell.firebolt", Obj(grunt)));
+        g.Pass(B);
+        g.Ok(g.Cast(A, "test.darkness", Obj(g.Terrain(0, 1))));
+        g.ResolveAll();
+        Assert.Null(g.State.BelievedLocation(B, grunt)); // sight lost: `?`
+        Assert.Equal((H(0, 1), Slice.Ground), g.State.BelievedLocation(A, grunt));
+        Assert.Equal(5, grunt.CurrentLife); // the Firebolt fizzled
+        Assert.Null(ViewProjector.Project(g.State, B).Permanents.Single(p => p.Id == grunt.Id.Value).Hex);
+    }
+
+    [Fact]
+    public void A_Root_presence_next_to_it_observes_a_hidden_creature()
+    {
+        var g = Load("place A test.mole 0,0 slice=Root\nplace B test.mole 1,0 slice=Root");
+        g.Ok(g.Act(A, g.P("test.mole"), DefaultAbilities.Ascend));
+        g.ResolveAll();
+        g.Ok(g.Act(A, g.P("test.mole"), DefaultAbilities.Descend));
+        g.ResolveAll();
+        Assert.Equal((H(0, 0), Slice.Root), g.State.BelievedLocation(B, g.P("test.mole"))); // D67
+    }
 }

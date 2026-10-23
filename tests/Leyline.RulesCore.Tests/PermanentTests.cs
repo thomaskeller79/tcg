@@ -261,7 +261,7 @@ public class PermanentTests
         g.ResolveAll();
         var cellar = g.P("structure.root-cellar");
         Assert.Equal(Slice.Root, cellar.Slice);
-        Assert.DoesNotContain(ViewProjector.Project(g.State, B).Permanents, p => p.Id == cellar.Id.Value);
-        Assert.Contains(ViewProjector.Project(g.State, A).Permanents, p => p.Id == cellar.Id.Value);
+        Assert.Null(ViewProjector.Project(g.State, B).Permanents.Single(p => p.Id == cellar.Id.Value).Hex); // known, location ? (D155)
+        Assert.Equal(H(0, 2), ViewProjector.Project(g.State, A).Permanents.Single(p => p.Id == cellar.Id.Value).Hex);
     }
 }

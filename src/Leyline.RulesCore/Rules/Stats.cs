@@ -12,6 +12,9 @@ public static class Stats
     public const string MaxLifeStat = "MaxLife";
     public const string MaxApStat = "MaxAp";
 
+    /// <summary>Darkness on one Slice of a terrain (D152): its observation ability is replaced.</summary>
+    public static string DarkStat(Slice slice) => $"Dark:{slice}";
+
     /// <summary>A gained (+1) or lost (−1) keyword or ability; the latest change wins.</summary>
     public const string AbilityStat = "Ability";
 

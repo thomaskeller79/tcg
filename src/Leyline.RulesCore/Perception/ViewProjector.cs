@@ -15,7 +15,6 @@ public static class ViewProjector
 {
     public static View Project(TrueState state, PlayerId? observer, bool omniscient = false, int logLines = 60)
     {
-        bool Sees(Permanent p) => omniscient || state.CanSee(observer, p);
         bool Owns(PlayerId player) => omniscient || observer == player;
 
         var homeOf = new Dictionary<HexCoord, string>();
@@ -39,8 +38,9 @@ public static class ViewProjector
                 homeOf.GetValueOrDefault(hex));
         }).ToList();
 
+        // D155: every permanent is in every belief; where it is follows the observer's belief (D152).
         var permanents = state.Permanents
-            .Where(p => p.Kind != PermanentKind.Terrain && Sees(p))
+            .Where(p => p.Kind != PermanentKind.Terrain)
             .Select(p => ToView(state, p, observer, omniscient))
             .ToList();
 
@@ -123,14 +123,17 @@ public static class ViewProjector
         var def = state.Def(p);
         var controller = state.Controller(p);
         var showPool = p.Pool is not null && (omniscient || (observer is not null && controller == observer));
+        (HexCoord Hex, Slice Slice)? location = omniscient || observer is not { } who
+            ? (state.PositionOf(p), p.Slice)
+            : state.BelievedLocation(who, p);
         return new PermanentView(
             p.Id.Value,
             def.Id,
             p.Kind == PermanentKind.Remnant ? $"Remnant of {def.Name}" : def.Name,
             p.Kind.ToString(),
             ControllerName(controller),
-            state.PositionOf(p),
-            p.Slice.ToString(),
+            location?.Hex,
+            location?.Slice.ToString(),
             p.Carrier?.Value,
             state.Attack(p),
             p.Kind.IsActor() ? p.CurrentLife : 0,
@@ -143,7 +146,7 @@ public static class ViewProjector
             p.UsedThisCycle.OrderBy(x => x, StringComparer.Ordinal).ToList(),
             p.Behavior?.ToString(),
             showPool ? Pool(p.Pool!) : null,
-            Sight.IsInRoot(p),
+            omniscient ? Sight.IsInRoot(p) : p.Carrier is null && location?.Slice == Slice.Root,
             p.Kind.IsRoot() && Network.IsRootConnected(state, p));
     }
 
@@ -249,6 +252,7 @@ public static class ViewProjector
             "fell" => $"Fell {T(i.Target)}.",
             "destroy" => $"Destroy {T(i.Target)}.",
             "unbond" => $"Unbond {T(i.Target)}.",
+            "darken" => $"{T(i.Target)}'s {i.Section} becomes dark.",
             "put" => i.Section == "Hand" ? $"Return {T(i.Target)} to its controller's hand." : $"Flicker {T(i.Target)}.",
             "move" => $"Move {T(i.Target)} to {(i.To is null ? i.Section : T(i.To))}.",
             "discard" => $"Discard {T(i.Target)}.",

@@ -21,8 +21,9 @@ public static class Consequences
             changed |= Network.ApplyCuts(state);
             changed |= Network.CreditMana(state);
             if (!changed)
-                return;
+                break;
         }
+        Observation.Update(state);
     }
 
     /// <summary>A permanent whose current Life is 0 or less, or that was felled, falls: it
@@ -102,11 +103,13 @@ public static class Mind
         card.Section = to;
     }
 
-    /// <summary>Every Champion's belief about the card becomes true (a cast, D155).</summary>
-    public static void Reveal(TrueState state, CardObject card)
+    /// <summary>D149/D155: the cast card in Discard copies each belief once from its trace. The
+    /// trace is true in every copy unless the card's Pretend says otherwise (not built yet, Track
+    /// B item 25), so the opponent knows the card because it saw the trace.</summary>
+    public static void BelieveFromTrace(TrueState state, CardObject card, TraceObject trace)
     {
         foreach (var who in state.Players.Select(p => p.Id))
-            state.Beliefs.SetCard(who, card.Id, new CardBelief { Definition = card.Definition, PositionKnown = true });
+            state.Beliefs.SetCard(who, card.Id, new CardBelief { Definition = trace.Definition, PositionKnown = true });
     }
 
     /// <summary>Shuffles a section of a Mind: nobody knows a position in it any more (D154).</summary>

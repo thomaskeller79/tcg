@@ -328,7 +328,7 @@ function renderBoard() {
   }
 
   // Tokens.
-  const loose = (p) => p.carrier == null;
+  const loose = (p) => p.carrier == null && p.hex != null; // hex null: location ? to this observer (D152)
   for (const h of v.hexes) {
     const { x, y } = center(h.coord.q, h.coord.r);
     const here = v.permanents.filter(p => loose(p) && p.hex.q === h.coord.q && p.hex.r === h.coord.r);
@@ -545,7 +545,7 @@ function renderDetails() {
     if (!h) return;
     box.append(el('h2', {}, `Terrain (${h.coord.q},${h.coord.r})`));
     box.append(el('pre', { style: 'white-space:pre-wrap;margin:0' }, hexTooltip(h)));
-    const here = ui.view.permanents.filter(p => p.carrier == null && p.hex.q === h.coord.q && p.hex.r === h.coord.r);
+    const here = ui.view.permanents.filter(p => p.carrier == null && p.hex && p.hex.q === h.coord.q && p.hex.r === h.coord.r);
     for (const slice of ['Sky', 'Ground', 'Root']) {
       const list = here.filter(p => p.slice === slice);
       box.append(el('div', {}, `${slice}: ${list.map(p => `${p.name} (${p.kind}, ${p.controller})`).join(', ') || '—'}`));
@@ -566,7 +566,7 @@ function renderDetails() {
   const dl = el('dl', {},
     el('dt', {}, 'Kind'), el('dd', {}, `${p.kind}${p.inRoot ? ' (hidden Root)' : ''}`),
     el('dt', {}, 'Controller'), el('dd', {}, p.controller === 'Neutral' ? 'Neutral' : `Champion ${p.controller}`),
-    el('dt', {}, 'Location'), el('dd', {}, p.carrier != null ? `carried by #${p.carrier}` : `(${p.hex.q},${p.hex.r}) ${p.slice}`));
+    el('dt', {}, 'Location'), el('dd', {}, p.carrier != null ? `carried by #${p.carrier}` : p.hex ? `(${p.hex.q},${p.hex.r}) ${p.slice}` : '?'));
   box.append(dl);
   if (['Creature', 'Companion', 'Champion'].includes(p.kind)) box.append(el('div', { class: 'stats' }, `⚔ ${p.attack}   ♥ ${p.life}/${p.maxLife}   AP ${p.ap}/${p.maxAp}`));
   else if (p.kind === 'Structure') box.append(el('div', { class: 'stats' }, `♥ ${p.life}/${p.maxLife}   AP ${p.ap}/${p.maxAp}`));
@@ -702,7 +702,9 @@ function renderMind() {
       el('div', { class: 'zones' },
         el('div', { class: 'zone' }, el('div', { class: 'label' }, `Hand (${pl.handCount})`), names(pl.hand)),
         el('div', { class: 'zone', title: 'The cards you know in the Library, with a position where you know it (D154).' }, el('div', { class: 'label' }, `Library (${pl.libraryCount})`), known(pl.library)),
-        el('div', { class: 'zone' }, el('div', { class: 'label' }, `Discard (${pl.discardCount})`), names(pl.discard)))));
+        el('div', { class: 'zone' }, el('div', { class: 'label' }, `Discard (${pl.discardCount})`), names(pl.discard)),
+        el('div', { class: 'zone', title: 'Permanents you know exist but not where they are (D152).' }, el('div', { class: 'label' }, 'Location ?'),
+          ui.view.permanents.filter(p => p.controller === pl.player && p.hex == null && p.carrier == null).map(p => `${p.name} #${p.id}`).join(', ') || '—'))));
   }
 }
 

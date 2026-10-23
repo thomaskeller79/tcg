@@ -253,6 +253,12 @@ public static class Resolution
                 foreach (var o in objects)
                     Creation.CeaseToExist(state, o.Id, $"{state.NameOf(o.Id)} is destroyed.");
                 return $"destroyed {names}";
+            case "darken":
+                // D152: the terrain's observation ability for that Slice is replaced while this
+                // trace exists (Darkness).
+                foreach (var o in permanents)
+                    state.Modifiers.Add(new Modifier(state.NewModifierId(), o.Id, Stats.DarkStat(Enum.Parse<Slice>(ins.Section!)), 1, trace.Id));
+                return $"{names}: {ins.Section} becomes dark";
             case "unbond":
                 foreach (var o in permanents)
                     o.Parent = null;
@@ -364,8 +370,8 @@ public static class Resolution
                 continue; // not topped up (D130)
             if (choice.Object is not { } id || state.Find<GameObject>(id) is not { } o)
                 continue; // identity: the same instance must still exist
-            if (o is Permanent p && !state.CanSee(trace.You, p))
-                continue; // visibility, in the live view of the trace's Champion
+            if (o is Permanent p && !state.KnowsWhere(trace.You, p))
+                continue; // visibility: the trace's Champion believes it where it truly is (D159)
             if (spec is not null && !Targeting.RelationHolds(state, spec, id, trace.Targets))
                 continue; // a relation still in the text (D83)
             result.Add(o);
@@ -391,7 +397,7 @@ public static class Resolution
             "gain" or "lose" => p.Kind != PermanentKind.Remnant,
             "put" => p.Kind is not (PermanentKind.Champion or PermanentKind.Terrain or PermanentKind.Remnant),
             "move" or "copy" => p.Kind.IsCreatureType(),
-            "unbond" => p.Kind == PermanentKind.Terrain,
+            "unbond" or "darken" => p.Kind == PermanentKind.Terrain,
             "create" => p.Kind == PermanentKind.Terrain,
             "raise" => p.Kind == PermanentKind.Remnant,
             "destroy" => p.Kind is not (PermanentKind.Champion or PermanentKind.Terrain),

@@ -25,15 +25,16 @@ public sealed record AbilityView(string Id, string Name, string Cost, string Spe
 
 /// <summary>A permanent as seen by the observer. <see cref="Controller"/> is "A", "B" or
 /// "Neutral". <see cref="Pool"/> is only filled for the observer's own roots (D18: the live mana
-/// balance is the one hidden standing quantity).</summary>
+/// balance is the one hidden standing quantity). <see cref="Hex"/> and <see cref="Slice"/> are
+/// where the observer believes it is, null for `?` (D152).</summary>
 public sealed record PermanentView(
     int Id,
     string Card,
     string Name,
     string Kind,
     string Controller,
-    HexCoord Hex,
-    string Slice,
+    HexCoord? Hex,
+    string? Slice,
     int? Carrier,
     int Attack,
     int Life,

@@ -80,6 +80,9 @@ Made where the rules leave a gap. Each is the simplest reading that keeps a matc
 - **G28 — Moving and attaching by instruction.** Move puts a creature on any terrain that passes the entry check, with no path; attach needs no shared location (unlike Equip). Both act on creature-type permanents only.
 - **G29 — Gain control** sets the parent of a Creature or Companion to your Champion and clears its Behavior. Only the permanent form is built; a gain of control may also have a duration (`PLAN.md` Track A item 39, "gains" vs "has").
 - **G30 — Gaining and losing abilities.** Only the form that lasts as long as its trace is built ("target creature has first strike"): a modifier carried by the trace (D144), where the latest change to the same keyword or ability id wins. The form that changes the creature once at resolution ("gains first strike") is not built, nor the choice between changes that add up and changes that set a value (`PLAN.md` Track A item 39).
+- **G31 — Darkness** is a modifier on the terrain carried by its trace (D144), so it ends when the trace fades; its observation rule is the example in `asymmetric-information.md` §Observation, for any one Slice.
+- **G32 — Choosing a permanent target** needs a belief of where it is (true or false); its qualifiers (distance, controller) still read the true state. Whether the belief is true is checked at resolution (D159).
+- **G33 — Permanents placed by a scenario** enter the beliefs like a creation: a Root one is `?` to the opponent (the rules leave the start of the game out, `PLAN.md` Track D item 53).
 
 ## 4. Questions for the user
 
