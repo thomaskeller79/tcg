@@ -23,25 +23,42 @@ public static class Targeting
     };
 
     /// <summary>Does object <paramref name="id"/> satisfy the selection's own qualifiers, seen by
-    /// <paramref name="you"/>? Relations are checked separately (<see cref="RelationHolds"/>).</summary>
+    /// <paramref name="you"/>? Relations are checked separately (<see cref="RelationHolds"/>).
+    /// Any game object can be targeted: a card's or trace's existence, section and position are
+    /// visible even where its content is hidden.</summary>
     public static bool Qualifies(TrueState state, PlayerId? you, Permanent? source, TargetSpec spec, ObjectId id)
     {
+        switch (state.Find<GameObject>(id))
+        {
+            case CardObject card:
+                return spec.Kind == TargetKind.Card
+                    && (spec.Section is null || spec.Section == card.Section.ToString())
+                    && ControlMatches(spec.Control, card.Owner, you);
+            case TraceObject trace:
+                return spec.Kind == TargetKind.Trace
+                    && state.Section(trace.Section).Contains(id) // the trace resolving now is in no list
+                    && (spec.Section is null || spec.Section == trace.Section.ToString())
+                    && ControlMatches(spec.Control, state.Controller(trace), you);
+        }
         if (state.Find<Permanent>(id) is not { } p || !KindMatches(p, spec.Kind))
             return false;
         if (p.Kind == PermanentKind.Terrain && state.Def(p).IsVoid)
             return false;
         if (!state.CanSee(you, p))
             return false;
-        switch (spec.Control)
-        {
-            case ControlFilter.You when state.Controller(p) != you:
-            case ControlFilter.NotYou when state.Controller(p) == you:
-                return false;
-        }
+        if (!ControlMatches(spec.Control, state.Controller(p), you))
+            return false;
         if (spec.WithinOfSource is { } within && source is not null && state.PositionOf(p).DistanceTo(state.PositionOf(source)) > within)
             return false;
         return true;
     }
+
+    private static bool ControlMatches(ControlFilter filter, PlayerId? controller, PlayerId? you) => filter switch
+    {
+        ControlFilter.You => controller == you,
+        ControlFilter.NotYou => controller != you,
+        _ => true,
+    };
 
     public static bool RelationHolds(TrueState state, TargetSpec spec, ObjectId id, IReadOnlyDictionary<string, List<TargetChoice>> bound)
     {
@@ -56,10 +73,16 @@ public static class Targeting
                                && state.PositionOf(other).DistanceTo(state.PositionOf(p)) <= (spec.WithinOfTarget ?? 0));
     }
 
-    public static IEnumerable<ObjectId> Candidates(TrueState state, PlayerId? you, Permanent? source, TargetSpec spec, IReadOnlyDictionary<string, List<TargetChoice>> bound) =>
-        state.Permanents
-            .Where(p => Qualifies(state, you, source, spec, p.Id) && RelationHolds(state, spec, p.Id, bound))
-            .Select(p => p.Id);
+    public static IEnumerable<ObjectId> Candidates(TrueState state, PlayerId? you, Permanent? source, TargetSpec spec, IReadOnlyDictionary<string, List<TargetChoice>> bound)
+    {
+        IEnumerable<ObjectId> ids = spec.Kind switch
+        {
+            TargetKind.Card => state.AllObjects.OfType<CardObject>().Select(c => c.Id),
+            TargetKind.Trace => state.AllObjects.OfType<TraceObject>().Select(t => t.Id),
+            _ => state.Permanents.Select(p => p.Id),
+        };
+        return ids.Where(id => Qualifies(state, you, source, spec, id) && RelationHolds(state, spec, id, bound));
+    }
 
     /// <summary>Every legal choice list for one selection (count min..max; repeats never within
     /// one selection). Enumerates at most two picks per selection.</summary>

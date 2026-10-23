@@ -99,14 +99,6 @@ public enum PermanentKind
     Terrain,
 }
 
-/// <summary>D109: what created a trace.</summary>
-public enum TraceKind
-{
-    Permanent,
-    Spell,
-    Ability,
-}
-
 public static class SeatExtensions
 {
     public static PlayerId? Champion(this Seat seat) => seat switch

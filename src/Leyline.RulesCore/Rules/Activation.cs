@@ -30,6 +30,10 @@ public static class Activation
 {
     public const string TargetKey = "target";
 
+    /// <summary>D142: a permanent card's one instruction — create the permanent defined by the
+    /// trace's own card, from its current values, at the target location (D105).</summary>
+    public static readonly Instruction CreateFromCard = new("create", TargetKey);
+
     public static BuildResult Build(TrueState state, ActivationRequest req) =>
         state.Find<GameObject>(req.Source) switch
         {
@@ -346,20 +350,25 @@ public static class Activation
             var def = draft.Card!;
             if (def.Type.IsPermanentCard())
             {
+                // D142: a permanent card's Cast ability — one instruction creating the permanent
+                // its card defines at the target; Duration is the default.
                 var location = draft.Targets[0][0];
-                return new TraceObject
+                var cast = new TraceObject
                 {
                     Id = state.NewId(), Timestamp = state.NewTimestamp(), Source = card.Id,
-                    Kind = TraceKind.Permanent, Definition = def.Id, Location = location,
-                    Parent = draft.Parent, You = draft.Actor, Speed = def.Speed, Duration = 5,
+                    FromCard = true, Definition = def.Id, Instructions = [CreateFromCard],
+                    Parent = draft.Parent, You = draft.Actor, Speed = def.Speed, Duration = DefaultAbilities.Duration,
                     Text = $"Cast {def.Name} at {location}", PaidCost = draft.Cost.ToString(),
                     AttackDelta = card.AttackDelta, MaxLifeDelta = card.MaxLifeDelta,
                 };
+                cast.Targets[TargetKey] = [location];
+                return cast;
             }
+            // D142: a spell card is an activated ability; its rules text is its own.
             var spell = new TraceObject
             {
                 Id = state.NewId(), Timestamp = state.NewTimestamp(), Source = card.Id,
-                Kind = TraceKind.Spell, Definition = def.Id, Parent = draft.Parent, You = draft.Actor,
+                FromCard = true, Definition = def.Id, Parent = draft.Parent, You = draft.Actor,
                 Speed = def.Speed, Duration = def.Duration, Specs = def.Targets, Instructions = def.Instructions,
                 Text = $"Cast {def.Name}", PaidCost = draft.Cost.ToString(),
             };
@@ -393,7 +402,7 @@ public static class Activation
         var trace = new TraceObject
         {
             Id = state.NewId(), Timestamp = state.NewTimestamp(), Source = p.Id,
-            Kind = TraceKind.Ability, Ability = ability, ActingPermanent = p.Id,
+            Ability = ability, ActingPermanent = p.Id,
             Parent = draft.Parent, Behavior = draft.Behavior, You = draft.Actor,
             Physical = ability.Physical, Duration = ability.Physical ? 0 : ability.Duration, Speed = ability.Speed,
             Specs = ability.Targets, Instructions = ability.Instructions,

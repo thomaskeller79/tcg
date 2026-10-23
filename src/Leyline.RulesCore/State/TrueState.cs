@@ -22,8 +22,11 @@ public sealed class PlayerState
 }
 
 /// <summary>A continuous change to a queried value (continuous-effects.md): folded in append
-/// order on every query, never stored into the permanent.</summary>
-public sealed record Modifier(ModifierId Id, ObjectId Subject, string Stat, int Delta, bool UntilEndOfTurn);
+/// order on every query, never stored into the permanent. It lives as long as its
+/// <see cref="Vessel"/>, the trace that made it (D144). A gained or lost ability is one too:
+/// Stat <see cref="Rules.Stats.AbilityStat"/>, Delta +1 or −1, and the keyword or ability.</summary>
+public sealed record Modifier(ModifierId Id, ObjectId Subject, string Stat, int Delta, ObjectId Vessel,
+    Keyword? Keyword = null, AbilityDefinition? Ability = null);
 
 /// <summary>A line of the match log. <see cref="About"/> lists the objects it mentions, so a
 /// view can drop lines about objects its observer can't see.</summary>

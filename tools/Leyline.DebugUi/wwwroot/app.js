@@ -650,12 +650,12 @@ function traceEl(t, opts = {}) {
   const e = el('div', { class: cls.join(' ') },
     el('div', { class: 'title' }, t.text),
     el('div', { class: 'tags' },
-      el('span', { class: 'tag' }, t.kind),
+      t.fromCard ? el('span', { class: 'tag' }, 'from a card') : null,
       el('span', { class: 'tag' + (t.speed === 'Instant' ? ' instant' : '') }, t.speed),
       t.physical ? el('span', { class: 'tag physical' }, 'physical') : null,
       t.controller ? el('span', { class: 'tag' }, t.controller === 'Neutral' ? 'Neutral' : 'Champion ' + t.controller) : null,
       t.paidCost ? el('span', { class: 'tag' }, 'paid ' + t.paidCost) : null,
-      t.fadesAtRound ? el('span', { class: 'tag' }, 'fades r' + t.fadesAtRound) : null));
+      t.fadesAfterTurnEnds != null ? el('span', { class: 'tag', title: 'Ends of player turns until it fades (D144)' }, 'fades in ' + t.fadesAfterTurnEnds) : null));
   if (t.attack) {
     const defenders = t.attack.defenders.map(d => permById(d)?.name ?? '#' + d).join(', ') || 'none yet';
     e.append(el('div', { class: 'attack' }, `⚔ (${t.attack.hex.q},${t.attack.hex.r}) ${t.attack.slice} vs ${t.attack.entity === 'Neutral' ? 'Neutral' : 'Champion ' + t.attack.entity} — defenders: ${defenders}`));

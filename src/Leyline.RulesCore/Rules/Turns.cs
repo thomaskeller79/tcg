@@ -37,14 +37,6 @@ public static class Turns
         var seat = state.ActiveSeat;
         state.Note($"— Round {state.Round}, {SeatName(seat)}'s turn —");
 
-        // D50: a trace fades from Past once its Duration in rounds has passed.
-        foreach (var id in state.Past.ToList())
-        {
-            var t = state.Get<TraceObject>(id);
-            if (t.RoundResolved is { } r && state.Round >= r + t.Duration)
-                Creation.CeaseToExist(state, id, "");
-        }
-
         // D21/D77/D89: mana refresh (pool and drawn flags of this seat's roots) and AP refresh,
         // simultaneous, no checks in between.
         var permanents = SeatPermanents(state, seat);
@@ -195,8 +187,17 @@ public static class Turns
     /// <summary>The End phase is over: Pending is empty (D128).</summary>
     private static void FinishTurn(TrueState state)
     {
-        // "Until end of turn" effects end (an instruction, so its consequences apply, D112).
-        state.Modifiers.RemoveAll(m => m.UntilEndOfTurn);
+        // D144: Duration counts the ends of player turns. A trace that reaches it fades from Past,
+        // and the modifiers it carries end with it (an instruction, so its consequences apply, D112).
+        if (!IsNeutralTurn(state))
+        {
+            foreach (var id in state.Past.ToList())
+            {
+                var t = state.Get<TraceObject>(id);
+                if (++t.TurnEndsInPast >= t.Duration)
+                    Creation.CeaseToExist(state, id, "");
+            }
+        }
         foreach (var p in state.Permanents)
         {
             p.Locked = false; // D116 `~` lasts until the end of this turn

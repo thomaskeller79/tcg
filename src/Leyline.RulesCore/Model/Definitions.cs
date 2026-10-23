@@ -41,6 +41,10 @@ public enum TargetKind
     Remnant,
     Item,
     Structure,
+    /// <summary>A card in any Mind. Its existence and position are visible; its content may be hidden.</summary>
+    Card,
+    /// <summary>A trace in Past, Pending or Future.</summary>
+    Trace,
 }
 
 public enum ControlFilter
@@ -53,7 +57,8 @@ public enum ControlFilter
 /// <summary>A target selection under the prototype scope: chosen by you, at cast (D104).
 /// <see cref="WithinOfSource"/> and <see cref="Control"/> are the target's own qualifiers,
 /// consumed at binding (D83); <see cref="RelativeTo"/>/<see cref="WithinOfTarget"/> name a
-/// different target, so they are a relation kept in the trace and rechecked at resolution.</summary>
+/// different target, so they are a relation kept in the trace and rechecked at resolution.
+/// <see cref="Section"/>: a card's or trace's section (D138), e.g. "Hand" or "Pending".</summary>
 public sealed record TargetSpec(
     string Name,
     TargetKind Kind,
@@ -62,17 +67,23 @@ public sealed record TargetSpec(
     string? RelativeTo = null,
     int? WithinOfTarget = null,
     int Min = 1,
-    int Max = 1);
+    int Max = 1,
+    string? Section = null);
 
 /// <summary>One instruction, `verb arg*` (effect-form.md). Target names a selection, or "self"
-/// for the source permanent. Only the fields a verb uses are set.</summary>
+/// for the source permanent; To names a second selection (where a copy or a move goes, who an
+/// Item is attached to). Section is a destination or a section of your Mind, Ability an ability
+/// gained or lost (a keyword, or "card/ability-id"), Mana what add mana adds. Only the fields a
+/// verb uses are set. Verb names are working names (PLAN.md Track A item 39).</summary>
 public sealed record Instruction(
     string Verb,
     string? Target = null,
     int Amount = 0,
     string? Card = null,
-    string? Stat = null,
-    bool UntilEndOfTurn = false);
+    string? To = null,
+    string? Section = null,
+    string? Ability = null,
+    ManaUnit? Mana = null);
 
 public enum TriggerEvent
 {
@@ -111,7 +122,7 @@ public sealed record AbilityDefinition
     public Cost Cost { get; init; } = Cost.Free;
     public Speed Speed { get; init; } = Speed.Slow;
     public bool Physical { get; init; }
-    public int Duration { get; init; } = 5;
+    public int Duration { get; init; } = DefaultAbilities.Duration;
     public IReadOnlyList<TargetSpec> Targets { get; init; } = [];
     public IReadOnlyList<Instruction> Instructions { get; init; } = [];
     public string Text { get; init; } = "";
@@ -144,6 +155,21 @@ public sealed record Keyword(string Name, int Value = 0, int? To = null)
     public const string Ranged = "Ranged";
 
     public override string ToString() => To is { } to ? $"{Name} {Value}-{to}" : Value > 0 ? $"{Name} {Value}" : Name;
+
+    /// <summary>"Ranged 1-3", "Haste", "Haste 1", "Flying".</summary>
+    public static Keyword Parse(string text)
+    {
+        var parts = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var range = parts.Length == 2 ? parts[1].Split('-') : [];
+        return parts.Length switch
+        {
+            1 => new Keyword(parts[0]),
+            2 when int.TryParse(parts[1], out var v) => new Keyword(parts[0], v),
+            2 when range.Length == 2 && int.TryParse(range[0], out var from) && int.TryParse(range[1], out var to) && from <= to
+                => new Keyword(parts[0], from, to),
+            _ => throw new FormatException($"Bad keyword '{text}'."),
+        };
+    }
 }
 
 /// <summary>A card definition — the printed card a name refers to (D99). Champion and Terrain
@@ -175,7 +201,7 @@ public sealed record CardDefinition
     // Spell
     public IReadOnlyList<TargetSpec> Targets { get; init; } = [];
     public IReadOnlyList<Instruction> Instructions { get; init; } = [];
-    public int Duration { get; init; } = 5;
+    public int Duration { get; init; } = DefaultAbilities.Duration;
 
     // Terrain
     public IReadOnlyList<ManaUnit> Produces { get; init; } = [];

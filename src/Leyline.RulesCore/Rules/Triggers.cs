@@ -72,7 +72,6 @@ public static class Triggers
         {
             Id = state.NewId(),
             Timestamp = state.NewTimestamp(),
-            Kind = TraceKind.Ability,
             Ability = trigger.Ability,
             ActingPermanent = trigger.SourcePermanent,
             Source = state.Exists(trigger.SourcePermanent) ? trigger.SourcePermanent : null,

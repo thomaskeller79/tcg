@@ -65,7 +65,7 @@ public static class CardJson
             RemovedDefaults = d.RemovedDefaults ?? [],
             Targets = (d.Targets ?? []).Select(ToTarget).ToList(),
             Instructions = (d.Instructions ?? []).Select(ToInstruction).ToList(),
-            Duration = d.Duration ?? 5,
+            Duration = d.Duration ?? DefaultAbilities.Duration,
             Produces = (d.Produces ?? []).Select(ManaUnit.Parse).ToList(),
             IsVoid = d.IsVoid,
             CarrierAttack = d.CarrierAttack,
@@ -85,7 +85,7 @@ public static class CardJson
         Cost = ParseCost(a.Cost),
         Speed = a.Speed ?? (a.Trigger is null ? Speed.Slow : Speed.Reactive), // D128: triggers default to Reactive
         Physical = a.Physical,
-        Duration = a.Duration ?? (a.Physical ? 0 : 5),
+        Duration = a.Duration ?? (a.Physical ? 0 : DefaultAbilities.Duration),
         Targets = (a.Targets ?? []).Select(ToTarget).ToList(),
         Instructions = (a.Instructions ?? []).Select(ToInstruction).ToList(),
         Text = a.Text ?? "",
@@ -95,25 +95,14 @@ public static class CardJson
         new(s.Subtype ?? throw new InvalidDataException("A static ability needs a subtype."), s.Scope, s.Ap);
 
     private static TargetSpec ToTarget(TargetDto t) =>
-        new(t.Name ?? "T1", t.Kind, t.Control, t.WithinOfSource, t.RelativeTo, t.WithinOfTarget, t.Min ?? 1, t.Max ?? 1);
+        new(t.Name ?? "T1", t.Kind, t.Control, t.WithinOfSource, t.RelativeTo, t.WithinOfTarget, t.Min ?? 1, t.Max ?? 1, t.Section);
 
     private static Instruction ToInstruction(InstructionDto i) =>
-        new(i.Verb ?? throw new InvalidDataException("An instruction needs a verb."), i.Target, i.Amount, i.Card, i.Stat, i.UntilEndOfTurn);
+        new(i.Verb ?? throw new InvalidDataException("An instruction needs a verb."), i.Target, i.Amount, i.Card,
+            i.To, i.Section, i.Ability, i.Mana is null ? null : ManaUnit.Parse(i.Mana));
 
     /// <summary>"Ranged 1-3", "Haste", "Haste 1", "Flying".</summary>
-    public static Keyword ParseKeyword(string text)
-    {
-        var parts = text.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        var range = parts.Length == 2 ? parts[1].Split('-') : [];
-        return parts.Length switch
-        {
-            1 => new Keyword(parts[0]),
-            2 when int.TryParse(parts[1], out var v) => new Keyword(parts[0], v),
-            2 when range.Length == 2 && int.TryParse(range[0], out var from) && int.TryParse(range[1], out var to) && from <= to
-                => new Keyword(parts[0], from, to),
-            _ => throw new FormatException($"Bad keyword '{text}'."),
-        };
-    }
+    public static Keyword ParseKeyword(string text) => Keyword.Parse(text);
 
     /// <summary>
     /// Compact cost syntax, tokens separated by spaces or '+':
@@ -237,6 +226,7 @@ public static class CardJson
         public int? WithinOfTarget { get; set; }
         public int? Min { get; set; }
         public int? Max { get; set; }
+        public string? Section { get; set; }
     }
 
     private sealed class InstructionDto
@@ -245,7 +235,9 @@ public static class CardJson
         public string? Target { get; set; }
         public int Amount { get; set; }
         public string? Card { get; set; }
-        public string? Stat { get; set; }
-        public bool UntilEndOfTurn { get; set; }
+        public string? To { get; set; }
+        public string? Section { get; set; }
+        public string? Ability { get; set; }
+        public string? Mana { get; set; }
     }
 }

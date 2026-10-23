@@ -48,7 +48,7 @@ public static class Sight
             && q.Hex.DistanceTo(hex) <= 1
             && state.Controller(q) == observer);
 
-    /// <summary>G17: a trace is visible when its acting permanent is (an Ability trace of a
+    /// <summary>G17: a trace is visible when its acting permanent is (a trace from an ability of a
     /// hidden creature would otherwise reveal it); cast traces are always visible.</summary>
     public static bool CanSeeTrace(this TrueState state, PlayerId? observer, TraceObject t) =>
         t.ActingPermanent is not { } acting

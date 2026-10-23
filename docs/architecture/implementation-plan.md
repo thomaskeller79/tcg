@@ -35,7 +35,7 @@ Each phase ends with its own tests passing and a commit. The engine is rebuilt a
 | Phase | Content | Verified by |
 |---|---|---|
 | **P1 — Object model** | Unified `ObjectId` + timestamp; Card/Trace/Permanent objects; zones (Mind, Aether, Island) with ordered sections (D138); Terrain permanents per hex; Slices + Structure slots; card definitions with abilities as data; JSON content; Ancestry walks (payer, controller); 4-seat turn order; AP flavors; Element mana pools with live crediting | unit tests on walks, pools, turn order |
-| **P2 — Aether** | Activation procedure as one transaction (legality, pay, target, enter Pending); Speeds; priority + Now; Instants; Physical Traces; Past fade; per-instruction resolution checks; immediate consequences; trigger collection and ordering; instruction verbs (damage, heal, draw, fell, destroy, create, raise, bounce, flicker, gain AP, stat buffs, unbond) | tests per speed, per verb, trigger order (Cinder-Verdict-style) |
+| **P2 — Aether** | Activation procedure as one transaction (legality, pay, target, enter Pending); Speeds; priority + Now; Instants; Physical Traces; Past fade; per-instruction resolution checks; immediate consequences; trigger collection and ordering; instruction verbs (`docs/tools/card-format.md` §Instructions) | tests per speed, per verb, trigger order (Cinder-Verdict-style) |
 | **P3 — Network** | Bond (Champion `2*AP`, Companion `3*AP`), Knotting, pause, cut, theft, realm lock, Collapse Network, Structure/Remnant control from terrain | tests per D121/D122 rule |
 | **P4 — Movement & Slices** | Move (static costs on the Move subtype D129, the connected Move cost D134), Ascend/Descend, Flying/Subterranean Slice filters, entry rule, mixed Slices, hidden occupants never block (D132), Root perception + D67 proximity | tests incl. hidden occupants |
 | **P5 — Combat** | Attack trace + legality, Defend (Quick, `1~AP`/doubled for bonded roots), Defender keyword, defended/undefended resolution with a damage-split decision, retaliation, Ranged | combat-scenarios.md S1–S8 as tests |
@@ -66,16 +66,20 @@ Made where the rules leave a gap. Each is the simplest reading that keeps a matc
 - **G14 — Void terrain.** Holes in a Layout are Void terrain: produces nothing, can't be bonded or entered.
 - **G15 — Neutral-ground population.** Two algorithms: `fixed` (the Map lists each hex's terrain card) and `random` (uniform draw from a pool the Map lists, with replacement).
 - **G16 — Damage split.** When there is a single legal recipient, the whole Attack goes there without asking. Otherwise the attacker's Champion submits a split as a decision while the Attack resolves (a Neutral attacker's Behavior picks the lowest-Life target, ties by ID).
-- **G17 — Trace visibility.** A trace is shown to an observer only if its source permanent (for an Ability trace) is visible to them; otherwise it shows as "a hidden action". Bound targets the observer can't see are shown as "a hidden object". The priority window itself still opens (Track B item 6).
+- **G17 — Trace visibility.** A trace is shown to an observer only if its acting permanent (for a permanent's ability) is visible to them; otherwise it shows as "a hidden action". Bound targets the observer can't see are shown as "a hidden object". The priority window itself still opens (Track B item 6).
 - **G18 — Opening hand 5, Champion AP at Setup 4, Trace Duration 5** (the documented placeholders).
 - **G19 — Behavior `Aggressive toward X`.** Each Neutral creature with it, in its neutral turn: attack a visible permanent of X if one is in reach (lowest Life, then lowest ID); otherwise move one hex closer to the nearest visible permanent of X. It defends when it can.
 - **G20 — Trace parent for a Companion's own ability** is the Companion (the payment walk from it stops at itself for mana).
-- **G21 — Healing** stops at max-Life; a permanent Life buff raises max- and current-Life together.
+- **G21 — Healing** stops at max-Life; ±Health changes max- and current-Life together (D143).
 - **G22 — Drawing from an empty Library** does nothing (no decking loss).
 - **G23 — Which side a Knotting permanent is on.** For deciding whom it knots, a Structure's side is read through its terrain's bond record even while that terrain is paused (the live controller would depend on the knot itself).
 - **G24 — "Target creature"** means any creature-type permanent: Creature, Companion or Champion. A card can still be written Creature-only later.
 - **G25 — Triggered abilities take no targets** in this build: every prototype trigger is targetless ("draw a card"). A targeted trigger needs a "choose its targets as it enters Pending" step.
 - **G26 — Refresh and the `~` lock.** A Champion-controlled permanent refreshes its AP and `*` uses in its controller's Beginning, a Neutral one in its neutral seat's Beginning; every `~` lock ends at the end of each turn.
+- **G27 — Where an instruction puts things.** A card drawn, moved, discarded, milled or copied goes last in its section; so will a remanded one (Track B item 10). A copied trace goes on top of Pending and is the copier's (payer and "you" from the copying trace); its source is the original trace. A copied creature enters in its card's Slice and keeps the original's permanent max changes.
+- **G28 — Moving and attaching by instruction.** Move puts a creature on any terrain that passes the entry check, with no path; attach needs no shared location (unlike Equip). Both act on creature-type permanents only.
+- **G29 — Gain control** sets the parent of a Creature or Companion to your Champion and clears its Behavior. Only the permanent form is built; a gain of control may also have a duration (`PLAN.md` Track A item 39, "gains" vs "has").
+- **G30 — Gaining and losing abilities.** Only the form that lasts as long as its trace is built ("target creature has first strike"): a modifier carried by the trace (D144), where the latest change to the same keyword or ability id wins. The form that changes the creature once at resolution ("gains first strike") is not built, nor the choice between changes that add up and changes that set a value (`PLAN.md` Track A item 39).
 
 ## 4. Questions for the user
 

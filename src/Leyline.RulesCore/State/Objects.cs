@@ -158,19 +158,23 @@ public sealed record TargetChoice(ObjectId? Object = null, HexCoord? Hex = null,
     }
 }
 
-/// <summary>An Aether object (D38, D109): Permanent, Spell or Ability trace.</summary>
+/// <summary>An Aether object (D38, D109). D142: one kind of trace — every trace is made by an
+/// ability; traces differ by their source.</summary>
 public sealed class TraceObject : GameObject
 {
-    public required TraceKind Kind { get; init; }
+    /// <summary>Its source at creation is a card, so a Cast ability made it. Flicker and a
+    /// permanent's abilities make traces whose source is a permanent, a copy one whose source is a
+    /// trace. Names for these traces: PLAN.md Track A item 39.</summary>
+    public bool FromCard { get; init; }
 
     /// <summary>D138: its section; its position is its index in that section's list. The trace
     /// resolving now (<see cref="TrueState.Resolving"/>) is on Now: Pending, in no list.</summary>
     public TraceSection Section { get; set; }
 
-    /// <summary>The card name for a Permanent or Spell trace (D99); none for an Ability trace (D109).</summary>
+    /// <summary>The card name for a cast or a Flicker (D99); none for a permanent's ability (D109).</summary>
     public string? Definition { get; init; }
 
-    /// <summary>The ability an Ability trace runs.</summary>
+    /// <summary>The permanent's ability this trace runs.</summary>
     public AbilityDefinition? Ability { get; init; }
 
     /// <summary>The permanent whose ability created this trace (also its initial `source`).</summary>
@@ -196,7 +200,7 @@ public sealed class TraceObject : GameObject
     public IReadOnlyList<TargetSpec> Specs { get; init; } = [];
     public IReadOnlyList<Instruction> Instructions { get; init; } = [];
 
-    /// <summary>Max-tier changes carried on a Permanent trace (cast from a bounced card, or Flicker).</summary>
+    /// <summary>Max-tier changes carried to the permanent it creates (cast from a bounced card, or Flicker).</summary>
     public int AttackDelta { get; init; }
     public int MaxLifeDelta { get; init; }
 
@@ -212,10 +216,11 @@ public sealed class TraceObject : GameObject
 
     public AttackInfo? Attack { get; init; }
 
-    /// <summary>Permanent trace: the location target that becomes the permanent's location (D105).</summary>
+    /// <summary>Move, Ascend, Descend, Bond: the destination terrain and Slice.</summary>
     public TargetChoice? Location { get; init; }
 
-    public int? RoundResolved { get; set; }
+    /// <summary>D144: the ends of player turns it has spent in Past; it fades at its Duration.</summary>
+    public int TurnEndsInPast { get; set; }
     public List<string> Notes { get; } = [];
 
     public bool IsInstant => Speed == Speed.Instant;

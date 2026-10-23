@@ -34,12 +34,9 @@ public static class Resolution
     {
         if (TopUps.Ask(state, trace))
             return false;
-        var suspended = trace.Kind switch
-        {
-            TraceKind.Permanent => ResolvePermanentTrace(state, trace),
-            _ when trace.Ability?.Builtin is { } b && b != BuiltinAbility.None => ResolveBuiltin(state, trace, b),
-            _ => RunInstructions(state, trace),
-        };
+        var suspended = trace.Ability?.Builtin is { } b && b != BuiltinAbility.None
+            ? ResolveBuiltin(state, trace, b)
+            : RunInstructions(state, trace);
         if (suspended)
             return false;
         Finish(state, trace);
@@ -58,30 +55,9 @@ public static class Resolution
         else
         {
             trace.Section = TraceSection.Past;
-            trace.RoundResolved = state.Round;
             state.Past.Add(trace.Id);
         }
         Triggers.Flush(state);
-    }
-
-    private static bool ResolvePermanentTrace(TrueState state, TraceObject trace)
-    {
-        var def = state.Content.Get(trace.Definition!);
-        var loc = trace.Location!;
-        var hex = loc.Hex!.Value;
-        var slice = loc.Slice ?? Activation.ExpectedSlice(def);
-        var controller = trace.Parent is { } parent && state.Exists(parent) ? state.Controller(parent) : null;
-        if (!Entry.CanPermanentEnter(state, def, controller, hex, slice, trueState: true))
-        {
-            trace.Notes.Add("fizzled: the location is no longer legal");
-            state.Note($"{trace.Text} fizzles — the location is no longer legal.", trace.Id);
-            return false;
-        }
-        var p = Creation.CreatePermanent(state, def, hex, slice, trace.Parent, trace.Behavior, trace.Id,
-            attackDelta: trace.AttackDelta, maxLifeDelta: trace.MaxLifeDelta);
-        trace.Notes.Add($"created {state.NameOf(p.Id)}");
-        Consequences.Run(state);
-        return false;
     }
 
     // ----------------------------------------------------------------------------- built-in verbs
@@ -213,43 +189,64 @@ public static class Resolution
         return false;
     }
 
-    private static readonly HashSet<string> TargetlessVerbs = new(StringComparer.Ordinal) { "draw" };
+    private static readonly HashSet<string> TargetlessVerbs = new(StringComparer.Ordinal) { "draw", "shuffle", "add mana" };
 
     /// <summary>Runs one instruction; returns the note shown on the trace.</summary>
     private static string Run(TrueState state, TraceObject trace, Instruction ins)
     {
-        if (TargetlessVerbs.Contains(ins.Verb))
+        if (TargetlessVerbs.Contains(ins.Verb) || ins.Verb == "mill" && ins.Target is null)
             return RunTargetless(state, trace, ins);
+        if (ins.Verb == "create" && ins.Card is null)
+            return CreateFromCard(state, trace, ins);
 
-        var objects = BoundObjects(state, trace, ins);
+        var objects = BoundObjects(state, trace, ins.Target);
         if (objects is null)
             return $"{ins.Verb}: fizzled (target gone, hidden or no longer related)";
         objects = objects.Where(o => VerbApplies(state, ins, o)).ToList();
         if (objects.Count == 0)
             return $"{ins.Verb}: does nothing";
 
+        // The second selection: where a copy or a move goes, who an Item is attached to.
+        Permanent? to = null;
+        if (ins.To is not null)
+        {
+            if (BoundObjects(state, trace, ins.To) is not [Permanent destination])
+                return $"{ins.Verb}: fizzled (destination gone, hidden or no longer related)";
+            to = destination;
+        }
+
+        var permanents = objects.OfType<Permanent>().ToList();
         var names = string.Join(", ", objects.Select(o => state.NameOf(o.Id)));
         switch (ins.Verb)
         {
             case "damage":
-                foreach (var o in objects)
+                foreach (var o in permanents)
                     o.CurrentLife -= ins.Amount;
                 state.Note($"{trace.Text}: {ins.Amount} damage to {names}.", objects.Select(o => o.Id).ToArray());
                 return $"dealt {ins.Amount} damage to {names}";
             case "heal":
-                foreach (var o in objects)
+                foreach (var o in permanents)
                     o.CurrentLife = Math.Min(state.MaxLife(o), o.CurrentLife + ins.Amount);
                 return $"healed {names} by {ins.Amount}";
-            case "gainAp":
-                foreach (var o in objects)
+            case "quicken":
+                foreach (var o in permanents)
                     o.CurrentAp += ins.Amount;
                 return $"{names} gain {ins.Amount} AP";
-            case "buff":
-                foreach (var o in objects)
-                    Buff(state, o, ins);
-                return $"{names}: {(ins.Amount >= 0 ? "+" : "")}{ins.Amount} {ins.Stat}{(ins.UntilEndOfTurn ? " until end of turn" : "")}";
+            case "slow":
+                foreach (var o in permanents)
+                    o.CurrentAp = Math.Max(0, o.CurrentAp - ins.Amount);
+                return $"{names} lose {ins.Amount} AP";
+            case "power":
+            case "health":
+            case "ap":
+                foreach (var o in permanents)
+                    Modify(state, trace, o, ins);
+                return $"{names}: {Signed(ins.Amount)} {ins.Verb}";
+            case "gain":
+            case "lose":
+                return ChangeAbility(state, trace, permanents, ins);
             case "fell":
-                foreach (var o in objects)
+                foreach (var o in permanents)
                     state.ToFall.Add(o.Id);
                 return $"felled {names}";
             case "destroy":
@@ -257,22 +254,60 @@ public static class Resolution
                     Creation.CeaseToExist(state, o.Id, $"{state.NameOf(o.Id)} is destroyed.");
                 return $"destroyed {names}";
             case "unbond":
-                foreach (var o in objects)
+                foreach (var o in permanents)
                     o.Parent = null;
                 state.Note($"{names} unbond.", objects.Select(o => o.Id).ToArray());
                 return $"unbonded {names}";
-            case "bounce":
-                foreach (var o in objects)
-                    Bounce(state, o);
-                return $"returned {names} to a hand";
-            case "flicker":
-                foreach (var o in objects)
-                    Flicker(state, o);
-                return $"flickered {names}";
+            case "put":
+                foreach (var o in permanents)
+                {
+                    if (ins.Section == nameof(CardSection.Hand))
+                        Bounce(state, o);
+                    else
+                        Flicker(state, o);
+                }
+                return $"put {names} into {ins.Section}";
+            case "move":
+                return objects[0] is CardObject ? MoveCards(state, objects.Cast<CardObject>(), ins) : MovePermanent(state, permanents[0], to!);
+            case "discard":
+                foreach (var c in objects.Cast<CardObject>())
+                    Mind.Move(state, c, CardSection.Discard);
+                state.Note($"{names} discarded.", objects.Select(o => o.Id).ToArray());
+                return $"discarded {names}";
+            case "mill":
+                foreach (var champion in permanents)
+                    Mill(state, state.Controller(champion)!.Value, ins.Amount);
+                return $"milled {ins.Amount} from {names}";
+            case "copy":
+                return Copy(state, trace, objects[0], to);
+            case "attach":
+                foreach (var item in permanents)
+                    item.Carrier = to!.Id;
+                state.Note($"{names} attached to {state.NameOf(to!.Id)}.", objects.Select(o => o.Id).ToArray());
+                return $"attached {names} to {state.NameOf(to!.Id)}";
+            case "detach":
+                foreach (var item in permanents)
+                {
+                    var carrier = state.Get<Permanent>(item.Carrier!.Value);
+                    item.Hex = state.PositionOf(carrier);
+                    item.Slice = Island.LooseSliceFor(carrier.Slice);
+                    item.Carrier = null;
+                }
+                return $"detached {names}";
+            case "gain control":
+                if (trace.You is not { } you || state.ChampionOf(you) is not { } yours)
+                    return "gain control: fizzled (no Champion)";
+                foreach (var o in permanents)
+                {
+                    o.Parent = yours.Id;
+                    o.Behavior = null;
+                }
+                state.Note($"Champion {you} gains control of {names}.", objects.Select(o => o.Id).ToArray());
+                return $"Champion {you} gains control of {names}";
             case "create":
-                return Create(state, trace, ins, objects[0]);
+                return Create(state, trace, ins, permanents[0]);
             case "raise":
-                return Raise(state, trace, objects[0]);
+                return Raise(state, trace, permanents[0]);
             default:
                 return $"{ins.Verb}: unknown verb";
         }
@@ -280,87 +315,215 @@ public static class Resolution
 
     private static string RunTargetless(TrueState state, TraceObject trace, Instruction ins)
     {
+        // "You draw", "you shuffle", "you add": the walk to a Mind or a pool only reaches a
+        // Champion (D28, D74); a trace with no Champion behind it fizzles this instruction.
+        if (trace.You is not { } you)
+            return $"{ins.Verb}: fizzled (no Champion)";
         switch (ins.Verb)
         {
             case "draw":
-                // "You draw": the walk to a Hand only reaches a Champion (D28, D74); a trace with
-                // no Champion behind it fizzles this instruction.
-                if (trace.You is not { } you)
-                    return "draw: fizzled (no Champion)";
                 Mind.Draw(state, you, Math.Max(1, ins.Amount));
                 return $"Champion {you} draws {Math.Max(1, ins.Amount)}";
+            case "mill":
+                Mill(state, you, ins.Amount);
+                return $"Champion {you} mills {ins.Amount}";
+            case "shuffle":
+                var section = Enum.Parse<CardSection>(ins.Section!);
+                Mind.Shuffle(state, state.Player(you).Section(section));
+                state.Note($"Champion {you} shuffles their {section}.");
+                return $"Champion {you} shuffles their {section}";
+            case "add mana":
+                state.ChampionOf(you)!.Pool!.Add(ins.Mana!.Value, ins.Amount);
+                return $"Champion {you} adds {ins.Amount} {ins.Mana} mana";
             default:
                 return $"{ins.Verb}: unknown verb";
         }
     }
 
-    /// <summary>The objects an instruction acts on, after the identity, visibility and relation
+    /// <summary>The objects a selection is bound to, after the identity, visibility and relation
     /// checks; null if the instruction fizzles.</summary>
-    private static List<Permanent>? BoundObjects(TrueState state, TraceObject trace, Instruction ins)
+    private static List<GameObject>? BoundObjects(TrueState state, TraceObject trace, string? target)
     {
-        if (ins.Target is null or "self" or "here")
+        if (target is null or "self" or "here")
         {
             if (trace.ActingPermanent is not { } a || state.Find<Permanent>(a) is not { } self)
                 return null;
             // "here": the terrain the acting permanent stands on (its position, D105).
-            return ins.Target == "here" ? [state.TerrainOf(state.PositionOf(self))] : [self];
+            return target == "here" ? [state.TerrainOf(state.PositionOf(self))] : [self];
         }
-        if (!trace.Targets.TryGetValue(ins.Target, out var choices))
+        if (!trace.Targets.TryGetValue(target, out var choices))
             return null;
         if (choices.Count == 0)
             return [];
 
-        var spec = trace.Specs.FirstOrDefault(s => s.Name == ins.Target);
-        var result = new List<Permanent>();
+        var spec = trace.Specs.FirstOrDefault(s => s.Name == target);
+        var result = new List<GameObject>();
         foreach (var choice in choices)
         {
             if (trace.IllegalTargets.Contains(choice))
                 continue; // not topped up (D130)
-            if (choice.Object is not { } id || state.Find<Permanent>(id) is not { } p)
+            if (choice.Object is not { } id || state.Find<GameObject>(id) is not { } o)
                 continue; // identity: the same instance must still exist
-            if (!state.CanSee(trace.You, p))
+            if (o is Permanent p && !state.CanSee(trace.You, p))
                 continue; // visibility, in the live view of the trace's Champion
             if (spec is not null && !Targeting.RelationHolds(state, spec, id, trace.Targets))
                 continue; // a relation still in the text (D83)
-            result.Add(p);
+            result.Add(o);
         }
         return result.Count == 0 ? null : result;
     }
 
     /// <summary>Verb applicability (D85 condition 4).</summary>
-    private static bool VerbApplies(TrueState state, Instruction ins, Permanent p) => ins.Verb switch
+    private static bool VerbApplies(TrueState state, Instruction ins, GameObject o) => o switch
     {
-        "damage" or "heal" or "fell" => p.Kind.IsActor(),
-        "gainAp" => p.Kind.IsActor(),
-        "buff" => ins.Stat == "Life" ? p.Kind.IsActor() : p.Kind.IsCreatureType(),
-        "bounce" or "flicker" => p.Kind is not (PermanentKind.Champion or PermanentKind.Terrain or PermanentKind.Remnant),
-        "unbond" => p.Kind == PermanentKind.Terrain,
-        "create" => p.Kind == PermanentKind.Terrain,
-        "raise" => p.Kind == PermanentKind.Remnant,
-        "destroy" => p.Kind is not (PermanentKind.Champion or PermanentKind.Terrain),
-        _ => true,
+        CardObject c => ins.Verb switch
+        {
+            "discard" => c.Section == CardSection.Hand,
+            "move" or "copy" or "destroy" => true,
+            _ => false,
+        },
+        TraceObject => ins.Verb is "copy" or "destroy",
+        Permanent p => ins.Verb switch
+        {
+            "damage" or "heal" or "fell" => p.Kind.IsActor(),
+            "quicken" or "slow" or "health" or "ap" => p.Kind.IsActor(),
+            "power" => p.Kind.IsCreatureType(),
+            "gain" or "lose" => p.Kind != PermanentKind.Remnant,
+            "put" => p.Kind is not (PermanentKind.Champion or PermanentKind.Terrain or PermanentKind.Remnant),
+            "move" or "copy" => p.Kind.IsCreatureType(),
+            "unbond" => p.Kind == PermanentKind.Terrain,
+            "create" => p.Kind == PermanentKind.Terrain,
+            "raise" => p.Kind == PermanentKind.Remnant,
+            "destroy" => p.Kind is not (PermanentKind.Champion or PermanentKind.Terrain),
+            "mill" => p.Kind == PermanentKind.Champion,
+            "attach" => p.Kind == PermanentKind.Item,
+            "detach" => p.Kind == PermanentKind.Item && p.Carrier is not null,
+            // Units only: an Item follows its carrier, a Structure its terrain's bonder (ancestry.md).
+            "gain control" => p.Kind is PermanentKind.Creature or PermanentKind.Companion,
+            _ => false,
+        },
+        _ => false,
     };
 
-    private static void Buff(TrueState state, Permanent p, Instruction ins)
+    /// <summary>D143/D144: ±Power, ±Health, ±AP — a modifier carried by this trace, ending when it
+    /// ceases to exist. ±Health and ±AP change max and current together, as exact mirrors.</summary>
+    private static void Modify(TrueState state, TraceObject trace, Permanent p, Instruction ins)
     {
-        if (ins.UntilEndOfTurn)
-        {
-            state.Modifiers.Add(new Modifier(state.NewModifierId(), p.Id, ins.Stat == "Life" ? "MaxLife" : "Attack", ins.Amount, UntilEndOfTurn: true));
-            if (ins.Stat == "Life")
-                p.CurrentLife += ins.Amount;
-            return;
-        }
-        if (ins.Stat == "Life")
-        {
-            // A permanent max-Life raise also raises current Life (object-properties.md §3).
-            p.MaxLifeDelta += ins.Amount;
+        var stat = ins.Verb switch { "health" => Stats.MaxLifeStat, "ap" => Stats.MaxApStat, _ => Stats.AttackStat };
+        state.Modifiers.Add(new Modifier(state.NewModifierId(), p.Id, stat, ins.Amount, trace.Id));
+        if (stat == Stats.MaxLifeStat)
             p.CurrentLife += ins.Amount;
-        }
-        else
+        else if (stat == Stats.MaxApStat)
+            p.CurrentAp = Math.Max(0, p.CurrentAp + ins.Amount);
+    }
+
+    /// <summary>Gain or lose an ability: a modifier carried by this trace (D144). The ability is a
+    /// keyword ("Flying", "Ranged 1-3") or a card's ability ("card/ability-id"); a lost one may
+    /// also be named by its ability id alone ("move").</summary>
+    private static string ChangeAbility(TrueState state, TraceObject trace, List<Permanent> permanents, Instruction ins)
+    {
+        var name = ins.Ability!;
+        var gain = ins.Verb == "gain";
+        var cardAbility = name.Split('/') is [var card, var id] ? state.Content.Get(card).Abilities.First(a => a.Id == id) : null;
+        foreach (var p in permanents)
         {
-            p.AttackDelta += ins.Amount;
+            Keyword? keyword = null;
+            var ability = cardAbility;
+            if (ability is null && (gain || state.Keywords(p).Any(k => k.Name == Keyword.Parse(name).Name)))
+                keyword = Keyword.Parse(name);
+            else
+                ability ??= state.Abilities(p).FirstOrDefault(a => a.Id == name) ?? new AbilityDefinition { Id = name, Name = name };
+            state.Modifiers.Add(new Modifier(state.NewModifierId(), p.Id, Stats.AbilityStat, gain ? 1 : -1, trace.Id, keyword, ability));
+        }
+        return $"{string.Join(", ", permanents.Select(p => state.NameOf(p.Id)))} {ins.Verb} {cardAbility?.Name ?? name}";
+    }
+
+    /// <summary>D138: a move within a Mind — the same card, a new section of its owner's Mind, last in it.</summary>
+    private static string MoveCards(TrueState state, IEnumerable<CardObject> cards, Instruction ins)
+    {
+        var to = Enum.Parse<CardSection>(ins.Section!);
+        var names = new List<string>();
+        foreach (var c in cards)
+        {
+            Mind.Move(state, c, to);
+            names.Add(state.NameOf(c.Id));
+        }
+        return $"moved {string.Join(", ", names)} to {to}";
+    }
+
+    /// <summary>A move on the Island: the same permanent on a new terrain, in its own Slice if its
+    /// card allows it, else its card's Slice; the ordinary entry check applies.</summary>
+    private static string MovePermanent(TrueState state, Permanent p, Permanent terrain)
+    {
+        var expected = Activation.ExpectedSlice(state.Def(p));
+        var slice = p.Slice == expected ? p.Slice : expected;
+        if (!Entry.CanCreatureEnter(state, state.Controller(p), terrain.Hex, slice, p.Id, trueState: true))
+            return "move: fizzled (no room)";
+        p.Hex = terrain.Hex;
+        p.Slice = slice;
+        state.Note($"{state.NameOf(p.Id)} moves to {terrain.Hex} {slice}.", p.Id);
+        return $"moved {state.NameOf(p.Id)} to {terrain.Hex} {slice}";
+    }
+
+    /// <summary>The top <paramref name="count"/> cards of a Library go to its Discard.</summary>
+    private static void Mill(TrueState state, PlayerId player, int count)
+    {
+        var library = state.Player(player).Library;
+        for (var i = 0; i < count && library.Count > 0; i++)
+            Mind.Move(state, state.Get<CardObject>(library[0]), CardSection.Discard);
+        state.Note($"Champion {player} mills {count}.");
+    }
+
+    /// <summary>Copy: a new object, the original stays (effect-form.md §Instructions). A creature's
+    /// copy enters on the destination terrain like a creation (its parent and Behavior from this
+    /// trace, D106); a card's goes last into your Hand; a trace's goes on top of Pending, and
+    /// this trace's payer and Champion are its own.</summary>
+    private static string Copy(TrueState state, TraceObject trace, GameObject original, Permanent? to)
+    {
+        switch (original)
+        {
+            case Permanent p:
+            {
+                var def = state.Def(p);
+                var slice = Activation.ExpectedSlice(def);
+                var controller = trace.Parent is { } parent && state.Exists(parent) ? state.Controller(parent) : null;
+                if (!Entry.CanPermanentEnter(state, def, controller, to!.Hex, slice, trueState: true))
+                    return "copy: fizzled (no room)";
+                var copy = Creation.CreatePermanent(state, def, to.Hex, slice, trace.Parent, trace.Behavior, p.Id,
+                    attackDelta: p.AttackDelta, maxLifeDelta: p.MaxLifeDelta);
+                return $"copied {state.NameOf(p.Id)} as {state.NameOf(copy.Id)}";
+            }
+            case CardObject c:
+            {
+                if (trace.You is not { } you)
+                    return "copy: fizzled (no Champion)";
+                var copy = Creation.CreateCard(state, c.Definition, you, CardSection.Hand, c.Id, c.AttackDelta, c.MaxLifeDelta);
+                return $"copied {state.NameOf(c.Id)} into Champion {you}'s Hand as {state.NameOf(copy.Id)}";
+            }
+            case TraceObject t:
+            {
+                var copy = new TraceObject
+                {
+                    Id = state.NewId(), Timestamp = state.NewTimestamp(), Source = t.Id,
+                    Definition = t.Definition, Ability = t.Ability, ActingPermanent = t.ActingPermanent,
+                    Parent = trace.Parent, Behavior = trace.Behavior, You = trace.You,
+                    Physical = t.Physical, Duration = t.Duration, Speed = t.Speed,
+                    Specs = t.Specs, Instructions = t.Instructions, Attack = t.Attack, Location = t.Location,
+                    AttackDelta = t.AttackDelta, MaxLifeDelta = t.MaxLifeDelta,
+                    Text = $"Copy of {t.Text}",
+                };
+                foreach (var (name, choices) in t.Targets)
+                    copy.Targets[name] = choices.ToList();
+                copy.IllegalTargets.UnionWith(t.IllegalTargets);
+                Creation.CreateTrace(state, copy);
+                return $"copied {state.NameOf(t.Id)} onto Pending";
+            }
+            default:
+                return "copy: does nothing";
         }
     }
+
+    private static string Signed(int amount) => amount >= 0 ? $"+{amount}" : $"{amount}";
 
     /// <summary>D69/D74 Bounce: Matter → Mind. A new Card in its controller's hand, read from the
     /// permanent's current state (max-tier changes survive, current values don't).</summary>
@@ -376,8 +539,9 @@ public static class Resolution
         Creation.CeaseToExist(state, p.Id, $"{name} returns to Champion {owner}'s hand.");
     }
 
-    /// <summary>D69/D105 Flicker: Matter → Aether. A new Permanent trace targeting the
-    /// permanent's position (Slice: its own if the card's Slice filter allows it, else the filter's).</summary>
+    /// <summary>D69/D105/D142 Flicker: Matter → Aether. A trace creating its card's permanent, like
+    /// a cast's but with the permanent as its source, targeting the permanent's position (Slice: its own if the card's Slice filter allows it,
+    /// else the filter's).</summary>
     private static void Flicker(TrueState state, Permanent p)
     {
         var def = state.Def(p);
@@ -388,18 +552,18 @@ public static class Resolution
             Id = state.NewId(),
             Timestamp = state.NewTimestamp(),
             Source = p.Id,
-            Kind = TraceKind.Permanent,
             Definition = p.Definition,
-            Location = TargetChoice.ForLocation(state.PositionOf(p), slice),
+            Instructions = [Activation.CreateFromCard],
             Parent = p.Kind is PermanentKind.Creature or PermanentKind.Companion ? p.Parent : null,
             Behavior = p.Behavior,
             You = state.Controller(p),
             Speed = def.Speed,
-            Duration = 5,
+            Duration = DefaultAbilities.Duration,
             Text = $"Flicker of {def.Name}",
             AttackDelta = p.AttackDelta,
             MaxLifeDelta = p.MaxLifeDelta,
         };
+        trace.Targets[Activation.TargetKey] = [TargetChoice.ForLocation(state.PositionOf(p), slice)];
         var name = state.NameOf(p.Id);
         Creation.CeaseToExist(state, p.Id, $"{name} flickers into the Aether.");
         Creation.CreateTrace(state, trace);
@@ -417,6 +581,25 @@ public static class Resolution
         if (!Entry.CanPermanentEnter(state, def, controller, terrain.Hex, slice, trueState: true))
             return $"create {def.Name}: fizzled (no room)";
         var p = Creation.CreatePermanent(state, def, terrain.Hex, slice, trace.Parent, trace.Behavior, trace.Id);
+        return $"created {state.NameOf(p.Id)}";
+    }
+
+    /// <summary>D142: a permanent card's Cast ability (and Flicker's trace) — create the permanent
+    /// the trace's card defines, from the card's current values, at its target location (D105).</summary>
+    private static string CreateFromCard(TrueState state, TraceObject trace, Instruction ins)
+    {
+        var def = state.Content.Get(trace.Definition!);
+        var loc = trace.Targets[ins.Target!][0];
+        var hex = loc.Hex!.Value;
+        var slice = loc.Slice ?? Activation.ExpectedSlice(def);
+        var controller = trace.Parent is { } parent && state.Exists(parent) ? state.Controller(parent) : null;
+        if (!Entry.CanPermanentEnter(state, def, controller, hex, slice, trueState: true))
+        {
+            state.Note($"{trace.Text} fizzles — the location is no longer legal.", trace.Id);
+            return "fizzled: the location is no longer legal";
+        }
+        var p = Creation.CreatePermanent(state, def, hex, slice, trace.Parent, trace.Behavior, trace.Id,
+            attackDelta: trace.AttackDelta, maxLifeDelta: trace.MaxLifeDelta);
         return $"created {state.NameOf(p.Id)}";
     }
 

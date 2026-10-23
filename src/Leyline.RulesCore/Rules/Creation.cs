@@ -118,6 +118,18 @@ public static class Creation
             state.Section(trace.Section).Remove(id);
         state.Modifiers.RemoveAll(m => m.Subject == id);
 
+        // D144: the modifiers it was the vessel of end. D143: ±Health and ±AP were exact mirrors
+        // on max and current, so ending one takes back what it gave current.
+        foreach (var m in state.Modifiers.Where(m => m.Vessel == id).ToList())
+        {
+            state.Modifiers.Remove(m);
+            var subject = state.Get<Permanent>(m.Subject);
+            if (m.Stat == Stats.MaxLifeStat)
+                subject.CurrentLife -= m.Delta;
+            else if (m.Stat == Stats.MaxApStat)
+                subject.CurrentAp = Math.Max(0, subject.CurrentAp - m.Delta);
+        }
+
         // D97: whatever had it as `source` takes over its `source`.
         foreach (var other in state.AllObjects.Where(o => o.Source == id).ToList())
             other.Source = obj.Source;

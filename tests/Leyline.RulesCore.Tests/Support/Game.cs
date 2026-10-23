@@ -210,15 +210,48 @@ public static class TestCards
     public static readonly CardDefinition Leaper = new()
     {
         Id = "test.leaper", Name = "Leaper", Type = CardType.Creature, Cost = new Cost([ManaPip.Generic]), Attack = 1, Life = 3, Ap = 6,
-        Abilities = [new AbilityDefinition { Id = "leap", Name = "Leap", Subtypes = ["Move"], Cost = Cost.ApOnly(1), Instructions = [new Instruction("gainAp", Target: "self", Amount: 0)] }],
+        Abilities = [new AbilityDefinition { Id = "leap", Name = "Leap", Subtypes = ["Move"], Cost = Cost.ApOnly(1), Instructions = [new Instruction("quicken", Target: "self", Amount: 0)] }],
     };
 
     /// <summary>D135: an exhausting (`!`) Move-subtype ability with a target, which surcharges reach.</summary>
     public static readonly CardDefinition Vaulter = new()
     {
         Id = "test.vaulter", Name = "Vaulter", Type = CardType.Creature, Cost = new Cost([ManaPip.Generic]), Attack = 1, Life = 3, Ap = 4,
-        Abilities = [new AbilityDefinition { Id = "vault", Name = "Vault", Subtypes = ["Move"], Cost = Cost.ApOnly(1, ApFlavor.Exhaust), Targets = [new TargetSpec("T", TargetKind.Terrain)], Instructions = [new Instruction("gainAp", Target: "self", Amount: 0)] }],
+        Abilities = [new AbilityDefinition { Id = "vault", Name = "Vault", Subtypes = ["Move"], Cost = Cost.ApOnly(1, ApFlavor.Exhaust), Targets = [new TargetSpec("T", TargetKind.Terrain)], Instructions = [new Instruction("quicken", Target: "self", Amount: 0)] }],
     };
 
-    public static IEnumerable<CardDefinition> All => [Grunt, Mirror, Brute, Mole, Knotter, Digger, DawnSeer(Speed.Reactive), DawnSeer(Speed.Instant), Bastion, Bog, Leaper, Vaulter];
+    /// <summary>D143/D144: +2 Health and +2 AP until the end of this turn (Duration 1).</summary>
+    public static readonly CardDefinition Fortify = new()
+    {
+        Id = "test.fortify", Name = "Fortify", Type = CardType.Spell, Speed = Speed.Reactive, Duration = 1,
+        Targets = [new TargetSpec("T1", TargetKind.Creature)],
+        Instructions = [new Instruction("health", "T1", 2), new Instruction("ap", "T1", 2)],
+    };
+
+    /// <summary>Free spells, one per new instruction of D141 (Track B item 23).</summary>
+    private static CardDefinition Spell(string id, Speed speed, TargetSpec[] targets, params Instruction[] instructions) => new()
+    {
+        Id = id, Name = id, Type = CardType.Spell, Speed = speed, Duration = 1, Targets = targets, Instructions = instructions,
+    };
+
+    public static IEnumerable<CardDefinition> Instructions =>
+    [
+        Spell("test.discard", Speed.Slow, [new TargetSpec("T1", TargetKind.Card, Section: "Hand")], new Instruction("discard", "T1")),
+        Spell("test.mill", Speed.Slow, [new TargetSpec("T1", TargetKind.Creature)], new Instruction("mill", "T1", 2)),
+        Spell("test.shuffle", Speed.Slow, [], new Instruction("shuffle", Section: "Library")),
+        Spell("test.recover", Speed.Slow, [new TargetSpec("T1", TargetKind.Card, ControlFilter.You, Section: "Discard")], new Instruction("move", "T1", Section: "Hand")),
+        Spell("test.counter", Speed.Reactive, [new TargetSpec("T1", TargetKind.Trace, Section: "Pending")], new Instruction("destroy", "T1")),
+        Spell("test.echo", Speed.Reactive, [new TargetSpec("T1", TargetKind.Trace, Section: "Pending")], new Instruction("copy", "T1")),
+        Spell("test.twin", Speed.Slow, [new TargetSpec("T1", TargetKind.Creature), new TargetSpec("T2", TargetKind.Terrain, ControlFilter.You)], new Instruction("copy", "T1", To: "T2")),
+        Spell("test.duplicate", Speed.Slow, [new TargetSpec("T1", TargetKind.Card, ControlFilter.You, Section: "Hand")], new Instruction("copy", "T1")),
+        Spell("test.teleport", Speed.Slow, [new TargetSpec("T1", TargetKind.Creature), new TargetSpec("T2", TargetKind.Terrain)], new Instruction("move", "T1", To: "T2")),
+        Spell("test.wings", Speed.Slow, [new TargetSpec("T1", TargetKind.Creature)], new Instruction("gain", "T1", Ability: "Flying")),
+        Spell("test.rooted", Speed.Slow, [new TargetSpec("T1", TargetKind.Creature)], new Instruction("lose", "T1", Ability: "move")),
+        Spell("test.ritual", Speed.Slow, [], new Instruction("add mana", Amount: 3, Mana: ManaUnit.Of(Element.Darkness))),
+        Spell("test.dominate", Speed.Slow, [new TargetSpec("T1", TargetKind.Creature)], new Instruction("gain control", "T1")),
+        Spell("test.arm", Speed.Slow, [new TargetSpec("T1", TargetKind.Item), new TargetSpec("T2", TargetKind.Creature)], new Instruction("attach", "T1", To: "T2")),
+        Spell("test.disarm", Speed.Slow, [new TargetSpec("T1", TargetKind.Item)], new Instruction("detach", "T1")),
+    ];
+
+    public static IEnumerable<CardDefinition> All => [Grunt, Mirror, Brute, Mole, Knotter, Digger, DawnSeer(Speed.Reactive), DawnSeer(Speed.Instant), Bastion, Bog, Leaper, Vaulter, Fortify, .. Instructions];
 }

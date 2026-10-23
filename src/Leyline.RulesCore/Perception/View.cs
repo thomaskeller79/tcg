@@ -69,7 +69,7 @@ public sealed record AttackView(HexCoord Hex, string Slice, string Entity, IRead
 
 public sealed record TraceView(
     int Id,
-    string Kind,
+    bool FromCard,
     string Text,
     string Controller,
     bool Physical,
@@ -79,7 +79,7 @@ public sealed record TraceView(
     IReadOnlyList<string> Instructions,
     IReadOnlyList<string> Notes,
     string PaidCost,
-    int? FadesAtRound,
+    int? FadesAfterTurnEnds,
     AttackView? Attack,
     int? ActingPermanent);
 

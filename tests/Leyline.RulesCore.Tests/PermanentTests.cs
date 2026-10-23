@@ -25,6 +25,18 @@ public class PermanentTests
     }
 
     [Fact]
+    public void A_permanent_cards_cast_makes_a_trace_whose_one_instruction_creates_the_permanent()
+    {
+        var g = Load("handcard A creature.fire-warrior\nmana A Fire 1");
+        g.Ok(g.Cast(A, "creature.fire-warrior", At(0, 2)));
+        var trace = g.State.Get<TraceObject>(g.State.Pending.Single());
+        Assert.True(trace.FromCard); // D142: one kind of trace, its source a card
+        Assert.Equal([Activation.CreateFromCard], trace.Instructions);
+        g.ResolveAll();
+        Assert.Equal(trace.Id, g.P("creature.fire-warrior").Source);
+    }
+
+    [Fact]
     public void Haste_enters_with_its_Activation_Points_and_Flying_enters_in_the_Sky()
     {
         var g = Load("handcard A creature.ember-imp creature.sky-hawk\nmana A Fire 1\nmana A Air 1");
@@ -112,6 +124,10 @@ public class PermanentTests
             """);
         var old = g.P("test.grunt");
         g.Ok(g.Cast(A, "spell.blink", Obj(old)));
+        g.Pass(A);
+        g.Pass(B); // Blink resolves; the grunt's trace waits in Pending
+        var flickered = g.State.Get<TraceObject>(g.State.Pending.Single());
+        Assert.Equal((false, "test.grunt"), (flickered.FromCard, flickered.Definition)); // D142: its source is the permanent, not a card
         g.ResolveAll();
         var fresh = g.P("test.grunt");
         Assert.NotEqual(old.Id, fresh.Id);

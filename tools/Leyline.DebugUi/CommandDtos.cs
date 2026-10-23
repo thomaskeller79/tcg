@@ -60,7 +60,7 @@ public static class CommandDtos
                     cost = Costs.Effective(state, p, ability, a.Targets, a.Actor).ToString();
                     speed = ability.Speed.ToString();
                 }
-                var targets = a.Targets.Select(list => (IReadOnlyList<TargetDto>)list.Select(t => Target(state, t)).ToList()).ToList();
+                var targets = a.Targets.Select(list => (IReadOnlyList<TargetDto>)list.Select(t => Target(state, t, a.Actor)).ToList()).ToList();
                 var label = targets.Count == 0
                     ? abilityName
                     : $"{abilityName} → {string.Join("; ", targets.Select(l => l.Count == 0 ? "nothing" : string.Join(" + ", l.Select(t => t.Label))))}";
@@ -81,10 +81,21 @@ public static class CommandDtos
         return state.ActiveSeat.Champion() == actor ? "End your Action phase" : "Pass";
     }
 
-    private static TargetDto Target(TrueState state, TargetChoice t)
+    private static TargetDto Target(TrueState state, TargetChoice t, PlayerId actor)
     {
         if (t.Object is { } id)
-            return new(id.Value, null, null, null, state.NameOf(id));
+        {
+            // A card's content is hidden outside its owner's view, except in Discard.
+            var name = state.Find<GameObject>(id) switch
+            {
+                CardObject c when c.Owner != actor && c.Section != CardSection.Discard =>
+                    $"card {state.Player(c.Owner).Section(c.Section).IndexOf(id) + 1} in Champion {c.Owner}'s {c.Section}",
+                CardObject c => $"{state.NameOf(id)} in {c.Section}",
+                TraceObject tr => $"{tr.Text} ({tr.Section})",
+                _ => state.NameOf(id),
+            };
+            return new(id.Value, null, null, null, name);
+        }
         var entity = t.HasEntity ? (t.Entity is { } e ? e.ToString() : "Neutral") : null;
         var label = $"{t.Hex}{(t.Slice is { } s ? " " + s : "")}{(entity is null ? "" : $" vs {(entity == "Neutral" ? "Neutral" : "Champion " + entity)}")}";
         return new(null, t.Hex, t.Slice?.ToString(), entity, label);

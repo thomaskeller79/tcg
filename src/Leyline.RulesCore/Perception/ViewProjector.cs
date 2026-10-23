@@ -156,10 +156,15 @@ public static class ViewProjector
         var hidden = !omniscient && !state.CanSeeTrace(observer, t);
         var controller = ControllerName(t.You);
         if (hidden)
-            return new TraceView(t.Id.Value, t.Kind.ToString(), "A hidden action", controller, t.Physical, t.Speed.ToString(), true, [], [], [], "", null, null, null);
+            return new TraceView(t.Id.Value, t.FromCard, "A hidden action", controller, t.Physical, t.Speed.ToString(), true, [], [], [], "", null, null, null);
 
-        string NameIfVisible(ObjectId id) =>
-            state.Find<GameObject>(id) is Permanent p && !omniscient && !state.CanSee(observer, p) ? "a hidden object" : state.NameOf(id);
+        string NameIfVisible(ObjectId id) => omniscient ? state.NameOf(id) : state.Find<GameObject>(id) switch
+        {
+            Permanent p when !state.CanSee(observer, p) => "a hidden object",
+            CardObject c when c.Owner != observer && c.Section != CardSection.Discard => $"a card in Champion {c.Owner}'s {c.Section}",
+            TraceObject tr when !state.CanSeeTrace(observer, tr) => "a hidden action",
+            _ => state.NameOf(id),
+        };
 
         var targets = t.Targets
             .SelectMany(kv => kv.Value.Select(c => $"{kv.Key}: {(c.Object is { } o ? NameIfVisible(o) : c.ToString())}"))
@@ -177,8 +182,8 @@ public static class ViewProjector
                 ? string.Join(" and ", choices.Select(c => c.Object is { } o ? NameIfVisible(o) : c.ToString()))
                 : name == "self" && t.ActingPermanent is { } ap ? NameIfVisible(ap) : null)).ToList();
 
-        int? fades = t.RoundResolved is { } r ? r + t.Duration : null;
-        return new TraceView(t.Id.Value, t.Kind.ToString(), t.Text, controller, t.Physical, t.Speed.ToString(), false,
+        int? fades = t.Section == TraceSection.Past ? t.Duration - t.TurnEndsInPast : null;
+        return new TraceView(t.Id.Value, t.FromCard, t.Text, controller, t.Physical, t.Speed.ToString(), false,
             targets, instructions, t.Notes.ToList(), t.PaidCost, fades, attack, t.ActingPermanent?.Value);
     }
 
@@ -191,6 +196,8 @@ public static class ViewProjector
             text += " you control";
         else if (s.Control == ControlFilter.NotYou)
             text += " you don't control";
+        if (s.Section is { } section)
+            text += $" in {section}";
         if (s.WithinOfSource is { } d)
             text += $" within {d}";
         if (s.RelativeTo is { } r)
@@ -214,14 +221,27 @@ public static class ViewProjector
             "damage" => $"Deal {i.Amount} damage to {T(i.Target)}.",
             "heal" => $"Heal {T(i.Target)} by {i.Amount}.",
             "draw" => $"Draw {Math.Max(1, i.Amount)} card{(Math.Max(1, i.Amount) == 1 ? "" : "s")}.",
-            "gainAp" => $"{T(i.Target)} gains {i.Amount} Activation Points.",
-            "buff" => $"{T(i.Target)} gets {(i.Amount >= 0 ? "+" : "")}{i.Amount} {i.Stat}{(i.UntilEndOfTurn ? " until end of turn" : "")}.",
+            "quicken" => $"Quicken {T(i.Target)} by {i.Amount}.",
+            "slow" => $"Slow {T(i.Target)} by {i.Amount}.",
+            "power" => $"{T(i.Target)} gets {(i.Amount >= 0 ? "+" : "")}{i.Amount} Power.",
+            "health" => $"{T(i.Target)} gets {(i.Amount >= 0 ? "+" : "")}{i.Amount} Health.",
+            "ap" => $"{T(i.Target)} gets {(i.Amount >= 0 ? "+" : "")}{i.Amount} AP.",
             "fell" => $"Fell {T(i.Target)}.",
             "destroy" => $"Destroy {T(i.Target)}.",
             "unbond" => $"Unbond {T(i.Target)}.",
-            "bounce" => $"Return {T(i.Target)} to its controller's hand.",
-            "flicker" => $"Flicker {T(i.Target)}.",
-            "create" => $"Create a {i.Card} on {T(i.Target)}.",
+            "put" => i.Section == "Hand" ? $"Return {T(i.Target)} to its controller's hand." : $"Flicker {T(i.Target)}.",
+            "move" => $"Move {T(i.Target)} to {(i.To is null ? i.Section : T(i.To))}.",
+            "discard" => $"Discard {T(i.Target)}.",
+            "mill" => $"{(i.Target is null ? "Mill" : $"{T(i.Target)} mills")} {i.Amount}.",
+            "shuffle" => $"Shuffle your {i.Section}.",
+            "copy" => i.To is null ? $"Copy {T(i.Target)}." : $"Copy {T(i.Target)} onto {T(i.To)}.",
+            "gain" => $"{T(i.Target)} gains {i.Ability}.",
+            "lose" => $"{T(i.Target)} loses {i.Ability}.",
+            "add mana" => $"Add {i.Amount} {i.Mana} mana.",
+            "attach" => $"Attach {T(i.Target)} to {T(i.To)}.",
+            "detach" => $"Detach {T(i.Target)}.",
+            "gain control" => $"Gain control of {T(i.Target)}.",
+            "create" => i.Card is null ? $"Create its card's permanent at {T(i.Target)}." : $"Create a {i.Card} on {T(i.Target)}.",
             "raise" => $"Raise {T(i.Target)}.",
             _ => i.Verb,
         };

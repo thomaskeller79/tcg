@@ -14,6 +14,9 @@ public static class DefaultAbilities
     public const int ConnectedAttackAp = 6;
     public const int ConnectedDefendAp = 2;
 
+    /// <summary>D144: a trace's default Duration, in ends of player turns (a placeholder).</summary>
+    public const int Duration = 10;
+
     public const string Move = "move";
     public const string Attack = "attack";
     public const string Defend = "defend";

@@ -88,7 +88,7 @@ public class AetherTests
 
         g.Ok(g.Cast(A, "spell.firebolt", Obj(theirs)));
         g.Pass(A);
-        Assert.False(g.Cast(B, "spell.flame-dart", Obj(mine)).Accepted); // a Spell trace is in Pending
+        Assert.False(g.Cast(B, "spell.flame-dart", Obj(mine)).Accepted); // a cast Spell card's trace is in Pending
         g.Ok(g.Cast(B, "spell.battle-surge", Obj(theirs))); // Reactive is fine
         Assert.Equal(2, g.State.Pending.Count);
     }
@@ -136,7 +136,61 @@ public class AetherTests
     }
 
     [Fact]
-    public void Physical_traces_leave_no_Past_while_other_traces_fade_after_5_rounds()
+    public void A_Duration_1_buff_ends_with_its_trace_at_the_end_of_this_player_turn()
+    {
+        var g = Load(Hands);
+        var mine = g.P("creature.fire-warrior");
+        g.Ok(g.Cast(A, "spell.battle-surge", Obj(mine)));
+        g.ResolveAll();
+        Assert.Equal(4, g.State.Attack(mine));
+        Assert.Single(g.State.Past);
+
+        g.NextTurnOf(Seat.ChampionB); // D144: the end of A's turn is the first end that counts
+        Assert.Empty(g.State.Past);
+        Assert.Equal(2, g.State.Attack(mine));
+    }
+
+    [Fact]
+    public void Plus_Health_and_AP_are_exact_mirrors_so_their_end_takes_back_current_too()
+    {
+        var g = Load("""
+            mana A Fire 4
+            handcard A test.fortify spell.firebolt*2
+            place A test.grunt 0,1
+            """);
+        var grunt = g.P("test.grunt");
+        var ap = grunt.CurrentAp;
+        g.Ok(g.Cast(A, "test.fortify", Obj(grunt)));
+        g.ResolveAll();
+        Assert.Equal((7, 7), (g.State.MaxLife(grunt), grunt.CurrentLife)); // D143: max and current together
+        Assert.Equal((6, ap + 2), (g.State.MaxAp(grunt), grunt.CurrentAp));
+
+        g.Ok(g.Cast(A, "spell.firebolt", Obj(grunt)));
+        g.ResolveAll();
+        g.Ok(g.Cast(A, "spell.firebolt", Obj(grunt)));
+        g.ResolveAll();
+        Assert.Equal(1, grunt.CurrentLife);
+
+        g.NextTurnOf(Seat.ChampionB); // the trace fades: −2 current Life leaves −1, so it falls
+        Assert.Null(g.Find("test.grunt"));
+    }
+
+    [Fact]
+    public void A_traces_cost_is_the_pips_not_the_mana_spent()
+    {
+        var g = Load("""
+            mana A Metal 1
+            mana A Fire 1
+            handcard A spell.firebolt
+            place B creature.fire-warrior 0,-1
+            """);
+        g.Ok(g.Cast(A, "spell.firebolt", Obj(g.P("creature.fire-warrior"))));
+        var trace = g.State.Get<TraceObject>(g.State.Pending.Single());
+        Assert.Equal(g.State.Content.Get("spell.firebolt").Cost.ToString(), trace.PaidCost); // D145: {1} paid with Metal
+    }
+
+    [Fact]
+    public void Physical_traces_leave_no_Past_while_other_traces_fade_after_10_ends_of_player_turns()
     {
         var g = Load(Hands);
         g.Ok(g.Act(A, g.P("creature.fire-warrior"), DefaultAbilities.Move, At(1, 1)));
