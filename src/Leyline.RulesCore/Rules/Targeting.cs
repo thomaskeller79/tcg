@@ -10,15 +10,15 @@ namespace Leyline.RulesCore.Rules;
 /// </summary>
 public static class Targeting
 {
-    public static bool KindMatches(Permanent p, TargetKind kind) => kind switch
+    public static bool KindMatches(PermanentKind p, TargetKind kind) => kind switch
     {
-        TargetKind.Creature => p.Kind.IsCreatureType(),
-        TargetKind.Actor => p.Kind.IsActor(),
-        TargetKind.Permanent => p.Kind != PermanentKind.Terrain,
-        TargetKind.Terrain => p.Kind == PermanentKind.Terrain,
-        TargetKind.Remnant => p.Kind == PermanentKind.Remnant,
-        TargetKind.Item => p.Kind == PermanentKind.Item,
-        TargetKind.Structure => p.Kind == PermanentKind.Structure,
+        TargetKind.Creature => p.IsCreatureType(),
+        TargetKind.Actor => p.IsActor(),
+        TargetKind.Permanent => p != PermanentKind.Terrain,
+        TargetKind.Terrain => p == PermanentKind.Terrain,
+        TargetKind.Remnant => p == PermanentKind.Remnant,
+        TargetKind.Item => p == PermanentKind.Item,
+        TargetKind.Structure => p == PermanentKind.Structure,
         _ => false,
     };
 
@@ -40,7 +40,8 @@ public static class Targeting
                     && (spec.Section is null || spec.Section == trace.Section.ToString())
                     && ControlMatches(spec.Control, state.Controller(trace), you);
         }
-        if (state.Find<Permanent>(id) is not { } p || !KindMatches(p, spec.Kind))
+        // Chosen against the chooser's copy: a Mimic face decides what it seems to be (D159).
+        if (state.Find<Permanent>(id) is not { } p || !KindMatches(state.KindIn(p, you), spec.Kind))
             return false;
         if (p.Kind == PermanentKind.Terrain && state.Def(p).IsVoid)
             return false;

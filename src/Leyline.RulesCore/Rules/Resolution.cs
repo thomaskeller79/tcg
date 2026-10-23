@@ -176,14 +176,19 @@ public static class Resolution
 
     // ----------------------------------------------------------------------------- printed instructions
 
+    /// <summary>D149/D150: the true instructions run in the true copy and its Champion's; the
+    /// opponent's copy runs the Pretend's instead, step by step alongside.</summary>
     private static bool RunInstructions(TrueState state, TraceObject trace)
     {
-        for (var i = 0; i < trace.Instructions.Count && !state.IsOver; i++)
+        var pretenders = Copies.Champions(state).Where(w => Copies.ReadsPretendText(trace, w)).ToList();
+        var steps = Math.Max(trace.Instructions.Count, trace.PretendInstructions?.Count ?? 0);
+        for (var i = 0; i < steps && !state.IsOver; i++)
         {
             state.InstructionIndex = i;
-            var instruction = trace.Instructions[i];
-            var note = Run(state, trace, instruction);
-            trace.Notes.Add(note);
+            if (i < trace.Instructions.Count)
+                trace.Notes.Add(Run(state, trace, trace.Instructions[i]));
+            foreach (var who in pretenders.Where(_ => i < trace.PretendInstructions!.Count))
+                Copies.RunPretend(state, trace, who, trace.PretendInstructions![i]);
             Consequences.Run(state);
         }
         return false;
@@ -221,20 +226,20 @@ public static class Resolution
         {
             case "damage":
                 foreach (var o in permanents)
-                    o.CurrentLife -= ins.Amount;
+                    Copies.Damage(state, o, ins.Amount, _ => ins.Amount, [], trace);
                 state.Note($"{trace.Text}: {ins.Amount} damage to {names}.", objects.Select(o => o.Id).ToArray());
                 return $"dealt {ins.Amount} damage to {names}";
             case "heal":
                 foreach (var o in permanents)
-                    o.CurrentLife = Math.Min(state.MaxLife(o), o.CurrentLife + ins.Amount);
+                    Copies.ChangeLife(state, o, Math.Max(0, Math.Min(state.MaxLife(o), o.CurrentLife + ins.Amount) - o.CurrentLife), trace);
                 return $"healed {names} by {ins.Amount}";
             case "quicken":
                 foreach (var o in permanents)
-                    o.CurrentAp += ins.Amount;
+                    Copies.ChangeAp(state, o, ins.Amount, trace);
                 return $"{names} gain {ins.Amount} AP";
             case "slow":
                 foreach (var o in permanents)
-                    o.CurrentAp = Math.Max(0, o.CurrentAp - ins.Amount);
+                    Copies.ChangeAp(state, o, -ins.Amount, trace);
                 return $"{names} lose {ins.Amount} AP";
             case "power":
             case "health":
@@ -372,6 +377,13 @@ public static class Resolution
                 continue; // identity: the same instance must still exist
             if (o is Permanent p && !state.KnowsWhere(trace.You, p))
                 continue; // visibility: the trace's Champion believes it where it truly is (D159)
+            if (o is Permanent q && spec is not null && !Targeting.KindMatches(q.Kind, spec.Kind))
+            {
+                // D159: the true state decides; a face that made it look right is contradicted.
+                if (trace.You is { } you && Targeting.KindMatches(state.KindIn(q, you), spec.Kind))
+                    Copies.LargeReveal(state, you, [q.Id], null);
+                continue;
+            }
             if (spec is not null && !Targeting.RelationHolds(state, spec, id, trace.Targets))
                 continue; // a relation still in the text (D83)
             result.Add(o);
@@ -416,11 +428,11 @@ public static class Resolution
     private static void Modify(TrueState state, TraceObject trace, Permanent p, Instruction ins)
     {
         var stat = ins.Verb switch { "health" => Stats.MaxLifeStat, "ap" => Stats.MaxApStat, _ => Stats.AttackStat };
-        state.Modifiers.Add(new Modifier(state.NewModifierId(), p.Id, stat, ins.Amount, trace.Id));
+        state.Modifiers.Add(new Modifier(state.NewModifierId(), p.Id, stat, ins.Amount, trace.Id, Copies: Copies.TrueCopies(state, trace)));
         if (stat == Stats.MaxLifeStat)
-            p.CurrentLife += ins.Amount;
+            Copies.ChangeLife(state, p, ins.Amount, trace);
         else if (stat == Stats.MaxApStat)
-            p.CurrentAp = Math.Max(0, p.CurrentAp + ins.Amount);
+            Copies.ChangeAp(state, p, ins.Amount, trace);
     }
 
     /// <summary>Gain or lose an ability: a modifier carried by this trace (D144). The ability is a
@@ -439,7 +451,7 @@ public static class Resolution
                 keyword = Keyword.Parse(name);
             else
                 ability ??= state.Abilities(p).FirstOrDefault(a => a.Id == name) ?? new AbilityDefinition { Id = name, Name = name };
-            state.Modifiers.Add(new Modifier(state.NewModifierId(), p.Id, Stats.AbilityStat, gain ? 1 : -1, trace.Id, keyword, ability));
+            state.Modifiers.Add(new Modifier(state.NewModifierId(), p.Id, Stats.AbilityStat, gain ? 1 : -1, trace.Id, keyword, ability, Copies: Copies.TrueCopies(state, trace)));
         }
         return $"{string.Join(", ", permanents.Select(p => state.NameOf(p.Id)))} {ins.Verb} {cardAbility?.Name ?? name}";
     }
@@ -606,6 +618,7 @@ public static class Resolution
         }
         var p = Creation.CreatePermanent(state, def, hex, slice, trace.Parent, trace.Behavior, trace.Id,
             attackDelta: trace.AttackDelta, maxLifeDelta: trace.MaxLifeDelta);
+        Copies.EnterWithFace(state, p, trace);
         return $"created {state.NameOf(p.Id)}";
     }
 

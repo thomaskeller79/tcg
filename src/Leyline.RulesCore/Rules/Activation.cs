@@ -322,7 +322,12 @@ public static class Activation
         if (draft.ApPayer is { } apId && draft.Ability is not null)
         {
             var apPayer = state.Get<Permanent>(apId);
+            foreach (var who in Copies.Champions(state).Where(w => state.ApIn(apPayer, w) < draft.Cost.Ap
+                                                                  || draft.Source == apPayer.Id && !state.Abilities(apPayer, w).Any(a => a.Id == draft.Ability.Id)))
+                Copies.LargeReveal(state, who, [apPayer.Id], null); // D151, D155: AP spent and the ability used are seen
             Costs.PayAp(state, apPayer, draft.Cost, draft.Ability.Id);
+            if (draft.Cost.Flavor == ApFlavor.Exhaust)
+                Copies.SetApInEveryCopy(state, apPayer, _ => 0);
             if (draft.Cost.Life > 0)
                 apPayer.CurrentLife -= draft.Cost.Life;
         }
@@ -346,6 +351,10 @@ public static class Activation
         return trace;
     }
 
+    /// <summary>D150: what a Pretend seems to do — its own instructions, else its face card's.</summary>
+    private static IReadOnlyList<Instruction>? PretendInstructions(TrueState state, Pretend? pretend) =>
+        pretend?.Instructions ?? (pretend?.Card is { } face ? state.Content.Get(face).Instructions : null);
+
     private static TraceObject BuildTrace(TrueState state, ActivationDraft draft)
     {
         if (draft.IsCast)
@@ -361,6 +370,7 @@ public static class Activation
                 {
                     Id = state.NewId(), Timestamp = state.NewTimestamp(), Source = card.Id,
                     FromCard = true, Definition = def.Id, Instructions = [CreateFromCard],
+                    PretendDefinition = def.Pretend?.Card, // a Mimic's face (D150)
                     Parent = draft.Parent, You = draft.Actor, Speed = def.Speed, Duration = DefaultAbilities.Duration,
                     Text = $"Cast {def.Name}", PaidCost = draft.Cost.ToString(),
                     AttackDelta = card.AttackDelta, MaxLifeDelta = card.MaxLifeDelta,
@@ -374,6 +384,9 @@ public static class Activation
                 Id = state.NewId(), Timestamp = state.NewTimestamp(), Source = card.Id,
                 FromCard = true, Definition = def.Id, Parent = draft.Parent, You = draft.Actor,
                 Speed = def.Speed, Duration = def.Duration, Specs = def.Targets, Instructions = def.Instructions,
+                PretendDefinition = def.Pretend?.Card,
+                PretendInstructions = PretendInstructions(state, def.Pretend),
+                PretendDuration = def.Pretend?.Duration ?? (def.Pretend?.Card is { } face ? state.Content.Get(face).Duration : null),
                 Text = $"Cast {def.Name}", PaidCost = draft.Cost.ToString(),
             };
             for (var i = 0; i < def.Targets.Count; i++)
@@ -410,6 +423,7 @@ public static class Activation
             Parent = draft.Parent, Behavior = draft.Behavior, You = draft.Actor,
             Physical = ability.Physical, Duration = ability.Physical ? 0 : ability.Duration, Speed = ability.Speed,
             Specs = ability.Targets, Instructions = ability.Instructions,
+            PretendInstructions = PretendInstructions(state, ability.Pretend), PretendDuration = ability.Pretend?.Duration,
             Attack = attack, Location = loc,
             Text = $"{state.NameOf(p.Id)}: {ability.Name}", PaidCost = draft.Cost.ToString(),
         };

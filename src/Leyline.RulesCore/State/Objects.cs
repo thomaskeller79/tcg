@@ -200,6 +200,17 @@ public sealed class TraceObject : GameObject
     public IReadOnlyList<TargetSpec> Specs { get; init; } = [];
     public IReadOnlyList<Instruction> Instructions { get; init; } = [];
 
+    /// <summary>D150: what the opponent of its Champion reads instead — the card it seems to come
+    /// from, its instructions (null: the true ones) and its Duration (null: the true one), until a
+    /// contradiction reveals the truth to it (<see cref="RevealedTo"/>).</summary>
+    public string? PretendDefinition { get; init; }
+    public IReadOnlyList<Instruction>? PretendInstructions { get; init; }
+    public int? PretendDuration { get; init; }
+    public HashSet<PlayerId> RevealedTo { get; } = [];
+
+    /// <summary>D149: the copies in which its Duration ran out while it lasts in the true one.</summary>
+    public HashSet<PlayerId> FadedFor { get; } = [];
+
     /// <summary>Max-tier changes carried to the permanent it creates (cast from a bounced card, or Flicker).</summary>
     public int AttackDelta { get; init; }
     public int MaxLifeDelta { get; init; }

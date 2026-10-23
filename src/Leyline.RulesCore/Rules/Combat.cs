@@ -169,10 +169,18 @@ public static class Combat
                 damage[attacker.Id] = damage.GetValueOrDefault(attacker.Id) + state.Attack(d);
         }
 
+        // D151: each copy predicts the damage from its own belief of the attacker's and defenders'
+        // Power — a split is the attacker's choice, so only a lone recipient's share is predicted.
+        var lone = split.Count(kv => kv.Value > 0) == 1;
+        int Predicted(ObjectId id, PlayerId who) =>
+            id == attacker.Id
+                ? defenders.Sum(d => state.Attack(d, who))
+                : lone ? state.Attack(attacker, who) : damage[id];
         foreach (var (id, amount) in damage)
         {
             var target = state.Get<Permanent>(id);
-            target.CurrentLife -= amount;
+            var reads = id == attacker.Id ? defenders.Select(d => d.Id).ToList() : [attacker.Id];
+            Copies.Damage(state, target, amount, who => Predicted(id, who), reads, null);
             trace.Notes.Add($"{state.NameOf(id)} takes {amount}");
             state.Note($"{state.NameOf(id)} takes {amount} damage.", id);
         }

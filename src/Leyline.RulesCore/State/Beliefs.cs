@@ -23,13 +23,35 @@ public sealed class LocationBelief
     public bool Observed { get; set; }
 }
 
+/// <summary>D149: one Champion's beliefs about a permanent's values. Its Power, max Health and
+/// AP fold from its face (a Mimic's pretended card; null: the true one) and the modifiers in this
+/// Champion's copy; its current Life and AP are the true ones plus an offset. <see cref="Causes"/>
+/// are the traces and cards behind a false value, revealed with it (D151).</summary>
+public sealed class ValueBelief
+{
+    public string? Face { get; set; }
+    public int LifeOffset { get; set; }
+    public int ApOffset { get; set; }
+    public HashSet<ObjectId> Causes { get; } = [];
+}
+
+/// <summary>D151: what one Champion's copy predicted for one permanent an instruction damaged,
+/// compared with what it sees once the instruction's consequences are done.</summary>
+public sealed record BeliefCheck(PlayerId Who, ObjectId Target, int PredictedLife, IReadOnlyList<ObjectId> Reads, ObjectId? Trace);
+
 /// <summary>D149: the Champions' beliefs, stored beside the true state. Track B item 25 builds
-/// them in stages; so far they cover cards (D154) and permanents' locations (D152). Every other
-/// value, and every trace, is true in every copy until Pretend (D155).</summary>
+/// them in stages: cards (D154), permanents' locations (D152) and values (D150), and what each
+/// Champion reads of a trace (its Pretend, on the trace itself).</summary>
 public sealed class Beliefs
 {
     private readonly Dictionary<(PlayerId Who, ObjectId Card), CardBelief> _cards = new();
     private readonly Dictionary<(PlayerId Who, ObjectId Permanent), LocationBelief> _locations = new();
+    private readonly Dictionary<(PlayerId Who, ObjectId Permanent), ValueBelief> _values = new();
+
+    public List<BeliefCheck> Checks { get; } = [];
+
+    public ValueBelief Values(PlayerId who, ObjectId permanent) =>
+        _values.TryGetValue((who, permanent), out var b) ? b : _values[(who, permanent)] = new ValueBelief();
 
     public LocationBelief Location(PlayerId who, ObjectId permanent) =>
         _locations.TryGetValue((who, permanent), out var b) ? b : _locations[(who, permanent)] = new LocationBelief();
@@ -46,5 +68,7 @@ public sealed class Beliefs
             _cards.Remove(key);
         foreach (var key in _locations.Keys.Where(k => k.Permanent == id).ToList())
             _locations.Remove(key);
+        foreach (var key in _values.Keys.Where(k => k.Permanent == id).ToList())
+            _values.Remove(key);
     }
 }

@@ -23,6 +23,7 @@ public static class Consequences
             if (!changed)
                 break;
         }
+        Copies.Compare(state);
         Observation.Update(state);
     }
 
@@ -109,7 +110,7 @@ public static class Mind
     public static void BelieveFromTrace(TrueState state, CardObject card, TraceObject trace)
     {
         foreach (var who in state.Players.Select(p => p.Id))
-            state.Beliefs.SetCard(who, card.Id, new CardBelief { Definition = trace.Definition, PositionKnown = true });
+            state.Beliefs.SetCard(who, card.Id, new CardBelief { Definition = Copies.DefinitionFor(trace, who), PositionKnown = true });
     }
 
     /// <summary>Shuffles a section of a Mind: nobody knows a position in it any more (D154).</summary>

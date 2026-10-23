@@ -84,6 +84,24 @@ long as its trace (D144): `"duration": 1` ends it at the end of this player turn
 | `unbond` | Target terrain loses its bond record; everything behind it is cut (D122). |
 | `darken` | `section` (a Slice: `"Ground"`, `"Sky"`, `"Root"`) of target terrain becomes dark while the trace exists: a permanent there is observed only by its controller and by whoever controls a permanent in that Slice of that terrain (D152). |
 
+## Pretend (D150)
+
+What the opponent of the trace's Champion sees instead, on a Spell or an ability:
+
+```json
+"pretend": { "instructions": [ { "verb": "power", "target": "T1", "amount": 1 } ], "duration": 1 }
+"pretend": { "instructions": [] }
+"pretend": { "card": "spell.might" }
+```
+
+`instructions`: what it seems to do; `[]` is "no effect" (secret). Pretended instructions name the
+card's own targets; a target none of them names is unseen by the opponent (so "another target
+creature" is a second target the true instructions leave alone). `card`: the card it seems to be
+(its name, and its instructions when `instructions` is left out). `duration`: how long it seems to
+last. On a permanent card, `card` is a face (a Mimic: "5/5 Dragon, pretend 1/1 Goblin"): the
+opponent believes the permanent and the card in Discard are that card. The engine runs
+pretended stat changes, damage and heal, gain/lose and move; other pretended verbs change nothing.
+
 ## Abilities
 
 ```json

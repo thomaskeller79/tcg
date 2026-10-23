@@ -24,9 +24,15 @@ public sealed class PlayerState
 /// <summary>A continuous change to a queried value (continuous-effects.md): folded in append
 /// order on every query, never stored into the permanent. It lives as long as its
 /// <see cref="Vessel"/>, the trace that made it (D144). A gained or lost ability is one too:
-/// Stat <see cref="Rules.Stats.AbilityStat"/>, Delta +1 or −1, and the keyword or ability.</summary>
+/// Stat <see cref="Rules.Stats.AbilityStat"/>, Delta +1 or −1, and the keyword or ability.
+/// D149: it is in the true copy if <see cref="InTrue"/>, and in the copies of the Champions in
+/// <see cref="Copies"/> (null: every Champion's) — a Pretend's modifier is in the opponent's only.</summary>
 public sealed record Modifier(ModifierId Id, ObjectId Subject, string Stat, int Delta, ObjectId Vessel,
-    Keyword? Keyword = null, AbilityDefinition? Ability = null);
+    Keyword? Keyword = null, AbilityDefinition? Ability = null, bool InTrue = true, IReadOnlyList<PlayerId>? Copies = null)
+{
+    /// <summary>Is it in this copy (null: the true one)?</summary>
+    public bool In(PlayerId? copy) => copy is not { } who ? InTrue : Copies?.Contains(who) ?? true;
+}
 
 /// <summary>A line of the match log. <see cref="About"/> lists the objects it mentions, so a
 /// view can drop lines about objects its observer can't see.</summary>

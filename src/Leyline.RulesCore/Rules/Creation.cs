@@ -140,11 +140,7 @@ public static class Creation
         foreach (var m in state.Modifiers.Where(m => m.Vessel == id).ToList())
         {
             state.Modifiers.Remove(m);
-            var subject = state.Get<Permanent>(m.Subject);
-            if (m.Stat == Stats.MaxLifeStat)
-                subject.CurrentLife -= m.Delta;
-            else if (m.Stat == Stats.MaxApStat)
-                subject.CurrentAp = Math.Max(0, subject.CurrentAp - m.Delta);
+            Copies.EndMirror(state, m);
         }
 
         // D97: whatever had it as `source` takes over its `source`.

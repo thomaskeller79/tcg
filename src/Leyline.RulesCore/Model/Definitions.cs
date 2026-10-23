@@ -85,6 +85,13 @@ public sealed record Instruction(
     string? Ability = null,
     ManaUnit? Mana = null);
 
+/// <summary>D150 Pretend: what the opponent's copy reads instead of the true text. <see cref="Card"/>
+/// is the card it seems to come from (a face: its name, and for a permanent its whole definition);
+/// <see cref="Instructions"/> what it seems to do (empty: "no effect"; null: the face card's own);
+/// <see cref="Duration"/> how long it seems to last (null: the true one). Instructions name the
+/// card's own targets; a target no pretended instruction names stays unseen.</summary>
+public sealed record Pretend(string? Card = null, IReadOnlyList<Instruction>? Instructions = null, int? Duration = null);
+
 public enum TriggerEvent
 {
     EntersIsland,
@@ -125,6 +132,9 @@ public sealed record AbilityDefinition
     public int Duration { get; init; } = DefaultAbilities.Duration;
     public IReadOnlyList<TargetSpec> Targets { get; init; } = [];
     public IReadOnlyList<Instruction> Instructions { get; init; } = [];
+
+    /// <summary>D150: what the opponent sees instead of the instructions.</summary>
+    public Pretend? Pretend { get; init; }
     public string Text { get; init; } = "";
 
     public bool IsTriggered => Trigger is not null;
@@ -202,6 +212,10 @@ public sealed record CardDefinition
     public IReadOnlyList<TargetSpec> Targets { get; init; } = [];
     public IReadOnlyList<Instruction> Instructions { get; init; } = [];
     public int Duration { get; init; } = DefaultAbilities.Duration;
+
+    /// <summary>D150: what the opponent sees of this card's cast. A permanent card's Pretend is a
+    /// face (a Mimic, D155: never "no permanent").</summary>
+    public Pretend? Pretend { get; init; }
 
     // Terrain
     public IReadOnlyList<ManaUnit> Produces { get; init; } = [];

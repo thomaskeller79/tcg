@@ -83,6 +83,10 @@ Made where the rules leave a gap. Each is the simplest reading that keeps a matc
 - **G31 — Darkness** is a modifier on the terrain carried by its trace (D144), so it ends when the trace fades; its observation rule is the example in `asymmetric-information.md` §Observation, for any one Slice.
 - **G32 — Choosing a permanent target** needs a belief of where it is (true or false); its qualifiers (distance, controller) still read the true state. Whether the belief is true is checked at resolution (D159).
 - **G33 — Permanents placed by a scenario** enter the beliefs like a creation: a Root one is `?` to the opponent (the rules leave the start of the game out, `PLAN.md` Track D item 53).
+- **G34 — Pretend runs step by step.** The true instructions and the pretended ones run side by side, one step each, and the comparison follows each step. A true Duration shorter than the pretended one isn't built: the trace ends in every copy with the true one.
+- **G35 — What a copy predicts in combat.** A lone recipient's damage is predicted from the copy's belief of the attacker's Power, return damage from its beliefs of the defenders'; a split is the attacker's choice, so its shares are taken as seen.
+- **G36 — The log and deception.** A log line names the true card and effect, so it is left out for a Champion who reads a face or a Pretend of an object it mentions.
+- **G37 — Contradictions found outside a damage.** Using an ability a face lacks, paying more AP than a copy believes, a face entering a Slice it couldn't, a target kind only a face had (D159), and a creature a copy believes at 0 Life or less that still lives.
 
 ## 4. Questions for the user
 

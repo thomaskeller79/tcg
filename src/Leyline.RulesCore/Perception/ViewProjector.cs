@@ -63,7 +63,9 @@ public static class ViewProjector
         }).ToList();
 
         var pending = state.Pending.Select(id => Trace(state, state.Get<TraceObject>(id), observer, omniscient)).ToList();
-        var past = state.Past.Select(id => Trace(state, state.Get<TraceObject>(id), observer, omniscient)).ToList();
+        var past = state.Past.Select(id => state.Get<TraceObject>(id))
+            .Where(t => omniscient || observer is not { } o || !t.FadedFor.Contains(o)) // D149: ended in this copy
+            .Select(t => Trace(state, t, observer, omniscient)).ToList();
         var resolving = state.Resolving is { } r ? Trace(state, state.Get<TraceObject>(r), observer, omniscient) : null;
 
         DecisionView? decision = state.Decision switch
@@ -77,7 +79,7 @@ public static class ViewProjector
         };
 
         var log = state.Log
-            .Where(e => omniscient || e.About.All(id => !state.Exists(id) || state.CanSee(observer, id)))
+            .Where(e => omniscient || e.About.All(id => !state.Exists(id) || state.CanSee(observer, id) && !Deceived(state, observer, id)))
             .TakeLast(logLines)
             .Select(e => new LogView(e.Seq, e.Round, e.Text))
             .ToList();
@@ -105,6 +107,16 @@ public static class ViewProjector
             state.Map.Name);
     }
 
+    /// <summary>A log line names the true card and effect, so it is left out for a Champion who
+    /// reads a face or a Pretend of the object it is about (D150).</summary>
+    private static bool Deceived(TrueState state, PlayerId? observer, ObjectId id) =>
+        observer is { } who && state.Find<GameObject>(id) switch
+        {
+            Permanent p => state.Beliefs.Values(who, p.Id).Face is not null,
+            TraceObject t => Copies.ReadsPretend(t, who),
+            _ => false,
+        };
+
     public static string ControllerName(PlayerId? controller) => controller?.ToString() ?? "Neutral";
 
     private static CardView Card(TrueState state, ObjectId id, int position, PlayerId? observer, bool omniscient, bool owner)
@@ -120,7 +132,9 @@ public static class ViewProjector
 
     private static PermanentView ToView(TrueState state, Permanent p, PlayerId? observer, bool omniscient)
     {
-        var def = state.Def(p);
+        // D149: the permanent as it is in the observer's copy — a Mimic's face, its believed values.
+        var copy = omniscient ? null : observer;
+        var def = state.DefIn(p, copy);
         var controller = state.Controller(p);
         var showPool = p.Pool is not null && (omniscient || (observer is not null && controller == observer));
         (HexCoord Hex, Slice Slice)? location = omniscient || observer is not { } who
@@ -130,18 +144,18 @@ public static class ViewProjector
             p.Id.Value,
             def.Id,
             p.Kind == PermanentKind.Remnant ? $"Remnant of {def.Name}" : def.Name,
-            p.Kind.ToString(),
+            state.KindIn(p, copy).ToString(),
             ControllerName(controller),
             location?.Hex,
             location?.Slice.ToString(),
             p.Carrier?.Value,
-            state.Attack(p),
-            p.Kind.IsActor() ? p.CurrentLife : 0,
-            state.MaxLife(p),
-            p.CurrentAp,
-            state.MaxAp(p),
-            p.Kind == PermanentKind.Remnant ? [] : def.Keywords.Select(k => k.ToString()).ToList(),
-            state.Abilities(p).Select(AbilityOf).ToList(),
+            state.Attack(p, copy),
+            p.Kind.IsActor() ? state.LifeIn(p, copy) : 0,
+            state.MaxLife(p, copy),
+            state.ApIn(p, copy),
+            state.MaxAp(p, copy),
+            state.Keywords(p, copy).Select(k => k.ToString()).ToList(),
+            state.Abilities(p, copy).Select(AbilityOf).ToList(),
             p.Locked,
             p.UsedThisCycle.OrderBy(x => x, StringComparer.Ordinal).ToList(),
             p.Behavior?.ToString(),
@@ -172,8 +186,18 @@ public static class ViewProjector
         string Name(ObjectId id) => omniscient ? state.NameOf(id) : state.Find<GameObject>(id) switch
         {
             CardObject c when observer is not { } who || state.Beliefs.Card(who, c.Id).Definition is null => $"a card in Champion {c.Owner}'s {c.Section}",
+            Permanent p when p.Kind != PermanentKind.Remnant => $"{state.DefIn(p, observer).Name} {p.Id}",
             _ => state.NameOf(id),
         };
+
+        // D150: the opponent of the trace's Champion reads its Pretend — what it seems to do, the
+        // targets that names, how long it seems to last; its notes would tell the truth.
+        var reader = omniscient ? null : observer;
+        var pretended = reader is { } r0 && Copies.ReadsPretend(t, r0);
+        var shownInstructions = Copies.InstructionsFor(t, reader);
+        var shownTargets = reader is { } r1 && Copies.ReadsPretendText(t, r1)
+            ? shownInstructions.SelectMany(i => new[] { i.Target, i.To }).OfType<string>().ToHashSet()
+            : null;
         string Choice(TargetChoice c) =>
             c.Object is { } o ? Name(o) : c.Hex is { } h && !Observes(h, c.Slice) ? "a hidden location" : c.ToString();
 
@@ -185,6 +209,7 @@ public static class ViewProjector
         var allObserved = locations.All(c => c.Object is not null || c.Hex is not { } h || Observes(h, c.Slice));
 
         var targets = t.Targets
+            .Where(kv => shownTargets is null || shownTargets.Contains(kv.Key))
             .SelectMany(kv => kv.Value.Select(c => $"{kv.Key}: {Choice(c)}"))
             .ToList();
         if (t.Location is { } loc)
@@ -199,15 +224,16 @@ public static class ViewProjector
                 targets.Add($"attack: a hidden location, defenders: {string.Join(", ", a.Defenders.Select(Name).DefaultIfEmpty("none yet"))}");
         }
 
-        var instructions = t.Instructions.Select(i => InstructionText(i, name =>
+        var instructions = shownInstructions.Select(i => InstructionText(i, name =>
             t.Targets.TryGetValue(name, out var choices) && choices.Count > 0
                 ? string.Join(" and ", choices.Select(Choice))
                 : name == "self" && t.ActingPermanent is { } ap ? Name(ap) : null)).ToList();
 
-        int? fades = t.Section == TraceSection.Past ? t.Duration - t.TurnEndsInPast : null;
+        int? fades = t.Section == TraceSection.Past ? Copies.DurationFor(t, reader) - t.TurnEndsInPast : null;
+        var text = pretended && t.PretendDefinition is { } face ? $"Cast {state.Content.Get(face).Name}" : t.Text;
         // Notes may say where something went, so they show only where every location does.
-        return new TraceView(t.Id.Value, t.FromCard, t.Text, controller, t.Physical, t.Speed.ToString(),
-            targets, instructions, allObserved ? t.Notes.ToList() : [], t.PaidCost, fades, attack, t.ActingPermanent?.Value);
+        return new TraceView(t.Id.Value, t.FromCard, text, controller, t.Physical, t.Speed.ToString(),
+            targets, instructions, allObserved && !pretended ? t.Notes.ToList() : [], t.PaidCost, fades, attack, t.ActingPermanent?.Value);
     }
 
     /// <summary>"up to one target creature you control within 2", for card text.</summary>

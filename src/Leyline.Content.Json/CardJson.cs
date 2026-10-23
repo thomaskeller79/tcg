@@ -66,6 +66,7 @@ public static class CardJson
             Targets = (d.Targets ?? []).Select(ToTarget).ToList(),
             Instructions = (d.Instructions ?? []).Select(ToInstruction).ToList(),
             Duration = d.Duration ?? DefaultAbilities.Duration,
+            Pretend = ToPretend(d.Pretend),
             Produces = (d.Produces ?? []).Select(ManaUnit.Parse).ToList(),
             IsVoid = d.IsVoid,
             CarrierAttack = d.CarrierAttack,
@@ -88,6 +89,7 @@ public static class CardJson
         Duration = a.Duration ?? (a.Physical ? 0 : DefaultAbilities.Duration),
         Targets = (a.Targets ?? []).Select(ToTarget).ToList(),
         Instructions = (a.Instructions ?? []).Select(ToInstruction).ToList(),
+        Pretend = ToPretend(a.Pretend),
         Text = a.Text ?? "",
     };
 
@@ -185,6 +187,7 @@ public static class CardJson
         public List<TargetDto>? Targets { get; set; }
         public List<InstructionDto>? Instructions { get; set; }
         public int? Duration { get; set; }
+        public PretendDto? Pretend { get; set; }
         public List<string>? Produces { get; set; }
         public bool IsVoid { get; set; }
         public int CarrierAttack { get; set; }
@@ -206,8 +209,19 @@ public static class CardJson
         public int? Duration { get; set; }
         public List<TargetDto>? Targets { get; set; }
         public List<InstructionDto>? Instructions { get; set; }
+        public PretendDto? Pretend { get; set; }
         public string? Text { get; set; }
     }
+
+    private sealed class PretendDto
+    {
+        public string? Card { get; set; }
+        public List<InstructionDto>? Instructions { get; set; }
+        public int? Duration { get; set; }
+    }
+
+    private static Pretend? ToPretend(PretendDto? p) =>
+        p is null ? null : new Pretend(p.Card, p.Instructions?.Select(ToInstruction).ToList(), p.Duration);
 
     private sealed class StaticDto
     {

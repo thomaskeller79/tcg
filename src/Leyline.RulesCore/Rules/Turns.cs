@@ -48,7 +48,7 @@ public static class Turns
         }
         foreach (var actor in permanents.Where(p => p.Kind.IsActor()))
         {
-            actor.CurrentAp = state.MaxAp(actor);
+            Copies.SetApInEveryCopy(state, actor, who => state.MaxAp(actor, who));
             actor.UsedThisCycle.Clear();
         }
         Consequences.Run(state);
@@ -194,7 +194,12 @@ public static class Turns
             foreach (var id in state.Past.ToList())
             {
                 var t = state.Get<TraceObject>(id);
-                if (++t.TurnEndsInPast >= t.Duration)
+                ++t.TurnEndsInPast;
+                // D149: Durations run per copy — a pretended shorter one ends in that copy first.
+                foreach (var who in Copies.Champions(state).Where(w => !t.FadedFor.Contains(w) && t.TurnEndsInPast >= Copies.DurationFor(t, w)))
+                    if (t.TurnEndsInPast < t.Duration)
+                        Copies.FadeIn(state, t, who);
+                if (t.TurnEndsInPast >= t.Duration)
                     Creation.CeaseToExist(state, id, "");
             }
         }
@@ -202,7 +207,7 @@ public static class Turns
         {
             p.Locked = false; // D116 `~` lasts until the end of this turn
             if (p.Kind.IsActor())
-                p.CurrentLife = Math.Min(p.CurrentLife, state.MaxLife(p));
+                Copies.CapLifeInEveryCopy(state, p);
         }
         Consequences.Run(state);
         if (state.IsOver)

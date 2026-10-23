@@ -255,5 +255,40 @@ public static class TestCards
         Spell("test.disarm", Speed.Slow, [new TargetSpec("T1", TargetKind.Item)], new Instruction("detach", "T1")),
     ];
 
-    public static IEnumerable<CardDefinition> All => [Grunt, Mirror, Brute, Mole, Knotter, Digger, DawnSeer(Speed.Reactive), DawnSeer(Speed.Instant), Bastion, Bog, Leaper, Vaulter, Fortify, .. Instructions];
+    /// <summary>D150 Pretend, the walkthrough cards behind D149–D151 and D159.</summary>
+    public static IEnumerable<CardDefinition> Pretends =>
+    [
+        new() // Target creature gets +0 Power. Pretend: target creature gets +1 Power.
+        {
+            Id = "test.mirage-might", Name = "Mirage Might", Type = CardType.Spell, Targets = [new TargetSpec("T1", TargetKind.Creature)],
+            Instructions = [new Instruction("power", "T1", 0)], Pretend = new Pretend(Instructions: [new Instruction("power", "T1", 1)]),
+        },
+        new() // Target creature gets +1 Power. Pretend: target creature gets +1 Power until end of turn.
+        {
+            Id = "test.mirage-3", Name = "Mirage 3", Type = CardType.Spell, Targets = [new TargetSpec("T1", TargetKind.Creature)],
+            Instructions = [new Instruction("power", "T1", 1)], Pretend = new Pretend(Instructions: [new Instruction("power", "T1", 1)], Duration: 1),
+        },
+        new() // Target creature gets −1 Power. Pretend: no effect.
+        {
+            Id = "test.curse", Name = "Secret Curse", Type = CardType.Spell, Targets = [new TargetSpec("T1", TargetKind.Creature)],
+            Instructions = [new Instruction("power", "T1", -1)], Pretend = new Pretend(Instructions: []),
+        },
+        new() { Id = "test.goblin", Name = "Goblin", Type = CardType.Creature, Attack = 1, Life = 1, Ap = 4 },
+        new() // 5/5 Dragon. Pretend: 1/1 Goblin.
+        {
+            Id = "test.mimic", Name = "Mimic Dragon", Type = CardType.Creature, Attack = 5, Life = 5, Ap = 4, Pretend = new Pretend("test.goblin"),
+        },
+        new() { Id = "test.wall", Name = "Wall", Type = CardType.Structure, Life = 5 },
+        new() // A creature. Pretend: a Wall (Structure).
+        {
+            Id = "test.false-wall", Name = "False Wall", Type = CardType.Creature, Attack = 2, Life = 5, Ap = 4, Pretend = new Pretend("test.wall"),
+        },
+        new()
+        {
+            Id = "test.wreck", Name = "Wreck", Type = CardType.Spell, Targets = [new TargetSpec("T1", TargetKind.Structure)],
+            Instructions = [new Instruction("destroy", "T1")],
+        },
+    ];
+
+    public static IEnumerable<CardDefinition> All => [Grunt, Mirror, Brute, Mole, Knotter, Digger, DawnSeer(Speed.Reactive), DawnSeer(Speed.Instant), Bastion, Bog, Leaper, Vaulter, Fortify, .. Instructions, .. Pretends];
 }

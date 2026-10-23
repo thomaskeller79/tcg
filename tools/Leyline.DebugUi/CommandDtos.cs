@@ -92,6 +92,7 @@ public static class CommandDtos
                     $"card {state.Player(c.Owner).Section(c.Section).IndexOf(id) + 1} in Champion {c.Owner}'s {c.Section}",
                 CardObject c => $"{state.NameOf(id)} in {c.Section}",
                 TraceObject tr => $"{tr.Text} ({tr.Section})",
+                Permanent p when p.Kind != PermanentKind.Remnant => $"{state.DefIn(p, actor).Name} {p.Id}", // a Mimic's face (D150)
                 _ => state.NameOf(id),
             };
             return new(id.Value, null, null, null, name);
