@@ -2,7 +2,7 @@
 
 *Champions do not share one view of the board. What each Champion perceives is itself a manipulable, card-driven property.*
 
-**Decisions:** D7, D12, D18, D41, D42, D67, D71, D102, D118, D131, D139, D140, D146, D148, D149, D150, D151, D152, D153, D154, D155 (`history/decisions.md`)
+**Decisions:** D7, D12, D18, D41, D42, D67, D71, D102, D118, D131, D139, D140, D146, D148, D149, D150, D151, D152, D153, D154, D155, D161 (`history/decisions.md`)
 
 ---
 
@@ -89,8 +89,9 @@ Each instruction sets every copy itself. The defaults, which card text may overr
 
 - **Start of game.** Every belief equals the true value, except Library content (`?` for everyone) and Hand content (`?` for the opponent). Permanents in the Root at the start of the game are outside the prototype (`PLAN.md` Track D item 53).
 - **Draw** moves the card into the Hand in every copy and reveals its content to its owner; a Champion who can't tell which card moved follows §Cards you lose track of.
+- **Discard and mill** move the card into Discard in every copy and keep its content beliefs (D161): a milled card stays `?` for everyone, a discarded card stays known to its owner. A card that wants a card seen says *reveal*. Most cards in Discard are known anyway, because they got there by a cast (below).
 - **Cast** creates its trace with every copy true (the opponent sees what is cast), unless the card's Pretend says otherwise.
-- **Creating an object from a predecessor** — cast, resolve, Bounce, Remand, Flicker, put, copy — **copies each belief once** from the predecessor: a computed value takes its input's belief (current Health from max), a value with no predecessor (a target, current AP at 0) is true, except that a trace shows its targets by observation (§Traces). The cast card in Discard is therefore exactly as known as its trace; after the creation the two are independent. What reveals a card entering Discard without a cast (mill, discard) is open (`PLAN.md` Track A item 58).
+- **Creating an object from a predecessor** — cast, resolve, Bounce, Remand, Flicker, put, copy — **copies each belief once** from the predecessor: a computed value takes its input's belief (current Health from max), a value with no predecessor (a target, current AP at its entry value, D160) is true, except that a trace shows its targets by observation (§Traces). The cast card in Discard is therefore exactly as known as its trace; after the creation the two are independent.
 - **An ordinary change** (+1 Power, damage, a refresh) applies the same function in every copy, so a visible creature's numbers stay true. Every instruction names the permanents it affects to every Champion, never their location (§Objects in a belief).
 - **Your own permanents:** a change to a permanent a Champion controls is true in its copy, unless a Pretend says otherwise (D155) — so a damaged creature's controller sees the true amount, whatever it believes about the source.
 - **The death check** runs on the true state and applies the fall to every copy: a death names the creature that fell, not where.

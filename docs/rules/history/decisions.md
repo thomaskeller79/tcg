@@ -6,6 +6,33 @@
 
 ---
 
+### D161 — Discard and mill keep content beliefs; Discard is not public by default
+
+`PLAN.md` Track A item 58. In the belief model (D149) a cast card in Discard is believed as its trace, but no rule said what a milled or discarded card shows.
+
+**Adopted (user):**
+- **Discard and mill are moves** (D148): they change a card's section and position, and keep every content belief. A milled card stays `?` for everyone, its owner included. A discarded card stays known to its owner, and the opponent keeps whatever it believed before (usually `?`).
+- **There is no Discard rule.** What a player knows about a card in Discard follows from how it got there. A card that wants a card seen says *reveal*.
+- **Replaces D140's** "entering Discard (discard, mill, a cast card) makes the content true for everyone, unless an effect states otherwise."
+
+**Why (user's reasoning):**
+- **Most of Discard is public anyway, with no special rule.** Casting is a public action: it creates a trace that matches the true card, or shows its Pretend or Mimic mask. The card in Discard matches its trace, so it is believed as the trace showed it, true or false (D149, D155). Casting is by far the most common way a card reaches Discard, so most cards there are known.
+- **Discard is an ability that sees play, and a hidden default opens design space.** A very cheap "discard target card" that doesn't show the card; it also raises the value of cards that reveal a Hand before it. A normal "reveal and discard target card". A more expensive "reveal a Hand, then choose a card". This is the pessimistic default (D14), and it fits well here.
+- **The same goes for mill.** Mill is interesting when it can be abused, and abuse usually needs knowing what was milled. A plain mill is harder to abuse; "mill and reveal" is a separate, stronger effect. Reveal on its own gains value too.
+
+**D140's reasons for a public Discard, rechecked:**
+- **"Cast already showed most of what enters it":** the copy-once rule covers this without a Discard rule.
+- **"A hidden Discard would make the view forget what everyone saw":** beliefs are copied, not reset, so nothing seen is forgotten.
+- **"Cards reading a Discard need it":** such a card reveals first, or reads `?`. A target with an unknown content isn't new: `discard` already targets a card in the opponent's Hand.
+
+**Considered and rejected:**
+- **Entering Discard without a cast reveals the content to everyone** (item 58's candidate, D140's rule): an extra rule, and it removes the design space above.
+- **Entering Discard makes the content true for its owner** (Claude): an extra rule for one case, mill. It would let the owner pick knowingly from their own Discard, which is exactly the self-mill abuse the user wants to cost a reveal.
+
+**Accepted cost:** the owner's own Discard can show `?` cards (milled ones).
+
+→ `asymmetric-information.md` (§Beliefs, defaults), `glossary.md` (Discard). Engine: already built (`Mind.Move` keeps beliefs).
+
 ### D160 — A permanent enters with 2 Activation Points, so a fresh creature can defend
 
 `PLAN.md` Track A item 57. Under D89 a permanent entered with 0 AP: a creature cast in its controller's turn couldn't Defend (`1~AP`) in the opponent's next turn, so any attack on it was undefended and the attacker took no retaliation.
@@ -233,7 +260,7 @@
 
 **Considered and rejected:**
 - **Global observation rules** "a controller observes all properties of their permanents" (wipes out pretends aimed at a creature's controller) and "traces are observable" (the cast's own update does it). Replaced by the damage default above and by D152.
-- **A Discard rule revealing every card that enters it:** leaks a secret spell's card; the one-time copy keeps the card as secret as its trace. Mill and discard: item 58.
+- **A Discard rule revealing every card that enters it:** leaks a secret spell's card; the one-time copy keeps the card as secret as its trace. Mill and discard: item 58, decided by D161.
 - **A mask (apply, keep, forget per copy) with one f** (Claude): a special case of per-copy functions.
 - **An observable "appearance" factor in the true state next to sound beliefs** (Claude): four copies instead of three, same behaviour.
 
