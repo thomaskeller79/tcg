@@ -6,6 +6,31 @@
 
 ---
 
+### D160 — A permanent enters with 2 Activation Points, so a fresh creature can defend
+
+`PLAN.md` Track A item 57. Under D89 a permanent entered with 0 AP: a creature cast in its controller's turn couldn't Defend (`1~AP`) in the opponent's next turn, so any attack on it was undefended and the attacker took no retaliation.
+
+**Adopted (user):**
+- **Every permanent enters the Island with 2 Activation Points** (placeholder), capped at its max, however it got there. The rest of D89 stands: it refreshes at its controller's next Beginning phase, and a control change leaves AP untouched.
+- **Entry AP stays below the Attack cost** (`3~AP`), so summoning sickness means "can't attack yet". 2 covers every Defend cost, including a connected Champion's or Companion's `2~AP`.
+- **No other restriction.** A fresh permanent may also move or use any ability its entry AP pays for. An ability costing 2 AP or less is therefore stronger, and should be rarer; powerful cheap abilities can carry `!` or `~`.
+- **Haste X** sets the entry AP to X instead; X below 2 is a drawback.
+- The value is set together with the default action costs and the Champion's starting AP (`PLAN.md` Track A item 67).
+
+**Why:** summoning sickness should stop a creature from acting on its own initiative, not from defending. A creature played by surprise in the opponent's turn (a Quick creature) must be able to defend right away without a second keyword. Without a default, nearly every creature would print Haste 1 or Haste 2.
+
+**Accepted cost:** this breaks the pessimistic default (D14). Cheap abilities work the turn a permanent enters, and Flicker refills a spent permanent to 2 AP. D89 had closed this for created permanents (D57's Fire Warrior); here it reopens on purpose, for costs up to 2.
+
+**Considered and rejected:**
+- **Full AP, locked as if it had paid a `~` cost** (Claude): it can defend in the opponent's next turn, but a creature flashed in during the opponent's turn can't defend in that turn.
+- **Full AP, only Quick abilities until the controller's next Beginning:** satisfies both cases, but needs a "sick" status to track. Kept as a fallback in `playtest-variants.md`.
+- **First refresh at the next Beginning of any player:** fails the flash case.
+- **Refresh at the End of the controller's turn:** fails the flash case, and every creature would have full AP in the opponent's turn (breaks D116).
+- **Defend costs no AP, once per turn:** removes D116's choice between spending AP and keeping it to defend.
+- **1 entry AP:** covers a creature's Defend, but not a connected Champion's or Companion's.
+
+→ `economy.md` (§Summoning sickness), `setup.md`, `neutral-permanents.md`, `object-properties.md`. Engine: Track B item 68.
+
 ### D159 — Resolution checks in the belief model: visibility is a belief matching the truth
 
 `PLAN.md` Track A item 24. Restates D85's visibility condition, written for the live view, in D148–D155 terms.

@@ -2,7 +2,7 @@
 
 *What a game object is made of — Card, Trace, and Permanent as one connected chain — and how properties move (or don't) when one creates another, including backward: Bounce and Flicker.*
 
-**Decisions:** D69, D70, D72, D73, D74, D75, D83, D88, D93, D97, D98, D99, D100, D101, D103, D105, D106, D107, D108, D109, D129, D130, D133, D135, D141, D142, D143, D144, D145, D148, D149 (`history/decisions.md`)
+**Decisions:** D69, D70, D72, D73, D74, D75, D83, D88, D93, D97, D98, D99, D100, D101, D103, D105, D106, D107, D108, D109, D129, D130, D133, D135, D141, D142, D143, D144, D145, D148, D149, D160 (`history/decisions.md`)
 
 ---
 
@@ -125,7 +125,7 @@ One list per object type, built from two shared groups (D103). Each property als
 - Stored: name (**copies** from the fallen permanent — the reference to its card definition, D99, which raise reads); ID, timestamp (**fresh**); `source` (the fallen permanent, joined up to its `source` once it ceases to exist, D97); location. Nothing else survives: no stats, Activation Points, abilities, Behavior or counters. No Life.
 - Location: the fallen permanent's terrain; the Slice follows the loose-Item rule (D105) — Root stays Root, Ground and Sky become Ground. Capacity-exempt, like a loose Item.
 - Derived: parent (its terrain, D81, D101), controller, payer, position. A Remnant belongs to whoever bonded its terrain, not to the fallen permanent's controller.
-- **Raise** (Remnant → Permanent): the Remnant ceases to exist, and a permanent of its card is created by the Creature transition rules (D106, D107) — card properties copy, current stats fresh at max, current-AP fresh at 0; `source` is the Remnant; parent and Behavior copy from the raising Trace unless the instruction states a triple. Terrain copies; the Slice is the Remnant's if the card's Slice filter allows it, otherwise the filter's (as Flicker, §4).
+- **Raise** (Remnant → Permanent): the Remnant ceases to exist, and a permanent of its card is created by the Creature transition rules (D106, D107) — card properties copy, current stats fresh at max, current-AP fresh at the entry value (D160); `source` is the Remnant; parent and Behavior copy from the raising Trace unless the instruction states a triple. Terrain copies; the Slice is the Remnant's if the card's Slice filter allows it, otherwise the filter's (as Flicker, §4).
 
 ## Open questions
 

@@ -2,7 +2,7 @@
 
 *A third control state — **Neutral** — alongside Champion A/Champion B, giving every permanent type a defined answer for "what happens when nobody controls this." Every object's **decider** is its controller if it has one; otherwise its **Behavior** — a deterministic policy standing in for a player's own decisions, carried as a property of the object — if it has one; otherwise nobody, and the object is **dormant** (D83).*
 
-**Decisions:** D54–D58, D60–D65, D82, D83, D93, D100 (`history/decisions.md`)
+**Decisions:** D54–D58, D60–D65, D82, D83, D93, D100, D160 (`history/decisions.md`)
 
 ---
 
@@ -125,7 +125,7 @@ Anything else that loses control through the Ancestry — Terrain (including one
 
 **A Behavior is never removed by gaining a controller.** While controlled, a permanent keeps its Behavior and neutral turn unused — the controller decides. When it becomes Neutral, a newly assigned Behavior and neutral turn replace the old pair; if nothing is assigned (e.g. a temporary control effect ends), the old pair decides again (D84). A card that wants a permanent to lose its Behavior says so.
 
-A Neutral permanent entering the Island enters with 0 Activation Points like any other (D89, `economy.md`) and can't act until its first Activation Points refresh.
+A Neutral permanent entering the Island enters with the entry Activation Points (2) like any other (D89, D160, `economy.md`).
 
 ## Invariant vs. mutable
 

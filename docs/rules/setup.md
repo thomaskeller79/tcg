@@ -2,7 +2,7 @@
 
 *How a legal match's four components (card deck, terrain deck, Champion, Map) combine into the actual starting board state — and why this isn't a move between zones, even though Champion and Terrain are printed and collected like any other card.*
 
-**Decisions:** D76, D77, D87, D114 (`history/decisions.md`)
+**Decisions:** D76, D77, D87, D114, D160 (`history/decisions.md`)
 
 ---
 
@@ -14,7 +14,7 @@ Champion and Terrain are printed and collected like any other card, but never oc
 
 Setup takes the place of Champion A's turn-1 Beginning phase: Champion A is the active seat, and the procedure below replaces that phase's refresh. **Setup opens no priority** — nobody can cast, activate or respond while it runs, including to the triggers it fires. Players can observe it, and make the mulligan decisions it asks for.
 
-**Setup-placed permanents enter the Island** under the ordinary rules: they enter with 0 Activation Points unless they have Haste (`economy.md`), and their "enters the Island" triggers fire as usual, resolving in the trigger step (S9).
+**Setup-placed permanents enter the Island** under the ordinary rules: they enter with the entry Activation Points (2, D160) unless they have Haste (`economy.md`), and their "enters the Island" triggers fire as usual, resolving in the trigger step (S9).
 
 ## Procedure
 

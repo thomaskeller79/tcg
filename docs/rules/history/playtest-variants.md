@@ -119,9 +119,38 @@ Adding a second, smaller refresh point makes "how much AP does an actor have rig
 across the whole engine, not a one-off card effect. Plus a third cost-flavor axis (`!!`, next to
 `!`/`*`/`^`) for players and card designers to track.
 
+**Rough sketch only (2026-10-23, from Track A item 57).** Revisit only if the current combat system
+shows problems in playtesting. The user's version: Attack `3!AP`, Defend `1!AP`, every creature gets
+1 AP in the opponent's turn, and the `~` flavor is dropped. Open concerns:
+- **Acting no longer costs defence.** Every creature can defend once per opponent turn, whatever it
+  did in its own turn. A creature that attacked (`3!AP`) still defends next turn. Under D116 a
+  5-AP creature that moves 2 and attacks can't. In MTG attacking costs blocking, because the attacker
+  taps (unless it has vigilance). `!!` restores the cost only on cards that print it.
+- **Connected Champion and Companion defence** costs `2~AP` (D134), so 1 AP doesn't cover it.
+  Needs its own answer.
+- **"+1 AP" tricks lose their surprise.** A creature at 0 AP no longer looks spent in the
+  opponent's turn, because it always gets the pulse.
+- **Summoning sickness (item 57):** a fresh creature defends through the pulse. A creature flashed
+  in during the opponent's turn still needs Haste 1 to defend right away.
+
 **Not adopted.** D116's `3~AP` / `1~AP` fixes the same bug differently: the attacker keeps its leftover
 AP for defending, so no second refresh point is needed — at the price of one new cost flavor (`~`).
 Variant 2 stays here as a real alternative worth an actual playtest.
+
+---
+
+## Summoning sickness (D89, D160)
+
+**Current rule (D160):** a permanent enters with 2 Activation Points (placeholder, below the Attack
+cost), so it can defend and act cheaply but can't attack until its first refresh. See `../economy.md`.
+
+### Variant — full AP, Quick abilities only until the next Beginning · NOT ADOPTED, fallback
+A permanent enters with its max AP but can use only Quick abilities until its controller's next
+Beginning phase. Defend is Quick, so it can defend, including right away when flashed in during the
+opponent's turn. Move and Attack are Slow (D75), so it can't take them. Closest to MTG: a creature
+with summoning sickness can block but can't act on its own initiative. **Why not adopted:** it
+needs a "sick" status to track and show, and every Quick ability works at full AP right away. Haste
+would mean "may use Slow abilities right away". Keep it in case the combat system shows problems.
 
 ---
 

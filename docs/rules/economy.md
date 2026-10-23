@@ -2,7 +2,7 @@
 
 *The full resource model in one place. There are **two** resources — mana and Activation Points — and the same shape — "mana access + a private action budget" — repeats for every actor, **including the Champion and the Companion**. Learn it once, it applies everywhere (pillar 3).*
 
-**Decisions:** D8 (terrain/mana), D9 (Champion economy), D10 (Action Points), D15 (Defend cost), D22 (Companion), D45 (Speed), D47 (Activation Capacity), D48, D49 (Champion/Companion Attack), D58 (Activation Points), D65 (Defend once per round), D76 (first-turn AP asymmetry), D77 (mana accounting), D87 (Terrain holds no AP), D88, D110 (Remnant holds no AP), D89 (summoning sickness), D92 (Instant blocks active play), D114 (Setup is entering; Haste X), D116 (`~` cost; Attack `3~AP`, Defend `1~AP`), D134 (connected Champion/Companion costs), D143 (stat changes), D144 (Duration), D147 (Life as a cost), D158 (`!` drains at C5) — `history/decisions.md`
+**Decisions:** D8 (terrain/mana), D9 (Champion economy), D10 (Action Points), D15 (Defend cost), D22 (Companion), D45 (Speed), D47 (Activation Capacity), D48, D49 (Champion/Companion Attack), D58 (Activation Points), D65 (Defend once per round), D76 (first-turn AP asymmetry), D77 (mana accounting), D87 (Terrain holds no AP), D88, D110 (Remnant holds no AP), D89 (summoning sickness), D92 (Instant blocks active play), D114 (Setup is entering; Haste X), D116 (`~` cost; Attack `3~AP`, Defend `1~AP`), D134 (connected Champion/Companion costs), D143 (stat changes), D144 (Duration), D147 (Life as a cost), D158 (`!` drains at C5), D160 (entry AP) — `history/decisions.md`
 
 ---
 
@@ -80,14 +80,15 @@ The Champion **has an AP value and spends it directly**, exactly like a creature
 
 **Changing Life and AP (D143).** Both are consumed, so each has a max and a current value and two kinds of change: **damage / heal** and **slow / quicken** (working names) change current only (heal up to max); **+X / −X** change max and current together, as exact mirrors, so a temporary ±X ends cleanly with its trace (D144). Attack is never consumed: one value, changed by ±X.
 
-## Summoning sickness (and Haste): 0 Activation Points on entering (D89, D114)
-**Every permanent entering the Island enters with 0 Activation Points** — cast, created by an effect, flickered, however it got there — and refreshes at its controller's next Beginning phase. That is all summoning sickness is (D14's pessimistic default): a permanent that wasn't there at the beginning of its controller's turn can't act yet. This includes permanents placed at Setup (D114, `setup.md`). **Haste X** (D114): the permanent enters with X Activation Points, capped at its max; plain **Haste** means it enters with its max. Haste is an entry-time keyword — granting it to a permanent already on the Island does nothing (a card that wants that says "gains X Activation Points" instead); Flicker on a Haste permanent sets its Activation Points to X again. **A control change leaves Activation Points untouched** — a stolen creature can act against its previous controller right away.
+## Summoning sickness (and Haste): 2 Activation Points on entering (D89, D114, D160)
+**Every permanent entering the Island enters with 2 Activation Points** (placeholder, D160), capped at its max — cast, created by an effect, flickered, however it got there — and refreshes at its controller's next Beginning phase. That is all summoning sickness is: the entry AP is below the Attack cost, so a permanent that wasn't there at the beginning of its controller's turn can't attack yet. It can defend, including in the same turn when it was cast in an opponent's turn, and it can move or use any ability it can pay for with its entry AP. This includes permanents placed at Setup (D114, `setup.md`). **Haste X** (D114): the permanent enters with X Activation Points instead, capped at its max; plain **Haste** means it enters with its max. Haste is an entry-time keyword — granting it to a permanent already on the Island does nothing (a card that wants that says "gains X Activation Points" instead); Flicker on a Haste permanent sets its Activation Points to X again. **A control change leaves Activation Points untouched** — a stolen creature can act against its previous controller right away.
 
 ## Open sub-levers (tuning, not structure)
 1. **AP refresh** — rec refill to max each turn, no carryover.
 2. **Champion base AP** — the baseline total (proposed: 7, tuning) that funds all of draw/bond/move/attack/ability each turn. See `champions.md`.
 3. **Champion starting AP at Setup** (D114) — placeholder 4 for both Champions, real number deferred.
 4. **Trace Duration** (D50, D144) — counted in ends of player turns; placeholder about 10, real number deferred.
+5. **Entry AP** (D160) — placeholder 2, kept below the Attack cost; set together with the default action costs (`PLAN.md` Track A item 67).
 
 ## Complexity discipline
 Total systems: **mana + AP + terrain network + Pending/Speed + perception**. Mitigation: every AP cost is a **small integer**, resist per-action special cases, let depth come from combinations (pillar 3, tension #6 in PLAN).
