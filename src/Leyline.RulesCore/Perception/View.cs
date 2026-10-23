@@ -49,20 +49,22 @@ public sealed record PermanentView(
     bool InRoot,
     bool RootConnected);
 
-public sealed record CardView(int Id, string Card);
+/// <summary>A card as the observer believes it (D154): its content or null (`?`), its position in
+/// its section (1-based) or null where unknown, its id only for the observer's own cards.</summary>
+public sealed record CardView(int? Id, string? Card, int? Position);
 
-/// <summary>A Champion's Mind, section by section, as the observer sees it (D71): counts are public;
-/// contents only for the owner — and the owner's own Library in a canonical order, never the
-/// draw order.</summary>
+/// <summary>A Champion's Mind, section by section, as the observer believes it (D154): counts are
+/// true; Hand and Discard list every card in order, the Library only the cards the observer
+/// knows.</summary>
 public sealed record MindView(
     string Player,
     int? ChampionId,
     int HandCount,
-    IReadOnlyList<CardView>? Hand,
+    IReadOnlyList<CardView> Hand,
     int LibraryCount,
-    IReadOnlyList<CardView>? Library,
+    IReadOnlyList<CardView> Library,
     int DiscardCount,
-    IReadOnlyList<CardView>? Discard,
+    IReadOnlyList<CardView> Discard,
     IReadOnlyDictionary<string, int>? Pool);
 
 public sealed record AttackView(HexCoord Hex, string Slice, string Entity, IReadOnlyList<int> Defenders);
@@ -74,7 +76,6 @@ public sealed record TraceView(
     string Controller,
     bool Physical,
     string Speed,
-    bool Hidden,
     IReadOnlyList<string> Targets,
     IReadOnlyList<string> Instructions,
     IReadOnlyList<string> Notes,

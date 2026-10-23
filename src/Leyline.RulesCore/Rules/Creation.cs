@@ -26,6 +26,20 @@ public static class Creation
         };
         state.Add(card);
         state.Player(owner).Section(section).Add(card.Id);
+        // D149: a card made from a predecessor copies each belief once (a bounced permanent is
+        // known to everyone, D155); a new one is known to its owner outside the Library, and to
+        // everyone in Discard. Everyone sees it arrive, except in a Library (D154).
+        foreach (var who in state.Players.Select(p => p.Id))
+        {
+            var belief = (source is { } s ? state.Find<GameObject>(s) : null) switch
+            {
+                CardObject original => state.Beliefs.Card(who, original.Id).Copy(),
+                Permanent => new CardBelief { Definition = definition },
+                _ => new CardBelief { Definition = section == CardSection.Discard || (who == owner && section != CardSection.Library) ? definition : null },
+            };
+            belief.PositionKnown = section != CardSection.Library;
+            state.Beliefs.SetCard(who, card.Id, belief);
+        }
         return card;
     }
 
@@ -113,7 +127,10 @@ public static class Creation
             UpdateSubtree(state, p);
 
         if (obj is CardObject card)
+        {
             state.Player(card.Owner).Section(card.Section).Remove(id);
+            state.Beliefs.Forget(id);
+        }
         if (obj is TraceObject trace)
             state.Section(trace.Section).Remove(id);
         state.Modifiers.RemoveAll(m => m.Subject == id);

@@ -33,8 +33,7 @@ public static class Sight
         state.Find<GameObject>(id) switch
         {
             Permanent p => state.CanSee(observer, p),
-            TraceObject t => state.CanSeeTrace(observer, t),
-            CardObject => true,
+            TraceObject or CardObject => true,
             _ => false,
         };
 
@@ -48,10 +47,8 @@ public static class Sight
             && q.Hex.DistanceTo(hex) <= 1
             && state.Controller(q) == observer);
 
-    /// <summary>G17: a trace is visible when its acting permanent is (a trace from an ability of a
-    /// hidden creature would otherwise reveal it); cast traces are always visible.</summary>
-    public static bool CanSeeTrace(this TrueState state, PlayerId? observer, TraceObject t) =>
-        t.ActingPermanent is not { } acting
-        || state.Find<Permanent>(acting) is not { } p
-        || state.CanSee(observer, p);
+    /// <summary>D155: a Champion observes a Slice where it would observe a permanent it doesn't
+    /// control: Ground and Sky always, the Root by D67's proximity. No Slice: a terrain, always.</summary>
+    public static bool ObservesSlice(this TrueState state, PlayerId? observer, HexCoord hex, Slice? slice) =>
+        slice != Slice.Root || HasRootPresenceNear(state, observer, hex);
 }

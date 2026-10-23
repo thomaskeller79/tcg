@@ -72,7 +72,7 @@ public class TriggerTests
 public class PerceptionTests
 {
     [Fact]
-    public void Hand_and_Discard_contents_and_the_live_mana_balance_are_private_but_counts_are_public()
+    public void Hand_contents_and_the_live_mana_balance_are_private_a_cast_card_is_not_and_counts_are_public()
     {
         var g = Load("""
             handcard A spell.firebolt spell.mend
@@ -84,25 +84,26 @@ public class PerceptionTests
 
         var seenByB = ViewProjector.Project(g.State, B).Players.Single(p => p.Player == "A");
         Assert.Equal(1, seenByB.HandCount);
-        Assert.Null(seenByB.Hand);
-        Assert.Equal(1, seenByB.DiscardCount);
-        Assert.Null(seenByB.Discard);
+        Assert.Null(Assert.Single(seenByB.Hand).Card);
+        Assert.Equal(["spell.firebolt"], seenByB.Discard.Select(c => c.Card)); // cast: true for everyone (D155)
         Assert.Null(seenByB.Pool);
         Assert.Null(ViewProjector.Project(g.State, B).Permanents.Single(p => p.Card == "champion.pyra").Pool);
 
         var seenByA = ViewProjector.Project(g.State, A).Players.Single(p => p.Player == "A");
-        Assert.NotNull(seenByA.Hand);
-        Assert.NotNull(seenByA.Discard);
+        Assert.Equal(["spell.mend"], seenByA.Hand.Select(c => c.Card));
         Assert.NotNull(seenByA.Pool);
     }
 
     [Fact]
-    public void The_owner_sees_its_Library_contents_in_a_canonical_order_never_the_draw_order()
+    public void Library_contents_are_unknown_to_everyone_at_the_start_only_the_count_is_known()
     {
         var g = Load("deck A spell.mend spell.firebolt creature.fire-warrior");
-        var lib = ViewProjector.Project(g.State, A).Players.Single(p => p.Player == "A").Library!;
-        Assert.Equal(["creature.fire-warrior", "spell.firebolt", "spell.mend"], lib.Select(c => c.Card));
-        Assert.Null(ViewProjector.Project(g.State, B).Players.Single(p => p.Player == "A").Library);
+        foreach (var observer in new[] { A, B })
+        {
+            var mind = ViewProjector.Project(g.State, observer).Players.Single(p => p.Player == "A");
+            Assert.Equal(3, mind.LibraryCount);
+            Assert.Empty(mind.Library); // D149: `?` for everyone
+        }
     }
 
     [Fact]

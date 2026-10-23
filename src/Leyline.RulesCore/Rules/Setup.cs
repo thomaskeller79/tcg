@@ -83,7 +83,7 @@ public static class Setup
             foreach (var card in ps.Deck)
                 Creation.CreateCard(state, card, player, CardSection.Library);
             if (setup.ShuffleLibraries)
-                Mind.Shuffle(state, state.Player(player).Library);
+                Mind.ShuffleSection(state, player, CardSection.Library);
             Mind.Draw(state, player, setup.OpeningHand);
         }
 

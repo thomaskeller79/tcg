@@ -66,7 +66,7 @@ Made where the rules leave a gap. Each is the simplest reading that keeps a matc
 - **G14 — Void terrain.** Holes in a Layout are Void terrain: produces nothing, can't be bonded or entered.
 - **G15 — Neutral-ground population.** Two algorithms: `fixed` (the Map lists each hex's terrain card) and `random` (uniform draw from a pool the Map lists, with replacement).
 - **G16 — Damage split.** When there is a single legal recipient, the whole Attack goes there without asking. Otherwise the attacker's Champion submits a split as a decision while the Attack resolves (a Neutral attacker's Behavior picks the lowest-Life target, ties by ID).
-- **G17 — Trace visibility.** A trace is shown to an observer only if its acting permanent (for a permanent's ability) is visible to them; otherwise it shows as "a hidden action". Bound targets the observer can't see are shown as "a hidden object". The priority window itself still opens (Track B item 6).
+- **G17 — Trace visibility.** Replaced by D153/D155: every trace is shown to everyone and names its permanents; a location target (and with it the trace's notes) shows only to the trace's Champion and to those who observe that Slice. The priority window itself still opens (Track B item 6).
 - **G18 — Opening hand 5, Champion AP at Setup 4, Trace Duration 5** (the documented placeholders).
 - **G19 — Behavior `Aggressive toward X`.** Each Neutral creature with it, in its neutral turn: attack a visible permanent of X if one is in reach (lowest Life, then lowest ID); otherwise move one hex closer to the nearest visible permanent of X. It defends when it can.
 - **G20 — Trace parent for a Companion's own ability** is the Companion (the payment walk from it stops at itself for mana).

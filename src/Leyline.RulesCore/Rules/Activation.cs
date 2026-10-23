@@ -327,7 +327,11 @@ public static class Activation
                 apPayer.CurrentLife -= draft.Cost.Life;
         }
         if (draft.IsCast)
-            Mind.Move(state, state.Get<CardObject>(draft.Source), CardSection.Discard);
+        {
+            var cast = state.Get<CardObject>(draft.Source);
+            Mind.Move(state, cast, CardSection.Discard, named: true);
+            Mind.Reveal(state, cast); // as known as its trace, which is true for everyone (D155)
+        }
     }
 
     /// <summary>C5 Enter Pending: the trace enters Pending, with any triggers the payment fired
@@ -358,7 +362,7 @@ public static class Activation
                     Id = state.NewId(), Timestamp = state.NewTimestamp(), Source = card.Id,
                     FromCard = true, Definition = def.Id, Instructions = [CreateFromCard],
                     Parent = draft.Parent, You = draft.Actor, Speed = def.Speed, Duration = DefaultAbilities.Duration,
-                    Text = $"Cast {def.Name} at {location}", PaidCost = draft.Cost.ToString(),
+                    Text = $"Cast {def.Name}", PaidCost = draft.Cost.ToString(),
                     AttackDelta = card.AttackDelta, MaxLifeDelta = card.MaxLifeDelta,
                 };
                 cast.Targets[TargetKey] = [location];

@@ -633,7 +633,7 @@ function renderHand() {
   if (SEAT === 0) {
     for (const pl of ui.view.players) {
       box.append(el('h2', {}, `Champion ${pl.player}'s hand (${pl.handCount})`));
-      box.append(el('div', { class: 'cards' }, (pl.hand ?? []).map(c => cardEl(c.card, null))));
+      box.append(el('div', { class: 'cards' }, pl.hand.map(c => cardEl(c.card ?? '?', null))));
     }
     return;
   }
@@ -646,7 +646,6 @@ function traceEl(t, opts = {}) {
   const cls = ['trace', 'ctrl-' + t.controller];
   if (opts.top) cls.push('top');
   if (opts.resolving) cls.push('resolving');
-  if (t.hidden) cls.push('hidden');
   const e = el('div', { class: cls.join(' ') },
     el('div', { class: 'title' }, t.text),
     el('div', { class: 'tags' },
@@ -695,12 +694,14 @@ function renderMind() {
   const box = document.getElementById('mind');
   box.replaceChildren();
   for (const pl of ui.view.players) {
-    const names = (list) => list ? list.map(c => cardInfo(c.card)?.name ?? c.card).join(', ') || '—' : 'hidden';
+    const name = (c) => c.card ? (cardInfo(c.card)?.name ?? c.card) : '?';
+    const names = (list) => list.map(name).join(', ') || '—';
+    const known = (list) => list.map(c => name(c) + (c.position != null ? ` (#${c.position})` : '')).join(', ') || '—';
     box.append(el('div', { class: 'player' },
       el('b', {}, `Champion ${pl.player}`), pl.pool ? el('span', { class: 'pool' }, `  ·  mana: ${fmtPool(pl.pool)}`) : null,
       el('div', { class: 'zones' },
         el('div', { class: 'zone' }, el('div', { class: 'label' }, `Hand (${pl.handCount})`), names(pl.hand)),
-        el('div', { class: 'zone', title: 'You know which cards remain, never their order (D71).' }, el('div', { class: 'label' }, `Library (${pl.libraryCount})`), names(pl.library)),
+        el('div', { class: 'zone', title: 'The cards you know in the Library, with a position where you know it (D154).' }, el('div', { class: 'label' }, `Library (${pl.libraryCount})`), known(pl.library)),
         el('div', { class: 'zone' }, el('div', { class: 'label' }, `Discard (${pl.discardCount})`), names(pl.discard)))));
   }
 }

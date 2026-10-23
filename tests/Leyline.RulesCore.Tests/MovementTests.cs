@@ -112,7 +112,8 @@ public class MovementTests
         Assert.DoesNotContain(ViewProjector.Project(g.State, B).Permanents, p => p.Id == mole.Id.Value);
 
         g.Ok(g.Act(A, mole, DefaultAbilities.Ascend));
-        Assert.Contains(ViewProjector.Project(g.State, B).Pending, t => t.Hidden); // the Ascend trace of a hidden mole
+        var ascend = Assert.Single(ViewProjector.Project(g.State, B).Pending); // D153/D155: names the mole, shows the Ground
+        Assert.Contains("location: (0,0) Ground", ascend.Targets);
         g.ResolveAll();
         Assert.Equal(Slice.Ground, mole.Slice);
         Assert.True(g.State.CanSee(B, mole));

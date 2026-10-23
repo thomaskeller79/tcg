@@ -140,6 +140,10 @@ public sealed class TrueState
     public bool IsOver => Winner is not null || IsDraw;
 
     public List<Modifier> Modifiers { get; } = [];
+
+    /// <summary>D149: the Champions' beliefs (Track B item 25).</summary>
+    public Beliefs Beliefs { get; } = new();
+
     public List<PendingTrigger> CollectedTriggers { get; } = [];
 
     /// <summary>Permanents a "fell" instruction marked; they fall in the next consequences pass.</summary>

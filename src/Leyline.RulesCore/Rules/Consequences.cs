@@ -72,13 +72,51 @@ public static class Consequences
 /// <summary>Mind helpers (D37, D71, D138): moving a card between sections, drawing and shuffling.</summary>
 public static class Mind
 {
-    /// <summary>D138: a move within the Mind — the same card, a new section, last in it.</summary>
-    public static void Move(TrueState state, CardObject card, CardSection to)
+    /// <summary>D138: a move within the Mind — the same card, a new section, last in it. D154: a
+    /// Champion identifies the moved card if it is <paramref name="named"/> (an instruction's
+    /// target), seen (<paramref name="seenBy"/>, who also learns its content) or at a position it
+    /// knows; otherwise the card becomes anonymous for it, and so does every card left in that
+    /// section whose position it doesn't know. Everyone sees it arrive last.</summary>
+    public static void Move(TrueState state, CardObject card, CardSection to, bool named = false, PlayerId? seenBy = null)
     {
         var mind = state.Player(card.Owner);
-        mind.Section(card.Section).Remove(card.Id);
+        var from = mind.Section(card.Section);
+        foreach (var who in state.Players.Select(p => p.Id))
+        {
+            var belief = state.Beliefs.Card(who, card.Id);
+            if (who == seenBy)
+                belief.Definition = card.Definition;
+            else if (!named && !belief.PositionKnown)
+            {
+                belief.Definition = null;
+                foreach (var other in from.Where(id => id != card.Id).Select(id => state.Beliefs.Card(who, id)))
+                {
+                    if (!other.PositionKnown)
+                        other.Definition = null;
+                }
+            }
+            belief.PositionKnown = true;
+        }
+        from.Remove(card.Id);
         mind.Section(to).Add(card.Id);
         card.Section = to;
+    }
+
+    /// <summary>Every Champion's belief about the card becomes true (a cast, D155).</summary>
+    public static void Reveal(TrueState state, CardObject card)
+    {
+        foreach (var who in state.Players.Select(p => p.Id))
+            state.Beliefs.SetCard(who, card.Id, new CardBelief { Definition = card.Definition, PositionKnown = true });
+    }
+
+    /// <summary>Shuffles a section of a Mind: nobody knows a position in it any more (D154).</summary>
+    public static void ShuffleSection(TrueState state, PlayerId player, CardSection section)
+    {
+        var cards = state.Player(player).Section(section);
+        Shuffle(state, cards);
+        foreach (var who in state.Players.Select(p => p.Id))
+            foreach (var id in cards)
+                state.Beliefs.Card(who, id).PositionKnown = false;
     }
 
     public static void Draw(TrueState state, PlayerId player, int count)
@@ -91,7 +129,7 @@ public static class Mind
                 state.Note($"Champion {player} can't draw: the Library is empty.");
                 return;
             }
-            Move(state, state.Get<CardObject>(mind.Library[0]), CardSection.Hand);
+            Move(state, state.Get<CardObject>(mind.Library[0]), CardSection.Hand, seenBy: player);
         }
         state.Note($"Champion {player} draws {count} card{(count == 1 ? "" : "s")}.");
     }

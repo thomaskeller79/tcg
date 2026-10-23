@@ -6,9 +6,9 @@ namespace Leyline.RulesCore.Perception;
 
 /// <summary>
 /// (TrueState, observer) → View (architecture.md §2.2). Redaction rules: hidden permanents (Root,
-/// D12/D67) are left out; mana pools are shown only for the observer's own roots (D18); Hand and
-/// Discard contents only to their owner, Library contents to the owner in canonical order (D71);
-/// a trace whose acting permanent is hidden shows as a hidden action (G17). The omniscient
+/// D12/D67) are left out; mana pools are shown only for the observer's own roots (D18); cards as
+/// the observer believes them (D154); a trace whose acting permanent is hidden shows as a hidden
+/// action (G17). The omniscient
 /// projection is the debug UI's sanctioned true-state exception (architecture.md §2.9).
 /// </summary>
 public static class ViewProjector
@@ -48,15 +48,17 @@ public static class ViewProjector
         {
             var owner = Owns(ps.Id);
             var champion = state.ChampionOf(ps.Id);
+            List<CardView> Cards(List<ObjectId> section) =>
+                section.Select((id, i) => Card(state, id, i + 1, observer, omniscient, owner)).ToList();
             return new MindView(
                 ps.Id.ToString(),
                 champion?.Id.Value,
                 ps.Hand.Count,
-                owner ? ps.Hand.Select(id => Card(state, id)).ToList() : null,
+                Cards(ps.Hand),
                 ps.Library.Count,
-                owner ? (omniscient ? ps.Library.AsEnumerable() : ps.Library.OrderBy(id => state.Get<CardObject>(id).Definition, StringComparer.Ordinal).ThenBy(id => id)).Select(id => Card(state, id)).ToList() : null,
+                Cards(ps.Library).Where(c => c.Card is not null).ToList(),
                 ps.Discard.Count,
-                owner ? ps.Discard.Select(id => Card(state, id)).ToList() : null,
+                Cards(ps.Discard),
                 owner && champion?.Pool is { } pool ? Pool(pool) : null);
         }).ToList();
 
@@ -69,7 +71,7 @@ public static class ViewProjector
             DamageSplitDecision d => new DecisionView("DamageSplit", d.Decider.ToString(),
                 $"{(d.Defended ? "Defended" : "Undefended")}: split {d.Amount} damage", d.Candidates.Select(c => c.Value).ToList(), d.Amount),
             TopUpDecision t => new DecisionView("TopUp", t.Decider.ToString(),
-                $"Top up {t.Ap} AP for {(t.Target.Object is not { } target ? t.Target.ToString() : omniscient || state.CanSee(observer, target) ? state.NameOf(target) : "a hidden object")}, or it becomes illegal for this trace",
+                $"Top up {t.Ap} AP for {(t.Target.Object is not { } target ? t.Target.ToString() : state.NameOf(target))}, or it becomes illegal for this trace",
                 [], t.Ap),
             _ => null,
         };
@@ -105,7 +107,13 @@ public static class ViewProjector
 
     public static string ControllerName(PlayerId? controller) => controller?.ToString() ?? "Neutral";
 
-    private static CardView Card(TrueState state, ObjectId id) => new(id.Value, state.Get<CardObject>(id).Definition);
+    private static CardView Card(TrueState state, ObjectId id, int position, PlayerId? observer, bool omniscient, bool owner)
+    {
+        if (omniscient || observer is not { } who)
+            return new(id.Value, state.Get<CardObject>(id).Definition, position);
+        var belief = state.Beliefs.Card(who, id);
+        return new(owner ? id.Value : null, belief.Definition, belief.PositionKnown ? position : null);
+    }
 
     private static IReadOnlyDictionary<string, int> Pool(ManaPool pool) =>
         pool.Amounts.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value);
@@ -153,38 +161,50 @@ public static class ViewProjector
 
     private static TraceView Trace(TrueState state, TraceObject t, PlayerId? observer, bool omniscient)
     {
-        var hidden = !omniscient && !state.CanSeeTrace(observer, t);
+        // D155: a trace's content is true for everyone and names every permanent (D153); a location
+        // target shows only to its Champion and to those who observe that Slice.
         var controller = ControllerName(t.You);
-        if (hidden)
-            return new TraceView(t.Id.Value, t.FromCard, "A hidden action", controller, t.Physical, t.Speed.ToString(), true, [], [], [], "", null, null, null);
+        bool Observes(HexCoord hex, Slice? slice) => omniscient || observer == t.You || state.ObservesSlice(observer, hex, slice);
 
-        string NameIfVisible(ObjectId id) => omniscient ? state.NameOf(id) : state.Find<GameObject>(id) switch
+        string Name(ObjectId id) => omniscient ? state.NameOf(id) : state.Find<GameObject>(id) switch
         {
-            Permanent p when !state.CanSee(observer, p) => "a hidden object",
-            CardObject c when c.Owner != observer && c.Section != CardSection.Discard => $"a card in Champion {c.Owner}'s {c.Section}",
-            TraceObject tr when !state.CanSeeTrace(observer, tr) => "a hidden action",
+            CardObject c when observer is not { } who || state.Beliefs.Card(who, c.Id).Definition is null => $"a card in Champion {c.Owner}'s {c.Section}",
             _ => state.NameOf(id),
         };
+        string Choice(TargetChoice c) =>
+            c.Object is { } o ? Name(o) : c.Hex is { } h && !Observes(h, c.Slice) ? "a hidden location" : c.ToString();
+
+        var locations = t.Targets.Values.SelectMany(l => l).ToList();
+        if (t.Location is { } l0)
+            locations.Add(l0);
+        if (t.Attack is { } a0)
+            locations.Add(TargetChoice.ForLocation(a0.Hex, a0.Slice));
+        var allObserved = locations.All(c => c.Object is not null || c.Hex is not { } h || Observes(h, c.Slice));
 
         var targets = t.Targets
-            .SelectMany(kv => kv.Value.Select(c => $"{kv.Key}: {(c.Object is { } o ? NameIfVisible(o) : c.ToString())}"))
+            .SelectMany(kv => kv.Value.Select(c => $"{kv.Key}: {Choice(c)}"))
             .ToList();
         if (t.Location is { } loc)
-            targets.Add($"location: {loc}");
+            targets.Add($"location: {Choice(loc)}");
 
-        AttackView? attack = t.Attack is { } a
-            ? new AttackView(a.Hex, a.Slice.ToString(), ControllerName(a.Entity),
-                a.Defenders.Where(d => state.Find<Permanent>(d) is not { } dp || omniscient || state.CanSee(observer, dp)).Select(d => d.Value).ToList())
-            : null;
+        AttackView? attack = null;
+        if (t.Attack is { } a)
+        {
+            if (Observes(a.Hex, a.Slice))
+                attack = new AttackView(a.Hex, a.Slice.ToString(), ControllerName(a.Entity), a.Defenders.Select(d => d.Value).ToList());
+            else
+                targets.Add($"attack: a hidden location, defenders: {string.Join(", ", a.Defenders.Select(Name).DefaultIfEmpty("none yet"))}");
+        }
 
         var instructions = t.Instructions.Select(i => InstructionText(i, name =>
             t.Targets.TryGetValue(name, out var choices) && choices.Count > 0
-                ? string.Join(" and ", choices.Select(c => c.Object is { } o ? NameIfVisible(o) : c.ToString()))
-                : name == "self" && t.ActingPermanent is { } ap ? NameIfVisible(ap) : null)).ToList();
+                ? string.Join(" and ", choices.Select(Choice))
+                : name == "self" && t.ActingPermanent is { } ap ? Name(ap) : null)).ToList();
 
         int? fades = t.Section == TraceSection.Past ? t.Duration - t.TurnEndsInPast : null;
-        return new TraceView(t.Id.Value, t.FromCard, t.Text, controller, t.Physical, t.Speed.ToString(), false,
-            targets, instructions, t.Notes.ToList(), t.PaidCost, fades, attack, t.ActingPermanent?.Value);
+        // Notes may say where something went, so they show only where every location does.
+        return new TraceView(t.Id.Value, t.FromCard, t.Text, controller, t.Physical, t.Speed.ToString(),
+            targets, instructions, allObserved ? t.Notes.ToList() : [], t.PaidCost, fades, attack, t.ActingPermanent?.Value);
     }
 
     /// <summary>"up to one target creature you control within 2", for card text.</summary>

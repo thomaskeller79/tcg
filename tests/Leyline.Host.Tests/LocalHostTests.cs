@@ -37,8 +37,8 @@ public class LocalHostTests
     {
         var host = NewHost();
         var a = host.CurrentView(new SeatId(1));
-        Assert.NotNull(a.Players.Single(p => p.Player == "A").Hand);
-        Assert.Null(a.Players.Single(p => p.Player == "B").Hand);
+        Assert.All(a.Players.Single(p => p.Player == "A").Hand, c => Assert.NotNull(c.Card));
+        Assert.All(a.Players.Single(p => p.Player == "B").Hand, c => Assert.Null(c.Card));
         Assert.Equal(2, a.Players.Single(p => p.Player == "B").HandCount);
     }
 

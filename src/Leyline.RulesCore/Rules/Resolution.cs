@@ -271,7 +271,7 @@ public static class Resolution
                 return objects[0] is CardObject ? MoveCards(state, objects.Cast<CardObject>(), ins) : MovePermanent(state, permanents[0], to!);
             case "discard":
                 foreach (var c in objects.Cast<CardObject>())
-                    Mind.Move(state, c, CardSection.Discard);
+                    Mind.Move(state, c, CardSection.Discard, named: true);
                 state.Note($"{names} discarded.", objects.Select(o => o.Id).ToArray());
                 return $"discarded {names}";
             case "mill":
@@ -329,7 +329,7 @@ public static class Resolution
                 return $"Champion {you} mills {ins.Amount}";
             case "shuffle":
                 var section = Enum.Parse<CardSection>(ins.Section!);
-                Mind.Shuffle(state, state.Player(you).Section(section));
+                Mind.ShuffleSection(state, you, section);
                 state.Note($"Champion {you} shuffles their {section}.");
                 return $"Champion {you} shuffles their {section}";
             case "add mana":
@@ -445,7 +445,7 @@ public static class Resolution
         var names = new List<string>();
         foreach (var c in cards)
         {
-            Mind.Move(state, c, to);
+            Mind.Move(state, c, to, named: true);
             names.Add(state.NameOf(c.Id));
         }
         return $"moved {string.Join(", ", names)} to {to}";
