@@ -20,6 +20,14 @@ There are three **zones**: the **Mind** (one per Champion), the **Aether**, and 
 **One object never occupies two zones itself** (D16) — but casting a creature *creates* two distinct, linked objects: a permanent on the Island **and** a separate anchored summon-trace in the Aether (enabling *un-summon* — delete the trace; the permanent ceases to exist without falling — vs *fell* — the permanent falls and leaves a Remnant, D16, D110). Cards/traces/permanents reference each other without merging identity (Card → creates → Trace → creates → Permanent). A **Map** resolves once at game start into board data and is not part of any zone; it cannot be referenced by other game objects.
 - 🪝 Zones are a named set; the **Aether** is a per-observer timeline whose traces **fade** on a configurable window. → cards create objects across zones and move them between sections; new sections and zones can be added later.
 
+### What a Champion knows (flavor)
+How the information rules (`asymmetric-information.md`) read in the world.
+
+- **The Mind.** A Champion is aware of its conscious thoughts (its Hand) and of the ideas it has let go: those it acted on (cast cards in Discard) and those it dismissed (discarded cards). It is not aware of its subconscious (its Library), nor of ideas that faded before they ever reached consciousness (milled cards). Another Champion's Mind is closed; only magic can look inside.
+- **The Aether.** All magic leaves traces in the Aether, and every Champion sees them. Reading the traces, a Champion can work out which ideas passed through an opponent's Mind.
+- **The Island.** The surface (Ground and Sky) lies in plain view. The Root beneath is private: a Champion sees it only through the eyes of the permanents it controls. What happens down there by physical means, like a move, goes unseen (the rules don't match this yet: a move's physical trace names the mover to everyone, `PLAN.md` Track A item 69). Magic worked there still leaves its trace, like all magic.
+- **Deceit.** Traces tell the truth, but a skilled caster can tamper with them to give the opponent the wrong impression. So the traces are where every deceit hides, and where a careful reader can uncover it.
+
 ## 2. The board (Matter/Island specifics)
 *Everything below elaborates the Island (§1) — this is where its Actors and Objects actually sit and move.*
 - **The board comes from a *map card* (D11).** The engine consumes **one resolved map** as data — a set of hex **cells** keyed by cube/axial coordinate; bounds emerge from which cells exist. *(A strawman sample map exists for testing; the model is map-as-content.)*

@@ -194,6 +194,10 @@ Design work runs across three parallel tracks — **Rules** (mechanics/engine-le
     - **Attack:** `3~AP` is untested; maybe 4.
     - **The Champion's starting AP (D114, placeholder 4) and its first-turn choices.** When the start became 4, Bond was 3 and Draw 4, so turn 1 was Bond or Draw. With Bond 2 and Draw 5, drawing is no longer an option on turn 1, only Bond and Move (or a Champion-specific ability). The user doesn't like that.
     - **Entry AP (D160, placeholder 2):** must stay below the Attack cost. With Attack 3 that means 1 or 2, and 2 is the more interesting. With Attack 4, 3 is possible; if Bond and Draw both became 3, the Champion's start could equal the entry AP, which removes D114's special rule.
+69. **Physical actions in the Root should go unseen.** The flavor (`overview.md` §What a Champion knows): only magic leaves a trace everyone sees, and a physical action in the private Root goes unseen. The rules don't match yet:
+    - A Move (or Ascend, Descend) leaves a Physical Trace in Pending, so combat tricks have a window (D45). That trace names the mover to everyone (D153, D155); only the destination hides in darkness. So the opponent learns "#12 moved".
+    - A trace's section and position are always true, and a priority window opens. Both show the opponent that something happened even if the trace hid its content; a window you see for an action you can't see leaks information (Track B item 6).
+    - Options to weigh: a physical action no one observes leaves no trace for the opponent, or opens no priority window; or physical actions leave the Aether entirely and get their response window some other way. Check against combat tricks, Defend (a hidden creature attacked in the Root), and what each Champion believes about the mover's location (D152's move rule).
 
 **Track C — Content (cards, Element identities, abilities/keywords):**
 
