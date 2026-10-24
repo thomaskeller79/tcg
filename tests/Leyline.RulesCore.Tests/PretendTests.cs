@@ -114,6 +114,20 @@ public class PretendTests
     }
 
     [Fact]
+    public void Reveal_collapses_a_Mimic_face_and_the_card_behind_it()
+    {
+        var g = Load("handcard A test.mimic\nhandcard B test.expose");
+        g.Ok(g.Cast(A, "test.mimic", At(0, 2)));
+        g.ResolveAll();
+        var mimic = g.P("test.mimic");
+        g.AdvanceTo(Seat.ChampionB);
+        g.Ok(g.Cast(B, "test.expose", Obj(mimic)));
+        g.ResolveAll();
+        Assert.Equal(("test.mimic", 5), (Seen(g, B, mimic).Card, Seen(g, B, mimic).Attack));
+        Assert.Equal("test.mimic", g.State.Beliefs.Card(B, g.State.Player(A).Discard.Single()).Definition);
+    }
+
+    [Fact]
     public void Destroy_target_Structure_on_a_false_Wall_fizzles_and_the_face_collapses()
     {
         // S9 (D159): legal to target by B's belief, the true state decides.

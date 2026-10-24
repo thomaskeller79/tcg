@@ -315,6 +315,19 @@ public static class Resolution
                 }
                 state.Note($"Champion {you} gains control of {names}.", objects.Select(o => o.Id).ToArray());
                 return $"Champion {you} gains control of {names}";
+            case "look at":
+                // The note names no card: it would tell the opponent what was seen.
+                if (trace.You is not { } looker)
+                    return "look at: fizzled (no Champion)";
+                foreach (var o in objects)
+                    Copies.Learn(state, looker, o);
+                return $"Champion {looker} looks at {ins.Target}";
+            case "reveal":
+                foreach (var who in Copies.Champions(state))
+                    foreach (var o in objects)
+                        Copies.Learn(state, who, o);
+                state.Note($"{names} revealed.", objects.Select(o => o.Id).ToArray());
+                return $"revealed {names}";
             case "create":
                 return Create(state, trace, ins, permanents[0]);
             case "raise":
@@ -397,10 +410,10 @@ public static class Resolution
         CardObject c => ins.Verb switch
         {
             "discard" => c.Section == CardSection.Hand,
-            "move" or "copy" or "destroy" => true,
+            "move" or "copy" or "destroy" or "look at" or "reveal" => true,
             _ => false,
         },
-        TraceObject => ins.Verb is "copy" or "destroy",
+        TraceObject => ins.Verb is "copy" or "destroy" or "look at" or "reveal",
         Permanent p => ins.Verb switch
         {
             "damage" or "heal" or "fell" => p.Kind.IsActor(),
@@ -414,6 +427,7 @@ public static class Resolution
             "raise" => p.Kind == PermanentKind.Remnant,
             "destroy" => p.Kind is not (PermanentKind.Champion or PermanentKind.Terrain),
             "mill" => p.Kind == PermanentKind.Champion,
+            "look at" or "reveal" => true,
             "attach" => p.Kind == PermanentKind.Item,
             "detach" => p.Kind == PermanentKind.Item && p.Carrier is not null,
             // Units only: an Item follows its carrier, a Structure its terrain's bonder (ancestry.md).

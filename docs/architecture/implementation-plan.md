@@ -87,6 +87,8 @@ Made where the rules leave a gap. Each is the simplest reading that keeps a matc
 - **G35 — What a copy predicts in combat.** A lone recipient's damage is predicted from the copy's belief of the attacker's Power, return damage from its beliefs of the defenders'; a split is the attacker's choice, so its shares are taken as seen.
 - **G36 — The log and deception.** A log line names the true card and effect, so it is left out for a Champion who reads a face or a Pretend of an object it mentions.
 - **G37 — Contradictions found outside a damage.** Using an ability a face lacks, paying more AP than a copy believes, a face entering a Slice it couldn't, a target kind only a face had (D159), and a creature a copy believes at 0 Life or less that still lives.
+- **G38 — Look at and reveal.** A permanent's values become true together with what made them false (the traces and cards, as in the large reveal), so a pretended Duration running out can't make them false again; its location becomes true too and stays until seen missing. Look at needs a Champion behind the trace, and its note names no card.
+- **G39 — Neutral and beliefs (until Track A item 61).** A Neutral trace has no Champion, so its checks (D159 visibility, its targets) read the true state, and `Sight.KnowsWhere` is true for Neutral.
 
 ## 4. Questions for the user
 

@@ -82,6 +82,8 @@ long as its trace (D144): `"duration": 1` ends it at the end of this player turn
 | `attach`, `detach` | Target Item is carried by the `to` creature, wherever they are; or drops on its carrier's terrain. |
 | `gain control` | Target Creature or Companion: your Champion becomes its parent. |
 | `unbond` | Target terrain loses its bond record; everything behind it is cut (D122). |
+| `look at` | Your beliefs about the target become true: a card's content and position, a trace's text, a permanent's values and its location (D141, D159). |
+| `reveal` | Every Champion's beliefs about the target become true, as for `look at`. |
 | `darken` | `section` (a Slice: `"Ground"`, `"Sky"`, `"Root"`) of target terrain becomes dark while the trace exists: a permanent there is observed only by its controller and by whoever controls a permanent in that Slice of that terrain (D152). |
 
 ## Pretend (D150)

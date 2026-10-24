@@ -240,6 +240,8 @@ public static class TestCards
         Spell("test.mill", Speed.Slow, [new TargetSpec("T1", TargetKind.Creature)], new Instruction("mill", "T1", 2)),
         Spell("test.shuffle", Speed.Slow, [], new Instruction("shuffle", Section: "Library")),
         Spell("test.stash", Speed.Slow, [new TargetSpec("T1", TargetKind.Card, ControlFilter.You, Section: "Hand")], new Instruction("move", "T1", Section: "Library")),
+        Spell("test.peek", Speed.Slow, [new TargetSpec("T1", TargetKind.Card, Section: "Hand")], new Instruction("look at", "T1")),
+        Spell("test.expose", Speed.Slow, [new TargetSpec("T1", TargetKind.Creature)], new Instruction("reveal", "T1")),
         Spell("test.darkness", Speed.Reactive, [new TargetSpec("T1", TargetKind.Terrain)], new Instruction("darken", "T1", Section: "Ground")),
         Spell("test.recover", Speed.Slow, [new TargetSpec("T1", TargetKind.Card, ControlFilter.You, Section: "Discard")], new Instruction("move", "T1", Section: "Hand")),
         Spell("test.counter", Speed.Reactive, [new TargetSpec("T1", TargetKind.Trace, Section: "Pending")], new Instruction("destroy", "T1")),

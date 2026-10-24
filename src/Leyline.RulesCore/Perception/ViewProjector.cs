@@ -282,6 +282,8 @@ public static class ViewProjector
             "put" => i.Section == "Hand" ? $"Return {T(i.Target)} to its controller's hand." : $"Flicker {T(i.Target)}.",
             "move" => $"Move {T(i.Target)} to {(i.To is null ? i.Section : T(i.To))}.",
             "discard" => $"Discard {T(i.Target)}.",
+            "look at" => $"Look at {T(i.Target)}.",
+            "reveal" => $"Reveal {T(i.Target)}.",
             "mill" => $"{(i.Target is null ? "Mill" : $"{T(i.Target)} mills")} {i.Amount}.",
             "shuffle" => $"Shuffle your {i.Section}.",
             "copy" => i.To is null ? $"Copy {T(i.Target)}." : $"Copy {T(i.Target)} onto {T(i.To)}.",

@@ -260,26 +260,61 @@ public static class Copies
             Reveal(state, who, t);
         foreach (var id in reads)
         {
-            if (state.Find<Permanent>(id) is not { } p)
-                continue;
-            var v = state.Beliefs.Values(who, id);
-            var wasFalse = v.Face is not null || v.LifeOffset != 0 || v.ApOffset != 0 || v.Causes.Count > 0
-                           || state.Modifiers.Any(m => m.Subject == id && m.In(who) != m.InTrue);
-            if (!wasFalse)
-                continue;
-            foreach (var cause in v.Causes.ToList())
-                Reveal(state, who, cause);
-            foreach (var m in state.Modifiers.Where(m => m.Subject == id && m.In(who) != m.InTrue).ToList())
-            {
-                Reveal(state, who, m.Vessel);
-                if (state.Modifiers.Contains(m))
-                    SetIn(state, m, who, m.InTrue);
-            }
-            v.Causes.Clear();
-            v.Face = null;
-            v.LifeOffset = 0;
-            v.ApOffset = 0;
-            state.Note($"Contradiction: Champion {who} learns the truth about {state.NameOf(id)}.", id);
+            if (state.Find<Permanent>(id) is { } p && MakeValuesTrue(state, who, p))
+                state.Note($"Contradiction: Champion {who} learns the truth about {state.NameOf(id)}.", id);
+        }
+    }
+
+    /// <summary>A permanent's values become true for the Champion, with what caused a false one;
+    /// false if they already were.</summary>
+    private static bool MakeValuesTrue(TrueState state, PlayerId who, Permanent p)
+    {
+        var v = state.Beliefs.Values(who, p.Id);
+        var wasFalse = v.Face is not null || v.LifeOffset != 0 || v.ApOffset != 0 || v.Causes.Count > 0
+                       || state.Modifiers.Any(m => m.Subject == p.Id && m.In(who) != m.InTrue);
+        if (!wasFalse)
+            return false;
+        foreach (var cause in v.Causes.ToList())
+            Reveal(state, who, cause);
+        foreach (var m in state.Modifiers.Where(m => m.Subject == p.Id && m.In(who) != m.InTrue).ToList())
+        {
+            Reveal(state, who, m.Vessel);
+            if (state.Modifiers.Contains(m))
+                SetIn(state, m, who, m.InTrue);
+        }
+        v.Causes.Clear();
+        v.Face = null;
+        v.LifeOffset = 0;
+        v.ApOffset = 0;
+        return true;
+    }
+
+    // ----------------------------------------------------------------------------- look at and reveal
+
+    /// <summary>D141 look at and reveal: the Champion's beliefs about the object become true — a
+    /// card's content and position, a trace's text, a permanent's values (with their causes, as in
+    /// the large reveal, so a pretended Duration can't make them false again) and its location
+    /// (D159). Unlike a contradiction, this fills in an unknown.</summary>
+    public static void Learn(TrueState state, PlayerId who, GameObject o)
+    {
+        switch (o)
+        {
+            case CardObject c:
+                var card = state.Beliefs.Card(who, c.Id);
+                card.Definition = c.Definition;
+                card.PositionKnown = true;
+                break;
+            case TraceObject t:
+                Reveal(state, who, t.Id);
+                break;
+            case Permanent p:
+                MakeValuesTrue(state, who, p);
+                if (p.Carrier is null)
+                {
+                    var location = state.Beliefs.Location(who, p.Id);
+                    (location.Hex, location.Slice) = (p.Hex, p.Slice);
+                }
+                break;
         }
     }
 

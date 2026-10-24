@@ -99,6 +99,31 @@ public class BeliefTests
     }
 
     [Fact]
+    public void Look_at_shows_a_card_in_the_opponents_Hand_to_the_looker_only()
+    {
+        var g = Load("handcard A test.peek\nhandcard B test.grunt");
+        g.Ok(g.Cast(A, "test.peek", Obj(g.HandCard(B, "test.grunt"))));
+        Assert.Null(Assert.Single(Mind(g, A, B).Hand).Card);
+        g.ResolveAll();
+        Assert.Equal(["test.grunt"], Mind(g, A, B).Hand.Select(c => c.Card));
+        Assert.DoesNotContain(ViewProjector.Project(g.State, B).Past.Single().Notes, n => n.Contains("Grunt"));
+    }
+
+    [Fact]
+    public void Reveal_shows_everyone_where_a_creature_in_darkness_is()
+    {
+        // D159: a reveal of a permanent includes its location; it stays until seen missing.
+        var g = Load("place A test.grunt 0,1\nhandcard A test.darkness test.expose");
+        var grunt = g.P("test.grunt");
+        g.Ok(g.Cast(A, "test.darkness", Obj(g.Terrain(0, 1))));
+        g.ResolveAll();
+        Assert.Null(g.State.BelievedLocation(B, grunt));
+        g.Ok(g.Cast(A, "test.expose", Obj(grunt)));
+        g.ResolveAll();
+        Assert.Equal((H(0, 1), Slice.Ground), g.State.BelievedLocation(B, grunt));
+    }
+
+    [Fact]
     public void A_Root_presence_next_to_it_observes_a_hidden_creature()
     {
         var g = Load("place A test.mole 0,0 slice=Root\nplace B test.mole 1,0 slice=Root");
