@@ -2,7 +2,7 @@
 
 *Champions do not share one view of the board. What each Champion perceives is itself a manipulable, card-driven property.*
 
-**Decisions:** D7, D12, D18, D41, D42, D67, D71, D102, D118, D131, D139, D140, D146, D148, D149, D150, D151, D152, D153, D154, D155, D161 (`history/decisions.md`)
+**Decisions:** D7, D12, D18, D41, D42, D67, D71, D102, D118, D131, D139, D140, D146, D148, D149, D150, D151, D152, D153, D154, D155, D161, D162 (`history/decisions.md`)
 
 ---
 
@@ -14,35 +14,39 @@ A digital TCG can do something a physical one fundamentally cannot: **give the t
 - **Bluffs, decoys, hidden deployment, fog** — all as first-class mechanics.
 
 ## The core model (D148, D149)
-> **Every property of every game object exists three times: its true value, Champion A's belief and Champion B's belief.** A belief is a value or `?` (unknown). Whether a belief is true or false is derived — it equals the true value or not — never stored. The game record (turn, phase, active player, priority) has a true value only.
+> **Every property of every game object exists five times: its true value and one belief per observer — Champion A, Champion B, Neutral A and Neutral B.** A belief is a value or `?` (unknown). Whether a belief is true or false is derived — it equals the true value or not — never stored. The game record (turn, phase, active player, priority) has a true value only.
 
 ```
-                 ┌──────────────────────────────┐
-                 │ each property:               │
-                 │   true value   (authoritative)│
-                 │   A's belief   (value or ?)   │
-                 │   B's belief   (value or ?)   │
-                 └──────────────────────────────┘
+                 ┌─────────────────────────────────────┐
+                 │ each property:                      │
+                 │   true value         (authoritative)│
+                 │   A's belief          (value or ?)  │
+                 │   B's belief          (value or ?)  │
+                 │   Neutral A's belief  (value or ?)  │
+                 │   Neutral B's belief  (value or ?)  │
+                 └─────────────────────────────────────┘
 ```
 
-**The state** is the game objects with their properties — relations included, as properties pointing at other objects — plus the game record. A Champion's **view**, what the GUI shows it, is its beliefs. True value and both beliefs are independently tracked and can **all three differ at once**; a belief is not a redacted copy of the truth.
+**The state** is the game objects with their properties — relations included, as properties pointing at other objects — plus the game record. A Champion's **view**, what the GUI shows it, is its beliefs. The true value and the beliefs are independently tracked and can **all differ at once**; a belief is not a redacted copy of the truth.
+
+**Observers (D162).** Each Champion and each neutral seat is an observer. **An observer's permanents** are, for a Champion, the permanents it controls, and for a neutral seat, the Neutral permanents assigned to it (`neutral-permanents.md`). A neutral seat's copy follows the same rules as a Champion's; a Neutral permanent reads it for its Behavior and its visibility checks. No player and no GUI sees a neutral seat's copy — a player learns what a seat knows only by watching its permanents act. In this document, a rule about a Champion's belief applies to every observer, unless it concerns the Mind (Hand, Library, Discard), which only Champions have.
 
 **Worked example:** a creature with 2 Power. Champion A casts `Target creature gets −1 Power. Pretend: no effect.` Champion B then casts `Target creature gets +2 Power. Pretend: no effect.` True value: 2 − 1 + 2 = **3**. A believes **1**, B believes **4**. Three different values, live at once.
 
-**The basic instruction sets every copy (D149).** Every change is **apply(object, f_true, f_A, f_B)**, one function per copy — "keep" and "set to `?`" included. "Target creature gets +1 Power" is (+1, +1, +1). In the prototype the object is resolved on the true state and used in every copy; a selection evaluated per copy ("the creature with the highest Power", as each player believes it) is outside the prototype scope. Beliefs then change in exactly three ways: by an instruction's own update (§Beliefs), by observation (§Observation) and by contradiction (§When a belief breaks).
+**The basic instruction sets every copy (D149).** Every change is **apply(object, f_true, f_A, f_B, f_NA, f_NB)**, one function per copy — "keep" and "set to `?`" included. "Target creature gets +1 Power" is (+1, +1, +1, +1, +1). In the prototype the object is resolved on the true state and used in every copy; a selection evaluated per copy ("the creature with the highest Power", as each player believes it) is outside the prototype scope. Beliefs then change in exactly three ways: by an instruction's own update (§Beliefs), by observation (§Observation) and by contradiction (§When a belief breaks).
 
 ## Observation: abilities of the terrain (D152)
 There is no global observation rule. **Every terrain carries one observation ability per Slice**, a static ability checked after every instruction: where a Champion observes a permanent's location, its belief about that location becomes the true value.
 
-- **Ground:** every Champion observes the location of every permanent on this terrain's Ground.
-- **Sky:** every Champion observes the location of every permanent in this terrain's Sky.
-- **Root:** a Champion observes the location of a permanent in this terrain's Root if it controls that permanent, or controls a permanent in the Root of this terrain or of a neighbouring terrain (D67).
+- **Ground:** every observer observes the location of every permanent on this terrain's Ground.
+- **Sky:** every observer observes the location of every permanent in this terrain's Sky.
+- **Root:** an observer observes the location of a permanent in this terrain's Root if it is one of the observer's permanents, or the observer has a permanent in the Root of this terrain or of a neighbouring terrain (D67).
 
 **Observation corrects silently:** it sets a location belief to the true value (or `?`) and never triggers a contradiction or its large reveal — revealing the read values would show where a hidden creature went just because someone looked at an empty hex (D153).
 
 **Sight lost forgets.** A Champion's belief about a permanent's location becomes `?` when it observed the permanent before an instruction and doesn't after it. Whether a Champion observes is computed from the true state, whatever its belief holds. A belief about a location nobody can see — including a false one set by Pretend — therefore stays until sight is gained or a contradiction breaks it. Other properties keep their beliefs when sight is lost.
 
-**Changing observation.** An effect replaces a terrain's observation ability, found by its subtype (D129), with its own text for its duration. Effects changing the same ability apply in the order they were created; the later one counts. Example — **Darkness:** "Target terrain's Ground becomes dark, Duration 2": while it lasts, a Champion observes a permanent on that Ground only if it controls it or controls a permanent on the Ground of the same terrain. A creature that walks into a one-hex darkness becomes `?` to the opponent, though the opponent could know where it is; the player remembers that, the view doesn't.
+**Changing observation.** An effect replaces a terrain's observation ability, found by its subtype (D129), with its own text for its duration. Effects changing the same ability apply in the order they were created; the later one counts. Example — **Darkness:** "Target terrain's Ground becomes dark, Duration 2": while it lasts, an observer observes a permanent on that Ground only if it is one of the observer's permanents or the observer has a permanent on the Ground of the same terrain. A creature that walks into a one-hex darkness becomes `?` to the opponent, though the opponent could know where it is; the player remembers that, the view doesn't.
 
 **Moves.** A move keeps the opponent's belief by default; observation does the rest. A move's trace names the creature to everyone (D153); its destination follows §Traces.
 
@@ -93,15 +97,16 @@ Each instruction sets every copy itself. The defaults, which card text may overr
 - **Cast** creates its trace with every copy true (the opponent sees what is cast), unless the card's Pretend says otherwise.
 - **Creating an object from a predecessor** — cast, resolve, Bounce, Remand, Flicker, put, copy — **copies each belief once** from the predecessor: a computed value takes its input's belief (current Health from max), a value with no predecessor (a target, current AP at its entry value, D160) is true, except that a trace shows its targets by observation (§Traces). The cast card in Discard is therefore exactly as known as its trace; after the creation the two are independent.
 - **An ordinary change** (+1 Power, damage, a refresh) applies the same function in every copy, so a visible creature's numbers stay true. Every instruction names the permanents it affects to every Champion, never their location (§Objects in a belief).
-- **Your own permanents:** a change to a permanent a Champion controls is true in its copy, unless a Pretend says otherwise (D155) — so a damaged creature's controller sees the true amount, whatever it believes about the source.
+- **Your own permanents:** a change to one of an observer's permanents is true in its copy, unless a Pretend says otherwise (D155) — so a damaged creature's controller sees the true amount, whatever it believes about the source.
+- **Gaining a permanent (D162):** when a permanent becomes one of an observer's permanents — by a control change or a seat change — every belief about that permanent in the new observer's copy becomes true. Nothing else moves with it: what the old holder knew stays in its copy.
 - **The death check** runs on the true state and applies the fall to every copy: a death names the creature that fell, not where.
 - **Durations run per copy:** a trace's Duration may differ between copies, so an effect can end in one copy and not in another.
 - **A move** keeps the opponent's location belief (§Observation).
-- **The mana pool (D156).** The opponent's belief of a pool is one count; the controller's copy holds the counts per kind. A credit raises the count by the terrain's production and flips its drawn flag in every copy; add mana raises it by the believed amount; a cost lowers it by the believed pips; the owner's Beginning phase sets it to 0. Pretended costs and gains reach the opponent's copy, true ones don't; color is never checked.
+- **The mana pool (D156).** Every other observer's belief of a pool is one count; the holder's copy holds the counts per kind. A credit raises the count by the terrain's production and flips its drawn flag in every copy; add mana raises it by the believed amount; a cost lowers it by the believed pips; the owner's Beginning phase sets it to 0. Pretended costs and gains reach the other observers' copies, true ones don't; color is never checked.
 
 A belief is never disjunctive ("either this one or that one"): every update lands on one object per copy.
 
-**Objects in a belief (D153).** **Every instruction identifies the permanents it affects to every Champion** — which instance, never where. A hidden creature's +1 Power tells the opponent "#12 gets +1 Power"; its belief of #12 updates and the location stays hidden. A permanent's controller is therefore always known. Pretend may name a different object ("Pretend: another target creature gets +1 Power", a second target chosen at cast); a card that wants a truly secret target uses Pretend: no effect. **Observing a permanent identifies its instance,** not only its name; two identical creatures are never confused by default. A belief may hold an object that no longer exists or never existed (a Pretend decoy), and may lack one it has never observed nor seen affected. **Seeing a permanent missing** — observing a location where you believe a permanent is, and it isn't there — makes its location belief `?`, whether it moved, died or never existed.
+**Objects in a belief (D153).** **Every instruction identifies the permanents it affects to every observer** — which instance, never where. A hidden creature's +1 Power tells the opponent "#12 gets +1 Power"; its belief of #12 updates and the location stays hidden. A permanent's controller is therefore always known. Pretend may name a different object ("Pretend: another target creature gets +1 Power", a second target chosen at cast); a card that wants a truly secret target uses Pretend: no effect. **Observing a permanent identifies its instance,** not only its name; two identical creatures are never confused by default. A belief may hold an object that no longer exists or never existed (a Pretend decoy), and may lack one it has never observed nor seen affected. **Seeing a permanent missing** — observing a location where you believe a permanent is, and it isn't there — makes its location belief `?`, whether it moved, died or never existed.
 
 **Cards you lose track of (D154).** A card belief always knows the card's section, so the counts of Library, Hand and Discard follow from the objects in each belief; its position may be `?`. When an instruction moves a card a Champion can't identify — a draw from a Library whose order it doesn't know — every card in that section whose position the Champion doesn't know becomes **anonymous** for it: every belief about it except its section is forgotten. Example: A shuffles a known Bolt into its Library — section Library, position `?` for both. A draws and sees the card, so A's beliefs stay certain; B sees only a card leaving the Library, so every card B knew there with an unknown position, the Bolt included, becomes anonymous. A card whose position B knows (put on top) stays identified.
 
@@ -119,10 +124,10 @@ Example: B believes X has Power 3, truly 2, because of a Pretend. X hits B's cre
 
 The small reveal (read values only) and the explicit reveal (every instruction reveals what it reads, no comparison) are kept as alternatives (`history/playtest-variants.md`).
 
-**Costs.** A cost that changes something an observer sees (felling a visible creature, an unbond, Life paid as damage, D147) shows that change. A payment that takes the opponent's count of a pool below 0 contradicts it, with the large reveal (D157). The reset at the owner's Beginning phase makes the count true in every copy, so an untested mana bluff is never revealed afterwards.
+**Costs.** A cost that changes something an observer sees (felling a visible creature, an unbond, Life paid as damage, D147) shows that change. A payment that takes another observer's count of a pool below 0 contradicts it, with the large reveal (D157). The reset at the owner's Beginning phase makes the count true in every copy, so an untested mana bluff is never revealed afterwards.
 
 ## Representing deception: Pretend, Mimic, ChooseOne (D18, D150)
-**Pretend is the one deception mechanism.** A card states its true effect and, after *Pretend*, what the opponent sees; the opponent believes it. The true copy and the controller's copy apply the true effect, the opponent's copy the pretend:
+**Pretend is the one deception mechanism.** A card states its true effect and, after *Pretend*, what everyone else sees; they believe it. The true copy and the caster's copy apply the true effect; every other copy — the opponent's and both neutral seats' (D162) — applies the pretend:
 
 ```
 Mirage Might    Target creature gets +0 Power.  Pretend: target creature gets +1 Power.
@@ -134,7 +139,7 @@ Mirage 3        Target creature gets +1 Power.  Pretend: target creature gets +1
 **Every copy applies the effect as it believes the trace reads.** So deceiving a player about an ability's text carries into everything the ability does, with no extra rule.
 **Pretend on a creation (prototype, D155).** Creating a permanent is never hidden: a Pretend may only show a different permanent — a Mimic face, or "create 2 Fire Warriors. *Pretend:* create 2 Water Elementals". Every permanent is therefore in every belief, with values. An ability may carry its own Pretend, for deception beyond what the beliefs about its permanent already give.
 
-**`ChooseOne[…]`** — a modal effect; the caster picks **privately**, and the choice reaches the true copy and the caster's copy. **Mimic** is Pretend on the cast: "5/5 Dragon. *Pretend:* 1/1 Goblin" — the opponent's copy of the trace reads Goblin, and the permanent and the card in Discard copy that belief (D140). Observation shows only location and instance, so the face holds until a contradiction (a hit too strong for a Goblin) reveals the card and with it the whole face, or until its own stated collapse (D131). The face must be plausible: a Flying Dragon entering the Sky as a Goblin contradicts at once.
+**`ChooseOne[…]`** — a modal effect; the caster picks **privately**, and the choice reaches the true copy and the caster's copy. **Mimic** is Pretend on the cast: "5/5 Dragon. *Pretend:* 1/1 Goblin" — every copy but the true one and the caster's reads Goblin, and the permanent and the card in Discard copy that belief (D140). Observation shows only location and instance, so the face holds until a contradiction (a hit too strong for a Goblin) reveals the card and with it the whole face, or until its own stated collapse (D131). The face must be plausible: a Flying Dragon entering the Sky as a Goblin contradicts at once.
 
 **Worked card:**
 ```

@@ -2,7 +2,7 @@
 
 *A third control state — **Neutral** — alongside Champion A/Champion B, giving every permanent type a defined answer for "what happens when nobody controls this." Every object's **decider** is its controller if it has one; otherwise its **Behavior** — a deterministic policy standing in for a player's own decisions, carried as a property of the object — if it has one; otherwise nobody, and the object is **dormant** (D83).*
 
-**Decisions:** D54–D58, D60–D65, D82, D83, D93, D100, D160 (`history/decisions.md`)
+**Decisions:** D54–D58, D60–D65, D82, D83, D93, D100, D160, D162 (`history/decisions.md`)
 
 ---
 
@@ -86,9 +86,9 @@ There is no "notice a change" step, because nothing about a permanent's own abil
 
 ### Target selection and reconsideration
 
-Target derivation reuses the standard legal-target query (existence, type, any stated condition, visibility/concealment, D19), with visibility measured in the permanent's own live view (D85) — the same check any attack or ability already uses. A mode's target is re-validated by this same query at every decision point; if it's no longer legal, the mode's trigger condition (which depends on a live target existing) simply stops holding, and the next decision point re-derives from scratch. This alone produces correct deception for free: if a target's true stats are disguised (Mimic), the policy acts on the claimed value like anyone else would, discovering the truth only when an actual interaction tests the claim (D18) — the same belief-consistency model that already governs Champions.
+Target derivation reuses the standard legal-target query (existence, type, any stated condition, visibility/concealment, D19), with visibility measured in its neutral seat's belief copy (D85, D162; `asymmetric-information.md` §Observers) — the same check any attack or ability already uses. The seat's copy is also where the policy reads every value, and where a trace from a Neutral source checks visibility at resolution. A mode's target is re-validated by this same query at every decision point; if it's no longer legal, the mode's trigger condition (which depends on a live target existing) simply stops holding, and the next decision point re-derives from scratch. This alone produces correct deception for free: if a target's true stats are disguised (Mimic), the policy acts on the claimed value like anyone else would, discovering the truth only when an actual interaction tests the claim (D18) — the same belief-consistency model that already governs Champions.
 
-No generalized "perception" or "belief state" system exists. A range restriction is a plain distance check stated directly in a mode's trigger or target derivation. Anything a keyword genuinely needs to remember beyond what's live-derivable (a Patrol's progress along its route, a Flee's remembered destination) is explicit, named, stored data scoped to that keyword — never a generic mirror of the full observer-view system.
+Beyond the seat's belief copy, a Behavior has no perception of its own. A range restriction is a plain distance check stated directly in a mode's trigger or target derivation. Anything a keyword genuinely needs to remember beyond what's live-derivable (a Patrol's progress along its route, a Flee's remembered destination) is explicit, named, stored data scoped to that keyword — never a generic mirror of the full observer-view system.
 
 ### Candidates are whole-turn sequences, scored, and executed one step at a time
 

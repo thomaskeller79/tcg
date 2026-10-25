@@ -407,3 +407,30 @@ Every value the instruction read becomes true, `?` included. A ranged creature i
 Power bluff is caught then also shows its location, because the range check read it — the bluff
 on one property exposes another that terrain hid honestly. Adopted instead: a contradiction
 corrects false beliefs only (D151). Try this variant if caught bluffs feel too toothless.
+
+## Neutral beliefs (D162)
+
+**Current rule:** each neutral seat (Neutral A, Neutral B) holds its own belief copy, updated by
+the same rules as a Champion's; a Neutral permanent reads its seat's copy. A Pretend reaches both
+seats. Nobody sees a seat's copy.
+
+### Variant — a seat reads its Champion's belief · NOT ADOPTED (playtest)
+Neutral A's permanents read Champion A's copy, Neutral B's read B's; no extra copies. A predicts
+its seat's monsters exactly, B learns about A's belief by watching them, and B's Pretends fool A's
+monsters along with A. The seat a monster is put on becomes a strong choice. Needs a monster to
+read its own values as true, since A doesn't observe a Neutral-A monster in the Root. Rejected:
+it makes Neutral permanents half-allies of a Champion, not independent (D82).
+
+### Variant — a seat reads and contributes to its Champion's belief · NOT ADOPTED (playtest)
+As above, and Champion A also observes through its seat's permanents (Root observation counts
+them), so Neutral A's monsters are scouts for A. Rejected for the same reason, more strongly.
+
+### Variant — Neutral reads the true values · NOT ADOPTED (playtest)
+No copy: a Neutral permanent observes through the terrain abilities, computed on the true state,
+and reads every value as true. Monsters can't be bluffed. Each monster then reveals the truth to
+both players by how it acts (a "flee from Power ≥5" monster that ignores a Mimic dragon). The
+baseline to compare D162 against.
+
+### Rejected — a copy per Neutral permanent
+Every Neutral permanent holds its own copy: the cleanest independence, but an Element that creates
+many Neutral permanents makes the number of copies infeasible.

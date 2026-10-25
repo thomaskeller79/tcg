@@ -6,6 +6,34 @@
 
 ---
 
+### D162 — Each neutral seat holds its own belief copy
+
+`PLAN.md` Track A item 61. The three-copy model (D149) has one belief per Champion; a Neutral permanent has no controller, so which copy its Behavior reads, what it observes, and whose observation decides a Neutral trace's visibility check (D85) were unstated. Initial decision, to be confirmed by playtesting.
+
+**Adopted (user):**
+- **Five copies.** Every property has its true value and one belief per **observer**: Champion A, Champion B, **Neutral A** and **Neutral B**. A neutral seat's copy is updated by the same rules as a Champion's.
+- **An observer's permanents:** for a Champion, the permanents it controls; for a neutral seat, the Neutral permanents assigned to it. Every rule that said "controls" or "the opponent" now says this. Observation, "true in your own copy", naming affected permanents (D153), traces showing targets, sight lost, contradiction and the mana-pool counts all run per observer.
+- **A Neutral permanent reads its seat's copy:** its Behavior's targets and values, and the visibility check at resolution of a trace from a Neutral source.
+- **A Pretend reaches everyone else:** every copy except the true one and the caster's, both neutral seats included. No audience in the prototype.
+- **Neither players nor the GUI see a neutral seat's copy.**
+- **Belief does not move with a permanent.** A control change or a seat change transfers no knowledge; what the old holder knew stays in its copy.
+- **Gaining a permanent makes its values true in the new observer's copy** — that permanent only. This is the default "your own permanents are true in your copy" applied at the moment of the gain, and it is what gives a monster true knowledge of itself.
+
+**Why (user's reasoning):**
+- **Neutral permanents were designed to be independent** (D82): not extensions of a Champion's army, but creatures following their own will. A seat with its own knowledge is that; reading a Champion's belief makes them half-allies.
+- **Watching a monster is a source of information.** A Behavior is deterministic, so a player who watches a monster act deduces what its seat knows and the player doesn't. A pro, not a cost.
+- **Two copies are affordable**, unlike one per permanent.
+- **The rules cost is small:** one definition (observer and its permanents) rewords every rule, and the Pretend audience is the only real choice.
+
+**Considered and rejected:**
+- **A copy per Neutral permanent** (user): the cleanest independence, but an Element that creates many Neutral permanents would make the number of copies infeasible.
+- **A neutral seat reads its Champion's belief, read-only or also contributing to it** (user's option 3) and **Neutral reads the true values** (Claude's first suggestion): kept as variants, `history/playtest-variants.md` §Neutral beliefs.
+- **A Pretend names its audience** (Claude, as the alternative to the default): card-level complexity no card needs yet.
+
+**Accepted cost:** no player can fully predict a monster, since neither sees the copy it reads.
+
+→ `asymmetric-information.md` (§Core model, §Observation, §Beliefs, §Pretend), `neutral-permanents.md` (§Target selection), `interaction-stack.md` (visibility check), `effect-form.md`, `glossary.md` (View, Belief, Pretend, Observer), `history/playtest-variants.md`, `architecture/implementation-plan.md` (G39), `PLAN.md` Track B item 70. Engine: not built.
+
 ### D161 — Discard and mill keep content beliefs; Discard is not public by default
 
 `PLAN.md` Track A item 58. In the belief model (D149) a cast card in Discard is believed as its trace, but no rule said what a milled or discarded card shows.
