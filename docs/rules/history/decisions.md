@@ -6,6 +6,29 @@
 
 ---
 
+### D163 — One history track per copy; any history may be read
+
+`PLAN.md` Track A item 36. D98 left open whose view a history query reads, which facts the track records, and whether a longer memory is ever a card property; its window was one round, as a hard rule.
+
+**Adopted (user):**
+- **Every copy keeps its own history track** — the true one, both Champions' and both neutral seats' (D162). An instruction appends its output in each copy as that copy applied it. A hidden creature's move is in the opponent's track as the opponent saw it: the creature named, its destination `?`.
+- **A history query is a value read in a copy,** like "damage equal to its Power": each copy evaluates it from its own track, and the comparison at resolution reveals a false belief when an outcome shows it (D151). No rule of its own.
+- **Any history may be read — the whole game is the goal.** Replaces D98's one-round window. Card text may ask about anything that happened since the game began.
+- **Prototype: the current round.** Reading further back is outside the prototype scope (D104).
+- **What counts as an event:** everything recorded is an instruction output. A pass of priority is not an event; a fully prevented attack is ("if a creature attacked this turn" holds). Which outputs each basic instruction has is settled with `PLAN.md` Track A item 56.
+- **How the track is stored** (snapshots, diffs, instruction sequences) is an implementation question.
+
+**Why (user's reasoning):**
+- **Each copy appears consistent with its player's belief.** Reading history per copy is what the belief model already does with every other value; a query on the true state would leak hidden information.
+- **From a design perspective every history query should be possible.** A window is a storage limit, not a rule a player should feel; the prototype accepts it only as scope.
+
+**Considered and rejected:**
+- **D98's one-round window as a hard rule**, with longer memory written onto an object as a property ("whenever a creature dies, put a counter on this") (Claude): limits design for a storage reason.
+
+**Checked, already decided:** a conditional instruction still has its targets bound at cast (D83) and its condition checked just before it runs (D95, D135), so a false belief only changes the predicted outcome, never whether a target is needed. Example: "If that creature's Power is 5 or more, target Champion discards a card" needs its target at cast whatever anyone believes.
+
+→ `glossary.md` (History track), `object-properties.md` (§Short-term history), `PLAN.md` Track A item 56, Track B item 9, Track D item 71. Engine: not built.
+
 ### D162 — Each neutral seat holds its own belief copy
 
 `PLAN.md` Track A item 61. The three-copy model (D149) has one belief per Champion; a Neutral permanent has no controller, so which copy its Behavior reads, what it observes, and whose observation decides a Neutral trace's visibility check (D85) were unstated. Initial decision, to be confirmed by playtesting.

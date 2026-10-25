@@ -2,7 +2,7 @@
 
 *What a game object is made of — Card, Trace, and Permanent as one connected chain — and how properties move (or don't) when one creates another, including backward: Bounce and Flicker.*
 
-**Decisions:** D69, D70, D72, D73, D74, D75, D83, D88, D93, D97, D98, D99, D100, D101, D103, D105, D106, D107, D108, D109, D129, D130, D133, D135, D141, D142, D143, D144, D145, D148, D149, D160 (`history/decisions.md`)
+**Decisions:** D69, D70, D72, D73, D74, D75, D83, D88, D93, D97, D98, D99, D100, D101, D103, D105, D106, D107, D108, D109, D129, D130, D133, D135, D141, D142, D143, D144, D145, D148, D149, D160, D163 (`history/decisions.md`)
 
 ---
 
@@ -90,7 +90,7 @@ One list per object type, built from two shared groups (D103). Each property als
 - **Abilities** are kept as ordered lists per kind: static, triggered, activated.
 - **Copy restriction** is definition-only (D99): it is irrelevant once the game has started.
 - **Elements** are always derived (D100): the Elements in the mana an object produces and in its rules text.
-- **Short-term history** ("attacked this turn") is a query over the history track, not a property (D98; `glossary.md` **History track**).
+- **History** ("attacked this turn") is a query over the history track, not a property (D98, D163; `glossary.md` **History track**).
 
 **Card** (Mind), grouped like the permanents, minus what exists only on the Island (D108):
 - **Card** (all): name, subtypes, cost (fixed cost and amounts; costs on options and targets live in the rules text, D135), Speed, cast condition (D91; outside the prototype scope, D104), ID, timestamp, `source`, section (Hand, Library or Discard) and position in it (D138). Derived: parent (the Mind's Champion, D81), Elements.
