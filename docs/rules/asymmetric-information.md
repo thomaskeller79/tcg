@@ -2,7 +2,7 @@
 
 *Champions do not share one view of the board. What each Champion perceives is itself a manipulable, card-driven property.*
 
-**Decisions:** D7, D12, D18, D41, D42, D67, D71, D102, D118, D131, D139, D140, D146, D148, D149, D150, D151, D152, D153, D154, D155, D161, D162 (`history/decisions.md`)
+**Decisions:** D7, D12, D18, D41, D42, D67, D71, D102, D118, D131, D139, D140, D146, D148, D149, D150, D151, D152, D153, D154, D155, D161, D162, D163 (`history/decisions.md`)
 
 ---
 
@@ -115,7 +115,7 @@ A belief is never disjunctive ("either this one or that one"): every update land
 **Bonds,** and a trace's section and position, are true in every copy. For permanents found again, beliefs other than location are kept (§Observation).
 
 ## When a belief breaks (D146, D151)
-**Contradiction by comparison.** Every copy runs the instruction with its own values; for each observer, the outcomes it sees are compared with what its own copy predicted. If they match, its beliefs stand: a lie survives as long as it is consistent. If they differ, the **large reveal** applies: every value the instruction read becomes true for that observer, **and** so does everything that caused the false value — the traces and their cards (a modifier remembers its trace, D144) and the static abilities that contribute to it. The trace back runs on the true state. A keyword may state its own collapse instead (D131).
+**Contradiction by comparison.** Every copy runs the instruction with its own values; for each observer, the outcomes it sees are compared with what its own copy predicted. If they match, its beliefs stand: a lie survives as long as it is consistent. If they differ, the **large reveal** applies: every value the instruction read becomes true for that observer, **and** so does everything that caused the false value — the traces and their cards (a modifier remembers its trace, D144) and the static abilities that contribute to it. The trace back runs on the true state. The observer's history entries produced by those traces and cards become their true outputs too (D163). A keyword may state its own collapse instead (D131).
 
 Example: B believes X has Power 3, truly 2, because of a Pretend. X hits B's creature K (4 Health): B's copy predicted 3 damage, B sees 2 (damage is applied with the true amount in the controller's copy). The outcomes differ, so B's belief of X's Power becomes 2, and the Pretend card and its trace are revealed to B. Had the hit been lethal in both copies, nothing would differ and the lie would survive: what is compared is the state the observer sees afterwards — Health left, or fallen — not the damage number. A Mimic face collapses the same way — when an outcome contradicts it, not at a combat as such.
 **A contradiction never fills in an unknown:** the large reveal corrects false beliefs only; a belief that is `?` stays `?`. A ranged creature in darkness whose Power bluff is caught keeps its location hidden, though the range check read it; a decoy's location is false, not `?`, so it is corrected when the creature acts from its real place.

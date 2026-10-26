@@ -434,3 +434,14 @@ baseline to compare D162 against.
 ### Rejected — a copy per Neutral permanent
 Every Neutral permanent holds its own copy: the cleanest independence, but an Element that creates
 many Neutral permanents makes the number of copies infeasible.
+
+## History after a reveal (D163)
+
+**Current rule:** a large reveal rewrites the observer's history entries produced by the revealed
+traces and cards to their true outputs; `?` entries stay `?`.
+
+### Variant — history is a record of what was seen · NOT ADOPTED
+Entries are never rewritten. Simpler, and the comparison at resolution still catches a stale entry
+when an outcome shows it — but a later history condition then mispredicts in a copy whose observer
+already knows the truth (the same card cast twice in a row contradicts twice). Revisit together
+with `PLAN.md` Track A item 72, if contradictions stop revealing by default.

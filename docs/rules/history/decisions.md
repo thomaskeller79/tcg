@@ -16,18 +16,21 @@
 - **Any history may be read — the whole game is the goal.** Replaces D98's one-round window. Card text may ask about anything that happened since the game began.
 - **Prototype: the current round.** Reading further back is outside the prototype scope (D104).
 - **What counts as an event:** everything recorded is an instruction output. A pass of priority is not an event; a fully prevented attack is ("if a creature attacked this turn" holds). Which outputs each basic instruction has is settled with `PLAN.md` Track A item 56.
+- **A large reveal also corrects the history** (D151). Every history entry produced by a trace or card the reveal makes true is rewritten in that observer's copy to its true output. Example: A's "+0 Power. *Pretend:* +1 Power" left "X got +1 Power" in B's history; when the Pretend is revealed, the entry becomes "X got +0 Power" in B's copy. Entries that are `?` stay `?` (a contradiction never fills in an unknown, D151), and entries B saw truly are already true.
 - **How the track is stored** (snapshots, diffs, instruction sequences) is an implementation question.
 
 **Why (user's reasoning):**
 - **Each copy appears consistent with its player's belief.** Reading history per copy is what the belief model already does with every other value; a query on the true state would leak hidden information.
 - **From a design perspective every history query should be possible.** A window is a storage limit, not a rule a player should feel; the prototype accepts it only as scope.
+- **A revealed lie must not stay in the history.** Otherwise a later condition reads the false entry again: the same card cast twice in a row would mispredict in B's copy a second time, though B already knows the truth.
 
 **Considered and rejected:**
 - **D98's one-round window as a hard rule**, with longer memory written onto an object as a property ("whenever a creature dies, put a counter on this") (Claude): limits design for a storage reason.
+- **History as a record of what was seen, never rewritten** (Claude): simpler, and the comparison would catch a stale entry — but by contradicting what the observer already knows.
 
 **Checked, already decided:** a conditional instruction still has its targets bound at cast (D83) and its condition checked just before it runs (D95, D135), so a false belief only changes the predicted outcome, never whether a target is needed. Example: "If that creature's Power is 5 or more, target Champion discards a card" needs its target at cast whatever anyone believes.
 
-→ `glossary.md` (History track), `object-properties.md` (§Short-term history), `PLAN.md` Track A item 56, Track B item 9, Track D item 71. Engine: not built.
+→ `glossary.md` (History track), `object-properties.md` (§Short-term history), `asymmetric-information.md` (§When a belief breaks), `PLAN.md` Track A items 56 and 72, Track B item 9, Track D item 71. Engine: not built.
 
 ### D162 — Each neutral seat holds its own belief copy
 
