@@ -34,7 +34,7 @@
 `PLAN.md` Track A item 61. The three-copy model (D149) has one belief per Champion; a Neutral permanent has no controller, so which copy its Behavior reads, what it observes, and whose observation decides a Neutral trace's visibility check (D85) were unstated. Initial decision, to be confirmed by playtesting.
 
 **Adopted (user):**
-- **Five copies.** Every property has its true value and one belief per **observer**: Champion A, Champion B, **Neutral A** and **Neutral B**. A neutral seat's copy is updated by the same rules as a Champion's.
+- **Five copies.** Every property has its true value and one belief per **observer**: Champion A, Champion B, **Neutral A** and **Neutral B**. A neutral seat has the same belief structure as a Champion, beliefs about cards included, and its copy is updated by the same rules.
 - **An observer's permanents:** for a Champion, the permanents it controls; for a neutral seat, the Neutral permanents assigned to it. Every rule that said "controls" or "the opponent" now says this. Observation, "true in your own copy", naming affected permanents (D153), traces showing targets, sight lost, contradiction and the mana-pool counts all run per observer.
 - **A Neutral permanent reads its seat's copy:** its Behavior's targets and values, and the visibility check at resolution of a trace from a Neutral source.
 - **A Pretend reaches everyone else:** every copy except the true one and the caster's, both neutral seats included. No audience in the prototype.
