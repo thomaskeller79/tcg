@@ -4,7 +4,7 @@
 
 **Note (D58, D87, D88, D110):** Structure holds its own printed **Activation Points** like every Actor (it is one, D103), though it has no mana access — self-gating "has this printed ability already fired this round" *and* self-funding that ability's Activation Points cost directly, no climbing. Terrain, Item and Remnant hold none, so an Activation Points cost printed on a Terrain's triggered ability climbs to its bonder like mana does. The Ancestry below answers who funds a *mana* cost, and any cost the entity can't pay itself. See `economy.md`, `resources-terrain.md`, `structures-items.md`.
 
-**Decisions:** D26–D30, D47, D54–D55, D57–D58, D68, D74, D81, D83, D84, D86, D87, D88, D100, D101, D106, D107, D132, D133 (`history/decisions.md`)
+**Decisions:** D26–D30, D47, D54–D55, D57–D58, D68, D74, D81, D83, D84, D86, D87, D88, D100, D101, D106, D107, D132, D133, D164 (`history/decisions.md`)
 
 ---
 
@@ -82,7 +82,7 @@ A cost is paid by the **nearest node — starting at the entity itself — that 
 
 - Activation Points and Life are held directly by every permanent that carries them (D58 — Activation Points: Champion/Companion/Creature/Structure, D87, D88; Life: Champion/Companion/Creature/Structure) — an ability costs its own object's Activation Points or Life, no climbing. A Terrain holds neither; its AP costs climb to its bonder (D87). Life is not a third resource alongside mana/Activation Points (`economy.md`) — it's the same counter combat damage reduces.
 - Mana, discarding a card, felling a permanent, unbonding a terrain (and any other pooled/hand/board resource) climb the parent chain, live, stopping at the first Champion or Companion found.
-- A card that wants the controller to pay puts it in its effect ("deal 2 damage to this creature's controller"); a cost is paid by this walk alone, so the named source (D153) identifies the one pool that pays (D157).
+- A card that wants the controller to pay puts it in its effect ("deal 2 damage to this creature's controller"); a cost is paid by this walk alone, so the trace's `source`, certain for everyone (D164), identifies the one pool that pays (D157).
 
 ## Only Champions cast spells
 

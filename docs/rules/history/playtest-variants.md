@@ -383,30 +383,92 @@ changes. Claude against: death should feel like a loss, and killing a buffed cre
 weaker answer whenever a raise is around. Kept the printed card as the playtest version; the
 scenarios that test it are `PLAN.md` Track C item 13.
 
-## What a contradiction reveals (D151)
+## What a contradiction reveals (D146, D164)
 
-**Current rule:** an observed outcome that differs from the observer's own prediction (comparison)
-reveals the values the instruction read **and** the traces, cards and static abilities behind the
-false value (large reveal). A belief that is `?` stays `?` — the reveal corrects false beliefs only.
+**Current rule:** a certain observation that contradicts what an observer's copy carried out makes
+the copy observe the true values of the properties the instruction read, together with their max
+values. Nothing else: not the cause, not a Mimic's name. A belief that is `?` stays `?`.
+Observations happen only on a contradiction.
 
-### Variant — small reveal · NOT ADOPTED (playtest)
-The contradiction reveals only the values the instruction read. The causing trace and card stay
-false in the observer's belief (Mirage Might still reads "+1" after its bluff is caught), and
-later false beliefs from the same cause still happen. Same trigger and timing as the large reveal;
-only less is shown. The user prefers the large reveal so uncertainty also shrinks.
+### Variant — large reveal (D151) · NOT ADOPTED (playtest)
+The contradiction also reveals what caused the false value — the traces and their cards (a
+modifier remembers its trace) and the static abilities that contribute to it, traced back on the
+true state — and corrects later false beliefs from the same cause. Uncertainty shrinks faster; it
+names which of several spells was the cheap one after a mana overspend, which a human could not
+deduce, and needs the history rewrite below. Dropped to start simple (D164); add it back if playing
+without it feels strange.
+
+### Variant — observe in every combat · NOT ADOPTED (playtest)
+Every combat observes the read values of both creatures, whether or not anything contradicts.
+Simpler to explain; one fight ends every hidden combat effect on both creatures. The user keeps
+it open if contradiction-only plays strangely.
 
 ### Variant — explicit reveal · FALLBACK
-No comparison: an instruction always reveals the values it reads (combat reveals the Power of
+No comparison: an instruction always reveals the values it reads (combat reveals the Attack of
 each creature that dealt damage), consistent or not — fully explicit, no check after the
 instruction, but every instruction must state what it reveals (the old reveal points, D146).
 Ends bluffs that were never tested (a curse hit by damage both sides expected to be lethal).
 Fall back to it only if the comparison proves unworkable.
 
-### Variant — the large reveal also fills in unknowns · NOT ADOPTED (playtest)
+### Variant — a contradiction also fills in unknowns · NOT ADOPTED (playtest)
 Every value the instruction read becomes true, `?` included. A ranged creature in darkness whose
-Power bluff is caught then also shows its location, because the range check read it — the bluff
-on one property exposes another that terrain hid honestly. Adopted instead: a contradiction
-corrects false beliefs only (D151). Try this variant if caught bluffs feel too toothless.
+Attack bluff is caught then also shows its location, because the range check read it — the bluff
+on one property exposes another that terrain hid honestly. Try this variant if caught bluffs feel
+too toothless.
+
+### Rejected — fit without observing anything (D164)
+A certain observation overwrites only what it observes, and every other belief must still be
+made to fit. Each way of making it fit was tried and dropped:
+- **`?` for every value the instruction read:** the `?` spreads — damage dealt with a `?` Attack
+  makes the target's Life `?`, a death check can't run on `?` Life — and the view fills with
+  unknowns.
+- **The smallest change that makes the belief fit** (a creature that lives gets Life 1): needs a
+  choice when several values could be the cause (the attacker's Attack or the defender's Life).
+  Tie-breaks tried: enemy values before your own, then a fixed order of (property, controller)
+  pairs by how easy each is to pretend; values an opponent's trace touched, most recent first —
+  but a Pretend can lie about the property and the target it names, so the trace's claim is only
+  a guess. For a location the smallest change is unclear; "keep where its last move put it" is
+  `PLAN.md` Track D item 77.
+- **The player picks the new values at every contradiction**, with an automatic rule for the
+  neutral seats: every contradiction stops the game, and the neutral seats still need one of the
+  rules above.
+- **Reasoning over every legal trace** to find the cause: a deduction engine (D18), and it needs
+  the opponent's hidden cards.
+
+## Observation (D152, D164)
+
+**Current rule:** one global observation default, overridden by effects for a terrain or a
+permanent; a fixed list of certain properties; everything else deduced (D164).
+
+### Variant — observation as abilities of the terrain (D152) · NOT ADOPTED
+Every terrain carries one observation ability per Slice (Ground and Sky: everyone; Root: the
+permanent's controller, or anyone with a permanent in the Root of this terrain or a neighbouring
+one), checked after every instruction. Darkness replaces the ability, found by its subtype. Every
+observation rule then sits on an object, as abilities do — but every terrain carries the same
+three abilities, and a global default overridable like any rule does the same job. A simplification
+was parked with it: an observation range per Slice as an ability parameter, Darkness setting it
+to 0.
+
+### Rejected — your own permanents are true in your copy (D155)
+A change to a permanent you control was true in your copy unless a Pretend said otherwise; the
+controller saw the true damage, whatever it believed about the source. Replaced by "everything
+not certain is deduced" (D164): one model for every object, and a pretended enemy Attack shows
+its pretended damage on your own creature.
+
+### Rejected — Life certain for your own permanents (D164)
+Your creature's Life would be certain in your copy, so you always see the damage it really took.
+Kills every hidden curse on your own creatures: the first hit shows the true Life.
+
+### Rejected — the other variants of `PLAN.md` Track A item 72 (D164)
+- **A section as a set of possibilities** ("4–5 cards"): advertises a secret draw.
+- **Face-down activation as the default:** the opponent observes a trace's existence, section,
+  position and controller, its content `?`. Deception for free without a Pretend, but every
+  activation a mystery by default.
+- **Rule steps applied from the true state to every copy** (the death check, the AP refresh, the
+  pool reset): adopted instead, each copy runs them on its own values, so every false belief comes
+  from a tampered trace and everything not certain is deduced the same way.
+- **On a contradiction, fitting with the death known:** the fall is shown, nothing else changes;
+  superseded by observing the read values.
 
 ## Neutral beliefs (D162)
 
@@ -435,13 +497,15 @@ baseline to compare D162 against.
 Every Neutral permanent holds its own copy: the cleanest independence, but an Element that creates
 many Neutral permanents makes the number of copies infeasible.
 
-## History after a reveal (D163)
+## History after a contradiction (D163, D164)
 
-**Current rule:** a large reveal rewrites the observer's history entries produced by the revealed
-traces and cards to their true outputs; `?` entries stay `?`.
+**Current rule:** each copy's history holds the instructions as that copy carried them out; a
+contradiction never rewrites it.
 
-### Variant — history is a record of what was seen · NOT ADOPTED
-Entries are never rewritten. Simpler, and the comparison at resolution still catches a stale entry
-when an outcome shows it — but a later history condition then mispredicts in a copy whose observer
-already knows the truth (the same card cast twice in a row contradicts twice). Revisit together
-with `PLAN.md` Track A item 72, if contradictions stop revealing by default.
+### Variant — the large reveal rewrites the history · NOT ADOPTED
+Belongs to the large reveal above: every history entry produced by a revealed trace or card is
+rewritten in that observer's copy to its true output ("X got +1 Attack" becomes "+0"), `?`
+entries stay `?`. Without it a later history condition can mispredict in a copy whose observer
+already knows the truth (the same card cast twice in a row contradicts twice). Comes back with the
+large reveal, if ever.
+

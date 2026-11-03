@@ -2,7 +2,7 @@
 
 *The internal structure every card's and ability's rules text is written in. Card text shown to players may use shorter wording ("you may," "kicker," "choose one or more"); every such wording must translate into this form. Kept deliberately compact, so that a card validator or an AI can read and check it.*
 
-**Decisions:** D83, D91, D92, D94, D95, D96, D104, D108, D130, D135, D141, D142, D148, D149, D150, D155, D162 (`history/decisions.md`)
+**Decisions:** D83, D91, D92, D94, D95, D96, D104, D108, D130, D135, D141, D142, D148, D149, D150, D155, D162, D164 (`history/decisions.md`)
 
 ---
 
@@ -79,7 +79,7 @@ A condition sits on the instruction only. A condition on a fact already settled 
 
 ## Instructions (D141)
 
-**Every instruction is apply(object, f_true, f_A, f_B, f_NA, f_NB)** underneath (D149, D162): one function for the true value and one for each observer's belief (both Champions and both neutral seats), "keep" and "set to `?`" included. Card text states only the true effect; each instruction's default belief update (`asymmetric-information.md` §Beliefs) and *Pretend* (D150) supply the rest. In the prototype the object is resolved on the true state and used in every copy.
+**Every instruction is apply(object, f_true, f_A, f_B, f_NA, f_NB)** underneath (D149, D162): one function for the true value and one for each observer's belief (both Champions and both neutral seats), "keep" and "set to `?`" included. Card text states only the true effect; each copy carries out the trace as it believes it (`asymmetric-information.md` §Deduced properties), and *Pretend* (D150) supplies what the other copies believe. A target is trace content: the same object in every copy unless a Pretend names another; a non-targeted effect names nothing, and each copy applies it to the permanents it believes in (D164).
 
 The basic instructions are a slim set for the engine; card text may use **aliases** chosen for clarity ("draw" for a move from Library to Hand, "return to Hand" for a put, "counter" for destroying a trace; names in `PLAN.md` Track A item 39).
 

@@ -2,7 +2,7 @@
 
 *Players can act on the opponent's turn (MTG-style instants). One primitive covers instants, combat tricks, and traps: a **Speed** tag per card/ability, checked live against what's sitting in **Pending**, the Aether's next-to-resolve section.*
 
-**Decisions:** D6, D16, D35, D38, D45, D46, D68, D70, D75, D83, D85, D91, D92, D94, D95, D100, D115, D116, D117, D118, D123, D124, D127, D128, D130, D132, D133, D134, D135, D142, D158, D159, D162 (`history/decisions.md`)
+**Decisions:** D6, D16, D35, D38, D45, D46, D68, D70, D75, D83, D85, D91, D92, D94, D95, D100, D115, D116, D117, D118, D123, D124, D127, D128, D130, D132, D133, D134, D135, D142, D158, D159, D162, D164 (`history/decisions.md`)
 
 ---
 
@@ -92,11 +92,11 @@ Steps, each described below: **R0 Top-up** (per target) → **R1 Instructions** 
 When a trace resolves (crosses `Now`), its instructions run **in card order**, and each is checked **immediately before it runs** against what the trace still states and the current state — the board may have changed while the trace sat in Pending, and earlier instructions of the same trace may have changed it too. A choice made at resolution is made when its instruction is reached; a cost on its chosen option is paid then by the option's chooser, as an ordinary instruction — no transaction, no abort — and the option can be chosen only if that cost is payable (D135). It doesn't change the trace's cost. An instruction **fails to happen (fizzles)** if a relation still in the text is false (the creature is no longer at the bound hex), if carrying it out would violate an invariant (a Slice filling up), or if a bound object fails any of the conditions implicitly on every trace:
 
 1. **Identity** — the same instance still exists. A Flickered or Bounced object is gone, even if it has returned.
-2. **Visibility** (a permanent only) — the belief of its location held by the trace's observer (its Champion, or for a Neutral source its neutral seat, D162) equals its true location (D159, `asymmetric-information.md` §The core model). A permanent it doesn't observe fails (its belief is `?`, or false, as for a decoy), unless a Reveal set the belief true and the permanent hasn't moved since.
+2. **Visibility** (a permanent only) — the belief of its location held by the trace's observer (its Champion, or for a Neutral source its neutral seat, D162) equals its true location (D159, `asymmetric-information.md` §The core model). A permanent it doesn't observe fails (its belief is `?`, or false, as for a decoy), and so does a ghost — a permanent the observer believes in that isn't there (D164), unless a Reveal set the belief true and the permanent hasn't moved since.
 3. **Protection** — it doesn't have "can't be affected by [this kind of effect]." "Can't be targeted" is not checked here: targeting is a step of casting, so gaining it in response doesn't affect a trace already in Pending.
 4. **Verb applicability** — it is still something the instruction's verb can act on.
 
-The checks read the true state; each Champion's copy runs them with its own beliefs (D151), so a Mimic face never decides a check — it only shapes what the opponent predicts, and a differing outcome is an ordinary contradiction. Examples (D159): "Destroy target Structure" on a creature with "*Pretend:* a Wall" fizzles on verb applicability and collapses the face; "Unbond target terrain" fizzles if the terrain was unbonded in response.
+The checks read the true state; each Champion's copy runs them with its own beliefs, so a Mimic face never decides a check — it only shapes what the opponent predicts, and a differing outcome is an ordinary contradiction: the copy observes the values the check read, and the face stays (D164). Examples (D159): "Destroy target Structure" on a creature with "*Pretend:* a Wall" fizzles on verb applicability, against the opponent's expectation; "Unbond target terrain" fizzles if the terrain was unbonded in response.
 
 Qualifiers consumed by binding are never re-checked, and there is no implicit location condition: a creature-targeting effect still hits a target that moved or changed control in response, unless it moved somewhere its caster can't see; an effect acting on a terrain — or relating its creature to a target terrain — can be dodged by moving. **Only the failing instruction fizzles — the rest of the card still resolves.** Paid cost is never refunded either way.
 

@@ -2,7 +2,7 @@
 
 *A Champion's signature "friend": a card that sits mechanically **between Creature and Champion**. Introduces the game's channeling hierarchy explicitly: **Creature spends mana it can't draw; Companion draws mana it can't share; Champion draws and shares.***
 
-**Decisions:** D22, D26, D49, D54–D55, D107, D116, D117, D126, D134 (`history/decisions.md`)
+**Decisions:** D22, D26, D49, D54–D55, D107, D116, D117, D126, D134, D164 (`history/decisions.md`)
 
 ---
 
@@ -70,7 +70,7 @@ The network root above is one graph (terrain/mana); the **Ancestry** (`ancestry.
 
 - **Deckbuilding:** Companion cards name the Champion(s) that may run them — a hard legality restriction, like the Champion gating faction identity. Copy limits — per deck, and on the Island at once — are open (below).
 - **D17/D39 (card taxonomy):** Companion is a new **permanent** seed type, alongside Creature/Structure/Item, cast through the Aether via the same generic play-a-card procedure as any card — but deckbuilding-gated the way Map/Champion/Terrain are pre-game-constrained (a hybrid: cast like any other card, gated like the non-card components).
-- **Asymmetric info:** no special treatment proposed — visible by default (D7), like a Creature, unless a future card says otherwise.
+- **Asymmetric info:** no special treatment proposed — observed by the global default (D164), like a Creature, unless a future card says otherwise.
 
 ## Invariant vs. mutable
 

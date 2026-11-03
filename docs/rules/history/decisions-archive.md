@@ -4,6 +4,110 @@
 
 ---
 
+### D163 — One history track per copy; any history may be read — replaced parts
+
+*Replaced by D164.*
+
+- **A large reveal also corrects the history** (D151). Every history entry produced by a trace or card the reveal makes true is rewritten in that observer's copy to its true output. Example: A's "+0 Power. *Pretend:* +1 Power" left "X got +1 Power" in B's history; when the Pretend is revealed, the entry becomes "X got +0 Power" in B's copy. Entries that are `?` stay `?` (a contradiction never fills in an unknown, D151), and entries B saw truly are already true.
+
+- **A revealed lie must not stay in the history.** Otherwise a later condition reads the false entry again: the same card cast twice in a row would mispredict in B's copy a second time, though B already knows the truth.
+
+- **History as a record of what was seen, never rewritten** (Claude): simpler, and the comparison would catch a stale entry — but by contradicting what the observer already knows.
+
+---
+
+### D162 — Each neutral seat holds its own belief copy — replaced parts
+
+*Replaced by D164.*
+
+- **Gaining a permanent makes its values true in the new observer's copy** — that permanent only. This is the default "your own permanents are true in your copy" applied at the moment of the gain, and it is what gives a monster true knowledge of itself.
+
+---
+
+### D157 — Overspending past the opponent's belief is a contradiction; an untested mana bluff ends at the reset; no "possible payers" marker — replaced parts
+
+*Replaced by D164.*
+
+- **A payment that takes the opponent's count below 0 contradicts it**, like a creature paying more AP than believed (D151): the large reveal as written — the count becomes true and the Pretends that caused the false count are revealed, traced on the true state. The real payment is always checked against the true pool, so a Pretend can only *show* spending the player can't afford. To playtest: the reveal names which of several spells was the cheap one, which a human could not deduce.
+
+- **Count-only reveal** (the count becomes true, nothing else): an exception to the large reveal for one property. Kept for the playtest if the large reveal gives away too much.
+
+---
+
+### D155 — Your own permanents are true in your copy; traces show targets by observation; no hidden creation in the prototype — replaced parts
+
+*Replaced by D164.*
+
+- **A change to a permanent a Champion controls is true in its copy, unless a Pretend says otherwise.** An instruction default, not an observation checked after the instruction (that would undo the Pretend). It covers damage: the damaged creature's controller sees the true amount, whatever it believes about the source. A hidden curse on your creature is a Pretend.
+
+- **The controller observes only damage dealt to its permanents** (Claude): narrower than needed; Pretend already makes the exceptions.
+
+---
+
+### D153 — Every instruction identifies the permanents it affects, never their location — replaced parts
+
+*Replaced by D164.*
+
+- **Every instruction identifies the permanents it affects to every Champion** — which instance, not where it is. "Target creature gets +1 Power" on a hidden creature tells the opponent "#12 gets +1 Power"; its belief of #12 updates correctly and its location stays hidden. A death names the creature that fell. So the update always lands on one object in every copy, and a permanent's controller is always known.
+
+- **A death updates only observing copies, until the remnant is found** (briefly adopted): unneeded once a death names its creature.
+
+---
+
+### D152 — Observation lives on the terrain; sight lost forgets location; a move keeps the opponent's belief — replaced parts
+
+*Replaced by D164.*
+
+- **No global observation rule.** Observation is static abilities on every terrain, one per Slice, checked after every instruction; where a player observes a permanent's location, their belief becomes the true value. **Ground** and **Sky**: every player observes the location of every permanent there. **Root**: a player observes the location of a permanent in this terrain's Root if they control it, or control a permanent in the Root of this terrain or a neighbouring one (D67).
+
+- **Changing observation:** an effect replaces the terrain's observation ability, found by its subtype (D129), with its own text for its duration. **Darkness:** "Target terrain's Ground becomes dark, Duration 2" — a player then observes a permanent on that Ground only if they control it or control a permanent on the Ground of the same terrain. Effects changing the same ability apply in creation order; the later one counts. This "instead" is a continuous effect on an ability, not an MTG replacement effect.
+
+- **A global rule "you observe your own permanents' location"** (Claude): more general than needed; folded into the Root ability.
+
+- **Observation as a terrain property** ("observation range" per Slice, Darkness sets it to 0): kept as a possible simplification — ability parameters — not decided.
+
+---
+
+### D151 — Contradiction by comparison, with the large reveal — replaced parts
+
+*Replaced by D164.*
+
+- **Large reveal:** a contradiction makes the read values true for the observer **and** reveals what caused the false value — the traces and their cards (modifiers remember their trace, D144) and the static abilities that contribute to it. The trace back runs on the true state. It also corrects later false beliefs from the same cause (Mirage 3's false end-of-turn drop).
+
+- **Health and AP need no rule of their own:** a creature that lives although a belief put its Health at 0 or less, or pays more AP than a belief says it has, is a contradiction like any other; the large reveal makes the value true and shows its cause. AP spent is seen, since every action names its creature (D153).
+
+**Why:** uncertainty should also shrink now and then, not only pile up. A static ability ("+1 Power while defending") can make a revealed Power look wrong again unless the ability is revealed with it. The comparison keeps untested bluffs alive.
+
+**Considered:** the **small reveal** (read values only) and the **explicit reveal** (an instruction always reveals what it reads, no comparison — the old reveal points) — both kept as playtest variants (`playtest-variants.md`).
+
+---
+
+### D150 — Pretend is the one deception mechanism; players believe what they see — replaced parts
+
+*Replaced by D164.*
+
+it collapses by a contradiction (a hit too strong for a Goblin) — the large reveal traces back to the Pretend and reveals the card, so the whole face at once — or by its own stated collapse (D131)
+
+---
+
+### D149 — Three copies of every property; the basic instruction sets each copy — replaced parts
+
+*Replaced by D164.*
+
+the **death check** runs on the true state and applies to every copy; **damage** is applied with the true amount in the copy of the target's controller
+
+---
+
+### D146 — A belief breaks on contradiction; reveal points and private numbers are dropped *(amended by D151: the large reveal)* — replaced parts
+
+*Replaced by D164.*
+
+- **Numbers are not private.** A visible creature's Life, AP and Power are true by default (D140: fresh values from a true max, and a change to a visible object is seen); hidden or false numbers come only from keywords. The guarantees the user wanted then hold in the default case: a view showing 0 AP means 0, a card shown in a Hand is there.
+
+- **A view is what the GUI shows**, not the player's belief. A Mimic face collapses when an outcome contradicts it, not at its first combat as such.
+
+---
+
 ### D140 — A view state comes from the source; exceptions per instruction *(restated as one-time belief copies, D149; view states replaced by beliefs)*
 
 *Replaced by D149, D154, D161.*
@@ -91,6 +195,14 @@ Closes `PLAN.md` Track A item 35 (hide the Mind from the opponent). Before: D18 
 **Constraint on Mimic:** a face whose Life or Power differs from the truth collapses at the first combat; a face copying a creature with the same stats survives it (D131's per-card collapse still decides the rest). A card faking leftover mana mid-turn collapses at the next refresh at the latest.
 
 → `asymmetric-information.md`, `overview.md` §1, §9, `glossary.md`, `ancestry.md` §Paying a cost; `PLAN.md` Track A item 35 (closed), Track B item 20, Track D item 50.
+
+---
+
+### D131 — Every hidden-information ability states when and how far it collapses — replaced parts
+
+*Replaced by D164.*
+
+D18's collapse to the full truth stays as the fallback for anything a card doesn't cover.
 
 ---
 
@@ -499,6 +611,14 @@ Default attack **initiation** legality (attacker → target): **Ground→**Groun
 
 ---
 
+### D18 — Belief-consistency model for asymmetric information (the hard core of pillar 6) *(faces and claims recast as Pretend, D150)* — replaced parts
+
+*Replaced by D164.*
+
+**Collapse → full truth** by default (incl. which of a masked pool it was).
+
+---
+
 ### D17 — Card-type taxonomy: "Spell" as umbrella; type is a queryable tag
 
 *Replaced by D39.*
@@ -561,6 +681,14 @@ Zones: **Hand, Library** (deck), **Play** (permanents on the Board), and **Aethe
 *Replaced by an outdated implementation note.*
 
 **M1 debug-UI implementation note (2026-08-08, scoped to the current placeholder board, not a reversal of the terrain-deck/8-color vision above):** M1's board has no terrain deck yet — every scenario just marks a few hexes as "terrain" so `CanBondTo` had something to gate on, which read as an arbitrary, unexplained restriction once rendered (green hexes with no in-game meaning). Two simplifications for the current build only: (1) **any** hex is bondable — the terrain-type gate is dropped until a real terrain deck exists to make that distinction meaningful; (2) **before a Champion has bonded anything, the only legal first bond is its own current tile** — the network must root at home before spreading outward (previously the first bond could be any adjacent cell). Consequence worth flagging: `Query.ResolveConnectedProducingTerrain`'s BFS only ever tested a root's *neighbors*, so a Champion standing on its own bonded tile wouldn't have counted as connected to it — fixed alongside this change (`Query.IsBondedAndReachable`) so the home-tile bond produces mana immediately. → `src/Leyline.RulesCore/Queries/Query.cs`.
+
+---
+
+### D7 — Default visibility is full
+
+*Replaced by D164.*
+
+Board is fully visible by default; all concealment (Mist/Submerged/Mimic) is opt-in via cards. Simplest default that still exposes the perception hook. → `../asymmetric-information.md`, `../overview.md` §9.
 
 ---
 
