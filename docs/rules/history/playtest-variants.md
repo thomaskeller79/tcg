@@ -387,8 +387,9 @@ scenarios that test it are `PLAN.md` Track C item 13.
 
 **Current rule:** a certain observation that contradicts what an observer's copy carried out makes
 the copy observe the true values of the properties the instruction read, together with their max
-values. Nothing else: not the cause, not a Mimic's name. A belief that is `?` stays `?`.
-Observations happen only on a contradiction.
+values; a check reads the static abilities it depends on, so an action the copy believes illegal
+observes them. Nothing else: not the cause, not a Mimic's name unless the instruction read an
+identity property. A belief that is `?` stays `?`. Observations happen only on a contradiction.
 
 ### Variant — large reveal (D151) · NOT ADOPTED (playtest)
 The contradiction also reveals what caused the false value — the traces and their cards (a
@@ -402,6 +403,16 @@ without it feels strange.
 Every combat observes the read values of both creatures, whether or not anything contradicts.
 Simpler to explain; one fight ends every hidden combat effect on both creatures. The user keeps
 it open if contradiction-only plays strangely.
+
+### Variant — static abilities attached to the trace · NOT ADOPTED (idea, user)
+A trace carries the static abilities relevant to its action: an Attack trace carries the
+attacker's Ranged, a move carries Flying. One general mechanism — the relevant abilities are part
+of the trace — instead of a question of what a contradiction observes; which abilities go on which
+trace is the same question as which abilities a check reads. Needs tweaking: a trace's content is
+copied from each copy's own belief of the ability (D140), so an attached ability would teach
+nothing unless it is true in every copy — and then every use shows it, before anyone responds, not
+only a contradiction (stronger than observing in every combat). The user finds it interesting;
+D164 keeps "a contradiction observes what the checks read" for now.
 
 ### Variant — explicit reveal · FALLBACK
 No comparison: an instruction always reveals the values it reads (combat reveals the Attack of
