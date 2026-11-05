@@ -2,7 +2,7 @@
 
 *Players can act on the opponent's turn (MTG-style instants). One primitive covers instants, combat tricks, and traps: a **Speed** tag per card/ability, checked live against what's sitting in **Pending**, the Aether's next-to-resolve section.*
 
-**Decisions:** D6, D16, D35, D38, D45, D46, D68, D70, D75, D83, D85, D91, D92, D94, D95, D100, D115, D116, D117, D118, D123, D124, D127, D128, D130, D132, D133, D134, D135, D142, D158, D159, D162, D164 (`history/decisions.md`)
+**Decisions:** D6, D16, D35, D38, D45, D46, D68, D70, D75, D83, D85, D91, D92, D94, D95, D100, D115, D116, D117, D118, D123, D124, D127, D128, D130, D132, D133, D134, D135, D142, D158, D159, D162, D164, D165 (`history/decisions.md`)
 
 ---
 
@@ -96,7 +96,7 @@ When a trace resolves (crosses `Now`), its instructions run **in card order**, a
 3. **Protection** — it doesn't have "can't be affected by [this kind of effect]." "Can't be targeted" is not checked here: targeting is a step of casting, so gaining it in response doesn't affect a trace already in Pending.
 4. **Verb applicability** — it is still something the instruction's verb can act on.
 
-The checks read the true state; each Champion's copy runs them with its own beliefs, so a Mimic face never decides a check — it only shapes what the opponent predicts, and a differing outcome is an ordinary contradiction: the copy observes the values the check read (D164). The face stays unless the check read an identity property (name, card type, subtypes): then the Mimic collapses and everything it hid is observed. Examples (D159): "Destroy target Goblin" on a Dragon with Mimic: Goblin fizzles, against the caster's expectation, and the Mimic collapses; "Unbond target terrain" fizzles if the terrain was unbonded in response.
+The checks read the true state; each Champion's copy runs them with its own beliefs, so a Mimic face never decides a check — it only shapes what the opponent predicts, and a differing outcome is an ordinary contradiction: the lies behind the values the check read are destroyed for that observer (D164, D165) — a Mimic face among them collapses, and everything it hid is deduced again. Examples (D159): "Destroy target Goblin" on a Dragon with Mimic: Goblin fizzles, against the caster's expectation, and the Mimic collapses; "Unbond target terrain" fizzles if the terrain was unbonded in response.
 
 Qualifiers consumed by binding are never re-checked, and there is no implicit location condition: a creature-targeting effect still hits a target that moved or changed control in response, unless it moved somewhere its caster can't see; an effect acting on a terrain — or relating its creature to a target terrain — can be dodged by moving. **Only the failing instruction fizzles — the rest of the card still resolves.** Paid cost is never refunded either way.
 

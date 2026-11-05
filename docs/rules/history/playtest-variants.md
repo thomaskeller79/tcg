@@ -383,21 +383,44 @@ changes. Claude against: death should feel like a loss, and killing a buffed cre
 weaker answer whenever a raise is around. Kept the printed card as the playtest version; the
 scenarios that test it are `PLAN.md` Track C item 13.
 
-## What a contradiction reveals (D146, D164)
+## What a contradiction reveals (D146, D164, D165)
 
-**Current rule:** a certain observation that contradicts what an observer's copy carried out makes
-the copy observe the true values of the properties the instruction read, together with their max
-values; a check reads the static abilities it depends on, so an action the copy believes illegal
-observes them. Nothing else: not the cause, not a Mimic's name unless the instruction read an
-identity property. A belief that is `?` stays `?`. Observations happen only on a contradiction.
+**Current rule (D165):** an observation — the certain properties and the damage a creature takes —
+that contradicts what an observer's copy carried out destroys, for that observer, the belief
+objects behind the false values the instruction read (its checks included), with everything
+resting on them; each attachment is then deduced again. One Pretend is one belief object. A belief
+that is `?` stays `?`. The first three variants below differ from it only in what is observed.
 
-### Variant — large reveal (D151) · NOT ADOPTED (playtest)
+### Variant — destroy on read (the base solution) · NOT ADOPTED (playtest)
+A lie goes as soon as an instruction reads a false value, whatever is observed; rule steps never
+reveal. False values then never spread: no derived belief objects, no replay. Weak spots a
+playtest must show: paying AP reads AP although "enough AP?" has the same answer both ways, so a
+face with a different max AP goes at the creature's first action; a read the player doesn't
+observe (a fight in darkness) would reveal to it as well. It still needs a contradicted certain
+observation to reveal too (a trace still in the Aether that its version has already ended).
+
+### Variant — "changing": current Life observed whenever it changes · NOT ADOPTED (playtest)
+Adds current Life to the observation list whenever it changes. Return damage on a Mimic whose
+Life is false then reveals it, even when it takes the same damage both ways.
+
+### Variant — certain properties only · NOT ADOPTED (playtest)
+D164's observation list, with the whole belief object destroyed: damage taken isn't observed, so a
+hit both sides expect the target to survive reveals nothing, and the lie spreads into the target's
+Life as a derived belief object.
+
+### Variant — partial reveal (D164) · REPLACED by D165
+A contradiction made only the values the instruction read true, with their max values; the cause
+and a Mimic's face stayed. Under D165 it exists only as card design, one Pretend per property.
+Dropped as a rule because the lie that stays keeps running: a curse fading in a copy that has
+already seen the creature's true Power makes the belief false again, and false values pile up
+with nothing to clean them.
+
+### Variant — large reveal (D151) · REPLACED by D165
 The contradiction also reveals what caused the false value — the traces and their cards (a
 modifier remembers its trace) and the static abilities that contribute to it, traced back on the
-true state — and corrects later false beliefs from the same cause. Uncertainty shrinks faster; it
-names which of several spells was the cheap one after a mana overspend, which a human could not
-deduce, and needs the history rewrite below. Dropped to start simple (D164); add it back if playing
-without it feels strange.
+true state — and corrects later false beliefs from the same cause. D165 brings it back in another
+form: the lie is a belief object, destroyed whole with everything resting on it, without tracing
+causes on the true state. What D151 also did to the history is `PLAN.md` Track A item 84.
 
 ### Variant — observe in every combat · NOT ADOPTED (playtest)
 Every combat observes the read values of both creatures, whether or not anything contradicts.
@@ -412,7 +435,7 @@ trace is the same question as which abilities a check reads. Needs tweaking: a t
 copied from each copy's own belief of the ability (D140), so an attached ability would teach
 nothing unless it is true in every copy — and then every use shows it, before anyone responds, not
 only a contradiction (stronger than observing in every combat). The user finds it interesting;
-D164 keeps "a contradiction observes what the checks read" for now.
+D165 keeps "a contradiction destroys the lies behind what the checks read" for now.
 
 ### Variant — explicit reveal · FALLBACK
 No comparison: an instruction always reveals the values it reads (combat reveals the Attack of
@@ -445,6 +468,24 @@ made to fit. Each way of making it fit was tried and dropped:
   rules above.
 - **Reasoning over every legal trace** to find the cause: a deduction engine (D18), and it needs
   the opponent's hidden cards.
+
+### Rejected — two lies on one value: the value becomes true (D165)
+When one of two lies on one value is destroyed, the value becomes true, though the other lie still
+explains part of the gap. Simple, and it errs toward the truth; the user wants the other lie to
+stay active (D hit by two bluffing creatures: B believes 4 after one is revealed, not the true 3).
+
+### Rejected — two lies on one value: merge at a cap (D165)
+Each lie keeps its own difference on the value; a cap that bites partly (a heal on D that the max
+cuts short) merges the differences into one resting on both lies, and destroying either makes the
+value true. No replay, but one too low in that case.
+
+### Rejected — how the engine holds beliefs (D165)
+- **Offsets from the truth** (the engine before D165): break at every cap, so a heal to max needs
+  a hand-written patch, and can't hold a creature that fell in one belief only.
+- **Five full copies of the state:** one code path, but every trace and rule step runs five times,
+  with a death check, ghosts and all in every copy.
+- **A list of changes for every value, recomputed on every read:** exact, but too much computation
+  over a long game; D165 keeps such a list only where two or more lies meet on one value.
 
 ## Observation (D152, D164)
 
@@ -508,15 +549,17 @@ baseline to compare D162 against.
 Every Neutral permanent holds its own copy: the cleanest independence, but an Element that creates
 many Neutral permanents makes the number of copies infeasible.
 
-## History after a contradiction (D163, D164)
+## History after a contradiction (D163, D164, D165)
 
 **Current rule:** each copy's history holds the instructions as that copy carried them out; a
-contradiction never rewrites it.
+contradiction never rewrites it. Reopened by D165, which destroys whole lies: `PLAN.md` Track A
+item 84.
 
-### Variant — the large reveal rewrites the history · NOT ADOPTED
+### Variant — the large reveal rewrites the history · OPEN (`PLAN.md` Track A item 84)
 Belongs to the large reveal above: every history entry produced by a revealed trace or card is
 rewritten in that observer's copy to its true output ("X got +1 Attack" becomes "+0"), `?`
 entries stay `?`. Without it a later history condition can mispredict in a copy whose observer
-already knows the truth (the same card cast twice in a row contradicts twice). Comes back with the
-large reveal, if ever.
+already knows the truth (the same card cast twice in a row contradicts twice). D165 brought
+the large reveal back as destroyed belief objects; whether a history entry rests on its lie and
+goes with it is `PLAN.md` Track A item 84.
 

@@ -4,6 +4,34 @@
 
 ---
 
+### D164 — The observation model: what can be observed, what is certain, everything else deduced; a contradiction observes what the instruction read — replaced parts
+
+*Replaced by D165.*
+
+- **Q4, contradiction.** A certain observation overwrites only what it observes. When it contradicts what a copy carried out — a creature lives that the copy's death check removed, a creature falls that the copy expected to live, a creature spends more AP than the copy believes it has, a payment takes the copy's count of a pool below 0 (D157), a trace stays in the Aether that the copy believed faded (or the other way round), a permanent takes an action the copy believes illegal — that copy also **observes the true values of the properties the instruction read, together with their max values** (max-Life with Life, max-AP with AP). This is D146's rule with the max values added. An overspend observes the count and the production of the terrains that credit the pool; a trace in the Aether observes its Duration. A contradiction never fills in an unknown (D151): a `?` stays `?`.
+
+- **A check reads static abilities like any other property,** so an action the copy believes illegal observes what its checks read. For now each check names them: a move (Move, Ascend, Descend) reads Flying and the terrain's Move surcharge; an Attack reads Ranged, so every combat contradiction observes it with Life and Attack; the timing of an activation reads Haste. Ability types may take this over (Track C item 10).
+
+- **An ability the copy doesn't believe the permanent has:** using it shows the ability as the trace shows it (true, unless the ability carries its own Pretend), and the copy adds it to its belief of the permanent — nothing more.
+
+- **Nothing else is revealed.** No cause: D151's large reveal is dropped, and with it D163's history rewrite. No name: a Mimic face survives a contradiction with its stats observed, and collapses by its own stated collapse (D131), a reveal, or a check that reads an identity property (name, card type, subtypes) and comes out differently than the copy expected — "Destroy target Goblin" fizzling on a Dragon with Mimic: Goblin. Then everything the Mimic hid is observed; a separate Pretend on the permanent stays (amends D150, D159). A Pretend that shows a different card type without Mimic is outside the prototype (Track D item 81). D131's fallback "collapse to the full truth" and D18's "collapse → full truth by default" go; D18's "no deduction engine" stays.
+
+- **Only on a contradiction**, not in every combat. Observing more (every combat) stays open for playtests.
+
+From **Why:**
+
+- **The max values come along** because a higher current Life or AP can come from a higher max.
+
+- **Start simple,** and add a cause reveal or more observations if it plays strangely or isn't fun.
+
+From **Considered and rejected:**
+
+- **The large reveal** (D151) and **the terrain observation abilities** (D152).
+
+- **Item 72's other rejected variants:** a section as a set of possibilities ("4–5 cards", advertises a secret draw); face-down activation as the default; rule steps applied from the true state to every copy; on a contradiction, revealing the cause, or fitting with the death known.
+
+---
+
 ### D163 — One history track per copy; any history may be read — replaced parts
 
 *Replaced by D164.*

@@ -8,7 +8,45 @@ Decisions, and parts of decisions, that later decisions replaced are in `decisio
 
 ---
 
-### D164 — The observation model: what can be observed, what is certain, everything else deduced; a contradiction observes what the instruction read
+### D165 — Belief objects: a contradicted observation destroys a whole lie; damage taken is observed
+
+`PLAN.md` Track B items 79 and 26, discussed 2026-11-05 to 11-06 (a mixed Track A/B session on how the engine represents false beliefs). Before: D164 — every copy carried out every trace on its own values, and a contradiction corrected only the values the instruction read, leaving the lie's cause and a Mimic face in place.
+
+**Adopted (user):**
+- **Six questions** organise the belief rules: how a false belief arises (Q-a: only Pretend, Mimic included), how it spreads (Q-b), when it is lifted (Q-c), how (Q-d), how a value becomes unknown (Q-e) and how it becomes known (Q-f).
+- **A belief object** describes one lie for one observer. It is not a game object and can't be referenced. One Pretend creates one per fooled observer — a Mimic creates three (B, Neutral A, Neutral B), identical except for the observer. It is attached to every object that carries the lie (card, trace, permanent); beliefs follow the `source` chain, and once the trace ceases to exist the permanent links to the card (D97).
+- **Believed values are stored,** not recomputed. A false value computed from a lie (the damage dealt by a creature with a false Power, the Life it leaves) is a **derived belief object** that rests on its sources.
+- **A lie is only ever destroyed, never altered.** Destroying a belief object destroys everything that rests on it; a contradiction on a derived belief object destroys its roots. Afterwards each attachment is deduced again from the true source with what the observer can observe: true where observable, `?` otherwise — a decoy caught in darkness gets location `?`; a card in Discard follows its trace, or its permanent once the trace is gone.
+- **Instructions change believed values.** An instruction that closes the gap (a heal to max in the truth and in the belief) destroys the derived belief object; one that only narrows it keeps it.
+- **Two or more lies on one value:** destroying one replays that value's changes with the remaining lies (D's Life after two bluffing hits and a heal the cap cut short). Exact, never a search over possible causes; designed during implementation.
+- **One Pretend is one belief object,** so what is revealed together is card design: a card that wants its Flying to surface without its face uses two Pretends.
+- **When (Q-c): a contradicted observation.** Observed are the certain properties (D164) and **the damage a creature takes** — the Life it actually loses, so damage beyond lethal doesn't show — each only for objects the observer can observe; nothing about an object is observed if the object can't be observed. A contradiction destroys the belief objects behind the false values the contradicted instruction read, its checks included (D164: a move reads Flying and the Move surcharge, an Attack reads Ranged, an activation's timing reads Haste). A lie is lost only for the observer who observes the contradiction.
+- **Using an ability a belief object hid** is a contradiction like any other: the trace shows the ability, and the belief object goes.
+- **Rule steps never reveal** (AP refresh, Life cap, death check, fading, credit). They run on each observer's believed values, and what they compute rests on the same belief objects.
+- **A trace's Duration is certain in the prototype** (`PLAN.md` Track D item 83): a pretended Duration is always caught at the first turn-end where the Durations differ.
+- **The solutions considered differ only in the observation list,** which playtests adjust.
+
+**Why (user):**
+- Lies spread out of control under D164 because a partial correction left the lie in place and running: it kept producing false values (a curse fading in a copy that had already seen the creature's true Power).
+- Destroying the whole belief object stops that; "only destroy" keeps the bookkeeping simple — a reveal never computes a new value.
+- B sees its own creature hit harder than the face allows; damage beyond lethal shows nothing.
+- An exact replay is cheap: we always know which lies remain, so it never searches, and more than a handful of belief objects on one value is not expected.
+
+**Considered** (→ `playtest-variants.md` §What a contradiction reveals):
+- **Destroy on read** (the base solution): Q-b never happens, but paying AP reads AP although "enough AP?" has the same answer both ways, and reads nobody sees would reveal; can't be judged without playing it.
+- **"Changing":** current Life is also observed whenever it changes, so return damage on a Mimic's false Life reveals it.
+- **Contradiction on the certain properties only** (D164's list), destroying the whole belief object.
+- **D164's partial reveal** — possible now only as card design, one Pretend per property.
+- **A value resting on a destroyed lie becomes true** even if another lie shaped it too; **merging the differences at a cap**. Both err toward the truth.
+- **Representations:** offsets from the truth (break at every cap, can't hold a creature missing from one belief); five full copies of the state; a list of changes for every value, recomputed on every read.
+
+**Replaces in D164** (→ `decisions-archive.md`): Q4's observing of the values read with their max values, and "nothing else is revealed" (a face surviving a contradiction, no cause); an unbelieved ability added without a contradiction; observing only on a contradiction, never in combat. **Reopens:** what is observed of opposing cards in Hand and Discard (`PLAN.md` Track A item 82).
+
+**Open:** history entries produced by a lie (`PLAN.md` Track A item 84).
+
+→ `asymmetric-information.md` (§Deduced properties, §Contradiction, §Representing deception), `glossary.md`, `overview.md` §9, `interaction-stack.md` (§Resolution), `history/playtest-variants.md`, `PLAN.md` Track A items 82 and 84, Track B items 26 and 79, Track C item 10, Track D item 83. Engine: Track B item 79.
+
+### D164 — The observation model: what can be observed, what is certain, everything else deduced; a contradiction observes what the instruction read *(replaced parts in `decisions-archive.md`)*
 
 `PLAN.md` Track A item 72, discussed 2026-10-28 to 11-04. Rebuilds the belief rules around four questions. Before: observation was an ability on every terrain (D152), your own permanents were true in your copy (D155), every instruction named the permanents it affected (D153), the death check ran on the true state for every copy (D149), and a contradiction also revealed its cause (D151's large reveal).
 
@@ -20,11 +58,9 @@ Decisions, and parts of decisions, that later decisions replaced are in `decisio
 - **Targets are trace content** (amends D153). A target is pretendable like the rest of the content. A non-targeted effect names nothing: each copy applies it to the permanents it believes in. "A death names the creature that fell" and "a permanent's controller is always known" go: a death is deduced in each copy. Taking a Neutral permanent in an unobserved Root stays hidden only with a Pretend. AP spent stays public, since a move's trace names its creature as content.
 - **Gaining a permanent or stealing a card** observes only what is certain for your own objects; the content beliefs carry over (replaces D162's "gaining a permanent makes its values true").
 - **A card belief always has one section, possibly false** (amends D154's "knows its section"). A secret draw is "Draw a card. *Pretend:* no effect".
-- **Q4, contradiction.** A certain observation overwrites only what it observes. When it contradicts what a copy carried out — a creature lives that the copy's death check removed, a creature falls that the copy expected to live, a creature spends more AP than the copy believes it has, a payment takes the copy's count of a pool below 0 (D157), a trace stays in the Aether that the copy believed faded (or the other way round), a permanent takes an action the copy believes illegal — that copy also **observes the true values of the properties the instruction read, together with their max values** (max-Life with Life, max-AP with AP). This is D146's rule with the max values added. An overspend observes the count and the production of the terrains that credit the pool; a trace in the Aether observes its Duration. A contradiction never fills in an unknown (D151): a `?` stays `?`.
-- **A check reads static abilities like any other property,** so an action the copy believes illegal observes what its checks read. For now each check names them: a move (Move, Ascend, Descend) reads Flying and the terrain's Move surcharge; an Attack reads Ranged, so every combat contradiction observes it with Life and Attack; the timing of an activation reads Haste. Ability types may take this over (Track C item 10).
-- **An ability the copy doesn't believe the permanent has:** using it shows the ability as the trace shows it (true, unless the ability carries its own Pretend), and the copy adds it to its belief of the permanent — nothing more.
-- **Nothing else is revealed.** No cause: D151's large reveal is dropped, and with it D163's history rewrite. No name: a Mimic face survives a contradiction with its stats observed, and collapses by its own stated collapse (D131), a reveal, or a check that reads an identity property (name, card type, subtypes) and comes out differently than the copy expected — "Destroy target Goblin" fizzling on a Dragon with Mimic: Goblin. Then everything the Mimic hid is observed; a separate Pretend on the permanent stays (amends D150, D159). A Pretend that shows a different card type without Mimic is outside the prototype (Track D item 81). D131's fallback "collapse to the full truth" and D18's "collapse → full truth by default" go; D18's "no deduction engine" stays.
-- **Only on a contradiction**, not in every combat. Observing more (every combat) stays open for playtests.
+- **Q4, contradiction.** A certain observation overwrites only what it observes. It contradicts what a copy carried out when a creature lives that the copy's death check removed, a creature falls that the copy expected to live, a creature spends more AP than the copy believes it has, a payment takes the copy's count of a pool below 0 (D157), or a permanent takes an action the copy believes illegal; what a contradiction does is D165. A contradiction never fills in an unknown (D151): a `?` stays `?`.
+- **A check reads static abilities like any other property,** so an action the copy believes illegal contradicts what its checks read. For now each check names them: a move (Move, Ascend, Descend) reads Flying and the terrain's Move surcharge; an Attack reads Ranged; the timing of an activation reads Haste. Ability types may take this over (Track C item 10).
+- **A Pretend that shows a different card type without Mimic is outside the prototype** (Track D item 81). D131's fallback "collapse to the full truth" and D18's "collapse → full truth by default" go; D18's "no deduction engine" stays.
 - **A ghost can't be targeted** — a permanent a copy believes in that isn't there fails the visibility check at binding. Capacity already fits (D132: a truly full Slice fizzles the move, the cost is spent).
 - **A belief never changes the true state;** the only indirect effect is a neutral seat's copy steering its permanents' Behavior. Changing a belief by hand is outside the prototype (Track D item 80): it would let a player set an enemy's Life to 0, see the creature standing and observe its true Life.
 - **The view tells certain values from deduced ones, and shows where each deduced value came from** (`PLAN.md` Track A item 60).
@@ -32,21 +68,19 @@ Decisions, and parts of decisions, that later decisions replaced are in `decisio
 **Why (user's reasoning):**
 - **"All properties apart from those listed as certain observations are deduced, except when a basic instruction that observes true values is executed."** One model for every object; a hidden curse on your own creature works.
 - **Uncertainty must not only pile up.** Some of it is lifted when an object takes part in certain interactions. The smallest set of such states is the states where a contradiction arises; more stays possible.
-- **The max values come along** because a higher current Life or AP can come from a higher max.
 - **A revealed name reveals everything about a Mimic**, not only what the interaction read.
-- **Start simple,** and add a cause reveal or more observations if it plays strangely or isn't fun.
 - **One global observation default** instead of an ability on every terrain.
 - **A legality check is one more read** (Claude, agreed): one rule, "observe what the checks read", instead of a table of ability groups per action.
 - **A revealed identity means a revealed Mimic:** all things hidden by the Mimic are revealed.
 
 **Considered and rejected** (→ `playtest-variants.md` §What a contradiction reveals, §Observation):
-- **The large reveal** (D151) and **the terrain observation abilities** (D152).
+- **The terrain observation abilities** (D152).
 - **Fit without observing anything** (item 72's first answer): a contradicted value with no observation needs a guess. The guesses tried: `?` for every value the instruction read (`?` spreads into every later instruction that reads it); the smallest change that makes the belief fit, with tie-breaks (enemy values before own; a fixed order of property and controller; values an opponent's trace touched, most recent first — but a Pretend can lie about the property and the target); a forced pick by the player at every contradiction, with an automatic rule for the neutral seats.
 - **Reasoning over every legal trace** to find the cause: a deduction engine (D18), and it needs the opponent's hidden cards.
 - **Life certain for your own permanents:** kills hidden curses.
 - **D155's "your own permanents are true in your copy"**.
 - **Static abilities attached to the trace** (user): an Attack trace carries Ranged, a move carries Flying. Kept as a variant: it needs the attached abilities true in every copy, so it shows them at every use, not only on a contradiction.
-- **Item 72's other rejected variants:** a section as a set of possibilities ("4–5 cards", advertises a secret draw); face-down activation as the default; rule steps applied from the true state to every copy; on a contradiction, revealing the cause, or fitting with the death known.
+- **Item 72's other rejected variants:** a section as a set of possibilities ("4–5 cards", advertises a secret draw); face-down activation as the default; rule steps applied from the true state to every copy; on a contradiction, fitting with the death known.
 
 **Deferred:** changing a belief by hand (Track D item 80); a Pretend on a card type (Track D item 81); the smallest change for a location instead of `?` ("keep where its last move or descend put it", Track D item 77); a card that changes what an observation shows (Track D item 78); ability types instead of the per-check lists (Track C item 10).
 

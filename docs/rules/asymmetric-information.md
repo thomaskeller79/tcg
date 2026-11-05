@@ -2,7 +2,7 @@
 
 *Champions do not share one view of the board. What each Champion perceives is itself a manipulable, card-driven property.*
 
-**Decisions:** D12, D18, D41, D42, D67, D71, D102, D118, D131, D146, D148, D149, D150, D151, D152, D153, D154, D155, D157, D161, D162, D163, D164 (`history/decisions.md`)
+**Decisions:** D12, D18, D41, D42, D67, D71, D102, D118, D131, D146, D148, D149, D150, D151, D152, D153, D154, D155, D157, D161, D162, D163, D164, D165 (`history/decisions.md`)
 
 ---
 
@@ -38,7 +38,7 @@ A digital TCG can do something a physical one fundamentally cannot: **give the t
 **Every belief is one of three kinds (D164):**
 - **Observed** (§Observation): which objects an observer can observe at all.
 - **Certain** (§Certain properties): the properties that are true whenever the object is observed. No Pretend reaches them.
-- **Deduced** (§Deduced properties): everything else, your own permanents included. A deduced value becomes true only when a basic instruction observes true values: investigate, or a contradiction (§Contradiction).
+- **Deduced** (§Deduced properties): everything else, your own permanents included. A deduced value is false only through a lie (§Belief objects); it becomes true when a basic instruction observes it (investigate), or when its lie is destroyed (§Contradiction).
 
 The view tells certain values from deduced ones, and shows where each deduced value came from (`PLAN.md` Track A item 60).
 
@@ -67,7 +67,7 @@ A certain property is true in an observer's copy whenever the observer observes 
 | Own permanent | location, instance, name, subtypes, controller |
 | Another observer's permanent | location, instance, controller (controller only together with location, `PLAN.md` Track D item 74) |
 | Terrain | the capacity of each Slice |
-| Trace | section, position, controller, `source` as instance; its name for its activator |
+| Trace | section, position, controller, `source` as instance, Duration; its name for its activator |
 
 **Observing a permanent identifies its instance,** not only its name; two identical creatures are never confused. **An observed location can't be pretended** — location decides whether a permanent is observed at all; an illusion uses a decoy, a real permanent with a Mimic face (`PLAN.md` Track D item 75). Terrain Mimic is Track D item 76.
 
@@ -101,7 +101,7 @@ There is **no base rule** that attacking or entering a hex reveals what is hidde
 The hard core of pillar 6 is not *hiding* a fact but keeping a *false view internally consistent* — and defining what happens when reality contradicts it.
 
 **Governing principle:**
-> **Players believe what they see. A lie holds until a certain observation contradicts it; then the observer learns the true values the contradicted instruction read — not the lie's cause.**
+> **Players believe what they see. A lie holds until an observation contradicts it; then the whole lie is gone for that observer.**
 
 - The engine **never fabricates a consistent alternate reality** (rejected: infinite regress, unbalanceable, not authorable). **Cards author what the opponent sees** (Pretend, below); the engine applies it and does nothing to back it up.
 - **No deduction engine.** Deduced beliefs change only by carrying out traces, by observation and by contradiction — a sound but incomplete picture by design. The engine enforces a **small, finite, documented set of conservation laws** (e.g. a payment can't take the opponent's count of a mana pool below 0, D157). **All other deduction is the human's.** The mind-game lives in the player, not the CPU.
@@ -123,7 +123,7 @@ The defaults, which card text may override:
 - **Targets are trace content.** A trace names its targets, and a Pretend may name others ("Pretend: another target creature gets +1 Attack", a second target chosen at cast). **A non-targeted effect names nothing:** each copy applies it to the permanents it believes in.
 - **The death check** runs in each copy on its own values: a creature falls in a copy when that copy's Life for it reaches 0.
 - **Gaining a permanent or stealing a card** observes what is certain for your own objects (§Certain properties); the content beliefs carry over. Nothing else moves with it: what the old holder knew stays in its copy.
-- **Durations run per copy:** a trace's Duration may differ between copies, so an effect can end in one copy and not in another — until the trace's place in the Aether, which every observer sees, contradicts it (§Contradiction).
+- **Durations are certain:** a trace's Duration is the same in every copy, so an effect ends everywhere at once. A pretended Duration is outside the prototype (`PLAN.md` Track D item 83).
 - **A move** keeps the opponent's location belief (§Observation).
 - **The mana pool (D156).** Every other observer's belief of a pool is one count; the holder's copy holds the counts per kind. A credit raises the count by the terrain's production and flips its drawn flag in every copy; add mana raises it by the believed amount; a cost lowers it by the believed pips; the owner's Beginning phase sets it to 0. Pretended costs and gains reach the other observers' copies, true ones don't; color is never checked.
 
@@ -133,36 +133,48 @@ A belief is never disjunctive ("either this one or that one"): every update land
 
 **Cards you lose track of (D154).** A card belief always has one section, possibly false, so the counts of Library, Hand and Discard follow from the objects in each belief; its position may be `?`. When an instruction moves a card a Champion can't identify — a draw from a Library whose order it doesn't know — every card in that section whose position the Champion doesn't know becomes **anonymous** for it: every belief about it except its section is forgotten. Example: A shuffles a known Bolt into its Library — section Library, position `?` for both. A draws and sees the card, so A's beliefs stay certain; B sees only a card leaving the Library, so every card B knew there with an unknown position, the Bolt included, becomes anonymous. A card whose position B knows (put on top) stays identified.
 
-**Traces (D155).** A cast trace's content is true for everyone unless the card's Pretend says otherwise, and the cast card in Discard is believed as its trace is. An ability trace is created from its permanent's ability, so each copy is copied once from that Champion's belief of the ability (D140) — automatically. **An ability a copy doesn't believe the permanent has** shows in its trace as it truly is, unless the ability carries its own Pretend, and the copy adds it to its belief of the permanent; it learns nothing else, so a Mimic believed to be a Goblin that uses a Dragon ability keeps its face. **A trace shows each target only to Champions who observe it:** a permanent target is named, its location shown only to those who observe it; a location target — one Slice of one terrain — only to those who observe that Slice, which a Champion does where it would observe a permanent it doesn't control. A move inside darkness stays hidden; a move out into the light shows its destination. A visible effect still hints where its hidden source is. **Values in a trace come from beliefs:** "damage equal to its Attack" takes each Champion's belief of that Attack (D140), whether fixed at activation or computed at resolution.
+**Traces (D155).** A cast trace's content is true for everyone unless the card's Pretend says otherwise, and the cast card in Discard is believed as its trace is. An ability trace is created from its permanent's ability, so each copy is copied once from that Champion's belief of the ability (D140) — automatically. **An ability a copy doesn't believe the permanent has** shows in its trace as it truly is, unless the ability carries its own Pretend; using it is a contradiction (§Contradiction), so a Mimic believed to be a Goblin that uses a Dragon ability loses its face. **A trace shows each target only to Champions who observe it:** a permanent target is named, its location shown only to those who observe it; a location target — one Slice of one terrain — only to those who observe that Slice, which a Champion does where it would observe a permanent it doesn't control. A move inside darkness stays hidden; a move out into the light shows its destination. A visible effect still hints where its hidden source is. **Values in a trace come from beliefs:** "damage equal to its Attack" takes each Champion's belief of that Attack (D140), whether fixed at activation or computed at resolution.
 
 **Bonds** are true in every copy.
 
-## Contradiction (D146, D164)
-**A certain observation overwrites only what it observes.** When it contradicts what a copy carried out, that copy also **observes the true values of the properties the instruction read, together with their max values** (max-Life with Life, max-AP with AP). Nothing else is revealed: not the cause (the trace or card behind the false value), and not a name unless the instruction read one — a Mimic face survives with its stats observed. A contradiction happens only where the observation and the copy disagree; a lie that fits every observation stays.
+## Belief objects (D165)
+**A lie is a belief object:** one lie for one observer. It is not a game object and can't be referenced. One Pretend creates one belief object per observer it fools — a Mimic creates three (B, Neutral A, Neutral B), identical except for the observer. A belief object is attached to every object that carries the lie: the card, the trace, the permanent. Beliefs follow the `source` chain; once the trace has ceased to exist, the permanent links to the card (D97), so the card follows the permanent.
+
+**Derived belief objects.** A false value computed from a lie — the damage a creature with a false Attack deals, the Life it leaves on its target — is a derived belief object, resting on the belief objects it was computed from. Rule steps (AP refresh, Life cap, death check, fading, credit) also run on each observer's believed values, and what they compute rests on the same belief objects.
+
+**A lie is only ever destroyed, never altered.** Destroying a belief object destroys everything that rests on it. Afterwards each attachment is deduced again from the true source, with what the observer can observe: a value it can observe becomes true, one it can't becomes `?`. A decoy caught while in darkness gets location `?`, not its true location.
+
+**Instructions change believed values.** An instruction that closes the gap — the true and the believed value become equal, such as a heal to max in both — destroys the derived belief object; one that only narrows the gap keeps it.
+
+**Two or more lies on one value.** When one of them is destroyed, the value's changes are replayed with the remaining lies. Example: D (Life 9, max 9) is hit by X and by Z, each truly 3 Attack and believed 2; truth 3, believed 5. A heal of 5 makes the truth 8 and the belief 9 (capped). When X's lie is destroyed, the replay gives 9 − 3 − 2 = 4, healed to 9: B believes 9, the part Z's lie still explains.
+
+**One Pretend is one belief object,** so what is revealed together is card design: a card that wants its Flying to surface without its face uses two Pretends.
+
+## Contradiction (D146, D164, D165)
+**What is observed:** the certain properties (§Certain properties) and **the damage a creature takes** — the Life it actually loses, so damage beyond lethal doesn't show — each only for objects the observer observes. Nothing about an object is observed if the object can't be observed.
+
+**When an observation contradicts what an observer's copy carried out,** the belief objects behind the false values the contradicted instruction read are destroyed for that observer, its checks included. A contradiction on a derived belief object destroys its roots. Other observers keep their lies until they observe a contradiction themselves. A lie that fits every observation stays. Rule steps never reveal: a contradiction needs an observation.
 
 Typical contradictions:
-- **A creature lives that the copy's death check removed.** It is observed on the Ground, so it comes back into the copy, with the true Life and max-Life, and the Attack and Ranged of the creature that hit it (an Attack reads Ranged in its range check).
-- **A creature falls that the copy expected to live.** Same values observed.
-- **A creature spends more AP than the copy believes it has** (AP spent is public: its trace names the creature). Its current-AP and max-AP are observed.
-- **A payment takes the copy's count of a pool below 0** (D157). The count is observed, with the production of the terrains that credit the pool; which spell was the cheap one is not.
-- **A trace stays in the Aether that the copy believed faded, or is gone though the copy believed it there.** Its Duration is observed.
-- **A permanent takes an action the copy believes illegal.** A check reads static abilities like any other property, so the copy observes what the action's checks read. Each check names them: a move (Move, Ascend, Descend) reads Flying and the terrain's Move surcharge; an Attack reads Ranged; the timing of an activation reads Haste. Example: a creature the copy believes has no Flying enters the Sky — its Flying is observed.
-- **A check that reads an identity property** (name, card type, subtypes) comes out differently than the copy expected: "Destroy target Goblin" fizzles on a Dragon with Mimic: Goblin. The Mimic collapses: everything it hid is observed. A separate Pretend on the permanent stays.
+- **A creature takes more or less damage than the copy expected.** B believes X has Attack 2, truly 3; X hits B's creature K (4 Life). K loses 3, B expected 2: X's belief object goes, and B sees X's true values and its true card.
+- **A creature lives that the copy's death check removed, or falls though the copy expected it to live.** It is observed standing or missing.
+- **A creature spends more AP than the copy believes it has** (AP spent is public: its trace names the creature).
+- **A payment takes the copy's count of a pool below 0** (D157).
+- **A permanent takes an action the copy believes illegal.** A check reads static abilities like any other property, so the belief objects behind what the checks read go. Each check names them: a move (Move, Ascend, Descend) reads Flying and the terrain's Move surcharge; an Attack reads Ranged; the timing of an activation reads Haste. Example: a Dragon with Mimic: Goblin, believed to have no Flying, enters the Sky — the Mimic's belief object goes.
+- **A permanent uses an ability the copy doesn't believe it has** (§Traces).
+- **A check that reads an identity property** (name, card type, subtypes) comes out differently than the copy expected: "Destroy target Goblin" fizzles on a Dragon with Mimic: Goblin, and the Mimic's belief object goes. A separate Pretend on the permanent stays.
 
-**A contradiction never fills in an unknown (D151):** it corrects false beliefs only; a belief that is `?` stays `?`. A ranged creature in darkness whose Attack bluff is caught keeps its location hidden, though the range check read it; a decoy's location is false, not `?`, so it is corrected when the creature acts from its real place.
+**A contradiction never fills in an unknown (D151):** a belief that is `?` because nobody observed it stays `?`. A ranged creature in darkness whose Attack bluff is caught keeps its location hidden, though the range check read it.
 
 **A combat is compared once.** Its damage in both directions is one instruction (D13), so the comparison runs after all damage and falls together; a bluff can't surface between attack and return damage. A keyword like First Strike splits the damage into two instructions, each compared on its own.
-
-Example: B believes X has Attack 3, truly 2, because of a Pretend, and X hits B's creature K. If K has 4 Life, B's copy carries out 3 damage (K at 1) while K truly has 2 left; Life is deduced, so nothing B observes differs, and the lie survives. If K has 3 Life, B's copy removes K, but K truly lives and is observed standing: a contradiction. B observes K's Life (1) and max-Life and X's Attack (2); the Pretend card stays unknown.
 
 **Costs.** A cost that changes something an observer sees (felling a visible creature, an unbond, Life paid as damage, D147) shows that change. The reset at the owner's Beginning phase sets the pool to 0 in every copy, so an untested mana bluff is never revealed afterwards.
 
 ## Representing deception: Pretend, Mimic, ChooseOne (D18, D150)
-**Pretend is the one deception mechanism.** A card states its true effect and, after *Pretend*, what everyone else sees; they believe it. A Pretend remembers its caster on the object: the true copy and the caster's copy apply the true effect; every other copy — the opponent's and both neutral seats' (D162) — applies the pretend, so four casters give four different wrong versions. For a permanent's own Mimic, the caster is its owner, not its current controller.
+**Pretend is the one deception mechanism.** A card states its true effect and, after *Pretend*, what everyone else sees; they believe it. A Pretend remembers its caster on the object: the true copy and the caster's copy apply the true effect; every other copy — the opponent's and both neutral seats' (D162) — applies the pretend, so four casters give four different wrong versions. For a permanent's own Mimic, the caster is its owner, not its current controller. Each fooled observer gets its own belief object (§Belief objects).
 
 ```
 Mirage Might    Target creature gets +0 Attack.  Pretend: target creature gets +1 Attack.
-Mirage 3        Target creature gets +1 Attack.  Pretend: target creature gets +1 Attack until end of turn.
 ```
 
 **Secret and concealed are forms of Pretend:** *secret* is "Pretend: no effect" — the opponent doesn't even see the target; *concealed* is "Pretend: does nothing to target creature" — the target is seen, nothing seems to happen. An effect never turns a belief into `?`; `?` is for what nobody has seen, or what a Champion lost track of (§Observation, §Cards you lose track of). Cards may name these forms with different keywords; that is card wording, one mechanism in the rules. Pretend works on any deduced property — on the location of a creature the opponent can't see too, moving its belief.
@@ -170,7 +182,7 @@ Mirage 3        Target creature gets +1 Attack.  Pretend: target creature gets +
 **Every copy applies the effect as it believes the trace reads.** So deceiving a player about an ability's text carries into everything the ability does, with no extra rule.
 **Pretend on a creation (prototype, D155).** Creating a permanent is never hidden: a Pretend may only show a different permanent — a Mimic face, or "create 2 Fire Warriors. *Pretend:* create 2 Water Elementals". Every permanent is therefore in every belief, with values. An ability may carry its own Pretend, for deception beyond what the beliefs about its permanent already give.
 
-**`ChooseOne[…]`** — a modal effect; the caster picks **privately**, and the choice reaches the true copy and the caster's copy. **Mimic** is Pretend on the cast: "5/5 Dragon. *Pretend:* 1/1 Goblin" — every copy but the true one and the caster's reads Goblin, and the permanent and the card in Discard copy that belief (D140). A permanent's name isn't certain for other observers, so the face holds: a contradiction shows its true Attack and Life but not its name. It collapses by its own stated collapse (D131), a reveal, or a check that reads an identity property (§Contradiction). The face must be plausible: a Flying Dragon entering the Sky as a Goblin shows its Flying at once. A Pretend that shows a different card type without Mimic is outside the prototype (`PLAN.md` Track D item 81).
+**`ChooseOne[…]`** — a modal effect; the caster picks **privately**, and the choice reaches the true copy and the caster's copy. **Mimic** is Pretend on the cast: "5/5 Dragon. *Pretend:* 1/1 Goblin" — every copy but the true one and the caster's reads Goblin, and the permanent and the card in Discard copy that belief (D140). A permanent's name isn't certain for other observers, so the face holds until a contradiction destroys its belief object (§Contradiction), its own stated collapse applies (D131), or a reveal; then everything it hid is deduced again. The face must be plausible: a Flying Dragon entering the Sky as a Goblin is caught at once. A Pretend that shows a different card type without Mimic is outside the prototype (`PLAN.md` Track D item 81).
 
 **Worked card:**
 ```
