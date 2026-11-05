@@ -420,7 +420,7 @@ The contradiction also reveals what caused the false value — the traces and th
 modifier remembers its trace) and the static abilities that contribute to it, traced back on the
 true state — and corrects later false beliefs from the same cause. D165 brings it back in another
 form: the lie is a belief object, destroyed whole with everything resting on it, without tracing
-causes on the true state. What D151 also did to the history is `PLAN.md` Track A item 84.
+causes on the true state. D151's history rewrite comes back the same way (§History after a contradiction).
 
 ### Variant — observe in every combat · NOT ADOPTED (playtest)
 Every combat observes the read values of both creatures, whether or not anything contradicts.
@@ -551,15 +551,14 @@ many Neutral permanents makes the number of copies infeasible.
 
 ## History after a contradiction (D163, D164, D165)
 
-**Current rule:** each copy's history holds the instructions as that copy carried them out; a
-contradiction never rewrites it. Reopened by D165, which destroys whole lies: `PLAN.md` Track A
-item 84.
+**Current rule (D165):** each copy's history holds the instructions as that copy carried them out.
+An entry produced by a lie ("X got +1 Attack" from a Pretend) rests on the lie's belief object,
+displayed or not, and is deduced again when it is destroyed ("+0"); `?` entries stay `?`. So a
+later history condition never reads a lie the observer has already seen through.
 
-### Variant — the large reveal rewrites the history · OPEN (`PLAN.md` Track A item 84)
-Belongs to the large reveal above: every history entry produced by a revealed trace or card is
-rewritten in that observer's copy to its true output ("X got +1 Attack" becomes "+0"), `?`
-entries stay `?`. Without it a later history condition can mispredict in a copy whose observer
-already knows the truth (the same card cast twice in a row contradicts twice). D165 brought
-the large reveal back as destroyed belief objects; whether a history entry rests on its lie and
-goes with it is `PLAN.md` Track A item 84.
+### Variant — the history is never rewritten (D163, D164) · REPLACED by D165
+A contradiction never rewrote the history, since D164 revealed no cause. A later history condition
+could then mispredict in a copy whose observer already knew the truth (the same card cast twice in
+a row contradicts twice). D151 had rewritten it as part of the large reveal; D165 brings that back
+as part of destroying a belief object.
 

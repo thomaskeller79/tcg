@@ -17,6 +17,7 @@ Decisions, and parts of decisions, that later decisions replaced are in `decisio
 - **A belief object** describes one lie for one observer. It is not a game object and can't be referenced. One Pretend creates one per fooled observer — a Mimic creates three (B, Neutral A, Neutral B), identical except for the observer. It is attached to every object that carries the lie (card, trace, permanent); beliefs follow the `source` chain, and once the trace ceases to exist the permanent links to the card (D97).
 - **Believed values are stored,** not recomputed. A false value computed from a lie (the damage dealt by a creature with a false Power, the Life it leaves) is a **derived belief object** that rests on its sources.
 - **A lie is only ever destroyed, never altered.** Destroying a belief object destroys everything that rests on it; a contradiction on a derived belief object destroys its roots. Afterwards each attachment is deduced again from the true source with what the observer can observe: true where observable, `?` otherwise — a decoy caught in darkness gets location `?`; a card in Discard follows its trace, or its permanent once the trace is gone.
+- **History entries produced by a lie** rest on its belief object, displayed or not, and are deduced again with it, so a history query never reads a lie the observer has already seen through. A belief object ends when it is destroyed or every gap it left has closed, not when its traces fade.
 - **Instructions change believed values.** An instruction that closes the gap (a heal to max in the truth and in the belief) destroys the derived belief object; one that only narrows it keeps it.
 - **Two or more lies on one value:** destroying one replays that value's changes with the remaining lies (D's Life after two bluffing hits and a heal the cap cut short). Exact, never a search over possible causes; designed during implementation.
 - **One Pretend is one belief object,** so what is revealed together is card design: a card that wants its Flying to surface without its face uses two Pretends.
@@ -40,11 +41,11 @@ Decisions, and parts of decisions, that later decisions replaced are in `decisio
 - **A value resting on a destroyed lie becomes true** even if another lie shaped it too; **merging the differences at a cap**. Both err toward the truth.
 - **Representations:** offsets from the truth (break at every cap, can't hold a creature missing from one belief); five full copies of the state; a list of changes for every value, recomputed on every read.
 
-**Replaces in D164** (→ `decisions-archive.md`): Q4's observing of the values read with their max values, and "nothing else is revealed" (a face surviving a contradiction, no cause); an unbelieved ability added without a contradiction; observing only on a contradiction, never in combat. **Reopens:** what is observed of opposing cards in Hand and Discard (`PLAN.md` Track A item 82).
+**Replaces in D164** (→ `decisions-archive.md`): Q4's observing of the values read with their max values, and "nothing else is revealed" (a face surviving a contradiction, no cause); an unbelieved ability added without a contradiction; observing only on a contradiction, never in combat; and the history's "a contradiction never rewrites it". **Reopens:** what is observed of opposing cards in Hand and Discard (`PLAN.md` Track A item 82).
 
-**Open:** history entries produced by a lie (`PLAN.md` Track A item 84).
+**Open:** the Aether as a view of the history (`PLAN.md` Track A item 85).
 
-→ `asymmetric-information.md` (§Deduced properties, §Contradiction, §Representing deception), `glossary.md`, `overview.md` §9, `interaction-stack.md` (§Resolution), `history/playtest-variants.md`, `PLAN.md` Track A items 82 and 84, Track B items 26 and 79, Track C item 10, Track D item 83. Engine: Track B item 79.
+→ `asymmetric-information.md` (§Deduced properties, §Contradiction, §Representing deception), `glossary.md`, `overview.md` §9, `interaction-stack.md` (§Resolution), `history/playtest-variants.md`, `PLAN.md` Track A items 82 and 85, Track B items 9, 26 and 79, Track C item 10, Track D item 83. Engine: Track B item 79.
 
 ### D164 — The observation model: what can be observed, what is certain, everything else deduced; a contradiction observes what the instruction read *(replaced parts in `decisions-archive.md`)*
 
