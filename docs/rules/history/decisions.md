@@ -19,7 +19,7 @@ Decisions, and parts of decisions, that later decisions replaced are in `decisio
 - **A lie is only ever destroyed, never altered.** Destroying a belief object destroys everything that rests on it; a contradiction on a derived belief object destroys its roots. Afterwards each attachment is deduced again from the true source with what the observer can observe: true where observable, `?` otherwise — a decoy caught in darkness gets location `?`; a card in Discard follows its trace, or its permanent once the trace is gone.
 - **History entries produced by a lie** rest on its belief object, displayed or not, and are deduced again with it, so a history query never reads a lie the observer has already seen through. A belief object ends when it is destroyed or every gap it left has closed, not when its traces fade.
 - **Instructions change believed values.** An instruction that closes the gap (a heal to max in the truth and in the belief) destroys the derived belief object; one that only narrows it keeps it.
-- **Two or more lies on one value:** destroying one replays that value's changes with the remaining lies (D's Life after two bluffing hits and a heal the cap cut short). Exact, never a search over possible causes; designed during implementation.
+- **Two or more lies on one value:** destroying one replays that value's changes with the remaining lies (D's Life after two bluffing hits and a heal the cap cut short). Exact, never a search over possible causes; designed in `PLAN.md` Track B item 86, which may change the rules.
 - **One Pretend is one belief object,** so what is revealed together is card design: a card that wants its Flying to surface without its face uses two Pretends.
 - **When (Q-c): a contradicted observation.** Observed are the certain properties (D164) and **the damage a creature takes** — the Life it actually loses, so damage beyond lethal doesn't show — each only for objects the observer can observe; nothing about an object is observed if the object can't be observed. A contradiction destroys the belief objects behind the false values the contradicted instruction read, its checks included (D164: a move reads Flying and the Move surcharge, an Attack reads Ranged, an activation's timing reads Haste). A lie is lost only for the observer who observes the contradiction.
 - **Using an ability a belief object hid** is a contradiction like any other: the trace shows the ability, and the belief object goes.
@@ -43,9 +43,9 @@ Decisions, and parts of decisions, that later decisions replaced are in `decisio
 
 **Replaces in D164** (→ `decisions-archive.md`): Q4's observing of the values read with their max values, and "nothing else is revealed" (a face surviving a contradiction, no cause); an unbelieved ability added without a contradiction; observing only on a contradiction, never in combat; and the history's "a contradiction never rewrites it". **Reopens:** what is observed of opposing cards in Hand and Discard (`PLAN.md` Track A item 82).
 
-**Open:** the Aether as a view of the history (`PLAN.md` Track A item 85).
+**Open:** the Aether as a view of the history (`PLAN.md` Track A item 85); the replay (Track B item 86).
 
-→ `asymmetric-information.md` (§Deduced properties, §Contradiction, §Representing deception), `glossary.md`, `overview.md` §9, `interaction-stack.md` (§Resolution), `history/playtest-variants.md`, `PLAN.md` Track A items 82 and 85, Track B items 9, 26 and 79, Track C item 10, Track D item 83. Engine: Track B item 79.
+→ `asymmetric-information.md` (§Deduced properties, §Contradiction, §Representing deception), `glossary.md`, `overview.md` §9, `interaction-stack.md` (§Resolution), `history/playtest-variants.md`, `PLAN.md` Track A items 82 and 85, Track B items 9, 26, 79 and 86, Track C item 10, Track D item 83. Engine: Track B items 79 and 86.
 
 ### D164 — The observation model: what can be observed, what is certain, everything else deduced; a contradiction observes what the instruction read *(replaced parts in `decisions-archive.md`)*
 
