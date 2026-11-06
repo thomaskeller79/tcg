@@ -13,7 +13,7 @@
   - **Companion** — can bond terrain like a channeler, but the mana it draws stays in **its own pool**: funds its own subtree, never the Champion's.
   - **Champion** — can bond terrain **and** channel what it draws into **its own pool**, the one the whole army spends from (D8/D9).
 - **Deckbuilding-gated.** A Companion is a signature card tied to specific Champion(s) — legal only in the deck of the Champion(s) it names. Not a general card pool.
-- **Shape:** Creature's three numbers (Attack / Life / AP) **plus** its own mana pool **plus** a Bond ability. **"In between a Champion and a Creature":** it moves, fights, and bonds using the same **network-dependent cost shape** as a Champion (cheaper once its own connection collapses, pricier while it stays connected — see the action economy below) — but it can **never share** what it draws, and its own abilities are typically **priced higher** than a Champion's equivalent. A narrower, weaker channeler, not a second Champion.
+- **Shape:** Creature's three numbers (Power / Health / AP) **plus** its own mana pool **plus** a Bond ability. **"In between a Champion and a Creature":** it moves, fights, and bonds using the same **network-dependent cost shape** as a Champion (cheaper once its own connection collapses, pricier while it stays connected — see the action economy below) — but it can **never share** what it draws, and its own abilities are typically **priced higher** than a Champion's equivalent. A narrower, weaker channeler, not a second Champion.
 - **Because a Companion has no hand of spells to spend its own mana on** (it's a single card on the Island, not a pipeline of draws), it is printed with **its own built-in mana-abilities** — e.g. `4 mana, 4!AP: summon a 2/2/6 soldier`. Its pool needs *something* on the card itself to spend on, or it's dead resource.
 - **Meta-progression:** evolves between games like the Champion, but along a **more linear track** (fewer branch points) rather than the Champion's build-defining branching paths (D2). This is meta-layer scope (PLAN §9, post-M4) — parked here as a forward-note, not designed now.
 
@@ -21,8 +21,8 @@
 
 - A real card in the maindeck: drawn to Hand, **summoned like a Creature** (D20 — paid in mana from the Champion's pool, onto a bonded terrain cell in the Champion's realm, subject to Slice capacity and summoning sickness).
 - **Default abilities: the Champion's, minus Draw (D126)** — a Companion has no Mind (no Hand or Library of its own); in everything else it acts like a Champion: Bond, Move with the realm lock, Collapse Network, Attack, Defend, Equip, Un-equip. Its pool still never shares (above).
-- **Stats: Attack / Life / AP**, the same three numbers as a Creature (D10) — it occupies a board slot and is attackable. It moves, fights, and bonds using the network-dependent cost shape below (shared logic with the Champion, D9), not a Creature's flat defaults.
-- Losing a Companion is a real, permanent loss (Life → 0 → it falls, leaving a Remnant, D14, D110) — it doesn't end the match, but it **un-bonds the terrain it personally bonded** (see Terrain network, below) and its printed abilities go with it.
+- **Stats: Power / Health / AP**, the same three numbers as a Creature (D10) — it occupies a board slot and is attackable. It moves, fights, and bonds using the network-dependent cost shape below (shared logic with the Champion, D9), not a Creature's flat defaults.
+- Losing a Companion is a real, permanent loss (its damage reaches its Health → it falls, leaving a Remnant, D14, D110) — it doesn't end the match, but it **un-bonds the terrain it personally bonded** (see Terrain network, below) and its printed abilities go with it.
 
 ## The Companion action economy — mana + AP, same shape, more restrictive
 

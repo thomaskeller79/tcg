@@ -8,6 +8,25 @@ Decisions, and parts of decisions, that later decisions replaced are in `decisio
 
 ---
 
+### D168 — Power, Health and damage: one printed value each, damage tracked separately
+
+`PLAN.md` Track A item 39 (the stat names), discussed 2026-11-06 (audio-only session), after a survey of other card games. Before: the docs said **Attack** and **Life**; Life had a max and a current value, with damage and heal changing current only and ±X changing both as exact mirrors (D143).
+
+**Adopted (user):**
+- **Power** is the damage a creature deals (was Attack as a stat; Attack stays the name of the action).
+- **Health** is one value, printed and changed by ±X (was max Life).
+- **Damage** is what a permanent has taken. It persists (D14); **heal** removes damage, never below 0. A permanent falls when its damage reaches its Health. There is no "current" or "max" Health.
+- Consequence: a temporary +X Health ending can make a creature fall (Health 4, +2 until end of turn, 5 damage: it falls when the +2 ends). A Health raised for good survives Bounce; damage doesn't (`object-properties.md` §3).
+- Paying N Health as a cost deals N damage to the payer (D147, renamed).
+
+**Why (user):** one positive value and one negative instead of two positive ones avoids "max" and "current". Magic, Lorcana and Pokémon work this way (damage marked or counted next to a fixed number); the digital games (Hearthstone, Runeterra) lower the number itself, which is where "max" comes from. **Power** over Attack: Attack is the action ("Attack costs `3~AP`"), and "Attack 3" next to it confuses. **Health** over Life: other games keep "life" for the player's total so it doesn't clash with creature damage; Leyline has no player total (the Champion is a unit and falls like one), so either works, and Health pairs with heal — easier for non-native speakers. The user already said Power and Health.
+
+**Considered:** Life (shorter, already in the docs); keeping current and max Health (D143's model, where a temporary ±X takes back exactly what it gave).
+
+→ `glossary.md` (Power, Health, Damage), `object-properties.md`, `overview.md`, `economy.md`, `asymmetric-information.md`, `interaction-stack.md`, `structures-items.md`, `champions.md`, `companions.md`, `ancestry.md`, examples; `PLAN.md` Track C item 15 (now AP only); engine: `PLAN.md` Track B item 89.
+
+---
+
 ### D167 — Deck-out loss, decks of exactly 40, copy limits 1 or 2, no Island limit, opening hand 5
 
 `PLAN.md` Track A item 1, discussed 2026-11-06 (audio-only session), after a survey of how other card games handle an empty deck, deck size, copy limits and opening hands. Before: deck size, max copies and opening hand were strawmen (30 cards, 3 copies, hand 5); running out of cards had no rule; Companions were expected to be singletons through a general uniqueness rule not yet designed.
@@ -507,16 +526,15 @@ Closes the duration question raised during `PLAN.md` Track A item 51. Before: D5
 
 → `object-properties.md`, `glossary.md` (Aether, Modifier), `overview.md`, `economy.md`. Engine: Track B item 23.
 
-### D143 — Stat changes: Health and AP have a current-only pair and a ±X pair; Power is one value
+### D143 — Stat changes: Health and AP have a current-only pair and a ±X pair; Power is one value *(replaced parts in `decisions-archive.md`)*
 
 Closes the stat-change question raised during `PLAN.md` Track A item 51. Before: max- and current-tier for Attack, Life and AP (D70), with damage and heal on Life.
 
 **Adopted (user):**
-- **Health:** **damage / heal** change current only (heal capped at max); **+X / −X** change max and current together, as exact mirrors.
 - **AP:** **slow / quicken** change current only; **+X / −X** change max and current together. Names to settle in item 39.
 - **Power is one value**, changed by ±X: **current-Attack is dropped** from the property list. A permanent change is carried by Bounce (D70); a temporary one ends with its vessel (D144).
 
-**Why:** Health and AP are consumed — damage uses up Life, actions use up AP — so a current tier tracks what is left; Power is never consumed. Other games agree: CCGs have damage/heal plus buffs for Health and only ±X for Power; AP games (Divinity: Original Sin 2, Pathfinder 2e, Dofus) change both tiers (Haste/Slowed per turn, Adrenaline or AP removal now). MTG's damage next to −X toughness confuses new players; here −X visibly lowers the max, which keeps the two explainable.
+**Why:** AP is consumed — actions use it up — so a current tier tracks what is left; Power is never consumed. Other games agree: AP games (Divinity: Original Sin 2, Pathfinder 2e, Dofus) change both tiers (Haste/Slowed per turn, Adrenaline or AP removal now). Health: D168.
 
 **Considered and rejected:** **+X raising the max only as far as current exceeds it** (user): not the reverse of −X — −2 then +2 turns 3/5 into 3/3, and a temporary +2 can't be undone cleanly.
 

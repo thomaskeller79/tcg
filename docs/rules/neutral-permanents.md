@@ -41,7 +41,7 @@ Each round is four turns: `Champion A → Neutral A → Champion B → Neutral B
 
 **Turn order, priority, and simultaneous-trigger ordering are the standard multiplayer rule** — active-first, then each other participant in turn order (`Champion A, Neutral A, Champion B, Neutral B`, wrapping) — applied uniformly to all four seats. A neutral turn's Behavior triggers, and any real Champion's response windows during it, follow this same order; Neutral A/B never hold priority to cast anything of their own, they simply take their place in the order.
 
-**Neutral A and Neutral B are turn-order participants only — never "Champions" for any other purpose.** They have no life, hand, or library; they are never a legal `target player`; they are never counted by "each player." Control is still, and only ever, Champion A / Champion B / Neutral (`ancestry.md`) — the two seats name *when* a Neutral permanent acts, never *who* controls it.
+**Neutral A and Neutral B are turn-order participants only — never "Champions" for any other purpose.** They have no Health, hand, or library; they are never a legal `target player`; they are never counted by "each player." Control is still, and only ever, Champion A / Champion B / Neutral (`ancestry.md`) — the two seats name *when* a Neutral permanent acts, never *who* controls it.
 
 A permanent's assigned neutral turn is chosen by whatever effect made it Neutral (or spawned it directly as one), persists until reassigned together with its Behavior (§Becoming Neutral) — while the permanent is controlled it is simply unused — and, for a permanent with no card effect behind it, is assigned by the mission/scenario instead (`PLAN.md` §9).
 

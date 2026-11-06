@@ -23,7 +23,7 @@ Prototype cards from the item 27 discussion — what a fallen creature leaves, a
 
 - **Raise the Fallen** (Spell) — "Raise target Remnant you control." The basic zombify. "You control" means a Remnant on terrain you bonded, so an enemy creature that fell on your ground can be raised; the raised creature is yours (parent copies from your Trace).
 - **Watchtower → Ruined Tower** (Structure pair, e.g. a double-faced card) — Watchtower: "When this falls, create Ruined Tower on its slot." Ruined Tower is an ordinary Structure that needs its own reason to stay around (an ability worth keeping, e.g. cheap cover or a one-shot salvage). Felling the Watchtower leaves the ruin; destroying it leaves nothing. Replaces the withdrawn D110 Watchtower ("can only target a terrain you control with a Ruin").
-- **Gravewarden** (Creature) — "`1AP`, destroy target Remnant within distance 1: this gains 2 Life." A Remnant as a consumed resource.
+- **Gravewarden** (Creature) — "`1AP`, destroy target Remnant within distance 1: remove 2 damage from this." A Remnant as a consumed resource.
 - **Ghoul** (Creature) — card static: "can only target a terrain holding a Remnant you control." A location restriction as a card static (D110), and the Remnant as a requirement rather than a cost.
 - **Unmake** (Spell) — "Destroy target creature." Removal that leaves no Remnant and fires no fall triggers; should cost more than an equivalent "fell."
 - **Carrion Crow** (Creature, Flying) — "When a creature within distance 1 falls, draw a card." Tests the fall trigger: destroy, Flicker and Bounce don't fire it.

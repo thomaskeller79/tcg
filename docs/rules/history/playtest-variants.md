@@ -399,9 +399,10 @@ face with a different max AP goes at the creature's first action; a read the pla
 observe (a fight in darkness) would reveal to it as well. It still needs a contradicted certain
 observation to reveal too (a trace still in the Aether that its version has already ended).
 
-### Variant — "changing": current Life observed whenever it changes · NOT ADOPTED (playtest)
-Adds current Life to the observation list whenever it changes. Return damage on a Mimic whose
-Life is false then reveals it, even when it takes the same damage both ways.
+### Variant — "changing": damage and Health observed whenever damage changes · NOT ADOPTED (playtest)
+Adds a creature's damage and Health (D168) to the observation list whenever its damage changes.
+Return damage on a Mimic whose Health is false then reveals it, even when it takes the same damage
+both ways.
 
 ### Variant — certain properties only · NOT ADOPTED (playtest)
 D164's observation list, with the whole belief object destroyed: damage taken isn't observed, so a

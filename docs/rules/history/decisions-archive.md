@@ -136,6 +136,16 @@ the **death check** runs on the true state and applies to every copy; **damage**
 
 ---
 
+### D143 — Stat changes: Health and AP have a current-only pair and a ±X pair; Power is one value — replaced parts
+
+*Replaced by D168.*
+
+- **Health:** **damage / heal** change current only (heal capped at max); **+X / −X** change max and current together, as exact mirrors.
+
+**Why:** Health and AP are consumed — damage uses up Life, actions use up AP — so a current tier tracks what is left; Power is never consumed. Other games agree: CCGs have damage/heal plus buffs for Health and only ±X for Power; AP games (Divinity: Original Sin 2, Pathfinder 2e, Dofus) change both tiers (Haste/Slowed per turn, Adrenaline or AP removal now). MTG's damage next to −X toughness confuses new players; here −X visibly lowers the max, which keeps the two explainable.
+
+---
+
 ### D140 — A view state comes from the source; exceptions per instruction *(restated as one-time belief copies, D149; view states replaced by beliefs)*
 
 *Replaced by D149, D154, D161.*

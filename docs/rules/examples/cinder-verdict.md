@@ -52,10 +52,10 @@ E4 is three separate create instructions. Written as one instruction ("create tw
 
 Champion A is active. A's Hand: Cinder Verdict and **Spark**.
 
-| ID | Permanent | Controller | Life | Notes |
+| ID | Permanent | Controller | Health | Notes |
 |---|---|---|---|---|
 | 10 | Pyro Adept | A | 2 | A's only Fire creature |
-| 14 | Warcaller | A | 3 | *Whenever a Fire Warrior enters under your control, it gets +1 Attack.* |
+| 14 | Warcaller | A | 3 | *Whenever a Fire Warrior enters under your control, it gets +1 Power.* |
 | 20 | Stone Brute | B | 3 | *Targeting this costs an additional discard.* (known) Adjacent to Watcher. |
 | 22 | Watcher | B | 2 | *Whenever a creature within 1 of this is dealt damage, you gain 1 life.* Adjacent to Brute and Boar. |
 | 30 | Wild Boar | Neutral (seat Neutral A) | 1 | *When this falls, deal 1 damage to each adjacent creature.* Adjacent to Watcher. |

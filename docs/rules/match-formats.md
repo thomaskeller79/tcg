@@ -18,11 +18,11 @@ A player (or players) against Map-authored Neutral permanents (monster encounter
 
 ## Two-headed giant (or other team variants) — floated, not designed
 
-A hypothetical team format (à la MTG's Two-Headed Giant) where one side runs more than one Champion — e.g. two Champions sharing a life total but keeping separate mana pools, hands, and libraries (each teammate would still be its own network root, same shape as a Companion, `companions.md`/D8). Surfaced only as a reason to state "mana never crosses between pools" explicitly in `companions.md`, rather than leave it an accidental default. Genuinely undesigned.
+A hypothetical team format (à la MTG's Two-Headed Giant) where one side runs more than one Champion — e.g. two Champions sharing Health but keeping separate mana pools, hands, and libraries (each teammate would still be its own network root, same shape as a Companion, `companions.md`/D8). Surfaced only as a reason to state "mana never crosses between pools" explicitly in `companions.md`, rather than leave it an accidental default. Genuinely undesigned.
 
 ## Open questions
 
-1. **Shared vs. separate resources.** If a team format is ever pursued: one Life total or two? One Hand/Library per teammate (almost certainly, matching a Companion's own private-Hand-less shape) or something else? Mana pools already default to "never cross" per `companions.md` — does a team format ever want an opt-in exception?
+1. **Shared vs. separate resources.** If a team format is ever pursued: one shared Health or two? One Hand/Library per teammate (almost certainly, matching a Companion's own private-Hand-less shape) or something else? Mana pools already default to "never cross" per `companions.md` — does a team format ever want an opt-in exception?
 2. **Turn order.** Does a team interleave turns (`Champion A1 → Champion B1 → Champion A2 → Champion B2`) or share one turn? No default chosen.
 3. **Sides vs. Champions-per-side.** Does any variant ever need more than two *sides* (a true multiplayer free-for-all), or only more than one Champion *per side* (a 2v2 team)? These are different axes and haven't been distinguished.
 4. **The "two-Champion-seat framework is invariant for now" line (`overview.md`).** Does a team format relax this to "two *sides*, each with 1+ Champions," or does it need a deeper rework of turn order/priority/Controller (`Champion A / Champion B / Neutral`, `ancestry.md`)?
