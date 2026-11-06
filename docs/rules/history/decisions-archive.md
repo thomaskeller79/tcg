@@ -144,6 +144,12 @@ the **death check** runs on the true state and applies to every copy; **damage**
 
 **Why:** Health and AP are consumed — damage uses up Life, actions use up AP — so a current tier tracks what is left; Power is never consumed. Other games agree: CCGs have damage/heal plus buffs for Health and only ±X for Power; AP games (Divinity: Original Sin 2, Pathfinder 2e, Dofus) change both tiers (Haste/Slowed per turn, Adrenaline or AP removal now). MTG's damage next to −X toughness confuses new players; here −X visibly lowers the max, which keeps the two explainable.
 
+*Replaced by D169.*
+
+- **AP:** **slow / quicken** change current only; **+X / −X** change max and current together. Names to settle in item 39.
+
+**Why** (as it read after D168): AP is consumed — actions use it up — so a current tier tracks what is left; Power is never consumed. Other games agree: AP games (Divinity: Original Sin 2, Pathfinder 2e, Dofus) change both tiers (Haste/Slowed per turn, Adrenaline or AP removal now). Health: D168.
+
 ---
 
 ### D140 — A view state comes from the source; exceptions per instruction *(restated as one-time belief copies, D149; view states replaced by beliefs)*

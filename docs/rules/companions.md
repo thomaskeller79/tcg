@@ -13,50 +13,50 @@
   - **Companion** — can bond terrain like a channeler, but the mana it draws stays in **its own pool**: funds its own subtree, never the Champion's.
   - **Champion** — can bond terrain **and** channel what it draws into **its own pool**, the one the whole army spends from (D8/D9).
 - **Deckbuilding-gated.** A Companion is a signature card tied to specific Champion(s) — legal only in the deck of the Champion(s) it names. Not a general card pool.
-- **Shape:** Creature's three numbers (Power / Health / AP) **plus** its own mana pool **plus** a Bond ability. **"In between a Champion and a Creature":** it moves, fights, and bonds using the same **network-dependent cost shape** as a Champion (cheaper once its own connection collapses, pricier while it stays connected — see the action economy below) — but it can **never share** what it draws, and its own abilities are typically **priced higher** than a Champion's equivalent. A narrower, weaker channeler, not a second Champion.
-- **Because a Companion has no hand of spells to spend its own mana on** (it's a single card on the Island, not a pipeline of draws), it is printed with **its own built-in mana-abilities** — e.g. `4 mana, 4!AP: summon a 2/2/6 soldier`. Its pool needs *something* on the card itself to spend on, or it's dead resource.
+- **Shape:** Creature's three numbers (Power / Health / Energy) **plus** its own mana pool **plus** a Bond ability. **"In between a Champion and a Creature":** it moves, fights, and bonds using the same **network-dependent cost shape** as a Champion (cheaper once its own connection collapses, pricier while it stays connected — see the action economy below) — but it can **never share** what it draws, and its own abilities are typically **priced higher** than a Champion's equivalent. A narrower, weaker channeler, not a second Champion.
+- **Because a Companion has no hand of spells to spend its own mana on** (it's a single card on the Island, not a pipeline of draws), it is printed with **its own built-in mana-abilities** — e.g. `4 mana, 4!En: summon a 2/2/6 soldier`. Its pool needs *something* on the card itself to spend on, or it's dead resource.
 - **Meta-progression:** evolves between games like the Champion, but along a **more linear track** (fewer branch points) rather than the Champion's build-defining branching paths (D2). This is meta-layer scope (PLAN §9, post-M4) — parked here as a forward-note, not designed now.
 
 ## In-match: what a Companion is
 
 - A real card in the maindeck: drawn to Hand, **summoned like a Creature** (D20 — paid in mana from the Champion's pool, onto a bonded terrain cell in the Champion's realm, subject to Slice capacity and summoning sickness).
 - **Default abilities: the Champion's, minus Draw (D126)** — a Companion has no Mind (no Hand or Library of its own); in everything else it acts like a Champion: Bond, Move with the realm lock, Collapse Network, Attack, Defend, Equip, Un-equip. Its pool still never shares (above).
-- **Stats: Power / Health / AP**, the same three numbers as a Creature (D10) — it occupies a board slot and is attackable. It moves, fights, and bonds using the network-dependent cost shape below (shared logic with the Champion, D9), not a Creature's flat defaults.
+- **Stats: Power / Health / Energy**, the same three numbers as a Creature (D10) — it occupies a board slot and is attackable. It moves, fights, and bonds using the network-dependent cost shape below (shared logic with the Champion, D9), not a Creature's flat defaults.
 - Losing a Companion is a real, permanent loss (its damage reaches its Health → it falls, leaving a Remnant, D14, D110) — it doesn't end the match, but it **un-bonds the terrain it personally bonded** (see Terrain network, below) and its printed abilities go with it.
 
-## The Companion action economy — mana + AP, same shape, more restrictive
+## The Companion action economy — mana + Energy, same shape, more restrictive
 
-No new resource. Mana + AP are the only two things that keep the world ticking — a Companion doesn't get a third currency, it gets **a second pool instance of mana** (its own, separate from the Champion's) plus the standard private AP budget (D10):
+No new resource. Mana + Energy are the only two things that keep the world ticking — a Companion doesn't get a third currency, it gets **a second pool instance of mana** (its own, separate from the Champion's) plus the standard private Energy budget (D10):
 
 | Resource | Topology | Refills | Spent on |
 |---|---|---|---|
 | **Mana (Companion's own pool)** | one pool **per Companion**, separate from the Champion's | as its own bonded terrain produces (same conditional/pause rule as D8) | **everything in this Companion's own subtree** (`ancestry.md`) — never a different payer's abilities or spells |
-| **Activation Points (AP)** | private, same shape as any Creature (D10) | to max each turn | move · fight · Bond · its own abilities |
+| **Energy** | private, same shape as any Creature (D10) | to max each turn | move · fight · Bond · its own abilities |
 
 **Mana never crosses between pools, in either direction:** a Companion cannot draw on the Champion's pool, and the Champion's pool never receives what a Companion draws. This is already true of the Champion by omission (it's presently the only one funding the army), but stating it explicitly here is what would keep a future multi-Champion-per-side format well-defined — see `match-formats.md`.
 
 **Per D26 (Ancestry, `ancestry.md`):** a Companion's pool doesn't mean "usable only by the Companion card itself" — a Companion funds **everything in its own subtree** (creatures it produces via its own abilities, terrain/structures it bonds, items equipped to those creatures) from this same pool. What it still can't do is fund a *different* payer's own abilities or spells directly (the Champion's, or a different Companion's) — the boundary above is about crossing between pools, not about the Companion being an island.
 
-**Default AP actions mirror the Champion's realm-constraint shape (D9):** staying connected to its own network costs more than letting the connection collapse.
+**Default Energy actions mirror the Champion's realm-constraint shape (D9):** staying connected to its own network costs more than letting the connection collapse.
 
 | Action | Cost | Notes |
 |---|---|---|
-| **Move** | `1AP` while disconnected · `2AP` while connected | Exactly the Champion's rule (D9, D126); `2AP` is set at twice the generic `1AP` (D134). **Connected** = the terrain it stands on is bonded by itself, knotted or not (D122) — nothing else is checked. While connected it may only move onto terrain it bonded itself (the realm lock). |
-| **Collapse Network** | `0AP` | Exactly the Champion's ability (D126): drops every bond of this Companion outright, so it is disconnected. |
-| **Attack** | `3~AP` while disconnected · `6~AP` while connected | Disconnected, the generic Actor default (D49, D116); the connected `6~AP` is set at twice it (D134). No more abilities this turn (`~`) in both cases, same as the Champion's own Attack and a Creature's default. |
-| **Defend** | `1~AP` while disconnected · `2~AP` while connected | Disconnected, the generic default (D116, D117); the connected `2~AP` is set at twice it, like Move and Attack (D134). Once per opponent turn while it has AP. |
-| **Bond** | `3*AP` *(tuning example)* | Once/turn (the `*` flavor, D9 / `economy.md`); priced high against a small total AP pool so it crowds out most of the rest of the turn. |
-| **Its own printed abilities** | card-specific `mana + AP` | Typically pricier than an equivalent Champion ability — a Companion is a narrower, less efficient channeler, not a second Champion. |
+| **Move** | `1En` while disconnected · `2En` while connected | Exactly the Champion's rule (D9, D126); `2En` is set at twice the generic `1En` (D134). **Connected** = the terrain it stands on is bonded by itself, knotted or not (D122) — nothing else is checked. While connected it may only move onto terrain it bonded itself (the realm lock). |
+| **Collapse Network** | `0En` | Exactly the Champion's ability (D126): drops every bond of this Companion outright, so it is disconnected. |
+| **Attack** | `3~En` while disconnected · `6~En` while connected | Disconnected, the generic Actor default (D49, D116); the connected `6~En` is set at twice it (D134). No more abilities this turn (`~`) in both cases, same as the Champion's own Attack and a Creature's default. |
+| **Defend** | `1~En` while disconnected · `2~En` while connected | Disconnected, the generic default (D116, D117); the connected `2~En` is set at twice it, like Move and Attack (D134). Once per opponent turn while it has Energy. |
+| **Bond** | `3*En` *(tuning example)* | Once/turn (the `*` flavor, D9 / `economy.md`); priced high against a small total Energy pool so it crowds out most of the rest of the turn. |
+| **Its own printed abilities** | card-specific `mana + Energy` | Typically pricier than an equivalent Champion ability — a Companion is a narrower, less efficient channeler, not a second Champion. |
 
 Connected and disconnected costs are two printed values, as for the Champion (D134): a cost modifier adds on top of whichever applies.
 
-Example total AP: **4–5** *(tuning)*, vs. the Champion's 7 — so `Bond` alone already eats 60–75% of a turn, matching "if the pool is extended, it won't be able to do much else." All numbers here are illustrative, not locked; exact totals are a tuning pass alongside the rest of AP costs.
+Example total Energy: **4–5** *(tuning)*, vs. the Champion's 7 — so `Bond` alone already eats 60–75% of a turn, matching "if the pool is extended, it won't be able to do much else." All numbers here are illustrative, not locked; exact totals are a tuning pass alongside the rest of Energy costs.
 
 ## Terrain network — Companion as a second root (extends D8)
 
 D8 currently has exactly one network root (the Champion). A Companion on the Island becomes **its own root**, using the identical rule:
 
-- A Companion may **Bond** (its own AP-costed ability, above) a terrain **reachable from itself** through already-bonded terrain, unblocked by enemies — same reachability/pause mechanics as the Champion's bonding (D8), just evaluated from the Companion's own tile instead of the Champion's.
+- A Companion may **Bond** (its own Energy-costed ability, above) a terrain **reachable from itself** through already-bonded terrain, unblocked by enemies — same reachability/pause mechanics as the Champion's bonding (D8), just evaluated from the Companion's own tile instead of the Champion's.
 - **Terrain's parent follows the bonder.** Whoever *performs* the bond (Champion or a specific Companion) determines which pool that terrain feeds going forward: Champion-bonded → the Champion's pool; Companion-bonded → that Companion's own pool. Direct mechanical expression of the fiction (only the bonder's own channeling capacity determines where the mana goes); reuses D8's existing bond/pause machinery, just tagged per-root.
 - **Severing/pause is per-root, unchanged mechanically.** An enemy permanent with Knotting (D121) on a bonded terrain's only path back to *its owning root* pauses that terrain's draw — exactly D8's existing rule, just checked against whichever root owns the node.
 - **Control follows Ancestry too.** If a terrain carries its own printed activated ability (`resources-terrain.md`), only the controlling root's owner may activate it, funded **only** from that root's own pool — a Companion-bonded terrain's ability spends from that Companion's own pool alone, never the Champion's.
@@ -64,7 +64,7 @@ D8 currently has exactly one network root (the Champion). A Companion on the Isl
 
 ## A Neutral Companion is a root for Ancestry too (D55)
 
-The network root above is one graph (terrain/mana); the **Ancestry** (`ancestry.md`) is a separate one, where a Companion is normally always an inner node — its parent is the Champion that cast it, for as long as it's controlled. A card can make a controlled Companion **Neutral** (never automatic); when it does, the Companion becomes a root of the Ancestry too, exactly the way it was already a root of the network graph. Nothing in its subtree changes structurally — it keeps its own mana pool, its bonded terrain, and everything it funds — only the controller-walk's answer changes, from "climb past the Companion to its Champion" to "stop at the Companion itself, Neutral." A Neutral Companion needs its own **Behavior** (`neutral-permanents.md`) to decide what to do with its own AP and mana each neutral turn — since it already has built-in mana-abilities of its own (above), this is enough on its own to produce a self-sufficient "band of creatures with its own economy," with no further mechanism needed.
+The network root above is one graph (terrain/mana); the **Ancestry** (`ancestry.md`) is a separate one, where a Companion is normally always an inner node — its parent is the Champion that cast it, for as long as it's controlled. A card can make a controlled Companion **Neutral** (never automatic); when it does, the Companion becomes a root of the Ancestry too, exactly the way it was already a root of the network graph. Nothing in its subtree changes structurally — it keeps its own mana pool, its bonded terrain, and everything it funds — only the controller-walk's answer changes, from "climb past the Companion to its Champion" to "stop at the Companion itself, Neutral." A Neutral Companion needs its own **Behavior** (`neutral-permanents.md`) to decide what to do with its own Energy and mana each neutral turn — since it already has built-in mana-abilities of its own (above), this is enough on its own to produce a self-sufficient "band of creatures with its own economy," with no further mechanism needed.
 
 ## Interactions with other pillars / systems
 
@@ -74,8 +74,8 @@ The network root above is one graph (terrain/mana); the **Ancestry** (`ancestry.
 
 ## Invariant vs. mutable
 
-- **Invariant:** exactly the two resources (mana, AP) — a Companion adds a second **pool instance** of mana, not a new resource; a Companion is a **second network root**, using the same bond/pause mechanism as the Champion, not a new one; mana never crosses between Champion/Companion pools by default.
-- **Mutable (card-driven):** a Companion's stats, AP costs (including its Bond cost), its printed mana-abilities, how many may be run/fielded, and whether a card makes it Neutral (D55).
+- **Invariant:** exactly the two resources (mana, Energy) — a Companion adds a second **pool instance** of mana, not a new resource; a Companion is a **second network root**, using the same bond/pause mechanism as the Champion, not a new one; mana never crosses between Champion/Companion pools by default.
+- **Mutable (card-driven):** a Companion's stats, Energy costs (including its Bond cost), its printed mana-abilities, how many may be run/fielded, and whether a card makes it Neutral (D55).
 
 *(Resolved questions are cut once closed — the rule lives in the sections above and, for decision-grade calls, in `history/decisions.md`. Only genuinely open/deferred items stay here.)*
 

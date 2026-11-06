@@ -16,7 +16,7 @@
 > **E1.** Deal `X`+1 damage to target creature **T1**. If it falls this way, create a Fire Warrior on target terrain **H1** within distance 1 of T1.
 > **E2.** Choose `X`, repeats allowed:
 >  • **a.** Deal 1 damage to up to one target creature **Ta**.
->  • **b.** T1 doesn't refresh AP at its controller's next Beginning.
+>  • **b.** T1 doesn't recharge at its controller's next Beginning.
 > **E3.** As an additional cost, pay 🔥🔥 or fell a creature you control. If you fell one, T1's controller chooses one: they discard a card, or you draw a card.
 > **E4.** Kicker {2}: create two Fire Warriors on target terrain **H2** adjacent to a creature you control, then create an Ember Imp there, Neutral, *Aggressive toward T1's controller*, acting on Neutral A.
 
@@ -70,15 +70,15 @@ Each step is choose → bind → pay (`interaction-stack.md` §Casting). Text co
 | **C0 Legality** | — (a check) Quick fits Pending (empty). Cast condition: Pyro Adept #10 ✓. A legal combination exists. | — | cast condition | ~~*Cast only if you control a Fire creature.*~~ |
 | **C1 Commit** | A plays Cinder Verdict. | The card leaves the Hand (in transit until C5); 🔥. | card and fixed cost paid first | "you" = Champion A:<br>E3 …or ~~you draw~~ **Champion A draws** a card<br>E4 …adjacent to a creature ~~you control~~ **Champion A controls** |
 | **C2 Amounts** | X = 3. | 3. | `X` as an amount | E1: Deal ~~X+1~~ **4** damage…<br>E2: Choose ~~X~~ **3**… |
-| **C3 Choose** | E1: its only option (no prompt). E2: 3 picks → **a, a, b**; each **a** gets its own Ta instance. E3: the **fell** option (mixed with a mana option, so explicitly confirmed); A fells **Pyro Adept #10**. E4: kicked. | E3: Adept #10 leaves the decision state (it falls; its Remnant arrives at C5). E4: {2}. | options as costs; a do-nothing option; confirmation; cast condition not rechecked (legal); per-pick instances | E2 becomes:<br>**a¹.** Deal 1 damage to up to one target creature **Ta¹**.<br>**a².** Deal 1 damage to up to one target creature **Ta²**.<br>**b.** T1 doesn't refresh AP at its controller's next Beginning.<br>E3: ~~As an additional cost, pay 🔥🔥 or fell a creature you control. If you fell one,~~ T1's controller chooses one…<br>E4: ~~Kicker {2}:~~ create two Fire Warriors… |
-| **C4 Target** | Adept #10 is gone from the decision state, so it is no candidate. T1 = Stone Brute #20. H1 = h₁ (within 1 of Brute; plain in A's view). H2 = h₂ (next to Warcaller). Ta¹ = Wild Boar #30. **Ta² = none.** | Brute: *discard a card* — A chooses **Spark** now (the surcharge's own choice). h₁: +0 in A's view. | the felled creature can't be targeted; up-to-zero; known target cost with a choice; cost against the caster's view | E1: Deal 4 damage to **Stone Brute #20**. If it falls this way, create a Fire Warrior on **terrain h₁** within distance 1 of **Stone Brute #20**.<br>a¹: Deal 1 damage to **Wild Boar #30**.<br>a²: ~~Deal 1 damage to up to one target creature.~~ **(no target: does nothing)**<br>b: **Stone Brute #20** doesn't refresh AP…<br>E4: …on **terrain h₂** ~~adjacent to a creature Champion A controls~~<br>Target-relative: T1.controller = **Champion B**:<br>b: …at ~~its controller's~~ **Champion B's** next Beginning.<br>E3: ~~T1's controller~~ **Champion B** chooses one: ~~they discard~~ **Champion B discards** a card, or Champion A draws a card.<br>E4: …Aggressive toward ~~T1's controller~~ **Champion B**… |
+| **C3 Choose** | E1: its only option (no prompt). E2: 3 picks → **a, a, b**; each **a** gets its own Ta instance. E3: the **fell** option (mixed with a mana option, so explicitly confirmed); A fells **Pyro Adept #10**. E4: kicked. | E3: Adept #10 leaves the decision state (it falls; its Remnant arrives at C5). E4: {2}. | options as costs; a do-nothing option; confirmation; cast condition not rechecked (legal); per-pick instances | E2 becomes:<br>**a¹.** Deal 1 damage to up to one target creature **Ta¹**.<br>**a².** Deal 1 damage to up to one target creature **Ta²**.<br>**b.** T1 doesn't recharge at its controller's next Beginning.<br>E3: ~~As an additional cost, pay 🔥🔥 or fell a creature you control. If you fell one,~~ T1's controller chooses one…<br>E4: ~~Kicker {2}:~~ create two Fire Warriors… |
+| **C4 Target** | Adept #10 is gone from the decision state, so it is no candidate. T1 = Stone Brute #20. H1 = h₁ (within 1 of Brute; plain in A's view). H2 = h₂ (next to Warcaller). Ta¹ = Wild Boar #30. **Ta² = none.** | Brute: *discard a card* — A chooses **Spark** now (the surcharge's own choice). h₁: +0 in A's view. | the felled creature can't be targeted; up-to-zero; known target cost with a choice; cost against the caster's view | E1: Deal 4 damage to **Stone Brute #20**. If it falls this way, create a Fire Warrior on **terrain h₁** within distance 1 of **Stone Brute #20**.<br>a¹: Deal 1 damage to **Wild Boar #30**.<br>a²: ~~Deal 1 damage to up to one target creature.~~ **(no target: does nothing)**<br>b: **Stone Brute #20** doesn't recharge…<br>E4: …on **terrain h₂** ~~adjacent to a creature Champion A controls~~<br>Target-relative: T1.controller = **Champion B**:<br>b: …at ~~its controller's~~ **Champion B's** next Beginning.<br>E3: ~~T1's controller~~ **Champion B** chooses one: ~~they discard~~ **Champion B discards** a card, or Champion A draws a card.<br>E4: …Aggressive toward ~~T1's controller~~ **Champion B**… |
 | **C5 Enter Pending** | — | Everything paid arrives: Cinder Verdict and Spark in Discard, Adept's Remnant on its terrain. No trigger fired. The trace enters Pending. | atomic casting; arrivals at C5 | *(full trace text below)* |
 
 **The trace as it enters Pending:**
 
 > **Cinder Verdict** (trace) · Quick · paid: 🔥 + 3 + fell a creature you control + 2 + discard a card
 > **E1.** Deal 4 damage to Stone Brute #20. If it falls this way, create a Fire Warrior on terrain h₁ within distance 1 of Stone Brute #20.
-> **E2.** a¹. Deal 1 damage to Wild Boar #30. · a². *(nothing)* · b. Stone Brute #20 doesn't refresh AP at Champion B's next Beginning.
+> **E2.** a¹. Deal 1 damage to Wild Boar #30. · a². *(nothing)* · b. Stone Brute #20 doesn't recharge at Champion B's next Beginning.
 > **E3.** Champion B chooses one: Champion B discards a card, or Champion A draws a card.
 > **E4.** Create two Fire Warriors on terrain h₂, then create an Ember Imp there, Neutral, Aggressive toward Champion B, acting on Neutral A.
 
@@ -95,9 +95,9 @@ Each step is choose → bind → pay (`interaction-stack.md` §Casting). Text co
 | **R1** E2 a² | No target. | Does nothing. | none | – *(nothing)* |
 | **R1** E2 b `skipRefresh(T1)` | Stone Brute #20 no longer exists → **identity check** fails. | Fizzles. | none | ✗ **fizzled: target gone** |
 | **R1** E3 nested choice | Chooser = Champion B, bound at C4, even though Brute has fallen. | B chooses: B discards a card. | none | ✓ **Champion B discarded a card** |
-| **R1** E4 create Warrior | ✓ | Fire Warrior #41, 0 AP, parent = payer (A). | **t4** Warcaller for #41 (A) | ✓ **created Fire Warrior #41** |
+| **R1** E4 create Warrior | ✓ | Fire Warrior #41, 2 Energy left (D160), parent = payer (A). | **t4** Warcaller for #41 (A) | ✓ **created Fire Warrior #41** |
 | **R1** E4 create Warrior | ✓ | Fire Warrior #42. | **t5** Warcaller for #42 (A) | ✓ **created Fire Warrior #42** |
-| **R1** E4 create Imp | ✓ | Ember Imp #43, Neutral, parentless root, 0 AP. | none | ✓ **created Ember Imp #43** |
+| **R1** E4 create Imp | ✓ | Ember Imp #43, Neutral, parentless root, 2 Energy left (D160). | none | ✓ **created Ember Imp #43** |
 | **R2 Into Past** | | Trace → Past (Duration 5). | | |
 | **R3 Triggers** | | The collected triggers enter Pending. | | |
 

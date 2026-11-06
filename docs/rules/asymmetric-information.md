@@ -110,7 +110,7 @@ The hard core of pillar 6 is not *hiding* a fact but keeping a *false view inter
 - **Reveal (keyword, D102)** sets one player's belief about an object equal to its true value, on purpose. It is a one-time event, not a lasting state.
 
 ## Deduced properties: carrying out traces (D149, D164)
-**A false belief comes only from a tampered trace.** A trace's content, when it is created or changed, is the only pretendable observation (Mimic included). **Each copy carries out every trace as it believes it, on its own values;** an instruction has no separate output. **Rule steps without a trace** — the death check, the AP refresh, the pool reset — also run in each copy on its own values. The game ends on the true state.
+**A false belief comes only from a tampered trace.** A trace's content, when it is created or changed, is the only pretendable observation (Mimic included). **Each copy carries out every trace as it believes it, on its own values;** an instruction has no separate output. **Rule steps without a trace** — the death check, the recharge, the pool reset — also run in each copy on its own values. The game ends on the true state.
 
 The defaults, which card text may override:
 
@@ -118,7 +118,7 @@ The defaults, which card text may override:
 - **Draw** moves the card into the Hand in every copy and reveals its content to its owner; a Champion who can't tell which card moved follows §Cards you lose track of. A secret draw is "Draw a card. *Pretend:* no effect".
 - **Discard and mill** move the card into Discard in every copy and keep its content beliefs (D161): a milled card stays `?` for everyone, a discarded card stays known to its owner. A card that wants a card seen says *reveal*. Most cards in Discard are known anyway, because they got there by a cast (below).
 - **Cast** creates its trace with every copy true (the opponent sees what is cast), unless the card's Pretend says otherwise.
-- **Creating an object from a predecessor** — cast, resolve, Bounce, Remand, Flicker, put, copy — **copies each belief once** from the predecessor: a computed value takes its input's belief, a value with no predecessor (a target, current AP at its entry value, D160) is true, except that a trace shows its targets by observation (§Traces). The cast card in Discard is therefore exactly as known as its trace; after the creation the two are independent.
+- **Creating an object from a predecessor** — cast, resolve, Bounce, Remand, Flicker, put, copy — **copies each belief once** from the predecessor: a computed value takes its input's belief, a value with no predecessor (a target, drain at its entry value, D160) is true, except that a trace shows its targets by observation (§Traces). The cast card in Discard is therefore exactly as known as its trace; after the creation the two are independent.
 - **An ordinary change** (+1 Power, damage, a refresh) applies the same function in every copy, so where no Pretend is involved the copies stay true. This holds for your own permanents too: damage from a creature whose Power is pretended shows the pretended amount on your own creature.
 - **Targets are trace content.** A trace names its targets, and a Pretend may name others ("Pretend: another target creature gets +1 Power", a second target chosen at cast). **A non-targeted effect names nothing:** each copy applies it to the permanents it believes in.
 - **The death check** runs in each copy on its own values: a creature falls in a copy when that copy's damage on it reaches its Health.
@@ -140,7 +140,7 @@ A belief is never disjunctive ("either this one or that one"): every update land
 ## Belief objects (D165)
 **A lie is a belief object:** one lie for one observer. It is not a game object and can't be referenced. One Pretend creates one belief object per observer it fools — a Mimic creates three (B, Neutral A, Neutral B), identical except for the observer. A belief object is attached to every object that carries the lie: the card, the trace, the permanent. Beliefs follow the `source` chain; once the trace has ceased to exist, the permanent links to the card (D97), so the card follows the permanent.
 
-**Derived belief objects.** A false value computed from a lie — the damage a creature with a false Power deals to its target — is a derived belief object, resting on the belief objects it was computed from. Rule steps (AP refresh, death check, fading, credit) also run on each observer's believed values, and what they compute rests on the same belief objects.
+**Derived belief objects.** A false value computed from a lie — the damage a creature with a false Power deals to its target — is a derived belief object, resting on the belief objects it was computed from. Rule steps (recharge, death check, fading, credit) also run on each observer's believed values, and what they compute rests on the same belief objects.
 
 **A lie is only ever destroyed, never altered.** Destroying a belief object destroys everything that rests on it. Afterwards each attachment is deduced again from the true source, with what the observer can observe: a value it can observe becomes true, one it can't becomes `?`. A decoy caught while in darkness gets location `?`, not its true location.
 
@@ -158,7 +158,7 @@ A belief is never disjunctive ("either this one or that one"): every update land
 Typical contradictions:
 - **A creature takes more or less damage than the copy expected.** B believes X has Power 2, truly 3; X hits B's creature K (Health 4). K takes 3 damage, B expected 2: X's belief object goes, and B sees X's true values and its true card.
 - **A creature lives that the copy's death check removed, or falls though the copy expected it to live.** It is observed standing or missing.
-- **A creature spends more AP than the copy believes it has** (AP spent is public: its trace names the creature).
+- **A creature spends more Energy than the copy believes it has** (Energy spent is public: its trace names the creature).
 - **A payment takes the copy's count of a pool below 0** (D157).
 - **A permanent takes an action the copy believes illegal.** A check reads static abilities like any other property, so the belief objects behind what the checks read go. Each check names them: a move (Move, Ascend, Descend) reads Flying and the terrain's Move surcharge; an Attack reads Ranged; the timing of an activation reads Haste. Example: a Dragon with Mimic: Goblin, believed to have no Flying, enters the Sky — the Mimic's belief object goes.
 - **A permanent uses an ability the copy doesn't believe it has** (§Traces).

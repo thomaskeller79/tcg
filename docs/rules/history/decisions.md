@@ -8,6 +8,26 @@ Decisions, and parts of decisions, that later decisions replaced are in `decisio
 
 ---
 
+### D169 — Energy, drain and recharge replace Activation Points
+
+`PLAN.md` Track A item 39 (the AP names), discussed 2026-11-06 (audio-only session), right after D168. Before: **Activation Points (AP)**, with a max and a current value; slow / quicken (working names) changed current only, ±X both (D143); a refresh set current to max each Beginning phase.
+
+**Adopted (user):**
+- **Energy** is the printed value (was max AP). One value, changed by **±X**.
+- **Drain** is what actions have used up. What a permanent can still spend is its Energy minus its drain. **Recharge** removes drain, never below 0; at the start of each eligible turn a permanent recharges fully (was the AP refresh). "Drain target creature 2" and "target creature recharges 2" replace slow / quicken.
+- So nothing a permanent has left ever exceeds its printed value; only +X raises the ceiling. Drain above Energy (a temporary +X ending) just leaves nothing to spend.
+- **Entering:** a permanent enters drained so that 2 Energy remain (D160), all of it if its Energy is lower; Haste X leaves X.
+- **Cost marks stay unnamed:** plain `xEn`, `x!En` (drains all that remains), `x~En` (no more activations this turn, the rest kept), `x*En` (once per turn). How cards show the four kinds — a symbol or a color — is a display question (`PLAN.md` Track B item 90); "exhaust" (`!`) and "commit" (`~`) are icon ideas. In the docs the cost token is `En`.
+- The Energy symbol on cards is open; not the letter E (Earth's pip), and careful with a lightning bolt, which may suit Metal.
+
+**Why (user):** the same shape as Health and damage (D168) — one printed value and one used-up counter, no "max" and "current"; that it refills each turn is no reason to treat it differently. The GUI can show both the same way: damage switches off Health lights, drain switches off Energy lights. **Energy** fits creatures and Structures alike (a mana-powered tower has energy); the user's first pairing, Energy and **fatigue**, failed on Structures — a tower doesn't tire. **Drain / recharge** are neutral to what holds them, mirror damage / heal, and match the existing "drain all" reading of `!`. Slow / quicken also collided with the Speeds Slow and Quick.
+
+**Considered:** fatigue; **Time** ("a turn is only so long" — accurate, but its verbs collide: delay with delayed traces, hasten with Haste); **Tempo** (no word for what's used up; to non-native speakers mostly a music word); **Stamina / exertion** (exertion is a hard word); **Vigor / weariness**; **Actions / used actions** (clashes with the action itself); naming the cost marks ("drain all", "commit").
+
+→ `glossary.md` (Energy, Drain), `economy.md`, `object-properties.md`, `overview.md`, `champions.md`, `companions.md`, `setup.md`, `structures-items.md`, `ancestry.md`, `asymmetric-information.md`, `neutral-permanents.md`, `interaction-stack.md`, `effect-form.md`, `resources-terrain.md`, examples, `docs/cards/card-ideas.md`; `PLAN.md` Track C item 15 closed; engine: `PLAN.md` Track B item 90.
+
+---
+
 ### D168 — Power, Health and damage: one printed value each, damage tracked separately
 
 `PLAN.md` Track A item 39 (the stat names), discussed 2026-11-06 (audio-only session), after a survey of other card games. Before: the docs said **Attack** and **Life**; Life had a max and a current value, with damage and heal changing current only and ±X changing both as exact mirrors (D143).
@@ -23,7 +43,7 @@ Decisions, and parts of decisions, that later decisions replaced are in `decisio
 
 **Considered:** Life (shorter, already in the docs); keeping current and max Health (D143's model, where a temporary ±X takes back exactly what it gave).
 
-→ `glossary.md` (Power, Health, Damage), `object-properties.md`, `overview.md`, `economy.md`, `asymmetric-information.md`, `interaction-stack.md`, `structures-items.md`, `champions.md`, `companions.md`, `ancestry.md`, examples; `PLAN.md` Track C item 15 (now AP only); engine: `PLAN.md` Track B item 89.
+→ `glossary.md` (Power, Health, Damage), `object-properties.md`, `overview.md`, `economy.md`, `asymmetric-information.md`, `interaction-stack.md`, `structures-items.md`, `champions.md`, `companions.md`, `ancestry.md`, examples; `PLAN.md` Track C item 15 (its AP half closed with D169); engine: `PLAN.md` Track B item 89.
 
 ---
 
@@ -531,10 +551,9 @@ Closes the duration question raised during `PLAN.md` Track A item 51. Before: D5
 Closes the stat-change question raised during `PLAN.md` Track A item 51. Before: max- and current-tier for Attack, Life and AP (D70), with damage and heal on Life.
 
 **Adopted (user):**
-- **AP:** **slow / quicken** change current only; **+X / −X** change max and current together. Names to settle in item 39.
 - **Power is one value**, changed by ±X: **current-Attack is dropped** from the property list. A permanent change is carried by Bounce (D70); a temporary one ends with its vessel (D144).
 
-**Why:** AP is consumed — actions use it up — so a current tier tracks what is left; Power is never consumed. Other games agree: AP games (Divinity: Original Sin 2, Pathfinder 2e, Dofus) change both tiers (Haste/Slowed per turn, Adrenaline or AP removal now). Health: D168.
+**Why:** Power is never consumed. Health: D168; AP (now Energy): D169.
 
 **Considered and rejected:** **+X raising the max only as far as current exceeds it** (user): not the reverse of −X — −2 then +2 turns 3/5 into 3/3, and a temporary +2 can't be undone cleanly.
 

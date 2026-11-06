@@ -18,7 +18,7 @@ Fully covered in `ancestry.md` — every permanent's controller is derived by cl
 | Neutral | set (includes its neutral turn) | the Behavior — the object acts **autonomously** |
 | Neutral | none | nobody — the object is **dormant** |
 
-A **dormant** object makes no choices: its activated abilities can't be used, and a triggered ability that needs a choice (a target, a "may") doesn't happen. Mandatory, choiceless triggered abilities and static abilities still apply — e.g. a dormant Structure with "when a creature enters a terrain within distance 2 and this has at least 1 Activation Point, this deals 2 damage to that creature and its Activation Points become 0" still hits whichever creature enters.
+A **dormant** object makes no choices: its activated abilities can't be used, and a triggered ability that needs a choice (a target, a "may") doesn't happen. Mandatory, choiceless triggered abilities and static abilities still apply — e.g. a dormant Structure with "when a creature enters a terrain within distance 2 and this has at least 1 Energy, this deals 2 damage to that creature and its Energy become 0" still hits whichever creature enters.
 
 The controller comes from the Ancestry; the Behavior never does — it is attached only by a card, a scenario, or a rule (§Becoming Neutral).
 
@@ -35,7 +35,7 @@ Both identifiers are **true-state only** — never exposed as raw numbers to a C
 
 ## Neutral turns
 
-Each round is four turns: `Champion A → Neutral A → Champion B → Neutral B → …`. **Neutral A** and **Neutral B** are genuine participants in the turn order — not phases inside a player's turn, not a borrowed player identity — each a full turn with its own Beginning (Activation Points refresh for every permanent assigned to that seat, and its own mana-pool refresh for any Neutral Companion assigned to it), Action (Behaviors run), and End (end-of-turn triggers, and expiry of any "until end of turn" effect created during it).
+Each round is four turns: `Champion A → Neutral A → Champion B → Neutral B → …`. **Neutral A** and **Neutral B** are genuine participants in the turn order — not phases inside a player's turn, not a borrowed player identity — each a full turn with its own Beginning (recharge for every permanent assigned to that seat, and its own mana-pool refresh for any Neutral Companion assigned to it), Action (Behaviors run), and End (end-of-turn triggers, and expiry of any "until end of turn" effect created during it).
 
 **Both neutral turns always occur, every round, unconditionally** — regardless of whether anything is currently assigned to either — so a neutral turn's mere occurrence or timing never reveals whether a hidden Neutral permanent exists; anything that happens during it is redacted per-observer exactly like everything else hidden in the game (`asymmetric-information.md`).
 
@@ -47,7 +47,7 @@ A permanent's assigned neutral turn is chosen by whatever effect made it Neutral
 
 ## Behavior
 
-A Neutral permanent carrying a Behavior, and capable of acting — it holds its own Activation Points (`economy.md`) and has at least one legal action available to it — follows that **Behavior**: a named keyword (e.g. `Aggressive toward X`) that expands to a fixed, deterministic decision policy, the same way any other keyword (Flying, Ranged a-b) expands to fixed rules text. This is card-text vocabulary only, never exposed as such.
+A Neutral permanent carrying a Behavior, and capable of acting — it holds its own Energy (`economy.md`) and has at least one legal action available to it — follows that **Behavior**: a named keyword (e.g. `Aggressive toward X`) that expands to a fixed, deterministic decision policy, the same way any other keyword (Flying, Ranged a-b) expands to fixed rules text. This is card-text vocabulary only, never exposed as such.
 
 ### Scope
 
@@ -57,7 +57,7 @@ Only **choice-bearing abilities** need a Behavior's involvement:
 - **Triggered abilities with a choice** (a target to pick, an optional "you may" clause) need policy coverage for that choice.
 - **Static abilities and mandatory, choiceless triggered abilities never need any Behavior coverage at all** — they simply happen, automatically, exactly as they would for a Champion's own permanent.
 
-Any permanent holding Activation Points (i.e., anything but Item) is eligible for a Behavior, provided the ability it needs is self-payable — an Activation-Points-only ability is always self-payable by a Neutral permanent; a mana-inclusive one still needs a live root supplying mana (e.g. a Neutral Companion's own pool).
+Any permanent holding Energy (i.e., anything but Item) is eligible for a Behavior, provided the ability it needs is self-payable — an Activation-Points-only ability is always self-payable by a Neutral permanent; a mana-inclusive one still needs a live root supplying mana (e.g. a Neutral Companion's own pool).
 
 ### Modes
 
@@ -92,7 +92,7 @@ Beyond the seat's belief copy, a Behavior has no perception of its own. A range 
 
 ### Candidates are whole-turn sequences, scored, and executed one step at a time
 
-A candidate a mode's scoring ranks is not a single action — it's a bounded **sequence** of this permanent's own actions, filling as much of its remaining Activation Points this turn as the sequence uses, generated from the mode's declared eligible action shapes and hypothetically resolved step by step (each step's direct, known mechanical effect only — no recursion, no modeling of how any other agent might respond, no chaining beyond this one permanent's own current turn).
+A candidate a mode's scoring ranks is not a single action — it's a bounded **sequence** of this permanent's own actions, filling as much of its remaining Energy this turn as the sequence uses, generated from the mode's declared eligible action shapes and hypothetically resolved step by step (each step's direct, known mechanical effect only — no recursion, no modeling of how any other agent might respond, no chaining beyond this one permanent's own current turn).
 
 Each scoring criterion states whether it is **cumulative** (summed across every step of the sequence — e.g. total damage dealt) or **terminal** (evaluated only on the state after the sequence's last step — e.g. resulting distance to the nearest opponent, resulting concealment status).
 
@@ -125,11 +125,11 @@ Anything else that loses control through the Ancestry — Terrain (including one
 
 **A Behavior is never removed by gaining a controller.** While controlled, a permanent keeps its Behavior and neutral turn unused — the controller decides. When it becomes Neutral, a newly assigned Behavior and neutral turn replace the old pair; if nothing is assigned (e.g. a temporary control effect ends), the old pair decides again (D84). A card that wants a permanent to lose its Behavior says so.
 
-A Neutral permanent entering the Island enters with the entry Activation Points (2) like any other (D89, D160, `economy.md`).
+A Neutral permanent entering the Island enters with the entry Energy (2) like any other (D89, D160, `economy.md`).
 
 ## Invariant vs. mutable
 
-- **Invariant:** every permanent's controller is exactly one of Champion A / Champion B / Neutral. A permanent capable of acting while Neutral always follows a complete, deterministic Behavior — never a player's ad hoc choice on its behalf. Both neutral turns always occur every round, unconditionally. A Behavior only ever reasons about its own current turn's own remaining Activation Points — never another agent's response, never its own future turns.
+- **Invariant:** every permanent's controller is exactly one of Champion A / Champion B / Neutral. A permanent capable of acting while Neutral always follows a complete, deterministic Behavior — never a player's ad hoc choice on its behalf. Both neutral turns always occur every round, unconditionally. A Behavior only ever reasons about its own current turn's own remaining Energy — never another agent's response, never its own future turns.
 - **Mutable (card-driven):** which permanents can become Neutral and how; which Behavior a specific instance runs; which neutral turn it's assigned to.
 
 *(Resolved questions are cut once closed — the rule lives above and, for decision-grade calls, in `history/decisions.md`. Only genuinely open items stay listed above.)*

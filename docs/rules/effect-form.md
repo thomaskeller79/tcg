@@ -34,7 +34,7 @@ Until the game runs end to end, only cards of this restricted shape are legal (D
 - **Not in scope:** modes, conditions, outputs, repeatable picks, choices at resolution, choosers other than you. A Pretend on a creation shows a different permanent, never none (D155).
 - **A permanent card** has no target but its implicit location.
 - **Abilities** of a permanent (static, triggered, activated) follow the same shape, and function only on the Island (an activated one through its Trace). Abilities that function from Hand, Library or Discard are not in scope, with one exception: **card statics restricting the card's own location target** (D110) — the Slice filter (D32, e.g. Flying: enters in Sky) and restrictions such as "can only target a terrain holding a Remnant you control."
-- **Cost** is a fixed list: no `X`, no costs on options, no cast condition. Costs that depend on a target (D130, e.g. a terrain's "Move abilities that target this cost 1 more AP") are in scope.
+- **Cost** is a fixed list: no `X`, no costs on options, no cast condition. Costs that depend on a target (D130, e.g. a terrain's "Move abilities that target this cost 1 more Energy") are in scope.
 
 The procedure stays the full one (C0–C5, D135, `interaction-stack.md`), with C2 Amounts and C3 Choose empty: C1 pays the fixed cost, C4 the costs that depend on targets. The rest of this doc describes the full form; parts outside the scope stay decided, and their open questions are `PLAN.md` Track D.
 
@@ -88,7 +88,7 @@ The basic instructions are a slim set for the engine; card text may use **aliase
 | Mind | draw, discard, mill, shuffle (any section), search |
 | Information | look at, reveal (any object with hidden or false information) |
 | Objects | **move** (same object, new location: Mind, section and position for a card (another Champion's Mind included, D148), section and position for a trace, terrain and Slice for a permanent), **put** (a new object in another zone; the predecessor ceases to exist), **copy** (a new object; the original stays), **create** (a new object from a card name or a card object), **destroy**, **cease to exist**, fell |
-| Stats (D143) | deal damage, heal, ±Health; slow, quicken, ±AP; ±Power; gain or lose an ability |
+| Stats (D143) | deal damage, heal, ±Health; slow, quicken, ±Energy; ±Power; gain or lose an ability |
 | Resources | add mana |
 | Island | attach, detach, gain control, bond, unbond, raise, attack, defend |
 
