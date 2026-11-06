@@ -88,6 +88,7 @@ How the information rules (`asymmetric-information.md`) read in the world.
 - **Default:** deck size and max copies TBD (strawman: 30-card deck, max 3 copies). Draw 1/turn (§3). Opening hand size TBD (strawman: 5).
 - 🪝 Draw count, hand size, deck legality are all queries/effects. → "draw 2," "max hand size 10," faction deckbuilding restrictions.
 - Faction/color *structure* exists as a hook; flavor deferred.
+- **Element deck rule:** not designed. A terrain stating all eight Elements (D166) fits every deck only if the rule is "shares an Element with the deck", not "every Element is within the deck's".
 
 ## 7. Win condition
 - **Default (D9):** **fell the enemy Champion**; both falling from the same instruction is a draw (D113). There is **no separate Base** — a Champion's "home ground" is just the area around its start tile (usually a landmark terrain), not a destructible objective. The Champion is the objective, the economic root (D8), and the most-exposed piece all at once.

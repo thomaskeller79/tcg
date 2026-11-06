@@ -242,6 +242,16 @@ D18's collapse to the full truth stays as the fallback for anything a card doesn
 
 ---
 
+### D125 — Mana: disjunctive pips and pool mana, paid by domination — replaced parts
+
+*Replaced by D166.*
+
+**Adopted (user):** a cost pip is **generic** or **colored**, a disjunction over Elements (one Element = colored, two = hybrid, …); nothing else exists. A pool mana is **colorless** or **colored**, likewise a disjunction. A mana **dominates** another if it pays every pip the other pays. Pips are paid **from the most constrained to the least** (one Element, two, …, generic last); each takes the mana every other candidate dominates, and when the candidates tie, the player chooses. **Why:** the automatic picks are exactly the safe ones — no player could do better by choosing — and most payments need no choice: colorless always pays generic, a one-Element pool never chooses, a two-Element pool only chooses which Element pays generic. **Considered and not adopted:** looking ahead across the whole cost to remove choices that lead to a dead end (Claude) — the user keeps the obvious algorithm first; a smarter one may come later. (The engine lists only complete payments, so a dead-end choice is never offered anyway.)
+
+**Still open (item 37):** whether generic pips exist at all — dropping them would make nearly every payment automatic.
+
+---
+
 ### D107 — Companion and Structure transition rules; leaving the Island cascades like death; Structures never fight — replaced parts
 
 *Replaced by D133.*
@@ -255,6 +265,10 @@ D18's collapse to the full truth stays as the fallback for anything a card doesn
 *Replaced by D133.*
 
 **Only permanents that hold Activation Points can carry a Behavior** (`neutral-permanents.md`): Actors and Structure. Terrain and Item never do; corrects passages that said a dormant Terrain or Item could "already carry one".
+
+*Replaced by D166.*
+
+**Element is derived**, as MTG derives colour identity: the set (0–8) of Elements in the mana the terrain produces and in its rules text. Mana production is an expression (amount; coloured, hybrid, generic…), not "1 of its Element".
 
 ---
 

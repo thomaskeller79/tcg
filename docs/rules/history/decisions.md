@@ -8,6 +8,27 @@ Decisions, and parts of decisions, that later decisions replaced are in `decisio
 
 ---
 
+### D166 — Generic mana stays as the eight-Element pip; no colorless; Elements come from colored pips or are stated
+
+`PLAN.md` Track A item 37, discussed 2026-11-06 (audio-only session). Before: D125's cost model had generic pips next to colored ones, and pool mana could be colorless, paying only generic; whether generic should exist at all was open. An object's Elements were derived from the mana it produces and its rules text (D100), 0–8 of them.
+
+**Adopted (user):**
+- **Generic mana stays.** A generic pip is a pip of all eight Elements — any mana pays it, the same rule as hybrid (shown as a rainbow symbol). Payment is unchanged (D125): generic is the least constrained pip, so it pays last.
+- **Colorless is dropped** — no colorless mana and no colorless objects. Every pool mana is a disjunction over one or more Elements; a terrain may produce mana of any Element.
+- **Elements.** An object whose cost has at least one **colored pip** — one that isn't all eight Elements — takes its Elements from its colored pips. Every other object (a terrain, a permanent costing only generic or nothing) **states** its Elements, at least one. A basic Fire terrain states Fire; a terrain producing mana of any Element states all eight. The mana an object produces never adds to its Elements, so a Fire creature that adds Water stays Fire.
+- **A trace's Elements** are its source's Elements plus the colored pips of the activated ability's cost. A cast takes the card's own Elements (the Cast ability's cost is the card's cost); a triggered ability's trace takes its source's.
+- A created permanent names a real card (D88), so its Elements come from that card.
+
+**Why (user):** without generic every expensive card is deep in its color and only cheap cards splash; and since a player controls which Element to bond each turn, heavy colored costs already make color matter without dropping generic. So the rule stays and the cards carry the pressure: design guideline, cards lean on colored pips. Dropping colorless removes a mana kind and the rule "colorless pays only generic", and the word "colorless" no longer exists; colorless as a near-"ninth Element" that fits every deck isn't needed with eight Elements — an Element that combines easily with others can be built by card design. What's lost: terrain with strong but colorless mana; no card used it.
+
+**Considered:** dropping generic (rejected, above); deriving a costless object's Elements from the mana it produces (Claude) — rejected for stating them, which also lets the any-Element terrain name all eight.
+
+**Left for the deck rule** (`overview.md` §6, not designed): a terrain stating all eight Elements fits every deck only if the rule is "shares an Element with the deck", not MTG's "every Element is within the deck's".
+
+→ `resources-terrain.md` §Mana costs and payment, `object-properties.md` §5, `glossary.md` (Element), `map.md`, `overview.md` §6; engine: `PLAN.md` Track B item 87.
+
+---
+
 ### D165 — Belief objects: a contradicted observation destroys a whole lie; damage taken is observed
 
 `PLAN.md` Track B items 79 and 26, discussed 2026-11-05 to 11-06 (a mixed Track A/B session on how the engine represents false beliefs). Before: D164 — every copy carried out every trace on its own values, and a contradiction corrected only the values the instruction read, leaving the lie's cause and a Mimic face in place.
@@ -719,13 +740,11 @@ Closes item 38 and rules-sync guess G10 (`architecture/implementation-plan.md` Q
 
 ---
 
-### D125 — Mana: disjunctive pips and pool mana, paid by domination
+### D125 — Mana: disjunctive pips and pool mana, paid by domination *(replaced parts in `decisions-archive.md`)*
 
 Closes rules-sync guess G1 (`architecture/implementation-plan.md` Q3) and the cost-model half of item 37. Before: the build kept an Element-keyed pool, and paid generic pips automatically from the largest pile — which could spend the Element a later card needed.
 
-**Adopted (user):** a cost pip is **generic** or **colored**, a disjunction over Elements (one Element = colored, two = hybrid, …); nothing else exists. A pool mana is **colorless** or **colored**, likewise a disjunction. A mana **dominates** another if it pays every pip the other pays. Pips are paid **from the most constrained to the least** (one Element, two, …, generic last); each takes the mana every other candidate dominates, and when the candidates tie, the player chooses. **Why:** the automatic picks are exactly the safe ones — no player could do better by choosing — and most payments need no choice: colorless always pays generic, a one-Element pool never chooses, a two-Element pool only chooses which Element pays generic. **Considered and not adopted:** looking ahead across the whole cost to remove choices that lead to a dead end (Claude) — the user keeps the obvious algorithm first; a smarter one may come later. (The engine lists only complete payments, so a dead-end choice is never offered anyway.)
-
-**Still open (item 37):** whether generic pips exist at all — dropping them would make nearly every payment automatic.
+**Adopted (user):** a cost pip is a disjunction over Elements (one Element = colored, two = hybrid, …, all eight = generic, D166); nothing else exists. A pool mana is likewise a disjunction. A mana **dominates** another if it pays every pip the other pays. Pips are paid **from the most constrained to the least** (one Element, two, …, generic last); each takes the mana every other candidate dominates, and when the candidates tie, the player chooses. **Why:** the automatic picks are exactly the safe ones — no player could do better by choosing — and most payments need no choice: a one-Element pool never chooses, a two-Element pool only chooses which Element pays generic. **Considered and not adopted:** looking ahead across the whole cost to remove choices that lead to a dead end (Claude) — the user keeps the obvious algorithm first; a smarter one may come later. (The engine lists only complete payments, so a dead-end choice is never offered anyway.)
 
 → `resources-terrain.md` §Mana costs and payment, `object-properties.md` §5, `tools/card-format.md`.
 
@@ -1093,8 +1112,6 @@ Consequence for the Ancestry: an edge that duplicates the location is read off i
 **Every hex holds exactly one Terrain, always.** Terrain can't be destroyed; a future "destroy target terrain" would replace it with a void terrain, keeping the invariant. So a hex is only the terrain's position in the Map's Layout (adjacency, distance), not an object of its own, and card text targets **"target terrain"**, never "target hex". The terrain stores its grid position; nothing in the base rules changes it.
 
 **Terrain Type is flavour only.** Copied from the Map at Setup, it names the terrain (Forest, Plain…) and nothing can query it — not a rules property.
-
-**Element is derived**, as MTG derives colour identity: the set (0–8) of Elements in the mana the terrain produces and in its rules text. Mana production is an expression (amount; coloured, hybrid, generic…), not "1 of its Element".
 
 **Bond and equip surcharges are static abilities** ("bonding this costs an additional `4!AP`"), part of the action's cost and paid before its trace exists (D70) — not triggered costs, which would fire after the bond/equip had already happened.
 
