@@ -2,7 +2,7 @@
 
 *A Champion's signature "friend": a card that sits mechanically **between Creature and Champion**. Introduces the game's channeling hierarchy explicitly: **Creature spends mana it can't draw; Companion draws mana it can't share; Champion draws and shares.***
 
-**Decisions:** D22, D26, D49, D54–D55, D107, D116, D117, D126, D134, D164 (`history/decisions.md`)
+**Decisions:** D22, D26, D49, D54–D55, D107, D116, D117, D126, D134, D164, D167 (`history/decisions.md`)
 
 ---
 
@@ -68,7 +68,7 @@ The network root above is one graph (terrain/mana); the **Ancestry** (`ancestry.
 
 ## Interactions with other pillars / systems
 
-- **Deckbuilding:** Companion cards name the Champion(s) that may run them — a hard legality restriction, like the Champion gating faction identity. Copy limits — per deck, and on the Island at once — are open (below).
+- **Deckbuilding:** Companion cards name the Champion(s) that may run them — a hard legality restriction, like the Champion gating faction identity. Like every card, it prints its copy limit (1 or 2) for the deck; any number of copies may be on the Island at once (D167).
 - **D17/D39 (card taxonomy):** Companion is a new **permanent** seed type, alongside Creature/Structure/Item, cast through the Aether via the same generic play-a-card procedure as any card — but deckbuilding-gated the way Map/Champion/Terrain are pre-game-constrained (a hybrid: cast like any other card, gated like the non-card components).
 - **Asymmetric info:** no special treatment proposed — observed by the global default (D164), like a Creature, unless a future card says otherwise.
 
@@ -81,5 +81,4 @@ The network root above is one graph (terrain/mana); the **Ancestry** (`ancestry.
 
 ## Open questions
 
-1. **Count limits — deferred to PLAN.md Track A** (step 1, "Uniqueness / copy-limit rule (general)"): Companions are expected to end up singleton (1 in deck / 1 on the Island), but that should fall out of a **general** uniqueness rule other cards can also use, not a Companion-specific carve-out. Not designed here.
 2. **Meta-progression shape:** "more linear than the Champion" — needs its own pass once the meta-layer is actually being designed (post-M4, PLAN §9). Parked, not blocking the in-match rules above.

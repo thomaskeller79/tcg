@@ -2,7 +2,7 @@
 
 *The skeleton everything hangs on. Two companion principles govern every default: **(1) the simplest rule that still exposes a hook** (see `history/knowledge-capture-plan.md` §Part A); **(2) pessimistic defaults (D14)** — the baseline is the weakest *still-functional-and-fun* case, and cards improve it with **positive** lines, never default restrictions (e.g. damage persists by default; healing is an ability).*
 
-**Decisions:** D3–D6, D8–D14, D16, D18, D20, D21, D24, D26, D30, D37–D50, D54–D58, D66–D68, D71, D75, D76, D77, D86, D100, D101, D102, D103, D114, D115, D116, D117, D119, D120, D128, D132, D133, D134, D139, D143, D144, D146, D148, D149, D150, D151, D152, D164, D165 (`history/decisions.md`)
+**Decisions:** D3–D6, D8–D14, D16, D18, D20, D21, D24, D26, D30, D37–D50, D54–D58, D66–D68, D71, D75, D76, D77, D86, D100, D101, D102, D103, D114, D115, D116, D117, D119, D120, D128, D132, D133, D134, D139, D143, D144, D146, D148, D149, D150, D151, D152, D164, D165, D167 (`history/decisions.md`)
 
 Legend: 🪝 = the mutation hook this default preserves so cards can bend it.
 
@@ -46,7 +46,7 @@ How the information rules (`asymmetric-information.md`) read in the world.
 
   | Phase | What happens (default) |
   |---|---|
-  | **Beginning** | mana **refresh** (no banking — D8 #4) and AP **refresh** (covers creatures and the Champion alike, D9) — two independently-skippable effects (D76), run **simultaneous, no state checks** when both apply. *(Card draw is not an automatic Beginning-phase step — it's the Champion's `5*AP: Draw` action, spent in the Action phase below.)* Then beginning-of-turn triggers go into the Aether **APNAP** (active Champion's first, then opponent's → opponent's resolve first). Priority runs only while Pending is non-empty (D128, `interaction-stack.md` §The primitive), and the phase ends as soon as Pending is empty — with no triggers, or only Instant ones, nobody gets priority here. |
+  | **Beginning** | first, the **deck-out check**: if the active Champion's Library is empty, its player loses (D167). Then mana **refresh** (no banking — D8 #4) and AP **refresh** (covers creatures and the Champion alike, D9) — two independently-skippable effects (D76), run **simultaneous, no state checks** when both apply. *(Card draw is not an automatic Beginning-phase step — it's the Champion's `5*AP: Draw` action, spent in the Action phase below.)* Then beginning-of-turn triggers go into the Aether **APNAP** (active Champion's first, then opponent's → opponent's resolve first). Priority runs only while Pending is non-empty (D128, `interaction-stack.md` §The primitive), and the phase ends as soon as Pending is empty — with no triggers, or only Instant ones, nobody gets priority here. |
   | **Action** | active Champion plays spells, spends AP to move/attack/draw/bond/activate, in **any order**, until they choose to finish. Whether any given card/ability can be played at a given moment is governed by its **Speed** (Slow/Quick/Reactive/Instant, D45; see `interaction-stack.md`), not a fixed per-phase window list. |
   | **End** | end-of-turn triggers, APNAP, same as Beginning. |
 
@@ -85,14 +85,14 @@ How the information rules (`asymmetric-information.md`) read in the world.
 - *Note:* this is a deliberately **rich** core system (not a simple default) — its complexity is the price of a signature economy; keep other systems simple to compensate.
 
 ## 6. Deck & hand
-- **Default:** deck size and max copies TBD (strawman: 30-card deck, max 3 copies). Draw 1/turn (§3). Opening hand size TBD (strawman: 5).
+- **Default (D167):** a deck is exactly 40 cards. Every card prints its copy limit, 1 or 2 — the most copies of it a deck may hold; any number of copies may be on the Island at once. Opening hand 5. Drawing is the Champion's `5*AP` action (§3).
 - 🪝 Draw count, hand size, deck legality are all queries/effects. → "draw 2," "max hand size 10," faction deckbuilding restrictions.
 - Faction/color *structure* exists as a hook; flavor deferred.
 - **Element deck rule:** not designed. A terrain stating all eight Elements (D166) fits every deck only if the rule is "shares an Element with the deck", not "every Element is within the deck's".
 
 ## 7. Win condition
-- **Default (D9):** **fell the enemy Champion**; both falling from the same instruction is a draw (D113). There is **no separate Base** — a Champion's "home ground" is just the area around its start tile (usually a landmark terrain), not a destructible objective. The Champion is the objective, the economic root (D8), and the most-exposed piece all at once.
-- 🪝 The win check is an **evaluated effect**, not a hardcoded `if`. → alternate win conditions ("control 5 hexes," "mill the enemy deck") are cards.
+- **Default (D9):** **fell the enemy Champion**; both falling from the same instruction is a draw (D113). **Deck-out (D167):** a Champion whose Library is empty at the start of its turn loses (checked first in Beginning, §3). There is **no separate Base** — a Champion's "home ground" is just the area around its start tile (usually a landmark terrain), not a destructible objective. The Champion is the objective, the economic root (D8), and the most-exposed piece all at once.
+- 🪝 The win check is an **evaluated effect**, not a hardcoded `if`. → alternate win conditions ("control 5 hexes") are cards.
 
 ## 8. Invariants (deliberately NOT mutable)
 The stable substrate cards rely on. Kept fixed on purpose:

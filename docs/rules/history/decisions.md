@@ -8,6 +8,31 @@ Decisions, and parts of decisions, that later decisions replaced are in `decisio
 
 ---
 
+### D167 — Deck-out loss, decks of exactly 40, copy limits 1 or 2, no Island limit, opening hand 5
+
+`PLAN.md` Track A item 1, discussed 2026-11-06 (audio-only session), after a survey of how other card games handle an empty deck, deck size, copy limits and opening hands. Before: deck size, max copies and opening hand were strawmen (30 cards, 3 copies, hand 5); running out of cards had no rule; Companions were expected to be singletons through a general uniqueness rule not yet designed.
+
+**Adopted (user):**
+- **Deck-out:** if a Champion's Library is empty at the start of its turn, its player loses. The check comes first in the Beginning phase, before the refreshes and triggers.
+- **A deck is exactly 40 cards.**
+- **Every card prints its copy limit, 1 or 2** — the most copies of it a deck may hold. It counts per card: different forms of one character are different cards.
+- **No limit on the Island:** any number of copies of a card may be on the Island at once, including a 1-of — two players casting the same Companion, or a copy effect.
+- **Opening hand: 5.**
+- All five are starting values for playtesting.
+
+**Why (user):**
+- *Deck-out:* drawing is optional (the Champion's `5*AP` Draw), so "lose when you would draw from an empty Library" would almost never happen, and Hearthstone-style fatigue damage fails for the same reason. No other clock is built in; trace Durations and similar mechanisms should keep games from stalling. Checking first gives mill a clear deadline; a card that refills the Library acts in the opponent's turn. Consequence: drawing your last card means losing at your next turn unless you win first.
+- *40:* Leyline's deck holds no mana sources, so it compares with Hearthstone (30), Runeterra and Shadowverse (40), Netrunner's Corp (40–45), not with Magic's or Pokémon's 60, of which ~36 are non-lands in Magic. Within 30–40, the upper end for variety (Commander-like games that each play differently). Exact, not a minimum: with a minimum, everyone plays the minimum anyway.
+- *1 or 2:* other games print at most two tiers (Hearthstone 1/2) and patch power with lists (Yu-Gi-Oh's limited lists, Magic's restricted list). Default 2 over 3 for variety: in a 40-card deck, seeing ~15 cards a game, a 2-of shows up in ~6 games of 10, a 3-of in ~3 of 4, and a deck holds ~20 different cards instead of ~13. Cost: a larger card pool before decks feel distinct. A third tier can come later as a list, without printing anything.
+- *Island:* fun over flavor. With two copies of one legendary Companion, every rule frustrates someone — the second caster if it's forbidden, the first if one replaces the other. Nothing in the rules depends on uniqueness: objects are identified by ID, never by name. A card that copies or creates guards against 1-ofs itself (`PLAN.md` Track C rule).
+- *Forms:* Magic's planeswalker uniqueness by subtype was dropped in 2017 for uniqueness by name; Hearthstone runs several versions of one hero together. A character that wants "only one of me in any form" prints it as a deckbuilding line.
+
+**Considered:** a 1/2/4 tier set (user) — 4 was meant for utility cards, but the most reliable cards would then be the answers ("destroy target creature"), and every deck would run the same ones; a flat 3 with 1-ofs; a minimum deck size; checking deck-out after the beginning-of-turn triggers (lets a trigger save you, but depends on trigger order).
+
+→ `overview.md` §3, §6, §7; `companions.md`; `setup.md` S6; `object-properties.md` §5; engine: `PLAN.md` Track B item 88.
+
+---
+
 ### D166 — Generic mana stays as the eight-Element pip; no colorless; Elements come from colored pips or are stated
 
 `PLAN.md` Track A item 37, discussed 2026-11-06 (audio-only session). Before: D125's cost model had generic pips next to colored ones, and pool mana could be colorless, paying only generic; whether generic should exist at all was open. An object's Elements were derived from the mana it produces and its rules text (D100), 0–8 of them.

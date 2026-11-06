@@ -2,7 +2,7 @@
 
 *How a legal match's four components (card deck, terrain deck, Champion, Map) combine into the actual starting board state — and why this isn't a move between zones, even though Champion and Terrain are printed and collected like any other card.*
 
-**Decisions:** D76, D77, D87, D114, D160 (`history/decisions.md`)
+**Decisions:** D76, D77, D87, D114, D160, D167 (`history/decisions.md`)
 
 ---
 
@@ -25,7 +25,7 @@ Setup takes the place of Champion A's turn-1 Beginning phase: Champion A is the 
 - **S3. Terrain mulligan** (home ground only). Each player who hasn't kept yet either keeps or takes a mulligan, at a cost. If anyone takes one, go back to S2.
 - **S4. All terrain enters the Island.**
 - **S5. Each Champion enters on its home tile** (D11). **Each Champion then bonds its home tile** — an instruction, not the Champion's Bond ability: no cost, no trace, and it doesn't use the once-per-turn Bond. Mana credits immediately (D77). **Each Champion's Activation Points become the higher of its current Activation Points and 4** (placeholder number; a Champion with Haste may already have more). The pre-bond is kept deliberately (D77): it speeds up the opening, and it taxes any strategy that wants to rush the Champion out of its own realm (Collapse Network required first).
-- **S6. Shuffle and draw.** Each player who hasn't kept yet shuffles their Library and draws an opening hand (size TBD, strawman 5 — `overview.md` §6).
+- **S6. Shuffle and draw.** Each player who hasn't kept yet shuffles their Library and draws an opening hand of 5 (D167, `overview.md` §6).
 - **S7. Hand mulligan.** Each player who hasn't kept yet either keeps or takes a mulligan, at a cost. If anyone takes one, go back to S6.
 - **S8. Neutral permanents** placed by the Map enter — placement not yet designed (`PLAN.md` §8 item 7).
 - **S9. Trigger step.** Every trigger fired during S1–S8 enters Pending as one batch, in the automatic order of `interaction-stack.md` §Resolution (seats APNAP from Champion A, source ID, printed ability order, event order), and all of them resolve without priority.

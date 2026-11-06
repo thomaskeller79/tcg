@@ -88,7 +88,7 @@ One list per object type, built from two shared groups (D103). Each property als
 - **ID and timestamp** (D61, D93) and **`source`** (§2, D97) on every game object.
 - **Subtypes** on every type that has a card (D99), and on every ability (D129): an ability's subtypes name its kind of action (Move, Attack, Defend…), so effects can modify abilities by subtype. A card's subtypes are not passed on to its abilities.
 - **Abilities** are kept as ordered lists per kind: static, triggered, activated.
-- **Copy restriction** is definition-only (D99): it is irrelevant once the game has started.
+- **Copy restriction** (1 or 2 per deck, D167) is definition-only (D99): it is irrelevant once the game has started.
 - **Elements** (D166): an object whose cost has a colored pip takes its Elements from its colored pips; every other object (a terrain, a permanent costing only generic or nothing) states its Elements, at least one. The mana an object produces never adds to them. A trace's Elements are its source's plus the colored pips of the activated ability's cost.
 - **History** ("attacked this turn") is a query over the history track, not a property (D98, D163; `glossary.md` **History track**).
 
