@@ -29,7 +29,7 @@ Decisions, and parts of decisions, that later decisions replaced are in `decisio
 
 **Considered:** a type on traces (Creature for a cast, "Ability" otherwise) — "Ability" turned out to mean only "brings no object", and the type was redundant with a Summon action; one action per ability — too restrictive for Spells; Cast forbidden in mixed abilities — unnecessary once the type is gone; a separate creature-specific word for race/class/body (Kin, Nature) — too narrow for Items and Structures; inheriting the source's traits live; leaving Terrain a permanent.
 
-**Open:** action names, and whether physical and Combat groupings (`PLAN.md` Track C item 10) become actions; copying a trace (`PLAN.md` Track A item 91); whether Setup placement counts as entering, and whether a terrain enters (`PLAN.md` Track A item 94).
+**Open:** action names, and whether physical and Combat groupings (`PLAN.md` Track C item 10) become actions; copying a trace (`PLAN.md` Track A item 91); whether Setup placement counts as entering, and whether a terrain enters (`PLAN.md` Track A item 7).
 
 → `object-properties.md`, `glossary.md`, `asymmetric-information.md`, `structures-items.md`; `PLAN.md` Track A items 39, 94, Track B item 93, Track C item 10, Track D item 42, simplification S1 removed; `CLAUDE.md`.
 
@@ -1169,7 +1169,7 @@ Closes item 29. D89 exempted Setup-placed permanents by saying Setup isn't enter
 
 **"None" is an ordinary value; properties are never added or removed during play.** A Champion's parent, a Map-placed permanent's `source`, Terrain's cost are simply none. A type lacks a property only where any value would change the rules (Terrain with Activation Points could act). Consequently a Structure has **no Attack** — Attack on Structure (default 0) was considered and declined; whether a Structure can ever fight is left open (`object-properties.md` Open question 7).
 
-**Champion stats are a Creature's** — Attack, Life, Activation Points — closing the gap that `champions.md` never printed a damage value. A Champion's card definition is the **customised card from the player's loadout**, not the generic printed card, since progression changes it between matches; the loadout (Champion, Map, deck, terrain deck, a future sideboard) sits outside every zone, like the Map (`PLAN.md` Track A item 12). Hand, Library and Discard are zones the Champion owns, not its properties.
+**Champion stats are a Creature's** — Attack, Life, Activation Points — closing the gap that `champions.md` never printed a damage value. A Champion's card definition is the **customised card from the player's loadout**, not the generic printed card, since progression changes it between matches; the loadout (Champion, Map, deck, terrain deck, a future sideboard) sits outside every zone, like the Map (`PLAN.md` Track A item 7). Hand, Library and Discard are zones the Champion owns, not its properties.
 
 → `object-properties.md` §5, `glossary.md`, `overview.md` §1, `structures-items.md`, `economy.md`, `ancestry.md`, `champions.md`.
 
