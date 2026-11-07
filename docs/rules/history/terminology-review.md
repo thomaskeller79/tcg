@@ -29,7 +29,7 @@ Worklist for `PLAN.md` Track A item 39: every basic term and property, checked o
 | P21 | Carried Items | open | **(issue)** no word for the carrier (bearer, holder, carrier floated) |
 | P22 | Occupants | open | |
 | O1 | Card | open | **(issue)** collection card vs. card object in the Mind |
-| O2 | Permanent, Actor, Object | open | D170: a permanent is Champion, Companion, Creature, Structure, Item or Remnant — Terrain is not; umbrella for both open (Track A item 92) |
+| O2 | Permanent, Actor, Object | open | D170: a permanent is Champion, Companion, Creature, Structure, Item or Remnant — Terrain is not; an umbrella word for both is open |
 | O3 | Umbrella for Creature, Companion, Champion | open | **(issue)** "Unit" proposed |
 | O4 | Types: Creature, Companion, Champion, Structure, Item, Remnant, Terrain, Spell | **resolved** | D170: type on cards and Island objects only; traces have none |
 | O5 | Trace, card trace, ability trace, Physical Trace | open | **(issue)** naming a trace by its source breaks for copies; D170: traces are reached by action or through `source` |
