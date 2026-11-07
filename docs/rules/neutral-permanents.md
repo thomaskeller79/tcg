@@ -1,14 +1,14 @@
 # Neutral Permanents
 
-*A third control state — **Neutral** — alongside Champion A/Champion B, giving every permanent type a defined answer for "what happens when nobody controls this." Every object's **decider** is its controller if it has one; otherwise its **Behavior** — a deterministic policy standing in for a player's own decisions, carried as a property of the object — if it has one; otherwise nobody, and the object is **dormant** (D83).*
+*A third control state — **Neutral** — alongside Champion A/Champion B, giving every permanent type and terrain a defined answer for "what happens when nobody controls this." Every object's **decider** is its controller if it has one; otherwise its **Behavior** — a deterministic policy standing in for a player's own decisions, carried as a property of the object — if it has one; otherwise nobody, and the object is **dormant** (D83).*
 
 **Decisions:** D54–D58, D60–D65, D82, D83, D93, D100, D160, D162 (`history/decisions.md`)
 
 ---
 
-## Control: A / B / Neutral, for every permanent type
+## Control: A / B / Neutral, for every permanent type and terrain
 
-Fully covered in `ancestry.md` — every permanent's controller is derived by climbing its parent chain to the root, resolving to Champion A, Champion B, or Neutral. This doc covers what happens once a permanent is Neutral, and the neutral turns it acts in.
+Fully covered in `ancestry.md` — every permanent's and terrain's controller is derived by climbing its parent chain to the root, resolving to Champion A, Champion B, or Neutral. This doc covers what happens once a permanent is Neutral, and the neutral turns it acts in.
 
 ## Decider: controller, Behavior, or dormant (D83)
 
@@ -24,9 +24,9 @@ The controller comes from the Ancestry; the Behavior never does — it is attach
 
 ## Permanent identity: timestamp and ID
 
-Every permanent on the Island carries two identifiers, assigned when it enters:
+Every permanent and terrain on the Island carries two identifiers, assigned when it enters:
 
-- **Timestamp** — shared by every permanent produced by the same creation event (one effect resolving, or one setup placement). Card text compares timestamps: "a creature that entered the Island before another target creature" is true, false, or — for two permanents from the same event — neither, since they share a timestamp and neither entered before the other.
+- **Timestamp** — shared by every permanent or terrain produced by the same creation event (one effect resolving, or one setup placement). Card text compares timestamps: "a creature that entered the Island before another target creature" is true, false, or — for two permanents from the same event — neither, since they share a timestamp and neither entered before the other.
 - **ID** — always unique, assigned as a monotonically increasing counter, no ties ever. **Every game object has one** — Card and Trace as well as Permanent (D93) — so any trigger source can be ordered. Within one creation event, IDs follow the order in the text ("create a Soldier and a Warrior": the Soldier's is lower). This is the engine's own tiebreak, used to order simultaneous triggers within one seat (the oldest ID enters Pending first and so resolves last — `interaction-stack.md` §Resolution) and as the final tiebreak inside a Behavior's own scoring.
 
 A permanent that re-enters the Island (raised after falling, replayed after being bounced) gets a new timestamp and a new ID — it's a new permanent, not a continuation. A permanent that only changes control keeps both.
@@ -57,7 +57,7 @@ Only **choice-bearing abilities** need a Behavior's involvement:
 - **Triggered abilities with a choice** (a target to pick, an optional "you may" clause) need policy coverage for that choice.
 - **Static abilities and mandatory, choiceless triggered abilities never need any Behavior coverage at all** — they simply happen, automatically, exactly as they would for a Champion's own permanent.
 
-Any permanent holding Energy (i.e., anything but Item) is eligible for a Behavior, provided the ability it needs is self-payable — an Activation-Points-only ability is always self-payable by a Neutral permanent; a mana-inclusive one still needs a live root supplying mana (e.g. a Neutral Companion's own pool).
+Any permanent holding Energy (Champion, Companion, Creature, Structure) is eligible for a Behavior, provided the ability it needs is self-payable — an Activation-Points-only ability is always self-payable by a Neutral permanent; a mana-inclusive one still needs a live root supplying mana (e.g. a Neutral Companion's own pool).
 
 ### Modes
 
@@ -129,7 +129,7 @@ A Neutral permanent entering the Island enters with the entry Energy (2) like an
 
 ## Invariant vs. mutable
 
-- **Invariant:** every permanent's controller is exactly one of Champion A / Champion B / Neutral. A permanent capable of acting while Neutral always follows a complete, deterministic Behavior — never a player's ad hoc choice on its behalf. Both neutral turns always occur every round, unconditionally. A Behavior only ever reasons about its own current turn's own remaining Energy — never another agent's response, never its own future turns.
+- **Invariant:** every permanent's and terrain's controller is exactly one of Champion A / Champion B / Neutral. A permanent capable of acting while Neutral always follows a complete, deterministic Behavior — never a player's ad hoc choice on its behalf. Both neutral turns always occur every round, unconditionally. A Behavior only ever reasons about its own current turn's own remaining Energy — never another agent's response, never its own future turns.
 - **Mutable (card-driven):** which permanents can become Neutral and how; which Behavior a specific instance runs; which neutral turn it's assigned to.
 
 *(Resolved questions are cut once closed — the rule lives above and, for decision-grade calls, in `history/decisions.md`. Only genuinely open items stay listed above.)*

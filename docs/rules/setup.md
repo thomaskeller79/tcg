@@ -8,7 +8,7 @@
 
 ## Setup is not a move between zones
 
-Champion and Terrain are printed and collected like any other card, but never occupy Hand/Library/Discard, ever (`object-properties.md` §1) — they are a different kind of game object from Creature/Spell/Structure/Item/Companion despite sharing the word "card" for the deckbuilding-tier concept (a real naming collision, tracked at `PLAN.md` Track A item 39, deliberately not resolved here). Because they never exist in the Mind, their arrival on the Island at Setup is not a Mind→Island transition at all — there is no Card object for them to skip the Aether from. Setup is a distinct, more primitive kind of event: it reads directly from a player's collection and creates Permanents, with no Card or Trace ever created for Champion or Terrain specifically.
+Champion and Terrain are printed and collected like any other card, but never occupy Hand/Library/Discard, ever (`object-properties.md` §1) — they are a different kind of game object from Creature/Spell/Structure/Item/Companion despite sharing the word "card" for the deckbuilding-tier concept (a real naming collision, tracked at `PLAN.md` Track A item 39, deliberately not resolved here). Because they never exist in the Mind, their arrival on the Island at Setup is not a Mind→Island transition at all — there is no Card object for them to skip the Aether from. Setup is a distinct, more primitive kind of event: it reads directly from a player's collection and creates permanents and terrains, with no Card or Trace ever created for Champion or Terrain specifically.
 
 ## Setup is Champion A's first Beginning phase (D114)
 

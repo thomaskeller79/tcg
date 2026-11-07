@@ -12,7 +12,7 @@ Every game object is in exactly one zone, and each zone has exactly one kind of 
 
 - **Mind** (one per Champion) — **Card**. Its location is whose Mind, its section (Hand, Library or Discard) and its position; a card can move to another Champion's Mind and stays the same object (D148).
 - **Aether** — **Trace**. Its section is Past, Pending, or Future.
-- **Island** — **Permanent**. An Actor (Champion, Companion, Creature, Structure) or an Object (Item, Terrain, Remnant) (D103).
+- **Island** — **Permanent** or **Terrain** (D170). An Actor (Champion, Companion, Creature, Structure) or an Object (Item, Remnant, Terrain) (D103); Terrain is the one Object that isn't a permanent.
 
 Every game object — Card, Trace, and Permanent alike — carries a unique, monotonic **ID** (D61, D93; `neutral-permanents.md` §Permanent identity).
 
@@ -21,7 +21,7 @@ Two things that look like they might belong on this list don't:
 - **Combat** is not a game object in this sense. It's a transient `{attacking units, target terrain + Slice + entity, declared defenders}` record that's created and resolved in one step — it never occupies a zone, never has properties beyond that one resolution, and isn't part of the Card/Trace/Permanent chain.
 - **Map** is not an Island object — it never becomes a Permanent and is explicitly excluded from the zone system (`overview.md` §1: "not part of any zone... cannot be referenced by other game objects"). It *is* a card with its own properties (Layout, home-ground/neutral-ground population, per-hex Terrain Type, landmarks, size), but its job is done once, at game setup, producing board data (and, per below, populating some starting permanents) rather than persisting as a queryable object during play.
 
-**Three permanent-type cards skip the Mind entirely.** Champion and Terrain exist in a player's collection like any other card, but never occupy Hand/Library/Discard. **The exact mechanism by which they, and Map-populated Neutral Structures/Items/Creatures/Companions, become Permanents at setup is not yet decided** — it is *not* simply a direct Card→Permanent edge, since that would contradict Mind→Island being forbidden (§2); it plausibly involves the Map itself as a participant in the process, not just the card and the permanent. See Open questions.
+**Two collection cards skip the Mind entirely.** Champion and Terrain exist in a player's collection like any other card, but never occupy Hand/Library/Discard. **The exact mechanism by which they, and Map-populated Neutral Structures/Items/Creatures/Companions, reach the Island at setup is not yet decided** — it is *not* simply a direct Card→Permanent edge, since that would contradict Mind→Island being forbidden (§2); it plausibly involves the Map itself as a participant in the process, not just the card and the permanent. See Open questions.
 
 ## 2. A transition between kinds creates a new object
 
