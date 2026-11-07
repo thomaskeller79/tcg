@@ -496,7 +496,7 @@ permanent; a fixed list of certain properties; everything else deduced (D164).
 ### Variant — observation as abilities of the terrain (D152) · NOT ADOPTED
 Every terrain carries one observation ability per Slice (Ground and Sky: everyone; Root: the
 permanent's controller, or anyone with a permanent in the Root of this terrain or a neighbouring
-one), checked after every instruction. Darkness replaces the ability, found by its subtype. Every
+one), checked after every instruction. Darkness replaces the ability, found by its action. Every
 observation rule then sits on an object, as abilities do — but every terrain carries the same
 three abilities, and a global default overridable like any rule does the same job. A simplification
 was parked with it: an observation range per Slice as an ability parameter, Darkness setting it

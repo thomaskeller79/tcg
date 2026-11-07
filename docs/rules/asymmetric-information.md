@@ -62,9 +62,9 @@ A certain property is true in an observer's copy whenever the observer observes 
 
 | Object | Certain properties |
 |---|---|
-| Own card in Hand | section, position, name, ID, timestamp, `source`, subtypes, cost, Speed |
+| Own card in Hand | section, position, name, ID, timestamp, `source`, traits, cost, Speed |
 | Own card in Library or Discard | section |
-| Own permanent | location, instance, name, subtypes, controller |
+| Own permanent | location, instance, name, traits, controller |
 | Another observer's permanent | location, instance, controller (controller only together with location, `PLAN.md` Track D item 74) |
 | Terrain | the capacity of each Slice |
 | Trace | section, position, controller, `source` as instance, Duration; its name for its activator |
@@ -162,7 +162,7 @@ Typical contradictions:
 - **A payment takes the copy's count of a pool below 0** (D157).
 - **A permanent takes an action the copy believes illegal.** A check reads static abilities like any other property, so the belief objects behind what the checks read go. Each check names them: a move (Move, Ascend, Descend) reads Flying and the terrain's Move surcharge; an Attack reads Ranged; the timing of an activation reads Haste. Example: a Dragon with Mimic: Goblin, believed to have no Flying, enters the Sky — the Mimic's belief object goes.
 - **A permanent uses an ability the copy doesn't believe it has** (§Traces).
-- **A check that reads an identity property** (name, card type, subtypes) comes out differently than the copy expected: "Destroy target Goblin" fizzles on a Dragon with Mimic: Goblin, and the Mimic's belief object goes. A separate Pretend on the permanent stays.
+- **A check that reads an identity property** (name, type, traits) comes out differently than the copy expected: "Destroy target Goblin" fizzles on a Dragon with Mimic: Goblin, and the Mimic's belief object goes. A separate Pretend on the permanent stays.
 
 **A contradiction never fills in an unknown (D151):** a belief that is `?` because nobody observed it stays `?`. A ranged creature in darkness whose Power bluff is caught keeps its location hidden, though the range check read it.
 

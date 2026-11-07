@@ -258,6 +258,18 @@ D18's collapse to the full truth stays as the fallback for anything a card doesn
 
 ---
 
+### D129 — Terrain has no move cost; abilities have subtypes — replaced parts
+
+*Replaced by D170.*
+
+**Abilities have subtypes**, the same mechanism as card subtypes (D99). The defaults carry theirs (Move, Attack, Defend…), so a card can modify abilities by subtype, and a creature's own "Leap" with subtype Move pays a Move surcharge too. An ability's subtype describes its kind of action; a card's subtypes (race, class) are **not** inherited — "an ability of a Goblin" is a query on its `source`.
+
+**Considered:** inheriting the card's subtypes onto its abilities (so a bounced ability, Track D item 42, reads "Goblin") — dropped: `source` already answers it, and it would mix two axes. Deriving Physical from the subtype — parked as `PLAN.md` possible simplification S1. Dropping terrain capacity too — kept, parked as S2.
+
+**Open:** whether every card and ability must have at least one subtype, groups like "Combat", and a symbol per ability subtype on cards.
+
+---
+
 ### D125 — Mana: disjunctive pips and pool mana, paid by domination — replaced parts
 
 *Replaced by D166.*
@@ -265,6 +277,14 @@ D18's collapse to the full truth stays as the fallback for anything a card doesn
 **Adopted (user):** a cost pip is **generic** or **colored**, a disjunction over Elements (one Element = colored, two = hybrid, …); nothing else exists. A pool mana is **colorless** or **colored**, likewise a disjunction. A mana **dominates** another if it pays every pip the other pays. Pips are paid **from the most constrained to the least** (one Element, two, …, generic last); each takes the mana every other candidate dominates, and when the candidates tie, the player chooses. **Why:** the automatic picks are exactly the safe ones — no player could do better by choosing — and most payments need no choice: colorless always pays generic, a one-Element pool never chooses, a two-Element pool only chooses which Element pays generic. **Considered and not adopted:** looking ahead across the whole cost to remove choices that lead to a dead end (Claude) — the user keeps the obvious algorithm first; a smarter one may come later. (The engine lists only complete payments, so a dead-end choice is never offered anyway.)
 
 **Still open (item 37):** whether generic pips exist at all — dropping them would make nearly every payment automatic.
+
+---
+
+### D110 — Remnant and Ruin are new objects; fell / destroy / raise; no "sacrifice"; card location restrictions are card statics — replaced parts
+
+*Replaced by D170.*
+
+- **Name copies** from the fallen permanent — the reference to its card definition (D99), which is what raise reads. Nothing else of the permanent survives: no stats, Activation Points (D88), abilities, Behavior, counters. An Object (D103); no Life, so it can't be attacked.
 
 ---
 
@@ -285,6 +305,14 @@ D18's collapse to the full truth stays as the fallback for anything a card doesn
 *Replaced by D166.*
 
 **Element is derived**, as MTG derives colour identity: the set (0–8) of Elements in the mana the terrain produces and in its rules text. Mana production is an expression (amount; coloured, hybrid, generic…), not "1 of its Element".
+
+---
+
+### D99 — Name is immutable and is the link to the card definition; subtypes on every type; copy restriction is deckbuilding-only — replaced parts
+
+*Replaced by D170.*
+
+**Subtypes** are a property of every type with a card (including Terrain), and mutable.
 
 ---
 

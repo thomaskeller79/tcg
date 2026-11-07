@@ -8,6 +8,33 @@ Decisions, and parts of decisions, that later decisions replaced are in `decisio
 
 ---
 
+### D170 — Type and traits for cards and permanents; traces have actions, not a type; Remnant is a permanent, Terrain is not
+
+`PLAN.md` Track A item 39 (worklist P2 Subtypes, O4 types), discussed 2026-11-07 (partly audio-only). Before: subtypes on every type with a card (D99) and on every ability (D129), not inherited by abilities; traces grouped as card trace and ability trace by what created them (D142), with physical a separate flag (D98); Remnant an Object, not a permanent (D110); Terrain one of the six permanent types; Remand of a Spell open (D69).
+
+**Adopted (user):**
+- **Type** says what kind of object something is, in the Mind and on the Island: Creature, Companion, Structure, Item, Spell cards; Champion, Companion, Creature, Structure, Item, Remnant permanents; Terrain. The zone adds the noun (a Creature card, a Creature).
+- **Traits** (were subtypes) are an open list of words on every card and every object on the Island: race, class, Humanoid, Building, Sword… Kept a single generic word because Items, Structures and traces need it too. A future **trait catalogue** may say which word is a race, a class or a body feature, so card text can still say "choose a race"; checks such as "every creature has a race" or "only a Humanoid has a class" are card-design checks against it, not game rules. The base rules have no fixed race or class slots.
+- **Traces have no type.** A trace has:
+  - **actions** — a list, possibly empty, of what it does: Move, Attack, Damage… An ability's actions are those of its effects (D129's ability subtypes, renamed). A trace that brings a permanent onto the Island has one action per type it brings — working name **Summon Creature**, Summon Structure, … — the same whether a permanent card's Cast ability made it, an ability that names a card ("summon an Island Warrior"), or Flicker. A Spell card has no "cast" action of its own: a Spell that moves a creature and deals damage has Move and Damage. Mixed abilities are fine ("summon an Island Warrior, deal 2 damage" has two actions). Action names stay open.
+  - **traits**, copied from its `source` when it is created (a Dragon's breath is a Dragon trace; casting a Goblin Warrior card is a Goblin Warrior trace; an Elf Shaman summoning a Goblin is an Elf trace — the Goblin it creates takes its traits from the named card, D142). Copied, not read live: a live read would lose a flickered permanent's gained traits when `source` joins up (D97), give a Map-placed Neutral creature none, and let a later change to the cast card in Discard change a trace on the stack.
+  - **physical**, which defaults from its actions (Move, Attack, Defend, Ascend, Descend) and which a card may override (a teleport is a non-physical Move); kept as its own property so card text can name it ("counter target non-physical trace"). Closes `PLAN.md` possible simplification S1.
+  - **activated or triggered**, a flag.
+- Card text reaches traces by action ("counter target Damage trace") or through `source` ("counter target trace from a Spell card", "… from a Creature card").
+- **Remand** creates a **Spell card** whose effect is the trace's ability; only a trace whose actions are a single Summon creates the card it summons. How such a Spell card gets its name, self-references and cost is `PLAN.md` Track D item 42.
+- **A Remnant is a permanent**, of type Remnant, and keeps the fallen permanent's traits ("raise target Goblin Remnant"). "Target creature" still excludes it; "destroy target permanent" now reaches it.
+- **Terrain is not a permanent.** A permanent is a Champion, Companion, Creature, Structure, Item or Remnant; the Island holds permanents and terrains. Card text wanting both says "permanent or terrain". Terrain keeps sharing the permanent property list where it fits (`object-properties.md`).
+
+**Why:** type and action answer different questions — what something *is* versus what it *does*. Squeezing abilities into type/subtype (D129) is what made "subtype" on an ability feel off, and a trace's type had to mean "what it carries" for a cast but "who acted" for a Dragon's breath, so "counter target Creature trace" would also have stopped a Goblin's attack. Cast is no special case: per D142 every trace is an ability trace, and a summon from a card or from an ability looks the same. Magic splits the same way: spells keep their card types, abilities have none and are asked about through their source ("a red source"). Terrain out of "permanent": most verbs aimed at "target permanent" (destroy, bounce, flicker, damage) do nothing to a terrain — Magic's "nonland permanent" is the more common phrase. The Champion stays in: only bounce and flicker miss it (user, "for now").
+
+**Considered:** a type on traces (Creature for a cast, "Ability" otherwise) — "Ability" turned out to mean only "brings no object", and the type was redundant with a Summon action; one action per ability — too restrictive for Spells; Cast forbidden in mixed abilities — unnecessary once the type is gone; a separate creature-specific word for race/class/body (Kin, Nature) — too narrow for Items and Structures; inheriting the source's traits live; leaving Terrain a permanent.
+
+**Open:** action names, and whether physical and Combat groupings (`PLAN.md` Track C item 10) become actions; copying a trace (`PLAN.md` Track A item 91); the docs' remaining uses of "permanent" that include Terrain (`PLAN.md` Track A item 92).
+
+→ `object-properties.md`, `glossary.md`, `asymmetric-information.md`, `structures-items.md`; `PLAN.md` Track A items 39, 92, Track B item 93, Track C item 10, Track D item 42, simplification S1 removed; `CLAUDE.md`.
+
+---
+
 ### D169 — Energy, drain and recharge replace Activation Points
 
 `PLAN.md` Track A item 39 (the AP names), discussed 2026-11-06 (audio-only session), right after D168. Before: **Activation Points (AP)**, with a max and a current value; slow / quicken (working names) changed current only, ±X both (D143); a refresh set current to max each Beginning phase.
@@ -742,17 +769,16 @@ Closes the question raised by G9 (Sucking Mire: "moving onto it costs 2 AP"). Be
 
 ---
 
-### D129 — Terrain has no move cost; abilities have subtypes
+### D129 — Terrain has no move cost; abilities have subtypes *(replaced parts in `decisions-archive.md`)*
 
 Closes rules-sync guess G9's open part (Track B item 7). Before: Terrain had a move-cost property (base 1, changed by static abilities); the build and Sucking Mire (`"moveCost": 2`) used it.
 
 **Adopted (user):**
 - **No move-cost property on Terrain.** Move is an ability like any other — every creature-type permanent just has it by default. A terrain that changes movement does it with a static ability on Move abilities, which D87 already allows: "Move abilities of permanents on this terrain cost 1 more AP" (leaving), or "Move abilities that target this terrain cost 1 more AP" (entering, a target-dependent cost, D130).
-- **Abilities have subtypes**, the same mechanism as card subtypes (D99). The defaults carry theirs (Move, Attack, Defend…), so a card can modify abilities by subtype, and a creature's own "Leap" with subtype Move pays a Move surcharge too. An ability's subtype describes its kind of action; a card's subtypes (race, class) are **not** inherited — "an ability of a Goblin" is a query on its `source`.
+- **Abilities have actions** (were subtypes; renamed and extended by D170).
 
-**Considered:** inheriting the card's subtypes onto its abilities (so a bounced ability, Track D item 42, reads "Goblin") — dropped: `source` already answers it, and it would mix two axes. Deriving Physical from the subtype — parked as `PLAN.md` possible simplification S1. Dropping terrain capacity too — kept, parked as S2.
+**Considered:** dropping terrain capacity too — kept, parked as `PLAN.md` possible simplification S2.
 
-**Open:** whether every card and ability must have at least one subtype, groups like "Combat", and a symbol per ability subtype on cards.
 
 → `object-properties.md` §5.
 
@@ -1028,7 +1054,7 @@ Closes item 29. D89 exempted Setup-placed permanents by saying Setup isn't enter
 
 ---
 
-### D110 — Remnant and Ruin are new objects; fell / destroy / raise; no "sacrifice"; card location restrictions are card statics *(Ruin dropped by D111)*
+### D110 — Remnant and Ruin are new objects; fell / destroy / raise; no "sacrifice"; card location restrictions are card statics *(Ruin dropped by D111)* *(replaced parts in `decisions-archive.md`)*
 
 **Reverses D88's status model.** A permanent that **falls** ceases to exist, and a new object is created on its terrain: a **Remnant** (Creature, Companion) or a **Ruin** (Structure). The user's motivation (item 27): the game shouldn't distinguish death from Flicker and Bounce. The Ancestry notices that a node ceased to exist and updates its subtree, so every cascade (D107) is now worded "ceases to exist", with death no longer a special case. Also bought: "target creature" excludes a Remnant for free (a different type); raising one reuses the creation rules instead of a "reverse the status" rule; `source` joins up through the fallen permanent (D97). **Cost accepted:** a trace that fells its target can't refer to it afterwards (D85's identity check), exactly as after a Flicker. Cards that act where something fell target the hex: "Fell target creature T on target hex H. Create a Fire Warrior on H." The user judged this no real cost. Rejected alternatives: last-known information (a new mechanism, and it would change Flicker too) and keeping the status model — `history/playtest-variants.md`.
 
@@ -1042,7 +1068,7 @@ Closes item 29. D89 exempted Setup-placed permanents by saying Setup isn't enter
 **Remnant** is a working name for what was "Grave"; finalized in item 39 (alternatives considered are listed there).
 
 **Remnant and Ruin properties** (a transition within the Matter domain):
-- **Name copies** from the fallen permanent — the reference to its card definition (D99), which is what raise reads. Nothing else of the permanent survives: no stats, Activation Points (D88), abilities, Behavior, counters. An Object (D103); no Life, so it can't be attacked.
+- **Name and traits copy** from the fallen permanent (traits: D170); the name is the reference to its card definition (D99), which is what raise reads. A Remnant is a permanent of type Remnant (D170).
 - **ID, timestamp fresh; `source`** = the fallen permanent, joined up to that permanent's own `source` once it ceases to exist (D97).
 - **Location:** the fallen permanent's terrain. A Remnant's Slice follows the loose-Item rule (D105): Root stays Root, Ground and Sky become Ground — so a Root Remnant is hidden like a Root creature, and killing a hidden creature reveals nothing new. Claude first preferred keeping the Sky Slice, the user preferred no Slice; this reuse of an existing rule settled it. A Remnant is capacity-exempt (D40). A Ruin stays in its Structure slot and occupies it (D40).
 - **Parent, controller, payer derived** from the terrain (D81, D101): a Remnant belongs to whoever bonded the terrain, so a creature that falls on your terrain leaves *your* Remnant. Confirmed by the user, no change from before.
@@ -1181,13 +1207,13 @@ Consequence for the Ancestry: an edge that duplicates the location is read off i
 
 ---
 
-### D99 — Name is immutable and is the link to the card definition; subtypes on every type; copy restriction is deckbuilding-only
+### D99 — Name is immutable and is the link to the card definition; subtypes on every type; copy restriction is deckbuilding-only *(replaced parts in `decisions-archive.md`)*
 
 **Name is the one immutable property** of every game object, and **names are unique across card definitions** (reprints share one). The name therefore is the reference to the printed card definition — no separate field. The definition is outside the game and can't be removed, which `source` (D97) can't guarantee: a card can leave Discard, and an ability-created permanent has no card object at all (D88's "real card" is a definition). The definition supplies printed originals ("return to printed stats", "becomes a copy of") and same-card identity (uniqueness, item 1; "a trace with the same name"). Name-changing effects don't exist; if wanted, they come with a separate current-name property. Considered: deriving immutable values through `source` — rejected, it breaks on the two cases above and on Markovian creation (§3 of `object-properties.md`).
 
 All other properties are copied along the chain (Speed and cast condition stay on a permanent though unused there, so a Bounce returns what the chain carried — same accepted "banking" as raised max-stats).
 
-**Subtypes** are a property of every type with a card (including Terrain), and mutable. **Copy restriction** is irrelevant once the game starts: it lives on the card definition only, never on a game object.
+**Traits** (were subtypes, D170) are a property of every card and every object on the Island, and mutable. **Copy restriction** is irrelevant once the game starts: it lives on the card definition only, never on a game object.
 
 → `object-properties.md` §5, `glossary.md`.
 

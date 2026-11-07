@@ -6,8 +6,8 @@ Worklist for `PLAN.md` Track A item 39: every basic term and property, checked o
 |---|---|---|---|
 | S1 | Power, Health, damage | **resolved** | D168 |
 | S2 | Energy, drain, recharge | **resolved** | D169 |
-| P1 | Name | open | also the reference to the card definition |
-| P2 | Subtypes | open | race/class on cards; kind of action on abilities |
+| P1 | Name | **resolved** | kept unchanged (2026-11-07) |
+| P2 | Subtypes → **traits**; ability subtypes → **actions** | **resolved** | D170; action names still open (Track C item 10) |
 | P3 | Cost and its pips: colored, hybrid, generic (rainbow pip) | open | D166 |
 | P4 | Speed: Slow, Quick, Reactive, Instant | open | |
 | P5 | Cast condition | open | |
@@ -29,10 +29,10 @@ Worklist for `PLAN.md` Track A item 39: every basic term and property, checked o
 | P21 | Carried Items | open | **(issue)** no word for the carrier (bearer, holder, carrier floated) |
 | P22 | Occupants | open | |
 | O1 | Card | open | **(issue)** collection card vs. card object in the Mind |
-| O2 | Permanent, Actor, Object | open | |
+| O2 | Permanent, Actor, Object | open | D170: a permanent is Champion, Companion, Creature, Structure, Item or Remnant — Terrain is not; umbrella for both open (Track A item 92) |
 | O3 | Umbrella for Creature, Companion, Champion | open | **(issue)** "Unit" proposed |
-| O4 | Creature, Companion, Champion, Structure, Item, Terrain, Spell | open | |
-| O5 | Trace, card trace, ability trace, Physical Trace | open | **(issue)** naming a trace by its source breaks for copies |
+| O4 | Types: Creature, Companion, Champion, Structure, Item, Remnant, Terrain, Spell | **resolved** | D170: type on cards and Island objects only; traces have none |
+| O5 | Trace, card trace, ability trace, Physical Trace | open | **(issue)** naming a trace by its source breaks for copies; D170: traces are reached by action or through `source` |
 | O6 | Remnant | open | **(issue)** working name |
 | O7 | Castable permanent | open | |
 | Z1 | Mind, Aether, Island | open | **(issue)** does "Matter" stay |

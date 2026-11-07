@@ -14,5 +14,10 @@ The user wants to train their own vocabulary. Whenever the user uses an outdated
 | refresh (of AP), quicken | **recharge** | D169 |
 | slow (as a verb on AP) | **drain** — Slow is a Speed | D169 |
 | colorless mana, colorless card | doesn't exist — generic is the eight-Element (rainbow) pip; every card has an Element | D166 |
+| subtype (race, class, Building…) | **trait** | D170 |
+| subtype of an ability (Move, Attack…) | **action** | D170 |
+| type of a trace ("Creature trace", "ability trace") | traces have no type — name its **action** (Summon Creature, Damage…) or ask its `source` | D170 |
+| Terrain as a permanent | Terrain is **not** a permanent — say "permanent or terrain" | D170 |
+| Remnant as a non-permanent object | a Remnant **is** a permanent, of type Remnant | D170 |
 
 Add a row whenever a decision settles a term the user used differently before. The current terms live in `docs/rules/glossary.md`.
