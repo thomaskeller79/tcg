@@ -1,6 +1,6 @@
 # Element Identities — Brainstorm
 
-*Not rules, not decided. A first take on the eight Elements (`PLAN.md` Track C item 1), written by Claude on request, deliberately without leaning on how Magic splits its colors. Not yet discussed: the user has their own picture of all eight, and this is one input to that discussion.*
+*Not rules, not decided. A first take on the eight Elements (`PLAN.md` Track C item 1), written by Claude on request, deliberately without leaning on how Magic splits its colors. Not yet discussed: the user has their own picture of all eight, and this is one input to that discussion. The user's own earlier notes are stored verbatim in `element-identities-sources.md`.*
 
 **Status:** Brainstorm draft · **Date:** 2026-11-08
 
@@ -59,14 +59,19 @@ Each opposite pair argues about one thing, and each axis is something Leyline al
 **Identity: builds, carries, conducts.**
 - **Items and Structures:** Metal Units carry several Items, hand them to each other and get the most out of them.
 - **Lasting upgrades:** invests in one permanent over many turns through permanent changes, not temporary buffs. A Metal Unit at turn 8 isn't the card you played.
-- **Conducting the network:** Metal Structures carry mana flow across ground the Champion couldn't otherwise reach — the opposite of Knotting.
-- **Heavy bodies:** high Health, little Energy (Iron Golem with 2 Energy is Metal in spirit).
+- **Weapons and armor:** Metal's Item kind. Stays equipped for good and works passively, mostly in combat.
+- **Conducting:** Metal objects connect to each other: effects pass along a chain of connected Metal Units and Structures (a Power Grid giving every connected Metal Unit +1 Power; magnetism pulling a connected Metal Unit closer).
+- **Precision:** strikes one exact target instead of an area. Lightning is Metal's: the spark runs along what Metal built.
+- **Heavy bodies:** high Health, little Energy (Iron Golem with 2 Energy is Metal in spirit); slow on its own, mobile only as part of the machine. Takes force head-on: Armor and toughness.
 
-**Weaknesses:** slow and arrives late; rigid, can't adapt, and losing the one invested Unit hurts badly; belongs on the Ground (Sky and Root are hard for it); predictable.
+**Weaknesses:** slow and arrives late; a bare Metal Unit is unimpressive, its strength is its equipment; rigid, can't adapt, and losing the one invested Unit hurts badly; take one link out of a connected group and the rest are stranded; belongs on the Ground (Sky and Root are hard for it); predictable.
 
 **Neighbours:** Fire is the forge, Earth is the ore. Metal is Earth put through Fire.
 
 **Feel:** "Give me five turns and I'll have built something you can't get through."
+
+**To think about:**
+- **Bridging the bond network:** Metal Structures keep a path working where it would otherwise be broken (the opposite of Knotting). Unclear when it would matter, since a bond can only extend the network anyway.
 
 ## Earth
 
@@ -130,17 +135,25 @@ Each opposite pair argues about one thing, and each axis is something Leyline al
 **Philosophy: there's always a way through.** Holding a fixed shape is how you break; giving way is how you survive and in the end win. Earth waits in one place; Water keeps moving until it finds the gap.
 
 **Identity: moves things and wears them down.**
-- **Displacement:** pushes, pulls and carries Units — currents, waves, tides. Wins by putting things where they don't want to be.
-- **Flow around obstacles:** ignores blocking, slips past guards, moves cheaply; walls and Structures don't stop it.
-- **Washing back:** Bounce is Water's. Brutal against Metal, whose investment is exactly the permanent changes a Bounce wipes.
-- **Erosion:** over turns, strips permanent changes, wears down Structures, rusts Items.
+- **Displacement:** pushes, pulls and carries Units — currents, waves, tides, and lure, where the Unit itself moves somewhere it doesn't want to go. Wins by putting things where they don't want to be.
+- **Flow around obstacles:** Water doesn't break what's in its way, it gets past it. Water Units move through hexes other Units occupy (they just can't end their move there), and poison damage ignores Armor. It defends the same way: where Metal stops a force head-on, Water turns it aside, sending a spell or ability to another target, or a Unit entering a hex to a different one.
+- **Potions:** Water's Item kind. A one-time effect on the Unit that uses it, then it's gone. The opposite of Metal's weapons and armor, which stay equipped for good: Water spends what Metal keeps.
+- **Constant dripping wears the stone:** small effects that add up over turns. Poison wears down living Units; erosion strips permanent changes, wears down Structures, rusts Items.
+- **Washing back:** Bounce is Water's. Against enemies it's brutal on Metal, whose investment is exactly the permanent changes a Bounce wipes. On its own permanents it's a resource: a biter strikes once and flows back to the Mind, ready to be cast again.
 - **Healing as moving damage:** damage persists and healing is rare; Water washes damage off one Unit or shifts it onto another.
 
-**Weaknesses:** low Power, rarely kills directly; nothing it does lasts and its Units don't grow; Ice stops it cold; needs something to push against.
+**Weaknesses:** low Power, rarely kills quickly; nothing it does lasts and its Units don't grow; needs something to push against.
 
 **Neighbours:** Ice is Water that stopped. Air is its lighter cousin: Water moves other things, Air moves itself.
 
 **Feel:** "I don't need to beat your Golem. I'll just put it somewhere it can't matter."
+
+**To think about:**
+- **Hidden under the surface:** Water Units unseen on water hexes until they attack, which would make the lure-and-poison ambush work. Physical hiding in terrain, not Darkness's false beliefs.
+- **Tied to water:** Water Units strong in and near water, slow or weak away from it.
+- **Accumulation:** building up resources over turns (pools, ramp) and releasing them later.
+
+Abilities tied to the terrain a Unit stands on (bonuses or transforming terrain) still need to prove they're fun and work; Magic's experience with such mechanics suggests it isn't simple.
 
 ## Air
 

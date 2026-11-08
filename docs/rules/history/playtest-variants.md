@@ -563,3 +563,12 @@ could then mispredict in a copy whose observer already knew the truth (the same 
 a row contradicts twice). D151 had rewritten it as part of the large reveal; D165 brings that back
 as part of destroying a belief object.
 
+
+## Splitting a card into traces (D95, D142)
+
+**Current rule:** casting a card creates one trace, holding its whole effect in the normal form
+(targets plus a sequence of instructions, `../effect-form.md`).
+
+### Variant — one trace per "then" part · NOT ADOPTED (idea, user)
+From the user's early notes (filed 2026-11-08): after a card is cast, each part of its text
+separated by "then" goes into the Aether as its own trace. Not discussed further.
