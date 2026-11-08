@@ -41,14 +41,22 @@ Each opposite pair argues about one thing, and each axis is something Leyline al
 **Philosophy: everything is fuel.** Nothing should stay as it is; a forest is firewood that hasn't burned yet. Not angry or impulsive: hungry. Keeping anything is a waste.
 
 **Identity: spreads and consumes.**
-- **Spreading:** Fire effects walk from hex to hex over time. A Fire trace sits in Future and returns each turn to reach the next ring.
-- **Consuming its own things** for bursts: a bonded terrain, a permanent, cards from the Library. Long-term value turned into one huge turn.
-- **Scorched ground:** burned terrain stops producing mana for a while or for good. Fire changes the map, and its own network is the first thing it eats.
-- **No corpses:** what Fire kills leaves no Remnant, so it can't be raised.
+- **Spreading and escalating:** Fire effects walk from hex to hex over time. A Fire trace sits in Future and returns each turn to reach the next ring. The more Fire catches, the stronger and wider it gets.
+- **Consuming its own things** for bursts: a bonded terrain, a permanent it fells, its own traces, cards from the Library. Long-term value turned into one huge turn.
+- **Scorched ground:** Fire hits an area around a point, not picked targets (Metal is the precise one). Burning ground hurts whatever stands in it, turn after turn, and burned terrain stops producing mana for a while or for good. Fire changes the map, and its own network is the first thing it eats.
+- **Speeding up time:** the mirror of Ice holding traces. Fire makes traces resolve earlier, changes them, and makes lasting effects end sooner by destroying their traces in Past — its own and the opponent's, for the sake of change. It never nullifies a trace before it resolves: that would prevent change. (Ice delays traces in Future, Fire speeds them up; Ice destroys traces before they happen, Fire destroys them after.)
+- **Now or never:** what Fire gives is only usable this turn, then it's gone — cards drawn that must be played now, chances that burn out.
+- **Musical instruments:** Fire's Item kind. A bonus or ability for everyone in an area, usually costing all of the user's Energy.
+- **No corpses:** what Fire kills doesn't leave a normal Remnant. Whether it leaves nothing or something else (ash Fire can use) is open.
 
 **Weaknesses:** can't hold ground (its own area becomes ash); spreading doesn't pick sides and burns its own Units; runs dry in a long game.
 
 **Feel:** "I'll light this corner. In three turns it's your problem, and maybe mine too."
+
+**Deck idea — fire elementals:** a deck of Fire elementals that all look like the same basic flame to the opponent but are each very different (one is a lord for Fire elementals, and so on). The opponent can't tell which one to go for. The disguise is a Mimic on the elemental's Summon trace, not on the creature, so it wears off when the trace fades, whatever the elemental does in the meantime. A fast deck: fresh elementals keep arriving disguised, and it has to win while the smoke lasts. Possible lord: "Fire elementals you cast stay disguised one turn longer for each other Fire elemental you control." The right Duration is a playtest question. Since Fire also consumes its own traces, burning a Summon trace for a burst means giving up that elemental's disguise.
+
+**To think about:**
+- **Burning the opponent's terrain:** scorching enemy ground, not just its own. Part of the open question of how terrain transformation should work at all.
 
 ## Metal
 
@@ -69,6 +77,8 @@ Each opposite pair argues about one thing, and each axis is something Leyline al
 **Neighbours:** Fire is the forge, Earth is the ore. Metal is Earth put through Fire.
 
 **Feel:** "Give me five turns and I'll have built something you can't get through."
+
+**Deck idea — rollerblade dwarfs:** slow, steampunk-inspired dwarfs on wheels that use magnetic attraction and repulsion to move efficiently relative to each other. Alone, a dwarf crawls; as a linked group they get around the board well — but the opponent can see where the chain can go, and pulling one link out strands the rest.
 
 **To think about:**
 - **Bridging the bond network:** Metal Structures keep a path working where it would otherwise be broken (the opposite of Knotting). Unclear when it would matter, since a bond can only extend the network anyway.
@@ -116,9 +126,11 @@ Each opposite pair argues about one thing, and each axis is something Leyline al
 **Philosophy: keep the moment.** The present is worth preserving; change is loss. Not cruel: a keeper who doesn't want anything to slip away.
 
 **Identity: stops time.**
-- **Freezing Units:** drains Energy and stops recharge. The cleanest "stop" in the game, and it kills nothing.
-- **Holding traces:** extends Durations, keeps its own traces from fading, holds an enemy's delayed trace in Future so it never arrives. The only Element that makes a temporary effect last.
-- **Locking values:** a frozen permanent can't change, for better or worse — protects Ice's own investment or freezes an enemy before it grows.
+- **Freezing Units:** drains Energy and stops recharge. The cleanest "stop" in the game, and on its own it kills nothing.
+- **Shatter:** what's frozen becomes fragile and can be destroyed. Ice's own way to kill: first stop it, then break it.
+- **Holding traces:** extends Durations, keeps its own traces from fading, delays spells by holding a trace in Future, or stops one for good before it resolves (a counter). The only Element that makes a temporary effect last.
+- **Locking values:** a frozen permanent can't change, for better or worse — protects Ice's own investment or freezes an enemy before it grows. Stasis goes further: a permanent is taken out of play, held in the Aether's Future, and comes back exactly as it was.
+- **Crystals:** Ice's Item kind. They charge up over several rounds under certain conditions, then release a big, delayed effect.
 - **Preserving the dead:** Ice keeps Remnants intact, and when it raises one it comes back exactly as it died, permanent changes included. By default a raise reads the printed card (`PLAN.md` Track C item 13); Ice would be the exception. Not armies of the dead: *that* one, unchanged. (Would need a rule: a Remnant keeps only name and traits today.)
 - **Freezing ground:** puts terrain bonds on hold, makes terrain impassable or passable (frozen water can be walked on).
 
@@ -127,6 +139,9 @@ Each opposite pair argues about one thing, and each axis is something Leyline al
 **Neighbours:** Darkness is the stillness of night, Ice its cold. Water is Ice set free: Ice is Water that decided to stop.
 
 **Feel:** "Nothing is going to happen this turn. Or the next. I'll decide when it starts again."
+
+**To think about:**
+- **Defensive bulwarks:** ice walls that melt after a while, as Ice's take on walls (Earth's in this draft). Part of the open terrain question.
 
 ## Water
 
@@ -147,6 +162,8 @@ Each opposite pair argues about one thing, and each axis is something Leyline al
 **Neighbours:** Ice is Water that stopped. Air is its lighter cousin: Water moves other things, Air moves itself.
 
 **Feel:** "I don't need to beat your Golem. I'll just put it somewhere it can't matter."
+
+**Deck idea — sirens and biters** (from the user's Water story): small poisonous biters wait hidden in the water; sirens lure the enemy onto them. Each biter bites once, poisons and flows back to the Mind to be cast again, and the poison wears the enemy down. The story map starts as a river delta, where water is everywhere; further upriver the water thins out, enemies stay away from it, and the deck turns to flooding enemy terrain so its creatures (and later big ones like krakens) can attack there. Weak spot: flyers.
 
 **To think about:**
 - **Hidden under the surface:** Water Units unseen on water hexes until they attack, which would make the lure-and-poison ambush work. Physical hiding in terrain, not Darkness's false beliefs.
