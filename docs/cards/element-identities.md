@@ -89,15 +89,25 @@ Each opposite pair argues about one thing, and each axis is something Leyline al
 
 **Philosophy: you are where you stand.** Strength comes from place, not from self. Loyal to ground and ancestry, distrusts anything that drifts, thinks in generations rather than turns.
 
-**Identity: the board itself.** Metal builds on the map; Earth changes the map.
-- **Shaping terrain:** raises walls that block sight and movement, opens chasms, changes what a terrain is. Closes Light's lines and heals Fire's scorched ground.
-- **The Root is its home:** Earth Units burrow (Subterranean), travel unseen and break out where nobody expected. Its hiding is physical, not magical — it fits the idea that physical actions in the Root go unseen (`PLAN.md` Track A item 69).
-- **Strong where rooted:** stronger the longer it stays put, or the more bonded terrain surrounds it. Leaving home ground costs it.
-- **The network as a body:** rewards a wide, healthy network, and is best at repairing a cut one.
+**Identity: takes the board.** Metal builds on the map; Earth takes the map itself. It wins by moving its home ground forward until the enemy Champion stands in Earth's land.
+- **Expanding the network (ramp):** bonds faster and wider than anyone. In Leyline mana comes from bonded terrain, so ramp *is* taking ground. Rewards a wide, healthy network and is best at repairing a cut one. Earth is the honest Element: it pays the real price for its spells, but makes sure it has the resources quickly.
+- **Taking terrain:** best at stealing enemy terrain (knot it, then bond it, D122). Every stolen terrain shrinks the enemy's mana and grows Earth's home ground.
+- **Strong where rooted:** stronger on its own bonded ground, so every new terrain moves its strength forward. Hard to move: resists displacement. Tough by mass (lots of Health), not by Armor like Metal.
+- **Shaping the board:** changes its shape, not what it produces. Walls (as Structures) block movement and cut the enemy army apart; chasms swallow Ground Units into the Root; quicksand traps a Unit that enters it.
+- **The Root is its home:** Earth Units burrow (Subterranean), travel unseen and break out where nobody expected, right next to a Champion whose defenders are walled off. Root Units are expensive, which is what the ramp pays for. Its hiding is physical, not magical — it fits the idea that physical actions in the Root go unseen (`PLAN.md` Track A item 69).
+- **Striking from its own ground:** area effects like Fire's, but always starting from a terrain in Earth's own realm — an earthquake that breaks Structures or damages Units around that point. The further the realm reaches, the further Earth can strike.
+- **Runes:** Earth's Item kind. Placed on a hex, with a lasting, possibly hidden effect there. (Needs Items that sit on a hex, not on a Unit.)
 
-**Weaknesses:** tied to place, ordinary away from home ground; no Sky, little answer to flyers; slow to turn toward a threat across the map.
+**How a game goes:** a slow siege. Each turn the front moves a few hexes, the enemy realm shrinks, and in the end the Champion stands alone on a small island of its own land — and something breaks out of the ground beside it.
+
+**Weaknesses:** slow, a quick opponent wins before the siege closes; ordinary away from bonded ground; no Sky, flyers go over walls and chasms; slow to turn toward a threat across the map.
 
 **Feel:** "You can come into my land. You just won't like how it feels to stand there."
+
+**To think about:**
+- **Changing what a terrain is:** turning terrain into another kind, healing scorched ground, earthquakes shifting hexes. Part of the open terrain question.
+- **Earth and the dead:** the dead return to the ground and feed it (Circle of Life). A possible Earth angle on Remnants, distinct from Ice raising them unchanged.
+- **Who builds which Structures:** Metal builds made things, Earth raises natural ones — settled in the Structure-kind design attempt (`PLAN.md` Track C item 1).
 
 ## Darkness
 
@@ -130,6 +140,7 @@ Each opposite pair argues about one thing, and each axis is something Leyline al
 - **Shatter:** what's frozen becomes fragile and can be destroyed. Ice's own way to kill: first stop it, then break it.
 - **Holding traces:** extends Durations, keeps its own traces from fading, delays spells by holding a trace in Future, or stops one for good before it resolves (a counter). The only Element that makes a temporary effect last.
 - **Locking values:** a frozen permanent can't change, for better or worse — protects Ice's own investment or freezes an enemy before it grows. Stasis goes further: a permanent is taken out of play, held in the Aether's Future, and comes back exactly as it was.
+- **Slow build:** pay now, and the spell waits in the Aether's Future until it's ready, then arrives bigger than its cost. The mirror of Fire's "now or never": later, but bigger. While it waits the opponent sees it coming and can prepare, and Fire can speed it up before it's ready.
 - **Crystals:** Ice's Item kind. They charge up over several rounds under certain conditions, then release a big, delayed effect.
 - **Preserving the dead:** Ice keeps Remnants intact, and when it raises one it comes back exactly as it died, permanent changes included. By default a raise reads the printed card (`PLAN.md` Track C item 13); Ice would be the exception. Not armies of the dead: *that* one, unchanged. (Would need a rule: a Remnant keeps only name and traits today.)
 - **Freezing ground:** puts terrain bonds on hold, makes terrain impassable or passable (frozen water can be walked on).
@@ -180,14 +191,20 @@ Abilities tied to the terrain a Unit stands on (bonuses or transforming terrain)
 
 **Identity: moves itself.**
 - **Flight:** owns the Sky Slice. Flies over walls, chasms, water and guards, and reaches the Champion from directions the map didn't plan for.
-- **Lots of Energy:** high Energy, easy recharge. Move, attack, move again — hit and run, never staying where it attacked.
+- **Lots of Energy:** high Energy, easy recharge. Move, attack, move again — hit and run, never staying where it attacked. A keyword for it: its Attack costs `3En` instead of the default `3~En`, so it can still act after attacking.
+- **Escape and teleport:** moves without crossing the hexes in between. Escape is an emergency teleport: leaving combat or a threat instead of resisting it.
+- **Clearing space:** pushes enemies far away, not precisely — Water moves others to where it wants them, Air moves them out of the way.
+- **Reaching any distance:** Air's effects need no starting point. Earth's must start from its own realm, and most Elements' from near one of their own permanents (a target restriction printed per card, see the card design guidelines in `PLAN.md` Track C).
+- **Powder clouds:** Air's Item kind. Thrown, it bursts into a cloud that stays as a zone and affects everyone who crosses it, maybe drifting with the wind.
 - **Speed:** acts at faster Speeds. The Element of the first move, not the last word.
 - **Free of the network:** cares least about how its terrain connects. Its effects don't need bonded ground, and its Units neither block nor bridge flow. Freedom and weakness in one.
 
-**Weaknesses:** almost no Health; can't guard, block or occupy terrain to choke a bond; seen from everywhere, an ideal target for Light's sightlines; little lasting presence if the hit-and-run doesn't finish the game.
+**Weaknesses:** almost no Health; can't guard, block or occupy terrain to choke a bond; little lasting presence if the hit-and-run doesn't finish the game.
 
 **Against Earth:** Earth can't reach the Sky; Air can't break what Earth has rooted. Each is the other's frustration.
 
 **Neighbours:** Water moves other things, Air moves itself. Light is the open sky: Air brings the reach, Light the sight.
 
 **Feel:** "I was never there. And now I'm behind your Champion."
+
+**Deck idea — stormcallers:** Air elementals with the Stormcaller ability: lose 1 Power to send a windblast in a chosen direction, starting from the creature. Every enemy in its way is pushed 1 hex in that direction (maybe taking 1 damage). If the blast hits another stormcaller, that one absorbs the Power and the blast stops — and the absorbed Power is fuel for its own blast. Each blast still costs the firing creature Energy, so the wind can't bounce back and forth forever. The opponent has to read the stormcallers' positions to see where the next blast comes from.
