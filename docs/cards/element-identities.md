@@ -1,8 +1,10 @@
 # Element Identities — Brainstorm
 
-*Not rules, not decided. A first take on the eight Elements (`PLAN.md` Track C item 1), written by Claude on request, deliberately without leaning on how Magic splits its colors. Not yet discussed: the user has their own picture of all eight, and this is one input to that discussion. The user's earlier notes were worked into it; what was left over (card ideas, mid-level material) is in `idea-backlog.md`.*
+*Not rules. The high-level identities of the eight Elements (`PLAN.md` Track C item 1): started as Claude's take, then worked through with the user pair by pair against the user's earlier notes. What was left over from those notes (card ideas, mid-level material) is in `idea-backlog.md`. Still open in item 1: the mid-level pass and Structures as horizontal cycles.*
 
-**Status:** Brainstorm draft · **Date:** 2026-11-08
+**Structures:** no Structure kind per Element. Structures come in Element-spanning cycles (a shrine, a school, a workshop or barracks… for each Element), and each Element's member works its own way along its axis. Details in `PLAN.md` Track C item 1.
+
+**Status:** High level agreed with the user · **Date:** 2026-11-10
 
 **Wheel order** (confirmed by the user, 2026-11-08): D51's list, Light, Fire, Metal, Earth, Darkness, Ice, Water, Air, closing back to Light. Each Element has two neighbours and one direct opposite, and the neighbour/opposite relationships below are confirmed too.
 
@@ -62,7 +64,9 @@ Each opposite pair argues about one thing, and each axis is something Leyline al
 
 **Feel:** "I'll light this corner. In three turns it's your problem, and maybe mine too."
 
-**Deck idea:** still open — the look-alike elementals moved to Water, which owns deceit (a starter deck should show what its Element is strongest at). Fire keeps its own disguise as a card-level example: a Mimic on a creature's Summon trace, so it wears off when the trace fades, and burning that trace for a burst gives the disguise up.
+**Deck idea — the pact deck:** aggressive. Creatures that hit early, paid for with pacts, trying to kill the opponent before the debts come due. To refine: it's close to an ordinary aggro deck in other games; the pacts give it its own twist, but it should become more clearly Fire's own.
+
+The look-alike elementals moved to Water, which owns deceit (a starter deck should show what its Element is strongest at). Fire keeps its own disguise as a card-level example: a Mimic on a creature's Summon trace, so it wears off when the trace fades, and burning that trace for a burst gives the disguise up.
 
 **To think about:**
 - **Burning the opponent's terrain:** scorching enemy ground, not just its own. Part of the open question of how terrain transformation should work at all.
@@ -111,6 +115,8 @@ Each opposite pair argues about one thing, and each axis is something Leyline al
 
 **How a game goes:** a slow siege. Each turn the front moves a few hexes, the enemy realm shrinks, and in the end the Champion stands alone on a small island of its own land — and something breaks out of the ground beside it.
 
+**Deck idea — the siege:** bonds extra terrain early, extends its realm into the opponent's, and plays expensive, powerful creatures. To refine: as it stands it's a typical ramp deck from other games (Magic's green); it should become clearly different from that.
+
 **Weaknesses:** slow, a quick opponent wins before the siege closes; ordinary away from bonded ground; no Sky, flyers go over walls and chasms; slow to turn toward a threat across the map.
 
 **Feel:** "You can come into my land. You just won't like how it feels to stand there."
@@ -118,8 +124,6 @@ Each opposite pair argues about one thing, and each axis is something Leyline al
 **To think about:**
 - **Changing what a terrain is:** turning terrain into another kind, healing scorched ground, earthquakes shifting hexes. Part of the open terrain question.
 - **Earth and the dead:** the dead return to the ground and feed it (Circle of Life). A possible Earth angle on Remnants, distinct from Ice raising them unchanged.
-- **Who builds which Structures:** Metal builds made things, Earth raises natural ones — settled in the Structure-kind design attempt (`PLAN.md` Track C item 1).
-
 ## Darkness
 
 *Between Earth and Ice; opposite Light.*
@@ -145,9 +149,6 @@ Each opposite pair argues about one thing, and each axis is something Leyline al
 
 **Deck idea — the army under the cloud:** cloud carriers at the core, moving an area of darkness across the board with the army inside it — soldiers, hunters, watchers and mark planters the opponent can't count or tell apart until they strike.
 
-**To think about:**
-- **The dead:** decided in `PLAN.md` Track C item 17 (Remnants per Element).
-
 ## Ice
 
 *Between Darkness and Water; opposite Fire.*
@@ -169,6 +170,8 @@ Each opposite pair argues about one thing, and each axis is something Leyline al
 **Neighbours:** Darkness is the stillness of night, Ice its cold. Water is Ice set free: Ice is Water that decided to stop.
 
 **Feel:** "Nothing is going to happen this turn. Or the next. I'll decide when it starts again."
+
+**Deck idea — control:** counters threats, freezes what reached the Island anyway, takes over the board and wins with a powerful finisher. To refine: as it stands it's a typical control deck from other games (Magic's blue); it should become clearly different from that.
 
 **To think about:**
 - **Defensive bulwarks:** ice walls that melt after a while, as Ice's take on walls (Earth's in this draft). Part of the open terrain question.

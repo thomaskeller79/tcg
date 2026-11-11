@@ -19,5 +19,7 @@ The user wants to train their own vocabulary. Whenever the user uses an outdated
 | type of a trace ("Creature trace", "ability trace") | traces have no type — name its **action** (Summon Creature, Damage…) or ask its `source` | D170 |
 | Terrain as a permanent | Terrain is **not** a permanent — say "permanent or terrain" | D170 |
 | Remnant as a non-permanent object | a Remnant **is** a permanent, of type Remnant | D170 |
+| color, colors (black, red…) | **Element** (Light, Fire, Metal, Earth, Darkness, Ice, Water, Air) | D51 |
+| sacrifice (a permanent) | **fell** — there is no "sacrifice" | D110 |
 
 Add a row whenever a decision settles a term the user used differently before. The current terms live in `docs/rules/glossary.md`.
